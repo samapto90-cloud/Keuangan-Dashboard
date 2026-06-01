@@ -1,0 +1,13 @@
+kind = "web"
+previewPath = "/"
+title = "Aplikasi Keuangan"
+version = "1.0.0"
+id = "sipkeu-keuangan-daerah-001"
+
+[[services]]
+localPort = 3000
+name = "Aplikasi Keuangan"
+paths = ["/"]
+
+[services.development]
+run = "PORT=3000 go run go-app/main.go"
