@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIPKEU — Sistem Penatausahaan Keuangan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary: #1a56db;
+      --primary-dark: #1c46b8;
+      --sidebar-bg: #0f1c3f;
+      --sidebar-text: #b0bfd8;
+      --sidebar-active: #1a56db;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f9; margin: 0; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-width); height: 100vh;
+      background: var(--sidebar-bg); color: var(--sidebar-text);
+      display: flex; flex-direction: column;
+      z-index: 1000; transition: transform .3s;
+    }
+    #sidebar .brand {
+      padding: 22px 24px; border-bottom: 1px solid #1e2d52;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #sidebar .brand-icon {
+      width: 40px; height: 40px; background: var(--primary);
+      border-radius: 10px; display: grid; place-items: center;
+      font-size: 20px; color: #fff; flex-shrink: 0;
+    }
+    #sidebar .brand h6 { margin: 0; font-size: 13px; color: #fff; font-weight: 700; }
+    #sidebar .brand small { font-size: 10px; color: var(--sidebar-text); }
+    #sidebar nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    #sidebar nav .nav-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+      color: #5a7099; padding: 12px 12px 6px; font-weight: 600;
+    }
+    #sidebar nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; color: var(--sidebar-text);
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      margin-bottom: 2px; transition: all .15s;
+    }
+    #sidebar nav a:hover { background: #1e2d52; color: #fff; }
+    #sidebar nav a.active { background: var(--primary); color: #fff; }
+    #sidebar nav a i { font-size: 17px; width: 20px; text-align: center; }
+    #sidebar .sidebar-footer {
+      padding: 16px 24px; border-top: 1px solid #1e2d52;
+      font-size: 11px; color: #5a7099;
+    }
+
+    /* ── Main area ── */
+    #main { margin-left: var(--sidebar-width); min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: #fff; border-bottom: 1px solid #e2e8f0;
+      padding: 14px 28px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    .topbar .page-title { font-size: 16px; font-weight: 700; color: #1e293b; }
+    .topbar .breadcrumb { margin: 0; font-size: 12px; }
+    .topbar .user-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: #f8fafc; padding: 6px 14px; border-radius: 30px;
+      border: 1px solid #e2e8f0;
+    }
+    .topbar .user-badge .avatar {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--primary);
+      color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700;
+    }
+
+    /* ── Pages ── */
+    .page { display: none; padding: 28px; }
+    .page.active { display: block; }
+
+    /* ── Stat cards ── */
+    .stat-card {
+      background: #fff; border-radius: 14px; padding: 22px 24px;
+      border: 1px solid #e8edf5; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      transition: box-shadow .2s;
+    }
+    .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); }
+    .stat-card .label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .stat-card .value { font-size: 26px; font-weight: 800; color: #1e293b; line-height: 1.2; margin-top: 6px; }
+    .stat-card .sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .stat-card .icon-wrap {
+      width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+      font-size: 20px;
+    }
+
+    .card-chart {
+      background: #fff; border-radius: 14px; border: 1px solid #e8edf5;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05); padding: 22px 24px;
+    }
+    .card-chart h6 { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+    .card-chart small { font-size: 12px; color: #94a3b8; }
+
+    /* ── Table ── */
+    .table-card {
+      background: #fff; border-radius: 14px; border: 1px solid #e8edf5;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .table-card .card-head {
+      padding: 18px 24px; border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-card .card-head h6 { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; }
+    .table-wrapper { overflow-x: auto; }
+    .table { margin: 0; font-size: 13px; }
+    .table thead th {
+      background: #f8fafc; color: #64748b; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .5px; font-weight: 700;
+      border-top: none; white-space: nowrap; padding: 11px 14px;
+    }
+    .table tbody td { padding: 11px 14px; vertical-align: middle; }
+    .table tbody tr:hover td { background: #f8fafc; }
+
+    /* ── Form ── */
+    .form-card {
+      background: #fff; border-radius: 14px; border: 1px solid #e8edf5;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05); padding: 24px;
+    }
+    .form-card h6 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 18px; }
+    .form-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    .form-control, .form-select {
+      font-size: 13px; border-color: #e2e8f0; border-radius: 8px; padding: 9px 13px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,.15);
+    }
+
+    /* ── Badges ── */
+    .badge-rupiah { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 20px; }
+    .badge-pajak { background: #fef9c3; color: #854d0e; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 20px; }
+
+    /* ── Kwitansi (print) ── */
+    #kwitansi-print { display: none; }
+
+    .kwitansi-box {
+      font-family: 'Times New Roman', Times, serif;
+      max-width: 800px; margin: auto; padding: 30px 40px;
+      border: 2px solid #000; background: #fff;
+    }
+    .kwitansi-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 14px; margin-bottom: 18px; }
+    .kwitansi-header h4 { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 4px; }
+    .kwitansi-header p { margin: 0; font-size: 12px; }
+    .kwitansi-title {
+      text-align: center; margin: 14px 0 20px;
+      font-size: 20px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 4px; text-decoration: underline;
+    }
+    .kwitansi-no {
+      display: flex; justify-content: space-between; margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .kwitansi-body table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .kwitansi-body table td { padding: 7px 10px; vertical-align: top; }
+    .kwitansi-body table td:first-child { width: 180px; font-weight: 600; }
+    .kwitansi-body table td:nth-child(2) { width: 10px; }
+    .kwitansi-border { border: 1.5px solid #000; margin: 18px 0; padding: 12px 14px; }
+    .kwitansi-terbilang { font-style: italic; font-weight: 700; }
+    .kwitansi-nilai { font-size: 18px; font-weight: 900; text-align: right; }
+    .ttd-area { margin-top: 32px; }
+    .ttd-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center; }
+    .ttd-box { font-size: 12px; }
+    .ttd-box .jabatan { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+    .ttd-box .space { height: 80px; border-bottom: 1px solid #555; margin: 8px 30px; }
+    .ttd-box .nama { font-weight: 700; font-size: 13px; margin-top: 6px; }
+    .ttd-box .nip { font-size: 11px; color: #444; }
+    .kwitansi-footer { margin-top: 22px; font-size: 11px; text-align: center; color: #555; border-top: 1px solid #aaa; padding-top: 10px; }
+
+    /* ── @media print ── */
+    @media print {
+      body * { visibility: hidden; }
+      #kwitansi-print, #kwitansi-print * { visibility: visible; }
+      #kwitansi-print {
+        display: block !important;
+        position: fixed; top: 0; left: 0; width: 100%; z-index: 99999;
+      }
+      .kwitansi-box { border: 2px solid #000 !important; }
+      @page { margin: 15mm; size: A4; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; }
+    }
+
+    .btn-primary { background: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+    .table-num { font-size: 11px; color: #94a3b8; font-weight: 600; }
+
+    .empty-state { padding: 60px 20px; text-align: center; }
+    .empty-state i { font-size: 48px; color: #e2e8f0; }
+    .empty-state p { color: #94a3b8; margin-top: 12px; font-size: 14px; }
+
+    .spinner-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,.6);
+      display: grid; place-items: center; z-index: 9999;
+    }
+
+    .progress-bar-sm { height: 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<div id="sidebar">
+  <div class="brand">
+    <div class="brand-icon"><i class="bi bi-bank"></i></div>
+    <div>
+      <h6>SIPKEU</h6>
+      <small>Sistem Keuangan Daerah</small>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-label">Menu Utama</div>
+    <a href="#" class="active" onclick="showPage('dashboard', this)">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+    <a href="#" onclick="showPage('transaksi', this)">
+      <i class="bi bi-receipt-cutoff"></i> Data Transaksi
+    </a>
+    <div class="nav-label mt-2">Laporan</div>
+    <a href="#" onclick="showPage('rekap', this)">
+      <i class="bi bi-bar-chart-line"></i> Rekapitulasi
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="fw-600 mb-1" style="color:#7a95bb">Tahun Anggaran 2026</div>
+    <div>v1.0.0 &copy; SIPKEU</div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div id="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="topbar-title">Dashboard</div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item text-muted">SIPKEU</li>
+          <li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="user-badge">
+      <div class="avatar">AF</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#1e293b">Pengguna Anggaran</div>
+        <div style="font-size:11px;color:#64748b">Drs. Ahmad Fauzi, M.Si</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: DASHBOARD ═══ -->
+  <div id="page-dashboard" class="page active">
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card d-flex justify-content-between align-items-start">
+          <div>
+            <div class="label">Total Transaksi</div>
+            <div class="value" id="stat-total">—</div>
+            <div class="sub">Data terinput</div>
+          </div>
+          <div class="icon-wrap" style="background:#eff6ff"><i class="bi bi-receipt text-primary" style="font-size:22px"></i></div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card d-flex justify-content-between align-items-start">
+          <div>
+            <div class="label">Total Nilai</div>
+            <div class="value" id="stat-nilai" style="font-size:19px">—</div>
+            <div class="sub">Bruto</div>
+          </div>
+          <div class="icon-wrap" style="background:#f0fdf4"><i class="bi bi-cash-stack" style="font-size:22px;color:#16a34a"></i></div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card d-flex justify-content-between align-items-start">
+          <div>
+            <div class="label">Total Pajak</div>
+            <div class="value" id="stat-pajak" style="font-size:19px">—</div>
+            <div class="sub">PPh / PPN</div>
+          </div>
+          <div class="icon-wrap" style="background:#fefce8"><i class="bi bi-percent" style="font-size:22px;color:#ca8a04"></i></div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card d-flex justify-content-between align-items-start">
+          <div>
+            <div class="label">Nilai Bersih</div>
+            <div class="value" id="stat-bersih" style="font-size:19px">—</div>
+            <div class="sub">Netto</div>
+          </div>
+          <div class="icon-wrap" style="background:#fdf4ff"><i class="bi bi-wallet2" style="font-size:22px;color:#9333ea"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-7">
+        <div class="card-chart h-100">
+          <h6>Nilai per Kegiatan</h6>
+          <small>Perbandingan total nilai berdasarkan jenis kegiatan</small>
+          <div class="mt-3" style="height:270px">
+            <canvas id="chartKegiatan"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-chart h-100">
+          <h6>Komposisi Nilai vs Pajak</h6>
+          <small>Rasio bruto, pajak, dan netto</small>
+          <div class="mt-3 d-flex align-items-center justify-content-center" style="height:270px">
+            <canvas id="chartDoughnut"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Chart -->
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="card-chart">
+          <h6>Tren Nilai per Bulan</h6>
+          <small>Realisasi nilai transaksi bulanan tahun 2026</small>
+          <div class="mt-3" style="height:220px">
+            <canvas id="chartMonthly"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="table-card">
+      <div class="card-head">
+        <h6><i class="bi bi-clock-history me-2 text-primary"></i>Transaksi Terbaru</h6>
+        <a href="#" class="btn btn-sm btn-outline-primary" onclick="showPage('transaksi', document.querySelector('#sidebar nav a:nth-child(3)'))">Lihat Semua</a>
+      </div>
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Tanggal</th><th>Kegiatan</th><th>Penerima</th>
+              <th>No. BAST</th><th class="text-end">Nilai</th>
+            </tr>
+          </thead>
+          <tbody id="recent-tbody">
+            <tr><td colspan="5" class="text-center text-muted py-4">Memuat data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /page-dashboard -->
+
+  <!-- ═══ PAGE: TRANSAKSI ═══ -->
+  <div id="page-transaksi" class="page">
+
+    <!-- Form Input -->
+    <div class="form-card mb-4 no-print">
+      <h6><i class="bi bi-pencil-square me-2 text-primary"></i><span id="form-mode-label">Tambah Transaksi Baru</span></h6>
+      <form id="trx-form">
+        <input type="hidden" id="f-id" />
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="f-tanggal" required />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Kegiatan <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="f-kegiatan" placeholder="Nama kegiatan" required />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Sub Kegiatan</label>
+            <input type="text" class="form-control" id="f-subkegiatan" placeholder="Sub kegiatan" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Penerima <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">No. BAST</label>
+            <input type="text" class="form-control" id="f-nobast" placeholder="BAST/001/I/2026" />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Keterangan / Uraian <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="f-uraian" placeholder="Uraian kegiatan" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Nilai (Rp) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Pajak (Rp)</label>
+            <input type="number" class="form-control" id="f-pajak" placeholder="0" min="0" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Pengguna Anggaran</label>
+            <input type="text" class="form-control" id="f-pa" placeholder="Nama Pengguna Anggaran" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">PPTK</label>
+            <input type="text" class="form-control" id="f-pptk" placeholder="Nama PPTK" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Bendahara</label>
+            <input type="text" class="form-control" id="f-bendahara" placeholder="Nama Bendahara" />
+          </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary px-4" id="btn-submit">
+            <i class="bi bi-save me-2"></i>Simpan Data
+          </button>
+          <button type="button" class="btn btn-outline-secondary px-4" onclick="resetForm()">
+            <i class="bi bi-x-circle me-2"></i>Batal
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Transaksi Table -->
+    <div class="table-card">
+      <div class="card-head">
+        <h6><i class="bi bi-table me-2 text-primary"></i>Daftar Transaksi</h6>
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control form-control-sm" id="search-input" placeholder="&#xf52a; Cari..." oninput="filterTable()" style="width:200px;font-family:'Segoe UI',system-ui,sans-serif" />
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="width:40px">No</th>
+              <th>Tanggal</th>
+              <th>Kegiatan</th>
+              <th>Sub Kegiatan</th>
+              <th>Penerima</th>
+              <th>No BAST</th>
+              <th>Keterangan / Uraian</th>
+              <th class="text-end">Nilai (Rp)</th>
+              <th class="text-end">Pajak (Rp)</th>
+              <th>Pengguna Anggaran</th>
+              <th>PPTK</th>
+              <th>Bendahara</th>
+              <th style="width:130px">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="trx-tbody">
+            <tr><td colspan="13" class="text-center text-muted py-4">Memuat data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-3 border-top d-flex justify-content-between align-items-center" style="font-size:13px;color:#64748b">
+        <span id="table-info">— data</span>
+        <div>
+          <strong>Total Nilai:</strong> <span id="table-total-nilai" class="text-success fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp;
+          <strong>Total Pajak:</strong> <span id="table-total-pajak" class="text-warning fw-bold ms-1">Rp 0</span>
+        </div>
+      </div>
+    </div>
+  </div><!-- /page-transaksi -->
+
+  <!-- ═══ PAGE: REKAP ═══ -->
+  <div id="page-rekap" class="page">
+    <div class="table-card">
+      <div class="card-head">
+        <h6><i class="bi bi-bar-chart-line me-2 text-primary"></i>Rekapitulasi per Kegiatan</h6>
+      </div>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr><th>No</th><th>Kegiatan</th><th class="text-end">Jumlah Transaksi</th><th class="text-end">Total Nilai (Rp)</th><th class="text-end">Total Pajak (Rp)</th><th class="text-end">Persentase</th></tr>
+          </thead>
+          <tbody id="rekap-tbody">
+            <tr><td colspan="6" class="text-center text-muted py-4">Memuat data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══════════════ KWITANSI PRINT ═══════════════ -->
+<div id="kwitansi-print">
+  <div class="kwitansi-box">
+    <div class="kwitansi-header">
+      <h4>Pemerintah Daerah</h4>
+      <p id="kw-instansi" style="font-size:14px;font-weight:700;margin:4px 0">Satuan Kerja Perangkat Daerah</p>
+      <p id="kw-alamat" style="font-size:11px">Jl. Jenderal Sudirman No. 1, Kota &mdash; Kode Pos 00000</p>
+    </div>
+
+    <div class="kwitansi-title">Kwitansi</div>
+
+    <div class="kwitansi-no">
+      <span>No. BAST : <strong id="kw-bast">—</strong></span>
+      <span>Tanggal : <strong id="kw-tanggal">—</strong></span>
+    </div>
+
+    <div class="kwitansi-body">
+      <table>
+        <tr>
+          <td>Telah Diterima Dari</td><td>:</td>
+          <td><strong>Bendahara Pengeluaran</strong></td>
+        </tr>
+        <tr>
+          <td>Uang Sejumlah</td><td>:</td>
+          <td class="kwitansi-terbilang" id="kw-terbilang">—</td>
+        </tr>
+        <tr>
+          <td>Untuk Pembayaran</td><td>:</td>
+          <td id="kw-uraian">—</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="kwitansi-border">
+      <div class="kwitansi-nilai"><span id="kw-nilai">Rp 0</span></div>
+      <div style="font-size:12px;margin-top:4px;color:#444">(Sudah termasuk pajak: <span id="kw-pajak">Rp 0</span>)</div>
+    </div>
+
+    <div class="kwitansi-body">
+      <table>
+        <tr><td>Kegiatan</td><td>:</td><td id="kw-kegiatan">—</td></tr>
+        <tr><td>Sub Kegiatan</td><td>:</td><td id="kw-subkegiatan">—</td></tr>
+        <tr><td>Penerima</td><td>:</td><td id="kw-penerima">—</td></tr>
+        <tr><td>Keterangan</td><td>:</td><td id="kw-keterangan">—</td></tr>
+      </table>
+    </div>
+
+    <div class="ttd-area">
+      <div class="ttd-grid">
+        <div class="ttd-box">
+          <div class="jabatan">Pengguna Anggaran</div>
+          <div style="font-size:11px;color:#555">Selaku Kuasa PA</div>
+          <div class="space"></div>
+          <div class="nama" id="kw-pa">—</div>
+          <div class="nip" id="kw-pa-nip">NIP. ——————————</div>
+        </div>
+        <div class="ttd-box">
+          <div class="jabatan">PPTK</div>
+          <div style="font-size:11px;color:#555">Pejabat Pelaksana Teknis Kegiatan</div>
+          <div class="space"></div>
+          <div class="nama" id="kw-pptk">—</div>
+          <div class="nip" id="kw-pptk-nip">NIP. ——————————</div>
+        </div>
+        <div class="ttd-box">
+          <div class="jabatan">Bendahara Pengeluaran</div>
+          <div style="font-size:11px;color:#555">Yang Menerima</div>
+          <div class="space"></div>
+          <div class="nama" id="kw-bendahara">—</div>
+          <div class="nip" id="kw-bendahara-nip">NIP. ——————————</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kwitansi-footer">
+      Dokumen ini dicetak dari Sistem Informasi Penatausahaan Keuangan (SIPKEU) &mdash;
+      Dicetak pada: <span id="kw-print-date"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL KWITANSI (Preview) ═══════════════ -->
+<div class="modal fade" id="modalKwitansi" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Preview Kwitansi</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="kwitansi-preview" style="padding:20px;background:#f0f4f9;min-height:400px">
+          <!-- Preview is injected here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+        <button type="button" class="btn btn-primary" onclick="doCetak()">
+          <i class="bi bi-printer me-2"></i>Cetak / Print
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="modalHapus" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="bi bi-trash me-2"></i>Konfirmasi Hapus</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-hapus">Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const API = '/api';
+  let allTransactions = [];
+  let editingId = null;
+  let deleteId = null;
+  let chartKegiatan = null, chartDoughnut = null, chartMonthly = null;
+
+  // ── Helpers ──────────────────────────────────────────────────────
+  function formatRupiah(n) {
+    if (!n && n !== 0) return 'Rp 0';
+    return 'Rp ' + Number(n).toLocaleString('id-ID');
+  }
+
+  function formatTanggal(s) {
+    if (!s) return '-';
+    const d = new Date(s + 'T00:00:00');
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  // Terbilang (Indonesian number to words)
+  function terbilang(n) {
+    const satuan = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan',
+      'sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 'enam belas',
+      'tujuh belas', 'delapan belas', 'sembilan belas'];
+    const ribuan = ['', 'ribu', 'juta', 'miliar', 'triliun'];
+
+    if (n === 0) return 'nol';
+    if (n < 0) return 'minus ' + terbilang(-n);
+
+    let result = '';
+    let level = 0;
+
+    while (n > 0) {
+      const rem = n % 1000;
+      if (rem !== 0) {
+        result = convertHundreds(rem, satuan) + (ribuan[level] ? ' ' + ribuan[level] : '') + (result ? ' ' : '') + result;
+      }
+      n = Math.floor(n / 1000);
+      level++;
+    }
+    return result.trim();
+  }
+
+  function convertHundreds(n, satuan) {
+    if (n < 20) return satuan[n];
+    if (n < 100) {
+      const tens = Math.floor(n / 10);
+      const ones = n % 10;
+      const tensWords = ['', '', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh',
+        'enam puluh', 'tujuh puluh', 'delapan puluh', 'sembilan puluh'];
+      return tensWords[tens] + (ones ? ' ' + satuan[ones] : '');
+    }
+    const hundreds = Math.floor(n / 100);
+    const rest = n % 100;
+    const h = hundreds === 1 ? 'seratus' : satuan[hundreds] + ' ratus';
+    return h + (rest ? ' ' + convertHundreds(rest, satuan) : '');
+  }
+
+  // ── Navigation ───────────────────────────────────────────────────
+  function showPage(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    const titles = { dashboard: 'Dashboard', transaksi: 'Data Transaksi', rekap: 'Rekapitulasi' };
+    document.getElementById('topbar-title').textContent = titles[name] || name;
+    document.getElementById('topbar-crumb').textContent = titles[name] || name;
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'transaksi') loadTransaksi();
+    if (name === 'rekap') loadRekap();
+    return false;
+  }
+
+  // ── Dashboard ────────────────────────────────────────────────────
+  async function loadDashboard() {
+    const res = await fetch(API + '/dashboard');
+    const data = await res.json();
+
+    document.getElementById('stat-total').textContent = data.total_transaksi || 0;
+    document.getElementById('stat-nilai').textContent = formatRupiah(data.total_nilai);
+    document.getElementById('stat-pajak').textContent = formatRupiah(data.total_pajak);
+    document.getElementById('stat-bersih').textContent = formatRupiah(data.nilai_bersih);
+
+    // Recent
+    const tbody = document.getElementById('recent-tbody');
+    if (!data.recent_transaksi || data.recent_transaksi.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data transaksi</p></div></td></tr>`;
+    } else {
+      tbody.innerHTML = [...data.recent_transaksi].reverse().map(t => `
+        <tr>
+          <td>${formatTanggal(t.tanggal)}</td>
+          <td>${t.kegiatan || '-'}</td>
+          <td>${t.penerima || '-'}</td>
+          <td><span class="badge bg-light text-dark">${t.no_bast || '-'}</span></td>
+          <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td>
+        </tr>`).join('');
+    }
+
+    // Chart Kegiatan
+    const keg = data.nilai_per_kegiatan || [];
+    keg.sort((a, b) => b.total - a.total);
+    const kegLabels = keg.map(k => k.kegiatan);
+    const kegValues = keg.map(k => k.total);
+
+    if (chartKegiatan) chartKegiatan.destroy();
+    chartKegiatan = new Chart(document.getElementById('chartKegiatan'), {
+      type: 'bar',
+      data: {
+        labels: kegLabels,
+        datasets: [{
+          label: 'Total Nilai (Rp)',
+          data: kegValues,
+          backgroundColor: ['#1a56db', '#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'],
+          borderRadius: 6, borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            ticks: {
+              callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt',
+              font: { size: 11 }
+            },
+            grid: { color: '#f1f5f9' }
+          },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+
+    // Chart Doughnut
+    if (chartDoughnut) chartDoughnut.destroy();
+    const netto = (data.total_nilai || 0) - (data.total_pajak || 0);
+    chartDoughnut = new Chart(document.getElementById('chartDoughnut'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Nilai Bersih', 'Pajak'],
+        datasets: [{
+          data: [Math.max(0, netto), data.total_pajak || 0],
+          backgroundColor: ['#1a56db', '#f59e0b'],
+          borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16 } },
+          tooltip: {
+            callbacks: {
+              label: ctx => ' ' + formatRupiah(ctx.parsed)
+            }
+          }
+        }
+      }
+    });
+
+    // Monthly chart
+    const monthly = (data.monthly_stats || []).sort((a, b) => a.bulan.localeCompare(b.bulan));
+    const bulanLabels = monthly.map(m => {
+      const [y, mo] = m.bulan.split('-');
+      const nm = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+      return nm[parseInt(mo) - 1] + ' ' + y;
+    });
+
+    if (chartMonthly) chartMonthly.destroy();
+    chartMonthly = new Chart(document.getElementById('chartMonthly'), {
+      type: 'line',
+      data: {
+        labels: bulanLabels,
+        datasets: [
+          {
+            label: 'Nilai Bruto',
+            data: monthly.map(m => m.nilai),
+            borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,.1)',
+            borderWidth: 2, fill: true, tension: .4, pointRadius: 5, pointBackgroundColor: '#1a56db'
+          },
+          {
+            label: 'Pajak',
+            data: monthly.map(m => m.pajak),
+            borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,.07)',
+            borderWidth: 2, fill: true, tension: .4, pointRadius: 5, pointBackgroundColor: '#f59e0b'
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { font: { size: 12 } } } },
+        scales: {
+          y: {
+            ticks: { callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt', font: { size: 11 } },
+            grid: { color: '#f1f5f9' }
+          },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // ── Transaksi ────────────────────────────────────────────────────
+  async function loadTransaksi() {
+    const res = await fetch(API + '/transactions');
+    allTransactions = await res.json() || [];
+    renderTable(allTransactions);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('trx-tbody');
+    const info = document.getElementById('table-info');
+    let totalN = 0, totalP = 0;
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="13"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data transaksi. Tambah data lewat form di atas.</p></div></td></tr>`;
+      info.textContent = '0 data';
+      document.getElementById('table-total-nilai').textContent = 'Rp 0';
+      document.getElementById('table-total-pajak').textContent = 'Rp 0';
+      return;
+    }
+
+    tbody.innerHTML = data.map((t, i) => {
+      totalN += t.nilai || 0;
+      totalP += t.pajak || 0;
+      return `
+      <tr>
+        <td class="table-num">${i + 1}</td>
+        <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
+        <td>${t.kegiatan || '-'}</td>
+        <td style="color:#64748b">${t.sub_kegiatan || '-'}</td>
+        <td>${t.penerima || '-'}</td>
+        <td><span class="badge bg-light text-secondary">${t.no_bast || '-'}</span></td>
+        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.keterangan_uraian || ''}">${t.keterangan_uraian || '-'}</td>
+        <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td>
+        <td class="text-end"><span class="badge-pajak">${formatRupiah(t.pajak)}</span></td>
+        <td style="font-size:12px">${t.pengguna_anggaran || '-'}</td>
+        <td style="font-size:12px">${t.pptk || '-'}</td>
+        <td style="font-size:12px">${t.bendahara || '-'}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})">
+              <i class="bi bi-printer"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    info.textContent = data.length + ' data';
+    document.getElementById('table-total-nilai').textContent = formatRupiah(totalN);
+    document.getElementById('table-total-pajak').textContent = formatRupiah(totalP);
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    if (!q) { renderTable(allTransactions); return; }
+    const filtered = allTransactions.filter(t =>
+      (t.kegiatan || '').toLowerCase().includes(q) ||
+      (t.penerima || '').toLowerCase().includes(q) ||
+      (t.no_bast || '').toLowerCase().includes(q) ||
+      (t.keterangan_uraian || '').toLowerCase().includes(q) ||
+      (t.tanggal || '').includes(q)
+    );
+    renderTable(filtered);
+  }
+
+  // ── Form CRUD ────────────────────────────────────────────────────
+  document.getElementById('trx-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const payload = {
+      tanggal: document.getElementById('f-tanggal').value,
+      kegiatan: document.getElementById('f-kegiatan').value,
+      sub_kegiatan: document.getElementById('f-subkegiatan').value,
+      penerima: document.getElementById('f-penerima').value,
+      no_bast: document.getElementById('f-nobast').value,
+      keterangan_uraian: document.getElementById('f-uraian').value,
+      nilai: parseFloat(document.getElementById('f-nilai').value) || 0,
+      pajak: parseFloat(document.getElementById('f-pajak').value) || 0,
+      pengguna_anggaran: document.getElementById('f-pa').value,
+      pptk: document.getElementById('f-pptk').value,
+      bendahara: document.getElementById('f-bendahara').value,
+    };
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
+
+    let url = API + '/transactions';
+    let method = 'POST';
+    if (editingId) { url += '/' + editingId; method = 'PUT'; }
+
+    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+    btn.disabled = false;
+    resetForm();
+    loadTransaksi();
+  });
+
+  function resetForm() {
+    editingId = null;
+    document.getElementById('trx-form').reset();
+    document.getElementById('f-id').value = '';
+    document.getElementById('form-mode-label').textContent = 'Tambah Transaksi Baru';
+    document.getElementById('btn-submit').innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
+  }
+
+  function editTrx(id) {
+    const t = allTransactions.find(x => x.id === id);
+    if (!t) return;
+    editingId = id;
+    document.getElementById('f-tanggal').value = t.tanggal || '';
+    document.getElementById('f-kegiatan').value = t.kegiatan || '';
+    document.getElementById('f-subkegiatan').value = t.sub_kegiatan || '';
+    document.getElementById('f-penerima').value = t.penerima || '';
+    document.getElementById('f-nobast').value = t.no_bast || '';
+    document.getElementById('f-uraian').value = t.keterangan_uraian || '';
+    document.getElementById('f-nilai').value = t.nilai || 0;
+    document.getElementById('f-pajak').value = t.pajak || 0;
+    document.getElementById('f-pa').value = t.pengguna_anggaran || '';
+    document.getElementById('f-pptk').value = t.pptk || '';
+    document.getElementById('f-bendahara').value = t.bendahara || '';
+    document.getElementById('form-mode-label').textContent = 'Edit Transaksi';
+    document.getElementById('btn-submit').innerHTML = '<i class="bi bi-check-circle me-2"></i>Update Data';
+    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function confirmHapus(id) {
+    deleteId = id;
+    new bootstrap.Modal(document.getElementById('modalHapus')).show();
+  }
+
+  document.getElementById('btn-confirm-hapus').addEventListener('click', async () => {
+    if (!deleteId) return;
+    await fetch(API + '/transactions/' + deleteId, { method: 'DELETE' });
+    bootstrap.Modal.getInstance(document.getElementById('modalHapus')).hide();
+    deleteId = null;
+    loadTransaksi();
+  });
+
+  // ── Kwitansi ─────────────────────────────────────────────────────
+  function cetakKwitansi(id) {
+    const t = allTransactions.find(x => x.id === id);
+    if (!t) return;
+
+    document.getElementById('kw-bast').textContent = t.no_bast || '—';
+    document.getElementById('kw-tanggal').textContent = formatTanggal(t.tanggal);
+    document.getElementById('kw-kegiatan').textContent = t.kegiatan || '—';
+    document.getElementById('kw-subkegiatan').textContent = t.sub_kegiatan || '—';
+    document.getElementById('kw-penerima').textContent = t.penerima || '—';
+    document.getElementById('kw-uraian').textContent = t.keterangan_uraian || '—';
+    document.getElementById('kw-keterangan').textContent = t.keterangan_uraian || '—';
+
+    const nilai = t.nilai || 0;
+    const pajak = t.pajak || 0;
+    document.getElementById('kw-nilai').textContent = formatRupiah(nilai);
+    document.getElementById('kw-pajak').textContent = formatRupiah(pajak);
+
+    const tb = terbilang(Math.round(nilai));
+    document.getElementById('kw-terbilang').textContent =
+      tb.charAt(0).toUpperCase() + tb.slice(1) + ' Rupiah';
+
+    document.getElementById('kw-pa').textContent = t.pengguna_anggaran || '—';
+    document.getElementById('kw-pptk').textContent = t.pptk || '—';
+    document.getElementById('kw-bendahara').textContent = t.bendahara || '—';
+    document.getElementById('kw-print-date').textContent = new Date().toLocaleDateString('id-ID', {
+      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    // Copy to preview modal
+    document.getElementById('kwitansi-preview').innerHTML =
+      '<div style="transform-origin:top center">' + document.getElementById('kwitansi-print').innerHTML + '</div>';
+    document.getElementById('kwitansi-preview').querySelector('.kwitansi-box').style.display = 'block';
+
+    new bootstrap.Modal(document.getElementById('modalKwitansi')).show();
+  }
+
+  function doCetak() {
+    bootstrap.Modal.getInstance(document.getElementById('modalKwitansi')).hide();
+    setTimeout(() => window.print(), 300);
+  }
+
+  // ── Rekap ────────────────────────────────────────────────────────
+  async function loadRekap() {
+    const res = await fetch(API + '/transactions');
+    const data = await res.json() || [];
+    const map = {};
+    let grandTotal = 0;
+
+    data.forEach(t => {
+      if (!map[t.kegiatan]) map[t.kegiatan] = { count: 0, nilai: 0, pajak: 0 };
+      map[t.kegiatan].count++;
+      map[t.kegiatan].nilai += t.nilai || 0;
+      map[t.kegiatan].pajak += t.pajak || 0;
+      grandTotal += t.nilai || 0;
+    });
+
+    const rows = Object.entries(map).sort((a, b) => b[1].nilai - a[1].nilai);
+    const tbody = document.getElementById('rekap-tbody');
+
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Belum ada data</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(([k, v], i) => {
+      const pct = grandTotal ? ((v.nilai / grandTotal) * 100).toFixed(1) : 0;
+      return `<tr>
+        <td class="table-num">${i + 1}</td>
+        <td><strong>${k}</strong></td>
+        <td class="text-end">${v.count} transaksi</td>
+        <td class="text-end"><span class="badge-rupiah">${formatRupiah(v.nilai)}</span></td>
+        <td class="text-end"><span class="badge-pajak">${formatRupiah(v.pajak)}</span></td>
+        <td class="text-end">
+          <div class="d-flex align-items-center gap-2 justify-content-end">
+            <div class="progress flex-grow-1" style="height:8px;width:80px">
+              <div class="progress-bar bg-primary" style="width:${pct}%"></div>
+            </div>
+            <span style="font-size:12px;font-weight:700;width:40px">${pct}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    loadDashboard();
+  });
+</script>
+</body>
+</html>

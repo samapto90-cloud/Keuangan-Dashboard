@@ -1,45 +1,47 @@
-# [Project name]
+# SIPKEU — Sistem Informasi Penatausahaan Keuangan
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Aplikasi penatausahaan keuangan daerah berbasis web dengan Go backend dan tampilan Bootstrap, lengkap dengan dashboard grafik, manajemen transaksi, dan cetak kwitansi resmi.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `PORT=3000 go run go-app/main.go` — jalankan aplikasi keuangan (port 3000)
+- Workflow: **Aplikasi Keuangan** — jalankan via Replit workflow
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- **Backend:** Go (net/http standard library, embed FS)
+- **Frontend:** HTML + Bootstrap 5 + Chart.js 4
+- **Storage:** In-memory (mutex-safe, data hilang saat restart)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `go-app/main.go` — Go server, REST API, in-memory storage, sample data
+- `go-app/index.html` — Frontend SPA: dashboard, form, tabel, kwitansi
+- `go-app/go.mod` — Go module file
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- In-memory storage dengan sync.Mutex untuk thread safety
+- `//go:embed index.html` untuk embed HTML ke binary tanpa file server terpisah
+- REST API `/api/transactions`, `/api/transactions/{id}`, `/api/dashboard`
+- CSS `@media print` untuk menyembunyikan form saat cetak kwitansi
+- Terbilang (angka ke kata) diimplementasi di JavaScript client-side
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Dashboard:** Statistik total transaksi, nilai, pajak, nilai bersih + 3 grafik (bar kegiatan, doughnut komposisi, line bulanan)
+- **Data Transaksi:** Form input 12 kolom + tabel + search + edit + hapus
+- **Cetak Kwitansi:** Format kwitansi resmi dengan ruang tanda tangan 3 pejabat
+- **Rekapitulasi:** Ringkasan per kegiatan dengan progress bar persentase
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Bahasa Indonesia untuk semua label dan teks UI
+- Format rupiah: `Rp X.XXX.XXX`
+- Data sample sudah tersedia saat startup
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Data hilang saat aplikasi di-restart (in-memory). Untuk persistensi gunakan SQLite atau PostgreSQL.
+- `go run` butuh beberapa detik untuk compile sebelum port tersedia.
+- Port default: 3000 (bisa diubah via env `PORT=xxxx`)
