@@ -257,6 +257,9 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <a href="#" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Data Transaksi</a>
     <div class="nav-label mt-2">Laporan</div>
     <a href="#" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
+    <div class="nav-label mt-2">Data</div>
+    <a href="#" onclick="showModalEkspor();return false"><i class="bi bi-file-earmark-excel"></i> Ekspor Excel</a>
+    <a href="#" onclick="showModalImpor();return false"><i class="bi bi-upload"></i> Impor Excel</a>
   </nav>
   <div class="sidebar-footer">
     <div style="color:#7a95bb;font-weight:600;margin-bottom:3px">TA 2026 — Dinas Pendidikan</div>
@@ -393,18 +396,43 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <textarea class="form-control" id="f-uraian" rows="2" placeholder="Deskripsi detail pembayaran, misalnya: Retribusi Sampah Periode April 2026, Pengadaan ATK bulan Februari 2026, dll." required></textarea>
           </div>
 
-          <!-- Baris 7: Nilai + Pajak + PA -->
+          <!-- Baris 7: Jenis Pajak + Nilai + PA -->
           <div class="col-md-4">
-            <label class="form-label">Nilai (Rp) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required />
+            <label class="form-label">Jenis Pajak / Potongan</label>
+            <select class="form-select" id="f-jenispajak" onchange="onJenisPajakChange()">
+              <option value="">— Tidak Ada Pajak —</option>
+              <option value="PPh 21 (5%)">PPh 21 — 5% (Pegawai Tetap)</option>
+              <option value="PPh 21 (2,5%)">PPh 21 — 2,5% (Non-NPWP / PKP)</option>
+              <option value="PPh 23 (2%)">PPh 23 — 2% (Jasa / Imbalan)</option>
+              <option value="PPh 22 (1,5%)">PPh 22 — 1,5% (Pembelian Barang)</option>
+              <option value="PPh Ps.4(2) Final (10%)">PPh Pasal 4 Ayat 2 — 10% (Final)</option>
+            </select>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Pajak (Rp)</label>
-            <input type="number" class="form-control" id="f-pajak" placeholder="0" min="0" />
+          <div class="col-md-5">
+            <label class="form-label">Nilai Bruto (Rp) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required oninput="autoHitungPajak()" />
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-pa" readonly />
+          </div>
+
+          <!-- Baris 7b: Pajak -->
+          <div class="col-md-4">
+            <label class="form-label">Pajak / Potongan (Rp) <span class="auto-badge" id="badge-pajak-auto" style="display:none">otomatis</span></label>
+            <input type="number" class="form-control" id="f-pajak" placeholder="0" min="0" />
+          </div>
+          <div class="col-md-4" id="row-ntpn" style="display:none">
+            <label class="form-label">NTPN <small class="text-muted">(16 digit)</small></label>
+            <input type="text" class="form-control" id="f-ntpn" placeholder="0000000000000000" maxlength="16" />
+          </div>
+          <div class="col-md-4" id="row-kbilling" style="display:none">
+            <label class="form-label">Kode Billing <small class="text-muted">(15 digit)</small></label>
+            <input type="text" class="form-control" id="f-kbilling" placeholder="000000000000000" maxlength="15" />
+          </div>
+          <div class="col-md-4" id="row-ntb" style="display:none">
+            <label class="form-label">NTB <small class="text-muted">(Nomor Transaksi Bendahara)</small></label>
+            <input type="text" class="form-control" id="f-ntb" placeholder="BND2026..." />
           </div>
 
           <!-- Baris 8: PPTK + Bendahara -->
@@ -429,7 +457,11 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <div class="table-card">
       <div class="card-head">
         <h6><i class="bi bi-table me-2 text-primary"></i>Daftar Transaksi</h6>
-        <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:200px" />
+        <div class="d-flex gap-2 align-items-center">
+          <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
+          <button class="btn btn-sm btn-outline-success" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-file-earmark-excel me-1"></i>Ekspor</button>
+          <button class="btn btn-sm btn-outline-primary" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
+        </div>
       </div>
       <div class="table-wrapper">
         <table class="table table-hover">
@@ -438,11 +470,11 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
               <th>No</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
               <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
               <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
-              <th class="text-end">Nilai (Rp)</th><th class="text-end">Pajak (Rp)</th>
+              <th class="text-end">Nilai (Rp)</th><th>Jenis Pajak</th><th class="text-end">Pajak (Rp)</th>
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="17" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="18" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top d-flex justify-content-between align-items-center" style="font-size:13px;color:#64748b">
@@ -514,6 +546,12 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       <div class="kw-row"><span class="kw-label">DIBAYAR KEPADA</span><span>:</span><span id="kw-penerima">—</span></div>
       <div class="kw-row mt-1"><span class="kw-label">PEKERJAAN</span><span>:</span><span id="kw-pekerjaan">—</span></div>
       <div class="kw-row mt-1"><span class="kw-label">YAITU / URAIAN</span><span>:</span><span id="kw-uraian">—</span></div>
+      <div id="kw-pajak-detail" style="display:none;border-top:1px dashed #aaa;margin-top:6px;padding-top:4px">
+        <div class="kw-row"><span class="kw-label" style="font-size:10px;color:#555">JENIS PAJAK</span><span>:</span><span id="kw-jenis-pajak" style="font-size:11px">—</span></div>
+        <div class="kw-row"><span class="kw-label" style="font-size:10px;color:#555">NTPN</span><span>:</span><span id="kw-ntpn" style="font-size:11px;letter-spacing:1px;font-weight:600">—</span></div>
+        <div class="kw-row"><span class="kw-label" style="font-size:10px;color:#555">KODE BILLING</span><span>:</span><span id="kw-kode-billing" style="font-size:11px">—</span></div>
+        <div class="kw-row"><span class="kw-label" style="font-size:10px;color:#555">NTB</span><span>:</span><span id="kw-ntb-kw" style="font-size:11px">—</span></div>
+      </div>
     </div>
 
     <!-- TTD Atas: PA + Penerima -->
@@ -579,6 +617,67 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   </div>
 </div>
 
+<!-- Modal Ekspor Excel -->
+<div class="modal fade" id="modalEkspor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:460px">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#166534;color:#fff">
+        <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2"></i>Ekspor ke Excel</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Filter Bulan <small class="text-muted fw-normal">(kosongkan untuk semua bulan)</small></label>
+          <input type="month" id="export-bulan" class="form-control" value="" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Filter Kegiatan <small class="text-muted fw-normal">(opsional)</small></label>
+          <select id="export-kegiatan" class="form-select">
+            <option value="">— Semua Kegiatan —</option>
+          </select>
+        </div>
+        <div class="alert alert-success py-2 mb-0" style="font-size:12px"><i class="bi bi-info-circle me-1"></i>File .xlsx dapat dibuka di Microsoft Excel, LibreOffice, dan Google Sheets.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-success" onclick="doEkspor()"><i class="bi bi-download me-1"></i>Download Excel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impor Excel -->
+<div class="modal fade" id="modalImpor" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Impor dari Excel / CSV</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Pilih File Excel (.xlsx, .xls) atau CSV (.csv)</label>
+          <input type="file" id="import-file" class="form-control" accept=".xlsx,.xls,.csv" onchange="previewImpor(event)" />
+          <div class="form-text">Kolom wajib: Tanggal, Penerima, Nilai. Kolom lain opsional. <a href="#" onclick="downloadTemplate();return false">Download template kosong</a></div>
+        </div>
+        <div id="import-preview" style="display:none">
+          <div class="alert py-2 mb-2" id="import-alert" style="font-size:12px"></div>
+          <div class="table-wrapper" style="max-height:320px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">
+            <table class="table table-sm table-hover mb-0">
+              <thead id="import-thead"></thead>
+              <tbody id="import-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary" id="btn-confirm-impor" style="display:none" onclick="doImpor()"><i class="bi bi-check-circle me-1"></i>Import <span id="import-count">0</span> Transaksi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Hapus -->
 <div class="modal fade" id="modalHapus" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
@@ -591,6 +690,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const API = '/data';
 let allTransactions = [];
@@ -768,7 +868,7 @@ function renderTable(data) {
   const tbody = document.getElementById('trx-tbody');
   let totalN = 0, totalP = 0;
   if (!data || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="14"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="18"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
@@ -789,6 +889,7 @@ function renderTable(data) {
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.pekerjaan||''}">${t.pekerjaan||'-'}</td>
       <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.uraian||''}">${t.uraian||'-'}</td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td>
+      <td><span class="badge badge-pajak-jenis" style="font-size:10px;white-space:nowrap">${t.jenis_pajak||'—'}</span></td>
       <td class="text-end"><span class="badge-pajak">${formatRupiah(t.pajak)}</span></td>
       <td style="font-size:11px">${t.pengguna_anggaran||'-'}</td>
       <td style="font-size:11px">${t.pptk||'-'}</td>
@@ -817,6 +918,8 @@ function filterTable() {
     (t.no_kontrak||'').toLowerCase().includes(q) ||
     (t.pekerjaan||'').toLowerCase().includes(q) ||
     (t.uraian||'').toLowerCase().includes(q) ||
+    (t.jenis_pajak||'').toLowerCase().includes(q) ||
+    (t.ntpn||'').toLowerCase().includes(q) ||
     (t.tanggal||'').includes(q)
   ));
 }
@@ -842,8 +945,12 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     no_kontrak: document.getElementById('f-nokontrak').value,
     pekerjaan: pekerjaanText,
     uraian: document.getElementById('f-uraian').value,
+    jenis_pajak: document.getElementById('f-jenispajak').value,
     nilai: parseFloat(document.getElementById('f-nilai').value)||0,
     pajak: parseFloat(document.getElementById('f-pajak').value)||0,
+    ntpn: document.getElementById('f-ntpn').value,
+    kode_billing: document.getElementById('f-kbilling').value,
+    ntb: document.getElementById('f-ntb').value,
     pengguna_anggaran: DB.pa.nama,
     pptk: pptkFinal,
     pptk_nip: dbPPTKNip(pptkFinal),
@@ -872,6 +979,13 @@ function resetForm() {
   pkSel.disabled = true;
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  document.getElementById('f-jenispajak').value = '';
+  document.getElementById('f-pajak').value = '';
+  document.getElementById('f-ntpn').value = '';
+  document.getElementById('f-kbilling').value = '';
+  document.getElementById('f-ntb').value = '';
+  document.getElementById('badge-pajak-auto').style.display = 'none';
+  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => document.getElementById(id).style.display = 'none');
   document.getElementById('form-mode-label').textContent = 'Tambah Transaksi Baru';
   document.getElementById('btn-submit').innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
 }
@@ -892,6 +1006,14 @@ function editTrx(id) {
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-koderek').value = t.kode_rekening||'';
   document.getElementById('f-uraian').value = t.uraian||'';
+  document.getElementById('f-jenispajak').value = t.jenis_pajak||'';
+  document.getElementById('f-ntpn').value = t.ntpn||'';
+  document.getElementById('f-kbilling').value = t.kode_billing||'';
+  document.getElementById('f-ntb').value = t.ntb||'';
+  // Show/hide pajak detail fields
+  const hasPajak = !!(t.jenis_pajak);
+  document.getElementById('badge-pajak-auto').style.display = hasPajak ? '' : 'none';
+  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => document.getElementById(id).style.display = hasPajak ? '' : 'none');
 
   // Re-populate cascading dropdowns
   const kegSel = document.getElementById('f-kegiatan');
@@ -950,6 +1072,14 @@ function cetakKwitansi(id) {
   document.getElementById('kw-penerima').textContent = t.penerima || '—';
   document.getElementById('kw-pekerjaan').textContent = t.pekerjaan || '—';
   document.getElementById('kw-uraian').textContent = t.uraian || '—';
+  const hasPajakKw = !!(t.jenis_pajak || t.ntpn || t.kode_billing);
+  document.getElementById('kw-pajak-detail').style.display = hasPajakKw ? '' : 'none';
+  if (hasPajakKw) {
+    document.getElementById('kw-jenis-pajak').textContent = t.jenis_pajak || '—';
+    document.getElementById('kw-ntpn').textContent = t.ntpn || '—';
+    document.getElementById('kw-kode-billing').textContent = t.kode_billing || '—';
+    document.getElementById('kw-ntb-kw').textContent = t.ntb || '—';
+  }
   document.getElementById('kw-penerima-ttd').textContent = t.penerima || '—';
   document.getElementById('kw-kota-tgl').textContent = DB.kota + ', ' + tgl;
   document.getElementById('kw-bayar-tgl').textContent = tgl;
@@ -1003,6 +1133,211 @@ async function loadRekap() {
         </div>
       </td></tr>`;
   }).join('');
+}
+
+// ── Pajak ─────────────────────────────────────────────────────────────────
+const TARIF_PAJAK = {
+  "PPh 21 (5%)": 0.05,
+  "PPh 21 (2,5%)": 0.025,
+  "PPh 23 (2%)": 0.02,
+  "PPh 22 (1,5%)": 0.015,
+  "PPh Ps.4(2) Final (10%)": 0.10,
+};
+
+function onJenisPajakChange() {
+  const jenis = document.getElementById('f-jenispajak').value;
+  const hasPajak = !!jenis;
+  document.getElementById('badge-pajak-auto').style.display = hasPajak ? '' : 'none';
+  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => {
+    document.getElementById(id).style.display = hasPajak ? '' : 'none';
+  });
+  autoHitungPajak();
+}
+
+function autoHitungPajak() {
+  const jenis = document.getElementById('f-jenispajak').value;
+  const tarif = TARIF_PAJAK[jenis];
+  if (tarif) {
+    const nilai = parseFloat(document.getElementById('f-nilai').value) || 0;
+    document.getElementById('f-pajak').value = Math.round(nilai * tarif);
+  }
+}
+
+// ── Export Columns Definition ─────────────────────────────────────────────
+const EXPORT_COLS = [
+  {label:'Tanggal',      key:'tanggal'},
+  {label:'Kegiatan',     key:'kegiatan'},
+  {label:'Sub Kegiatan', key:'sub_kegiatan'},
+  {label:'Kode Rekening',key:'kode_rekening'},
+  {label:'Penerima',     key:'penerima'},
+  {label:'No BPK',       key:'no_bpk'},
+  {label:'No BAST',      key:'no_bast'},
+  {label:'No Kontrak',   key:'no_kontrak'},
+  {label:'Pekerjaan',    key:'pekerjaan'},
+  {label:'Uraian',       key:'uraian'},
+  {label:'Jenis Pajak',  key:'jenis_pajak'},
+  {label:'Nilai',        key:'nilai',        type:'number'},
+  {label:'Pajak',        key:'pajak',        type:'number'},
+  {label:'NTPN',         key:'ntpn'},
+  {label:'Kode Billing', key:'kode_billing'},
+  {label:'NTB',          key:'ntb'},
+  {label:'PA',           key:'pengguna_anggaran'},
+  {label:'PPTK',         key:'pptk'},
+  {label:'Bendahara',    key:'bendahara'},
+];
+
+// ── Ekspor ────────────────────────────────────────────────────────────────
+let importData = [];
+
+function showModalEkspor() {
+  // Populate kegiatan filter
+  const sel = document.getElementById('export-kegiatan');
+  sel.innerHTML = '<option value="">— Semua Kegiatan —</option>';
+  [...new Set(allTransactions.map(t => t.kegiatan).filter(Boolean))].sort()
+    .forEach(k => sel.add(new Option(k.length > 60 ? k.slice(0,60)+'…' : k, k)));
+  new bootstrap.Modal(document.getElementById('modalEkspor')).show();
+}
+
+function doEkspor() {
+  const bulan = document.getElementById('export-bulan').value;
+  const kegiatan = document.getElementById('export-kegiatan').value;
+
+  let data = [...allTransactions];
+  if (bulan) data = data.filter(t => (t.tanggal||'').startsWith(bulan));
+  if (kegiatan) data = data.filter(t => t.kegiatan === kegiatan);
+
+  if (!data.length) {
+    alert('Tidak ada data untuk filter yang dipilih.');
+    return;
+  }
+
+  const header = EXPORT_COLS.map(c => c.label);
+  const rows = data.map(t => EXPORT_COLS.map(c =>
+    c.type === 'number' ? (t[c.key] || 0) : (t[c.key] || '')
+  ));
+
+  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  // Column widths
+  ws['!cols'] = EXPORT_COLS.map((c, i) => ({ wch: [6,40,40,20,30,32,24,24,40,50,18,14,14,18,16,14,30,30,25][i] || 15 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Transaksi');
+
+  const nm = bulan ? `SIPKEU_${bulan}` : `SIPKEU_SemuaTransaksi`;
+  XLSX.writeFile(wb, nm + '.xlsx');
+  bootstrap.Modal.getInstance(document.getElementById('modalEkspor')).hide();
+}
+
+// ── Template Download ─────────────────────────────────────────────────────
+function downloadTemplate() {
+  const header = EXPORT_COLS.map(c => c.label);
+  const example = ['2026-01-10','Administrasi Keuangan Perangkat Daerah','Penyediaan Administrasi Pelaksanaan Tugas ASN','5.1.02.02.001.00080','CV. Contoh Maju','0001/BPK/UP/...','0001/BAST/DISDIK/I/2026','','Belanja ATK','Pengadaan ATK bulan Januari 2026','PPh 22 (1,5%)',1000000,15000,'1234567890123456','820260100000001','BND2026010001','HENDRI ARULAN, S.Pd','RAMA WARNI, MM','ELDINA SRIDHANTY, SE'];
+  const ws = XLSX.utils.aoa_to_sheet([header, example]);
+  ws['!cols'] = EXPORT_COLS.map((_, i) => ({ wch: [6,40,40,20,30,32,24,24,40,50,18,14,14,18,16,14,30,30,25][i] || 15 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Template');
+  XLSX.writeFile(wb, 'SIPKEU_Template_Import.xlsx');
+}
+
+// ── Impor ─────────────────────────────────────────────────────────────────
+function showModalImpor() {
+  document.getElementById('import-file').value = '';
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('btn-confirm-impor').style.display = 'none';
+  importData = [];
+  new bootstrap.Modal(document.getElementById('modalImpor')).show();
+}
+
+function previewImpor(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      if (rows.length < 2) {
+        showImportAlert('File kosong atau hanya memiliki header.', 'warning');
+        return;
+      }
+      const headers = rows[0].map(h => String(h).trim());
+      const dataRows = rows.slice(1).filter(r => r.some(v => v !== ''));
+
+      // Map header labels to keys
+      const colMap = {};
+      EXPORT_COLS.forEach(c => {
+        const idx = headers.findIndex(h => h.toLowerCase() === c.label.toLowerCase());
+        if (idx >= 0) colMap[c.key] = idx;
+      });
+
+      importData = dataRows.map(row => {
+        const t = {};
+        EXPORT_COLS.forEach(c => {
+          if (colMap[c.key] !== undefined) {
+            let v = row[colMap[c.key]];
+            if (c.type === 'number') {
+              v = parseFloat(String(v).replace(/[^\d.-]/g,'')) || 0;
+            } else {
+              if (v instanceof Date) {
+                v = v.toISOString().slice(0,10);
+              } else {
+                v = String(v || '').trim();
+              }
+            }
+            t[c.key] = v;
+          }
+        });
+        return t;
+      });
+
+      // Preview table
+      const head = document.getElementById('import-thead');
+      const tbody = document.getElementById('import-tbody');
+      const previewCols = ['tanggal','penerima','kegiatan','pekerjaan','jenis_pajak','nilai','pajak'];
+      const previewLabels = ['Tanggal','Penerima','Kegiatan','Pekerjaan','Jenis Pajak','Nilai','Pajak'];
+      head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
+      tbody.innerHTML = importData.slice(0, 20).map(t =>
+        '<tr>' + previewCols.map(k => `<td style="font-size:11px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis">${k==='nilai'||k==='pajak' ? formatRupiah(t[k]||0) : (t[k]||'-')}</td>`).join('') + '</tr>'
+      ).join('');
+
+      document.getElementById('import-count').textContent = importData.length;
+      document.getElementById('import-preview').style.display = '';
+      document.getElementById('btn-confirm-impor').style.display = '';
+      showImportAlert(`<i class="bi bi-check-circle me-1"></i>${importData.length} baris data siap diimpor${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}.`, 'success');
+    } catch(err) {
+      showImportAlert('<i class="bi bi-x-circle me-1"></i>Gagal membaca file: ' + err.message, 'danger');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showImportAlert(msg, type) {
+  const el = document.getElementById('import-alert');
+  el.className = `alert alert-${type} py-2 mb-2`;
+  el.innerHTML = msg;
+  document.getElementById('import-preview').style.display = '';
+}
+
+async function doImpor() {
+  if (!importData.length) return;
+  const btn = document.getElementById('btn-confirm-impor');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
+  try {
+    const res = await fetch(API + '/transactions/import', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(importData),
+    });
+    const result = await res.json();
+    bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
+    await loadTransaksi();
+    alert(result.message || `${importData.length} transaksi berhasil diimpor.`);
+  } catch(err) {
+    alert('Gagal mengimpor: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Import';
+  }
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────

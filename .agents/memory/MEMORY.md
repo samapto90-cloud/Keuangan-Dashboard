@@ -1,0 +1,1 @@
+- [SIPKEU Stack & Routing](sipkeu-stack.md) — Go+embed SPA, route /data/transactions, port dari env PORT, workflow "Aplikasi Keuangan"

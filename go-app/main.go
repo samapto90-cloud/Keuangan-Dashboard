@@ -27,8 +27,12 @@ type Transaction struct {
         NoKontrak        string  `json:"no_kontrak"`
         Pekerjaan        string  `json:"pekerjaan"`
         Uraian           string  `json:"uraian"`
+        JenisPajak       string  `json:"jenis_pajak"`
         Nilai            float64 `json:"nilai"`
         Pajak            float64 `json:"pajak"`
+        NTPN             string  `json:"ntpn"`
+        KodeBilling      string  `json:"kode_billing"`
+        NTB              string  `json:"ntb"`
         PenggunaAnggaran string  `json:"pengguna_anggaran"`
         PPTK             string  `json:"pptk"`
         PPTKnip          string  `json:"pptk_nip"`
@@ -163,6 +167,29 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
         }
 }
 
+func handleImport(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+                return
+        }
+        var items []Transaction
+        if err := json.NewDecoder(r.Body).Decode(&items); err != nil {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+                return
+        }
+        mu.Lock()
+        for i := range items {
+                items[i].ID = nextID
+                nextID++
+                transactions = append(transactions, items[i])
+        }
+        mu.Unlock()
+        jsonResponse(w, http.StatusOK, map[string]interface{}{
+                "imported": len(items),
+                "message":  fmt.Sprintf("%d transaksi berhasil diimpor", len(items)),
+        })
+}
+
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
         if r.Method != http.MethodGet {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
@@ -233,11 +260,11 @@ func addSampleData() {
                         KodeRekening: "5.1.02.02.001.00080",
                         Penerima: "RAMA WARNI, MM",
                         NoBPK: "0001/BPK/UP/1.01.0.00.0.00.01.0000/B01/01/2026",
-                        NoBAST: "0001/BAST/DISDIK/I/2026",
-                        NoKontrak: "",
+                        NoBAST: "0001/BAST/DISDIK/I/2026", NoKontrak: "",
                         Pekerjaan: "Belanja Honorarium Penanggungjawaban Pengelola Keuangan",
                         Uraian: "Pembayaran honorarium pengelola keuangan Dinas Pendidikan bulan Januari 2026",
-                        Nilai: 5000000, Pajak: 500000,
+                        JenisPajak: "PPh 21 (5%)", Nilai: 5000000, Pajak: 250000,
+                        NTPN: "1234567890123456", KodeBilling: "820260100000001", NTB: "BND2026010001",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
                         Bendahara: "ELDINA SRIDHANTY, SE",
@@ -248,11 +275,11 @@ func addSampleData() {
                         KodeRekening: "5.1.02.02.001.00067",
                         Penerima: "BANK RIAU KEPRI SYARIAH",
                         NoBPK: "0029/BPK/UP/1.01.0.00.0.00.01.0000/B03/05/2026",
-                        NoBAST: "0029/BAST/DISDIK/I/2026",
-                        NoKontrak: "",
+                        NoBAST: "0029/BAST/DISDIK/I/2026", NoKontrak: "",
                         Pekerjaan: "Belanja Pembayaran Pajak, Bea, dan Perizinan",
                         Uraian: "Retribusi Sampah Periode April 2026 DINAS PENDIDIKAN 26987 2605100395",
-                        Nilai: 120000, Pajak: 12000,
+                        JenisPajak: "", Nilai: 120000, Pajak: 0,
+                        NTPN: "", KodeBilling: "", NTB: "",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
                         Bendahara: "ELDINA SRIDHANTY, SE",
@@ -263,11 +290,11 @@ func addSampleData() {
                         KodeRekening: "5.1.02.01.001.00024",
                         Penerima: "CV. Maju Jaya",
                         NoBPK: "0005/BPK/UP/1.01.0.00.0.00.01.0000/B02/02/2026",
-                        NoBAST: "0005/BAST/DISDIK/II/2026",
-                        NoKontrak: "027/SPK/DISDIK/II/2026",
+                        NoBAST: "0005/BAST/DISDIK/II/2026", NoKontrak: "027/SPK/DISDIK/II/2026",
                         Pekerjaan: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor",
                         Uraian: "Pengadaan ATK untuk keperluan operasional kantor Dinas Pendidikan Kota Batam TA 2026",
-                        Nilai: 3500000, Pajak: 350000,
+                        JenisPajak: "PPh 22 (1,5%)", Nilai: 3500000, Pajak: 52500,
+                        NTPN: "2345678901234567", KodeBilling: "820260200000002", NTB: "BND2026020001",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
                         Bendahara: "ELDINA SRIDHANTY, SE",
@@ -278,11 +305,11 @@ func addSampleData() {
                         KodeRekening: "5.1.02.03.002.00405",
                         Penerima: "CV. Tekno Mandiri",
                         NoBPK: "0010/BPK/UP/1.01.0.00.0.00.01.0000/B03/03/2026",
-                        NoBAST: "0010/BAST/DISDIK/III/2026",
-                        NoKontrak: "027/SPK/DISDIK/III/2026",
+                        NoBAST: "0010/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026",
                         Pekerjaan: "Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer",
                         Uraian: "Pemeliharaan dan servis 5 unit PC di ruang tata usaha dan kepala bidang",
-                        Nilai: 8500000, Pajak: 850000,
+                        JenisPajak: "PPh 23 (2%)", Nilai: 8500000, Pajak: 170000,
+                        NTPN: "3456789012345678", KodeBilling: "820260300000003", NTB: "BND2026030001",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
                         Bendahara: "ELDINA SRIDHANTY, SE",
@@ -293,11 +320,11 @@ func addSampleData() {
                         KodeRekening: "5.2.02.05.003.00001",
                         Penerima: "UD. Furniture Prima",
                         NoBPK: "0015/BPK/UP/1.01.0.00.0.00.01.0000/B04/03/2026",
-                        NoBAST: "0015/BAST/DISDIK/III/2026",
-                        NoKontrak: "027/SPK/DISDIK/III/2026-02",
+                        NoBAST: "0015/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026-02",
                         Pekerjaan: "Belanja Modal Meja Kerja Pejabat",
                         Uraian: "Pengadaan 3 unit meja kerja pejabat untuk ruang kepala dinas dan kepala bidang",
-                        Nilai: 25000000, Pajak: 2500000,
+                        JenisPajak: "PPh Ps.4(2) Final (10%)", Nilai: 25000000, Pajak: 2500000,
+                        NTPN: "4567890123456789", KodeBilling: "820260300000004", NTB: "BND2026030002",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
                         Bendahara: "ELDINA SRIDHANTY, SE",
@@ -326,6 +353,7 @@ func main() {
         })
 
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
+        mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
 
