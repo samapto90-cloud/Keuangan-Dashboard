@@ -41,6 +41,9 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Go telemetry / local config
+.config/
+
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 

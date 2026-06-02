@@ -15,6 +15,9 @@ import (
 //go:embed index.html
 var indexHTML []byte
 
+//go:embed kop-disdik.png
+var kopDisdikPNG []byte
+
 type Transaction struct {
         ID               int     `json:"id"`
         Tanggal          string  `json:"tanggal"`
@@ -28,8 +31,10 @@ type Transaction struct {
         Pekerjaan        string  `json:"pekerjaan"`
         Uraian           string  `json:"uraian"`
         JenisPajak       string  `json:"jenis_pajak"`
+        JenisPotongan    string  `json:"jenis_potongan"`
         Nilai            float64 `json:"nilai"`
         Pajak            float64 `json:"pajak"`
+        NilaiPotongan    float64 `json:"nilai_potongan"`
         NTPN             string  `json:"ntpn"`
         KodeBilling      string  `json:"kode_billing"`
         NTB              string  `json:"ntb"`
@@ -44,6 +49,10 @@ type DashboardStats struct {
         TotalNilai       float64        `json:"total_nilai"`
         TotalPajak       float64        `json:"total_pajak"`
         NilaiBersih      float64        `json:"nilai_bersih"`
+        TotalPagu        float64        `json:"total_pagu"`
+        Realisasi        float64        `json:"realisasi"`
+        SisaPagu         float64        `json:"sisa_pagu"`
+        PersenRealisasi  float64        `json:"persen_realisasi"`
         NilaiPerKegiatan []KegiatanStat `json:"nilai_per_kegiatan"`
         RecentTransaksi  []Transaction  `json:"recent_transaksi"`
         MonthlyStats     []MonthlyStat  `json:"monthly_stats"`
@@ -61,17 +70,35 @@ type MonthlyStat struct {
         Pajak float64 `json:"pajak"`
 }
 
+type Pejabat struct {
+        Nama string `json:"nama"`
+        Nip  string `json:"nip"`
+}
+
+type AppSettings struct {
+        PA               Pejabat            `json:"pa"`
+        Bendahara        Pejabat            `json:"bendahara"`
+        AnggaranKegiatan map[string]float64 `json:"anggaran_kegiatan"`
+        Rak              []RakRow           `json:"rak"`
+}
+
 var (
         transactions []Transaction
         nextID       = 1
         mu           sync.Mutex
+        appSettings  = AppSettings{
+                PA:        Pejabat{Nama: "HENDRI ARULAN, S.Pd", Nip: "NIP. 19670119 199103 1 009"},
+                Bendahara: Pejabat{Nama: "ELDINA SRIDHANTY, SE", Nip: "NIP. 19810610 201001 2 002"},
+                AnggaranKegiatan: map[string]float64{},
+        }
+        settingsMu sync.RWMutex
 )
 
 func cors(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Access-Control-Allow-Origin", "*")
                 w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-                w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token")
                 if r.Method == http.MethodOptions {
                         w.WriteHeader(http.StatusOK)
                         return
@@ -87,6 +114,10 @@ func jsonResponse(w http.ResponseWriter, status int, data interface{}) {
 }
 
 func handleTransactions(w http.ResponseWriter, r *http.Request) {
+        if getSession(r) == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
         switch r.Method {
         case http.MethodGet:
                 mu.Lock()
@@ -114,6 +145,10 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
+        if getSession(r) == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
         path := strings.TrimPrefix(r.URL.Path, "/data/transactions/")
         id, err := strconv.Atoi(path)
         if err != nil {
@@ -168,6 +203,10 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleImport(w http.ResponseWriter, r *http.Request) {
+        if getSession(r) == nil || getSession(r).Role != "admin" {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+                return
+        }
         if r.Method != http.MethodPost {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
                 return
@@ -191,6 +230,10 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
+        if getSession(r) == nil || getSession(r).Role != "admin" {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+                return
+        }
         if r.Method != http.MethodGet {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
                 return
@@ -207,9 +250,11 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         kegiatanMap := map[string]*KegiatanStat{}
         monthlyMap := map[string]*MonthlyStat{}
 
+        var totalPotongan float64
         for _, t := range data {
                 stats.TotalNilai += t.Nilai
                 stats.TotalPajak += t.Pajak
+                totalPotongan += t.NilaiPotongan
 
                 k, ok := kegiatanMap[t.Kegiatan]
                 if !ok {
@@ -234,7 +279,18 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
                 }
         }
 
-        stats.NilaiBersih = stats.TotalNilai - stats.TotalPajak
+        stats.NilaiBersih = stats.TotalNilai - stats.TotalPajak - totalPotongan
+        stats.Realisasi = stats.TotalNilai
+
+        settingsMu.RLock()
+        for _, r := range appSettings.Rak {
+                stats.TotalPagu += r.Anggaran
+        }
+        settingsMu.RUnlock()
+        stats.SisaPagu = stats.TotalPagu - stats.Realisasi
+        if stats.TotalPagu > 0 {
+                stats.PersenRealisasi = (stats.Realisasi / stats.TotalPagu) * 100
+        }
 
         for _, v := range kegiatanMap {
                 stats.NilaiPerKegiatan = append(stats.NilaiPerKegiatan, *v)
@@ -252,6 +308,63 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         jsonResponse(w, http.StatusOK, stats)
 }
 
+func handleSettings(w http.ResponseWriter, r *http.Request) {
+        sess := getSession(r)
+        if sess == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        switch r.Method {
+        case http.MethodGet:
+                settingsMu.RLock()
+                copyAnggaran := map[string]float64{}
+                for k, v := range appSettings.AnggaranKegiatan {
+                        copyAnggaran[k] = v
+                }
+                rakCopy := make([]RakRow, len(appSettings.Rak))
+                copy(rakCopy, appSettings.Rak)
+                out := AppSettings{
+                        PA:               appSettings.PA,
+                        Bendahara:        appSettings.Bendahara,
+                        AnggaranKegiatan: copyAnggaran,
+                        Rak:              rakCopy,
+                }
+                settingsMu.RUnlock()
+                jsonResponse(w, http.StatusOK, out)
+
+        case http.MethodPut:
+                if sess.Role != "admin" {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+                        return
+                }
+                var incoming AppSettings
+                if err := json.NewDecoder(r.Body).Decode(&incoming); err != nil {
+                        jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+                        return
+                }
+                settingsMu.Lock()
+                if incoming.PA.Nama != "" {
+                        appSettings.PA = incoming.PA
+                }
+                if incoming.Bendahara.Nama != "" {
+                        appSettings.Bendahara = incoming.Bendahara
+                }
+                if incoming.AnggaranKegiatan != nil {
+                        if appSettings.AnggaranKegiatan == nil {
+                                appSettings.AnggaranKegiatan = map[string]float64{}
+                        }
+                        for k, v := range incoming.AnggaranKegiatan {
+                                appSettings.AnggaranKegiatan[k] = v
+                        }
+                }
+                settingsMu.Unlock()
+                jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
+
+        default:
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+        }
+}
+
 func addSampleData() {
         samples := []Transaction{
                 {
@@ -263,7 +376,7 @@ func addSampleData() {
                         NoBAST: "0001/BAST/DISDIK/I/2026", NoKontrak: "",
                         Pekerjaan: "Belanja Honorarium Penanggungjawaban Pengelola Keuangan",
                         Uraian: "Pembayaran honorarium pengelola keuangan Dinas Pendidikan bulan Januari 2026",
-                        JenisPajak: "PPh 21 (5%)", Nilai: 5000000, Pajak: 250000,
+                        JenisPajak: "PPh 21 (5%)", JenisPotongan: "Iuran Wajib Pegawai", Nilai: 5000000, Pajak: 250000, NilaiPotongan: 0,
                         NTPN: "1234567890123456", KodeBilling: "820260100000001", NTB: "BND2026010001",
                         PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
                         PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
@@ -338,6 +451,27 @@ func addSampleData() {
         }
 }
 
+func initSampleAnggaran() {
+        kegiatanTotals := map[string]float64{}
+        for _, t := range transactions {
+                kegiatanTotals[t.Kegiatan] += t.Nilai
+        }
+        settingsMu.Lock()
+        defer settingsMu.Unlock()
+        if appSettings.AnggaranKegiatan == nil {
+                appSettings.AnggaranKegiatan = map[string]float64{}
+        }
+        for keg, total := range kegiatanTotals {
+                if _, ok := appSettings.AnggaranKegiatan[keg]; !ok {
+                        padded := int(total*1.25/1000000) + 1
+                        if padded < 100 {
+                                padded = 100
+                        }
+                        appSettings.AnggaranKegiatan[keg] = float64(padded) * 1000000
+                }
+        }
+}
+
 func main() {
         port := os.Getenv("PORT")
         if port == "" {
@@ -348,16 +482,36 @@ func main() {
 
         mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "text/html; charset=utf-8")
+                w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
                 w.WriteHeader(http.StatusOK)
                 w.Write(indexHTML)
         })
+
+        mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
+                w.Header().Set("Content-Type", "image/png")
+                w.Header().Set("Cache-Control", "public, max-age=86400")
+                w.Write(kopDisdikPNG)
+        })
+
+        mux.HandleFunc("/data/auth/login", cors(handleLogin))
+        mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
+        mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
+        mux.HandleFunc("/data/settings", cors(handleSettings))
+        mux.HandleFunc("/data/import/anggaran", cors(requireAdmin(handleImportAnggaran)))
 
         addSampleData()
+        tryLoadDefaultAnggaran()
+        settingsMu.RLock()
+        hasAnggaran := len(appSettings.AnggaranKegiatan) > 0
+        settingsMu.RUnlock()
+        if !hasAnggaran {
+                initSampleAnggaran()
+        }
 
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
         log.Fatal(http.ListenAndServe(":"+port, mux))
