@@ -18,6 +18,15 @@ var indexHTML []byte
 //go:embed kop-disdik.png
 var kopDisdikPNG []byte
 
+//go:embed assets/portal-tanjiro.png
+var portalTanjiroPNG []byte
+
+//go:embed assets/portal-nezuko.png
+var portalNezukoPNG []byte
+
+//go:embed assets/portal-zenitsu.png
+var portalZenitsuPNG []byte
+
 type Transaction struct {
         ID               int     `json:"id"`
         Tanggal          string  `json:"tanggal"`
@@ -104,6 +113,14 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
                         return
                 }
                 next(w, r)
+        }
+}
+
+func servePNG(data []byte) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+                w.Header().Set("Content-Type", "image/png")
+                w.Header().Set("Cache-Control", "public, max-age=86400")
+                w.Write(data)
         }
 }
 
@@ -492,6 +509,9 @@ func main() {
                 w.Header().Set("Cache-Control", "public, max-age=86400")
                 w.Write(kopDisdikPNG)
         })
+        mux.HandleFunc("/assets/portal-tanjiro.png", servePNG(portalTanjiroPNG))
+        mux.HandleFunc("/assets/portal-nezuko.png", servePNG(portalNezukoPNG))
+        mux.HandleFunc("/assets/portal-zenitsu.png", servePNG(portalZenitsuPNG))
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))

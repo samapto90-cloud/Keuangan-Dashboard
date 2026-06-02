@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPKEU — Sistem Penatausahaan Keuangan</title>
+  <title>SIPKEU Portal — Dinas Pendidikan Kota Batam</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -445,12 +445,25 @@
       body.kwitansi-printing #kwitansi-print .kw-wrap {
         box-shadow: none !important; border: none !important;
         font-family: Arial, sans-serif !important;
+        padding: 6mm 10mm 5mm !important;
       }
       body.kwitansi-printing #kwitansi-print .kw-wrap * {
         font-family: Arial, sans-serif !important;
       }
+      body.kwitansi-printing .kw-kop {
+        width: 210mm !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 5mm 8mm 3mm !important;
+        box-sizing: border-box;
+      }
       body.kwitansi-printing .kw-kop img {
-        max-height: 72px; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        object-fit: contain;
+        object-position: center center;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
       }
       body:not(.kwitansi-printing) #rekap-print {
         display: block !important; position: fixed; top: 0; left: 0;
@@ -486,6 +499,111 @@
       padding: 24px;
     }
     #login-screen.hidden { display: none; }
+
+    /* ── Portal Aplikasi (Homepage) ── */
+    #portal-screen {
+      position: fixed; inset: 0; z-index: 10001;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 32px 20px 48px; overflow-y: auto;
+    }
+    #portal-screen.hidden { display: none; }
+    .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
+    .portal-header { text-align: center; margin-bottom: 36px; }
+    .portal-header .portal-logo {
+      width: 72px; height: 72px; margin: 0 auto 14px;
+      border-radius: 50%; overflow: hidden;
+      border: 2px solid rgba(255,107,0,.35);
+      box-shadow: 0 12px 32px rgba(255,107,0,.3), 0 0 24px rgba(59,130,246,.2);
+    }
+    .portal-header .portal-logo img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    }
+    .portal-header h1 {
+      font-family: 'Bangers', cursive; letter-spacing: 3px;
+      font-size: clamp(2rem, 5vw, 2.75rem); margin: 0 0 8px;
+      background: linear-gradient(90deg, var(--naruto), var(--gold), var(--chakra));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .portal-header p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+    .portal-header .portal-ta {
+      display: inline-block; margin-top: 12px; padding: 4px 14px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: rgba(255,107,0,.12); border: 1px solid rgba(255,107,0,.25); color: var(--naruto);
+    }
+    .portal-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; margin-bottom: 28px;
+    }
+    .portal-app-card {
+      position: relative; cursor: pointer; border-radius: 20px; padding: 28px 24px 22px;
+      background: rgba(10, 14, 26, 0.88); border: 1px solid rgba(148,163,184,.15);
+      backdrop-filter: blur(12px); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow: hidden; min-height: 220px; display: flex; flex-direction: column;
+    }
+    .portal-app-card::before {
+      content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity .25s;
+      background: radial-gradient(circle at 30% 20%, rgba(255,107,0,.12), transparent 55%);
+    }
+    .portal-app-card:hover { transform: translateY(-6px); border-color: rgba(255,107,0,.35); }
+    .portal-app-card:hover::before { opacity: 1; }
+    .portal-app-card.portal-active {
+      border-color: rgba(34,197,94,.45);
+      box-shadow: 0 16px 40px rgba(0,0,0,.35), 0 0 24px rgba(34,197,94,.12);
+    }
+    .portal-app-card.portal-active:hover { border-color: rgba(34,197,94,.65); }
+    .portal-app-card.portal-soon { cursor: default; opacity: .92; }
+    .portal-app-card.portal-soon:hover { transform: translateY(-3px); border-color: rgba(148,163,184,.25); }
+    .portal-app-icon {
+      width: 64px; height: 64px; border-radius: 50%; overflow: hidden;
+      margin-bottom: 16px; position: relative; z-index: 1;
+      border: 2px solid rgba(255,255,255,.12);
+      box-shadow: 0 4px 16px rgba(0,0,0,.35);
+    }
+    .portal-app-icon img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top;
+      display: block;
+    }
+    .portal-app-card.portal-theme-naruto .portal-app-icon {
+      border-color: rgba(255,107,0,.45); box-shadow: 0 0 20px rgba(255,107,0,.25);
+    }
+    .portal-app-card.portal-theme-chakra .portal-app-icon {
+      border-color: rgba(236,72,153,.45); box-shadow: 0 0 20px rgba(236,72,153,.2);
+    }
+    .portal-app-card.portal-theme-leaf .portal-app-icon {
+      border-color: rgba(251,191,36,.45); box-shadow: 0 0 20px rgba(251,191,36,.2);
+    }
+    .portal-app-card h3 {
+      font-size: 17px; font-weight: 800; margin: 0 0 8px; color: #fff; position: relative; z-index: 1; line-height: 1.35;
+    }
+    .portal-app-card p {
+      font-size: 12px; color: var(--text-muted); margin: 0 0 auto; line-height: 1.55;
+      position: relative; z-index: 1; flex-grow: 1;
+    }
+    .portal-app-foot {
+      display: flex; align-items: center; justify-content: space-between; margin-top: 18px;
+      position: relative; z-index: 1;
+    }
+    .portal-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px;
+    }
+    .portal-badge-live { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .portal-badge-soon { background: rgba(148,163,184,.1); color: #94a3b8; border: 1px solid rgba(148,163,184,.2); }
+    .portal-app-action {
+      font-size: 12px; font-weight: 700; color: var(--naruto); display: flex; align-items: center; gap: 4px;
+    }
+    .portal-app-card.portal-soon .portal-app-action { color: var(--text-muted); }
+    .portal-footer { text-align: center; font-size: 11px; color: var(--text-muted); }
+    .login-app-label {
+      display: inline-block; margin-bottom: 8px; padding: 3px 10px; border-radius: 8px;
+      font-size: 11px; font-weight: 700; background: rgba(255,107,0,.12); color: var(--naruto);
+      border: 1px solid rgba(255,107,0,.2);
+    }
+    .login-back-portal {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+      font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0;
+    }
+    .login-back-portal:hover { color: var(--naruto); }
     .login-card {
       width: 100%; max-width: 420px;
       background: rgba(10, 14, 26, 0.92);
@@ -557,17 +675,25 @@
       width: 210mm; box-sizing: border-box;
       background: #fff; color: #000;
       font-size: 10pt; line-height: 1.35;
-      padding: 0 12mm 8mm;
+      padding: 6mm 10mm 5mm;
     }
     .kw-wrap, .kw-wrap * { font-family: Arial, sans-serif !important; }
     .kw-kop {
-      padding: 6mm 0 3mm;
+      width: calc(100% + 20mm);
+      margin-left: -10mm;
+      margin-right: -10mm;
+      padding: 2mm 8mm 3mm;
+      box-sizing: border-box;
       border-bottom: 2.5px solid #1a1a1a;
       margin-bottom: 3mm;
     }
     .kw-kop img {
-      width: 100%; height: auto; display: block;
-      max-height: 72px; object-fit: contain;
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 788 / 160;
+      object-fit: contain;
+      object-position: center center;
     }
     .kw-head {
       display: grid; grid-template-columns: 1fr auto;
@@ -744,13 +870,60 @@
   <div class="loader-text">Gathering Chakra...</div>
 </div>
 
+<!-- ═══════════════ PORTAL APLIKASI (Homepage) ═══════════════ -->
+<div id="portal-screen">
+  <div class="portal-wrap ds-animate">
+    <header class="portal-header">
+      <div class="portal-logo"><img src="/assets/portal-tanjiro.png" alt="SIPKEU Portal" /></div>
+      <h1>SIPKEU PORTAL</h1>
+      <p>Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam</p>
+      <span class="portal-ta">Tahun Anggaran 2026</span>
+    </header>
+
+    <div class="portal-grid">
+      <div class="portal-app-card portal-theme-naruto portal-active" onclick="openPortalApp('sekretariat')">
+        <div class="portal-app-icon"><img src="/assets/portal-tanjiro.png" alt="Tanjiro — SIPKEU Sekretariat" /></div>
+        <h3>SIPKEU Sekretariat</h3>
+        <p>Penatausahaan keuangan Sekretariat Dinas Pendidikan — transaksi, kwitansi, rekap, dan dashboard pagu anggaran.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+
+      <div class="portal-app-card portal-theme-chakra portal-soon" onclick="openPortalApp('paud')">
+        <div class="portal-app-icon"><img src="/assets/portal-nezuko.png" alt="Nezuko — SIPKEU PAUD" /></div>
+        <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
+        <p>Penatausahaan keuangan bidang Pendidikan Anak Usia Dini dan Pendidikan Kesetaraan.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-soon">Segera</span>
+          <span class="portal-app-action">Info <i class="bi bi-info-circle"></i></span>
+        </div>
+      </div>
+
+      <div class="portal-app-card portal-theme-leaf portal-soon" onclick="openPortalApp('kas-belanja')">
+        <div class="portal-app-icon"><img src="/assets/portal-zenitsu.png" alt="Zenitsu — Realisasi Kas Belanja" /></div>
+        <h3>Realisasi Anggaran Kas Belanja</h3>
+        <p>Monitoring dan laporan realisasi anggaran kas belanja per kegiatan dan periode.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-soon">Segera</span>
+          <span class="portal-app-action">Info <i class="bi bi-info-circle"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="portal-footer">Developer by Mangatas Surbakti</div>
+  </div>
+</div>
+
 <!-- ═══════════════ LOGIN ═══════════════ -->
-<div id="login-screen">
+<div id="login-screen" class="hidden">
   <div class="login-card ds-animate">
     <div class="login-brand">
       <div class="login-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div class="login-app-label" id="login-app-label">SIPKEU Sekretariat</div>
       <h4>SIPKEU</h4>
-      <p>Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · TA 2026</p>
+      <p id="login-app-desc">Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · TA 2026</p>
     </div>
     <div class="login-roles">
       <div class="login-role-hint">
@@ -780,6 +953,9 @@
       <div class="text-center mt-3" style="font-size:11px;color:var(--text-muted)">
         Password default: <code>admin2026</code> / <code>operator2026</code>
       </div>
+      <button type="button" class="login-back-portal w-100 justify-content-center" onclick="showPortal()">
+        <i class="bi bi-arrow-left"></i> Kembali ke Portal Aplikasi
+      </button>
     </form>
   </div>
 </div>
@@ -827,7 +1003,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   <div class="brand">
     <div class="brand-icon"><i class="bi bi-suit-spade-fill"></i></div>
     <div>
-      <h6>SIPKEU</h6>
+      <h6>SIPKEU Sekretariat</h6>
       <small>Dinas Pendidikan Batam</small>
     </div>
   </div>
@@ -843,6 +1019,8 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <a href="#" class="nav-admin-only" onclick="showModalEkspor();return false"><i class="bi bi-file-earmark-excel"></i> Ekspor Transaksi</a>
     <a href="#" class="nav-admin-only" onclick="showModalImpor();return false"><i class="bi bi-upload"></i> Impor Transaksi</a>
     <a href="#" class="nav-admin-only" onclick="showModalImporAnggaran();return false"><i class="bi bi-table"></i> Impor Anggaran & Kegiatan</a>
+    <div class="nav-label mt-2">Navigasi</div>
+    <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Portal Aplikasi</a>
   </nav>
   <div class="sidebar-footer">
     <div style="color:var(--naruto);font-weight:600;margin-bottom:3px">TA 2026 — Dinas Pendidikan</div>
@@ -857,7 +1035,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   <div class="topbar">
     <div>
       <div class="page-title" id="topbar-title">Dashboard</div>
-      <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted">SIPKEU</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
+      <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted">SIPKEU Sekretariat</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
     </div>
     <div class="user-badge">
       <div class="avatar" id="topbar-avatar">HA</div>
@@ -1458,6 +1636,22 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   </div>
 </div>
 
+<!-- Modal Portal — Segera Hadir -->
+<div class="modal fade" id="modalPortalSoon" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#12182b;border:1px solid rgba(148,163,184,.2);color:#e2e8f0">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title"><i class="bi bi-hourglass-split me-2 text-warning"></i><span id="portal-soon-title">Aplikasi</span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body"><p id="portal-soon-body" class="mb-0">Sedang dalam pengembangan.</p></div>
+      <div class="modal-footer border-secondary">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Hapus -->
 <div class="modal fade" id="modalHapus" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
@@ -1487,6 +1681,67 @@ let deleteId = null;
 let chartKegiatan = null, chartDoughnut = null, chartMonthly = null;
 let currentUser = null;
 let kwitansiFilenameBase = '';
+let selectedPortalApp = 'sekretariat';
+
+const PORTAL_APPS = {
+  sekretariat: {
+    label: 'SIPKEU Sekretariat',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · TA 2026',
+    available: true,
+  },
+  paud: {
+    label: 'SIPKEU PAUD & Kesetaraan',
+    desc: 'Modul penatausahaan keuangan PAUD dan Pendidikan Kesetaraan.',
+    available: false,
+    soonMsg: 'Aplikasi <strong>SIPKEU PAUD &amp; Kesetaraan</strong> sedang dalam pengembangan dan akan segera tersedia.',
+  },
+  'kas-belanja': {
+    label: 'Realisasi Anggaran Kas Belanja',
+    desc: 'Modul monitoring realisasi anggaran kas belanja.',
+    available: false,
+    soonMsg: 'Aplikasi <strong>Realisasi Anggaran Kas Belanja</strong> sedang dalam pengembangan dan akan segera tersedia.',
+  },
+};
+
+function showPortal() {
+  document.getElementById('portal-screen')?.classList.remove('hidden');
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('app-shell')?.classList.remove('visible');
+  currentUser = null;
+  document.body.classList.remove('role-admin', 'role-operator');
+}
+
+function showLogin(appKey) {
+  selectedPortalApp = appKey || 'sekretariat';
+  const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
+  document.getElementById('login-app-label').textContent = app.label;
+  document.getElementById('login-app-desc').innerHTML = app.desc;
+  document.getElementById('portal-screen')?.classList.add('hidden');
+  document.getElementById('login-screen')?.classList.remove('hidden');
+  document.getElementById('app-shell')?.classList.remove('visible');
+  currentUser = null;
+  document.body.classList.remove('role-admin', 'role-operator');
+  document.getElementById('login-error')?.classList.remove('show');
+}
+
+function openPortalApp(appKey) {
+  const app = PORTAL_APPS[appKey];
+  if (!app) return;
+  if (app.available) {
+    showLogin(appKey);
+    document.getElementById('login-username')?.focus();
+    return;
+  }
+  document.getElementById('portal-soon-title').textContent = app.label;
+  document.getElementById('portal-soon-body').innerHTML = app.soonMsg || 'Aplikasi sedang dalam pengembangan.';
+  new bootstrap.Modal(document.getElementById('modalPortalSoon')).show();
+}
+
+function backToPortal() {
+  sessionStorage.removeItem('sipkeu_token');
+  currentUser = null;
+  showPortal();
+}
 
 // ── Auth ─────────────────────────────────────────────────────────────────
 function authHeaders(extra = {}) {
@@ -1503,7 +1758,7 @@ async function apiFetch(path, options = {}) {
   const res = await fetch(url, { ...options, headers });
   if (res.status === 401 && !url.includes('/auth/login')) {
     sessionStorage.removeItem('sipkeu_token');
-    showLogin();
+    showLogin(selectedPortalApp || 'sekretariat');
     throw new Error('Sesi berakhir, silakan login kembali');
   }
   return res;
@@ -1511,14 +1766,8 @@ async function apiFetch(path, options = {}) {
 
 function isAdmin() { return currentUser?.role === 'admin'; }
 
-function showLogin() {
-  document.getElementById('login-screen')?.classList.remove('hidden');
-  document.getElementById('app-shell')?.classList.remove('visible');
-  currentUser = null;
-  document.body.classList.remove('role-admin', 'role-operator');
-}
-
 function showApp() {
+  document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   applyRoleUI();
@@ -1544,7 +1793,8 @@ function applyRoleUI() {
 
 async function tryRestoreSession() {
   const token = sessionStorage.getItem('sipkeu_token');
-  if (!token) { showLogin(); return; }
+  if (!token) { showPortal(); return; }
+  selectedPortalApp = 'sekretariat';
   try {
     const res = await apiFetch(API + '/auth/me');
     if (!res.ok) throw new Error();
@@ -1552,7 +1802,7 @@ async function tryRestoreSession() {
     await bootApp();
   } catch {
     sessionStorage.removeItem('sipkeu_token');
-    showLogin();
+    showPortal();
   }
 }
 
@@ -1590,7 +1840,7 @@ async function doLogout() {
   try { await apiFetch(API + '/auth/logout', { method: 'POST' }); } catch (_) {}
   sessionStorage.removeItem('sipkeu_token');
   currentUser = null;
-  showLogin();
+  showPortal();
   document.getElementById('login-form')?.reset();
 }
 
