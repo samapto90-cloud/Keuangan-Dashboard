@@ -335,21 +335,31 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
         <input type="hidden" id="f-id" />
         <div class="row g-3">
 
-          <!-- Baris 1: Tanggal + No BPK -->
+          <!-- Baris 1: Tanggal + Penerima -->
           <div class="col-md-3">
             <label class="form-label">Tanggal <span class="text-danger">*</span></label>
             <input type="date" class="form-control" id="f-tanggal" required />
           </div>
           <div class="col-md-5">
-            <label class="form-label">Nomor BPK / No. BAST</label>
-            <input type="text" class="form-control" id="f-nobast" placeholder="0001/BPK/UP/.../B01/01/2026" />
-          </div>
-          <div class="col-md-4">
             <label class="form-label">Penerima / Dibayar Kepada <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima / vendor" required />
           </div>
+          <div class="col-md-4">
+            <label class="form-label">No. BPK</label>
+            <input type="text" class="form-control" id="f-nobpk" placeholder="0001/BPK/UP/.../B01/01/2026" />
+          </div>
 
-          <!-- Baris 2: Kegiatan (cascading level 1) -->
+          <!-- Baris 2: No BAST + No Kontrak -->
+          <div class="col-md-6">
+            <label class="form-label">No. BAST <small class="text-muted">(Berita Acara Serah Terima)</small></label>
+            <input type="text" class="form-control" id="f-nobast" placeholder="0001/BAST/DISDIK/I/2026" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">No. Kontrak / SPK <small class="text-muted">(kosongkan jika tidak ada)</small></label>
+            <input type="text" class="form-control" id="f-nokontrak" placeholder="027/SPK/DISDIK/I/2026" />
+          </div>
+
+          <!-- Baris 3: Kegiatan (cascading level 1) -->
           <div class="col-12">
             <label class="form-label">Kegiatan <span class="text-danger">*</span></label>
             <select class="form-select" id="f-kegiatan" onchange="onKegiatanChange()" required>
@@ -357,7 +367,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             </select>
           </div>
 
-          <!-- Baris 3: Sub Kegiatan (cascading level 2) -->
+          <!-- Baris 4: Sub Kegiatan (cascading level 2) -->
           <div class="col-12">
             <label class="form-label">Sub Kegiatan <span class="text-danger">*</span></label>
             <select class="form-select" id="f-subkegiatan" onchange="onSubKegiatanChange()" required disabled>
@@ -365,10 +375,10 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             </select>
           </div>
 
-          <!-- Baris 4: Pekerjaan/Uraian (cascading level 3) -->
+          <!-- Baris 5: Pekerjaan (cascading level 3) + Kode Rekening -->
           <div class="col-md-8">
-            <label class="form-label">Keterangan / Uraian Pekerjaan <span class="text-danger">*</span></label>
-            <select class="form-select" id="f-uraian" onchange="onUraianChange()" required disabled>
+            <label class="form-label">Pekerjaan <span class="text-danger">*</span> <span class="auto-badge">dari database RAK</span></label>
+            <select class="form-select" id="f-pekerjaan" onchange="onPekerjaanChange()" required disabled>
               <option value="">— Pilih Pekerjaan —</option>
             </select>
           </div>
@@ -377,7 +387,13 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <input type="text" class="form-control" id="f-koderek" readonly placeholder="Terisi otomatis" />
           </div>
 
-          <!-- Baris 5: Nilai + Pajak -->
+          <!-- Baris 6: Uraian (free text) -->
+          <div class="col-12">
+            <label class="form-label">Uraian / Keterangan Pembayaran <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="f-uraian" rows="2" placeholder="Deskripsi detail pembayaran, misalnya: Retribusi Sampah Periode April 2026, Pengadaan ATK bulan Februari 2026, dll." required></textarea>
+          </div>
+
+          <!-- Baris 7: Nilai + Pajak + PA -->
           <div class="col-md-4">
             <label class="form-label">Nilai (Rp) <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required />
@@ -391,7 +407,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <input type="text" class="form-control" id="f-pa" readonly />
           </div>
 
-          <!-- Baris 6: PPTK + Bendahara -->
+          <!-- Baris 8: PPTK + Bendahara -->
           <div class="col-md-6">
             <label class="form-label">PPTK <span class="auto-badge">terisi dari pekerjaan</span></label>
             <input type="text" class="form-control" id="f-pptk" readonly placeholder="Terisi otomatis saat pilih pekerjaan" />
@@ -420,12 +436,13 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
           <thead>
             <tr>
               <th>No</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
-              <th>Penerima</th><th>No BPK</th><th>Kode Rek.</th><th>Uraian Pekerjaan</th>
+              <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
+              <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
               <th class="text-end">Nilai (Rp)</th><th class="text-end">Pajak (Rp)</th>
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="14" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="17" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top d-flex justify-content-between align-items-center" style="font-size:13px;color:#64748b">
@@ -463,10 +480,12 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       <div class="kw-meta-left">
         <div>Tahun Anggaran &nbsp;: &nbsp;<strong>2026</strong></div>
         <div>Kode Rekening &nbsp;&nbsp;: &nbsp;<strong id="kw-koderek">—</strong></div>
+        <div>No. BAST &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;<span id="kw-nobast">—</span></div>
+        <div id="kw-nokontrak-row" style="display:none">No. Kontrak &nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;<span id="kw-nokontrak">—</span></div>
       </div>
       <div class="kw-meta-right">
-        <div>No. : <strong id="kw-nobpk">—</strong></div>
-        <div style="margin-top:3px">
+        <div>No. BPK : <strong id="kw-nobpk">—</strong></div>
+        <div style="margin-top:5px">
           <span style="border:1px solid #222;padding:1px 5px;font-size:10px"><strong>ASLI</strong></span>
           <span style="border:1px solid #aaa;padding:1px 5px;font-size:10px;margin-left:2px">II</span>
           <span style="border:1px solid #aaa;padding:1px 5px;font-size:10px;margin-left:2px">III</span>
@@ -493,7 +512,8 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       </div>
 
       <div class="kw-row"><span class="kw-label">DIBAYAR KEPADA</span><span>:</span><span id="kw-penerima">—</span></div>
-      <div class="kw-row mt-1"><span class="kw-label">YAITU</span><span>:</span><span id="kw-uraian">—</span></div>
+      <div class="kw-row mt-1"><span class="kw-label">PEKERJAAN</span><span>:</span><span id="kw-pekerjaan">—</span></div>
+      <div class="kw-row mt-1"><span class="kw-label">YAITU / URAIAN</span><span>:</span><span id="kw-uraian">—</span></div>
     </div>
 
     <!-- TTD Atas: PA + Penerima -->
@@ -645,14 +665,14 @@ function initForm() {
 function onKegiatanChange() {
   const keg = document.getElementById('f-kegiatan').value;
   const subSel = document.getElementById('f-subkegiatan');
-  const urSel = document.getElementById('f-uraian');
+  const pkSel = document.getElementById('f-pekerjaan');
 
   subSel.innerHTML = '<option value="">— Pilih Sub Kegiatan —</option>';
-  urSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
+  pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
   subSel.disabled = !keg;
-  urSel.disabled = true;
+  pkSel.disabled = true;
 
   if (!keg) return;
   dbSubKegiatan(keg).forEach(s => subSel.add(new Option(s, s)));
@@ -661,21 +681,21 @@ function onKegiatanChange() {
 function onSubKegiatanChange() {
   const keg = document.getElementById('f-kegiatan').value;
   const sub = document.getElementById('f-subkegiatan').value;
-  const urSel = document.getElementById('f-uraian');
+  const pkSel = document.getElementById('f-pekerjaan');
 
-  urSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
+  pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
-  urSel.disabled = !sub;
+  pkSel.disabled = !sub;
 
   if (!sub) return;
   dbPekerjaan(keg, sub).forEach(p => {
-    urSel.add(new Option(p.pekerjaan, JSON.stringify({ kode: p.kode, pekerjaan: p.pekerjaan, pptk: p.pptk })));
+    pkSel.add(new Option(p.pekerjaan, JSON.stringify({ kode: p.kode, pekerjaan: p.pekerjaan, pptk: p.pptk })));
   });
 }
 
-function onUraianChange() {
-  const val = document.getElementById('f-uraian').value;
+function onPekerjaanChange() {
+  const val = document.getElementById('f-pekerjaan').value;
   if (!val) {
     document.getElementById('f-koderek').value = '';
     document.getElementById('f-pptk').value = '';
@@ -703,7 +723,7 @@ async function loadDashboard() {
       <tr><td>${formatTanggal(t.tanggal)}</td>
       <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan}">${t.kegiatan||'-'}</td>
       <td>${t.penerima||'-'}</td>
-      <td><span class="badge bg-light text-dark">${t.no_bast||'-'}</span></td>
+      <td><span class="badge bg-light text-dark">${t.no_bpk||'-'}</span></td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td></tr>`).join('');
   }
 
@@ -759,12 +779,15 @@ function renderTable(data) {
     return `<tr>
       <td class="table-num">${i+1}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
-      <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
-      <td style="max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.sub_kegiatan||''}">${t.sub_kegiatan||'-'}</td>
-      <td>${t.penerima||'-'}</td>
+      <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
+      <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.sub_kegiatan||''}">${t.sub_kegiatan||'-'}</td>
+      <td style="white-space:nowrap">${t.penerima||'-'}</td>
+      <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_bpk||'-'}</span></td>
       <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_bast||'-'}</span></td>
+      <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_kontrak||'—'}</span></td>
       <td style="font-size:11px;white-space:nowrap">${t.kode_rekening||'-'}</td>
-      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.keterangan_uraian||''}">${t.keterangan_uraian||'-'}</td>
+      <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.pekerjaan||''}">${t.pekerjaan||'-'}</td>
+      <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.uraian||''}">${t.uraian||'-'}</td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td>
       <td class="text-end"><span class="badge-pajak">${formatRupiah(t.pajak)}</span></td>
       <td style="font-size:11px">${t.pengguna_anggaran||'-'}</td>
@@ -789,8 +812,11 @@ function filterTable() {
   renderTable(allTransactions.filter(t =>
     (t.kegiatan||'').toLowerCase().includes(q) ||
     (t.penerima||'').toLowerCase().includes(q) ||
+    (t.no_bpk||'').toLowerCase().includes(q) ||
     (t.no_bast||'').toLowerCase().includes(q) ||
-    (t.keterangan_uraian||'').toLowerCase().includes(q) ||
+    (t.no_kontrak||'').toLowerCase().includes(q) ||
+    (t.pekerjaan||'').toLowerCase().includes(q) ||
+    (t.uraian||'').toLowerCase().includes(q) ||
     (t.tanggal||'').includes(q)
   ));
 }
@@ -798,25 +824,29 @@ function filterTable() {
 // ── Form CRUD ────────────────────────────────────────────────────────────
 document.getElementById('trx-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const urVal = document.getElementById('f-uraian').value;
-  let uraianText = '', kodeRek = '', pptkNama = '';
-  if (urVal) {
-    const d = JSON.parse(urVal);
-    uraianText = d.pekerjaan; kodeRek = d.kode; pptkNama = d.pptk;
+  const pkVal = document.getElementById('f-pekerjaan').value;
+  let pekerjaanText = '', kodeRek = '', pptkNama = '';
+  if (pkVal) {
+    const d = JSON.parse(pkVal);
+    pekerjaanText = d.pekerjaan; kodeRek = d.kode; pptkNama = d.pptk;
   }
+  const pptkFinal = pptkNama || document.getElementById('f-pptk').value;
   const payload = {
     tanggal: document.getElementById('f-tanggal').value,
     kegiatan: document.getElementById('f-kegiatan').value,
     sub_kegiatan: document.getElementById('f-subkegiatan').value,
     kode_rekening: kodeRek || document.getElementById('f-koderek').value,
     penerima: document.getElementById('f-penerima').value,
+    no_bpk: document.getElementById('f-nobpk').value,
     no_bast: document.getElementById('f-nobast').value,
-    keterangan_uraian: uraianText,
+    no_kontrak: document.getElementById('f-nokontrak').value,
+    pekerjaan: pekerjaanText,
+    uraian: document.getElementById('f-uraian').value,
     nilai: parseFloat(document.getElementById('f-nilai').value)||0,
     pajak: parseFloat(document.getElementById('f-pajak').value)||0,
     pengguna_anggaran: DB.pa.nama,
-    pptk: pptkNama || document.getElementById('f-pptk').value,
-    pptk_nip: dbPPTKNip(pptkNama || document.getElementById('f-pptk').value),
+    pptk: pptkFinal,
+    pptk_nip: dbPPTKNip(pptkFinal),
     bendahara: DB.bendahara.nama,
   };
   const btn = document.getElementById('btn-submit');
@@ -835,11 +865,11 @@ function resetForm() {
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   // Reset cascading
   const subSel = document.getElementById('f-subkegiatan');
-  const urSel = document.getElementById('f-uraian');
+  const pkSel = document.getElementById('f-pekerjaan');
   subSel.innerHTML = '<option value="">— Pilih Sub Kegiatan —</option>';
   subSel.disabled = true;
-  urSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
-  urSel.disabled = true;
+  pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
+  pkSel.disabled = true;
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
   document.getElementById('form-mode-label').textContent = 'Tambah Transaksi Baru';
@@ -851,7 +881,9 @@ function editTrx(id) {
   if (!t) return;
   editingId = id;
   document.getElementById('f-tanggal').value = t.tanggal||'';
+  document.getElementById('f-nobpk').value = t.no_bpk||'';
   document.getElementById('f-nobast').value = t.no_bast||'';
+  document.getElementById('f-nokontrak').value = t.no_kontrak||'';
   document.getElementById('f-penerima').value = t.penerima||'';
   document.getElementById('f-nilai').value = t.nilai||0;
   document.getElementById('f-pajak').value = t.pajak||0;
@@ -859,6 +891,7 @@ function editTrx(id) {
   document.getElementById('f-pptk').value = t.pptk||'';
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-koderek').value = t.kode_rekening||'';
+  document.getElementById('f-uraian').value = t.uraian||'';
 
   // Re-populate cascading dropdowns
   const kegSel = document.getElementById('f-kegiatan');
@@ -870,16 +903,14 @@ function editTrx(id) {
     subSel.disabled = false;
     subSel.value = t.sub_kegiatan||'';
     if (t.sub_kegiatan) {
-      const urSel = document.getElementById('f-uraian');
-      urSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
+      const pkSel = document.getElementById('f-pekerjaan');
+      pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
       dbPekerjaan(t.kegiatan, t.sub_kegiatan).forEach(p => {
-        const opt = new Option(p.pekerjaan, JSON.stringify({kode:p.kode,pekerjaan:p.pekerjaan,pptk:p.pptk}));
-        urSel.add(opt);
+        pkSel.add(new Option(p.pekerjaan, JSON.stringify({kode:p.kode,pekerjaan:p.pekerjaan,pptk:p.pptk})));
       });
-      urSel.disabled = false;
-      // Find matching pekerjaan option
-      for (let o of urSel.options) {
-        if (o.value && JSON.parse(o.value).pekerjaan === t.keterangan_uraian) { urSel.value = o.value; break; }
+      pkSel.disabled = false;
+      for (let o of pkSel.options) {
+        if (o.value && JSON.parse(o.value).pekerjaan === t.pekerjaan) { pkSel.value = o.value; break; }
       }
     }
   }
@@ -908,13 +939,17 @@ function cetakKwitansi(id) {
   const pptkNip = t.pptk_nip || dbPPTKNip(t.pptk) || '—';
   const tgl = formatTanggalShort(t.tanggal);
 
-  document.getElementById('kw-nobpk').textContent = t.no_bast || '—';
+  document.getElementById('kw-nobpk').textContent = t.no_bpk || '—';
+  document.getElementById('kw-nobast').textContent = t.no_bast || '—';
+  document.getElementById('kw-nokontrak').textContent = t.no_kontrak || '';
+  document.getElementById('kw-nokontrak-row').style.display = t.no_kontrak ? '' : 'none';
   document.getElementById('kw-koderek').textContent = t.kode_rekening || '—';
   document.getElementById('kw-nilai-text').textContent = formatRupiah(t.nilai);
   document.getElementById('kw-nilai').textContent = formatRupiah(t.nilai);
   document.getElementById('kw-pajak').textContent = formatRupiah(t.pajak);
   document.getElementById('kw-penerima').textContent = t.penerima || '—';
-  document.getElementById('kw-uraian').textContent = t.keterangan_uraian || '—';
+  document.getElementById('kw-pekerjaan').textContent = t.pekerjaan || '—';
+  document.getElementById('kw-uraian').textContent = t.uraian || '—';
   document.getElementById('kw-penerima-ttd').textContent = t.penerima || '—';
   document.getElementById('kw-kota-tgl').textContent = DB.kota + ', ' + tgl;
   document.getElementById('kw-bayar-tgl').textContent = tgl;
