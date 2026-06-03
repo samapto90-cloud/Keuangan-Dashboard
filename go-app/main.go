@@ -1,15 +1,15 @@
 package main
 
 import (
+        "embed"
         "encoding/json"
-        _ "embed"
         "fmt"
+        "io/fs"
         "log"
         "net/http"
         "os"
         "strconv"
         "strings"
-        "sync"
 )
 
 //go:embed index.html
@@ -30,6 +30,16 @@ var portalZenitsuPNG []byte
 //go:embed assets/logo-batam.png
 var logoBatamPNG []byte
 
+//go:embed assets/op-runners/*
+var opRunnersFS embed.FS
+
+type PotonganItem struct {
+        Jenis    string  `json:"jenis"`
+        Tarif    float64 `json:"tarif"`
+        Nilai    float64 `json:"nilai"`
+        Kategori string  `json:"kategori"`
+}
+
 type Transaction struct {
         ID               int     `json:"id"`
         Tanggal          string  `json:"tanggal"`
@@ -44,6 +54,7 @@ type Transaction struct {
         Uraian           string  `json:"uraian"`
         JenisPajak       string  `json:"jenis_pajak"`
         JenisPotongan    string  `json:"jenis_potongan"`
+        PotonganPajak    []PotonganItem `json:"potongan_pajak,omitempty"`
         Nilai            float64 `json:"nilai"`
         Pajak            float64 `json:"pajak"`
         NilaiPotongan    float64 `json:"nilai_potongan"`
@@ -66,6 +77,7 @@ type DashboardStats struct {
         SisaPagu         float64        `json:"sisa_pagu"`
         PersenRealisasi  float64        `json:"persen_realisasi"`
         NilaiPerKegiatan []KegiatanStat `json:"nilai_per_kegiatan"`
+        NilaiPerPPTK     []PPTKStat     `json:"nilai_per_pptk"`
         RecentTransaksi  []Transaction  `json:"recent_transaksi"`
         MonthlyStats     []MonthlyStat  `json:"monthly_stats"`
 }
@@ -74,6 +86,13 @@ type KegiatanStat struct {
         Kegiatan string  `json:"kegiatan"`
         Total    float64 `json:"total"`
         Count    int     `json:"count"`
+}
+
+type PPTKStat struct {
+        PPTK  string  `json:"pptk"`
+        Total float64 `json:"total"`
+        Pagu  float64 `json:"pagu"`
+        Count int     `json:"count"`
 }
 
 type MonthlyStat struct {
@@ -94,23 +113,46 @@ type AppSettings struct {
         Rak              []RakRow           `json:"rak"`
 }
 
-var (
-        transactions []Transaction
-        nextID       = 1
-        mu           sync.Mutex
-        appSettings  = AppSettings{
-                PA:        Pejabat{Nama: "HENDRI ARULAN, S.Pd", Nip: "NIP. 19670119 199103 1 009"},
-                Bendahara: Pejabat{Nama: "ELDINA SRIDHANTY, SE", Nip: "NIP. 19810610 201001 2 002"},
-                AnggaranKegiatan: map[string]float64{},
+func normalizeTransactionTax(t *Transaction) {
+        if len(t.PotonganPajak) == 0 {
+                if t.JenisPajak != "" || t.Pajak > 0 {
+                        t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
+                                Jenis: t.JenisPajak, Nilai: t.Pajak, Kategori: "pajak",
+                        })
+                }
+                if t.JenisPotongan != "" || t.NilaiPotongan > 0 {
+                        t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
+                                Jenis: t.JenisPotongan, Nilai: t.NilaiPotongan, Kategori: "potongan",
+                        })
+                }
+                return
         }
-        settingsMu sync.RWMutex
-)
+        var totalPajak, totalPotongan float64
+        var jenisPajakParts, jenisPotonganParts []string
+        for _, item := range t.PotonganPajak {
+                if item.Kategori == "potongan" {
+                        totalPotongan += item.Nilai
+                        if item.Jenis != "" {
+                                jenisPotonganParts = append(jenisPotonganParts, item.Jenis)
+                        }
+                } else {
+                        totalPajak += item.Nilai
+                        if item.Jenis != "" {
+                                jenisPajakParts = append(jenisPajakParts, item.Jenis)
+                        }
+                }
+        }
+        t.Pajak = totalPajak
+        t.NilaiPotongan = totalPotongan
+        t.JenisPajak = strings.Join(jenisPajakParts, "; ")
+        t.JenisPotongan = strings.Join(jenisPotonganParts, "; ")
+}
 
 func cors(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Access-Control-Allow-Origin", "*")
                 w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token")
+                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
                 if r.Method == http.MethodOptions {
                         w.WriteHeader(http.StatusOK)
                         return
@@ -138,12 +180,13 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
                 return
         }
+        mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodGet:
-                mu.Lock()
-                result := make([]Transaction, len(transactions))
-                copy(result, transactions)
-                mu.Unlock()
+                mod.mu.Lock()
+                result := make([]Transaction, len(mod.txs))
+                copy(result, mod.txs)
+                mod.mu.Unlock()
                 jsonResponse(w, http.StatusOK, result)
 
         case http.MethodPost:
@@ -152,11 +195,12 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
                         return
                 }
-                mu.Lock()
-                t.ID = nextID
-                nextID++
-                transactions = append(transactions, t)
-                mu.Unlock()
+                normalizeTransactionTax(&t)
+                mod.mu.Lock()
+                t.ID = mod.nextID
+                mod.nextID++
+                mod.txs = append(mod.txs, t)
+                mod.mu.Unlock()
                 jsonResponse(w, http.StatusCreated, t)
 
         default:
@@ -176,6 +220,7 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
+        mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodPut:
                 var updated Transaction
@@ -183,17 +228,18 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
                         return
                 }
-                mu.Lock()
+                normalizeTransactionTax(&updated)
+                mod.mu.Lock()
                 found := false
-                for i, t := range transactions {
+                for i, t := range mod.txs {
                         if t.ID == id {
                                 updated.ID = id
-                                transactions[i] = updated
+                                mod.txs[i] = updated
                                 found = true
                                 break
                         }
                 }
-                mu.Unlock()
+                mod.mu.Unlock()
                 if !found {
                         jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
                         return
@@ -201,16 +247,16 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusOK, updated)
 
         case http.MethodDelete:
-                mu.Lock()
+                mod.mu.Lock()
                 found := false
-                for i, t := range transactions {
+                for i, t := range mod.txs {
                         if t.ID == id {
-                                transactions = append(transactions[:i], transactions[i+1:]...)
+                                mod.txs = append(mod.txs[:i], mod.txs[i+1:]...)
                                 found = true
                                 break
                         }
                 }
-                mu.Unlock()
+                mod.mu.Unlock()
                 if !found {
                         jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
                         return
@@ -236,13 +282,15 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
                 return
         }
-        mu.Lock()
+        mod := moduleFromRequest(r)
+        mod.mu.Lock()
         for i := range items {
-                items[i].ID = nextID
-                nextID++
-                transactions = append(transactions, items[i])
+                normalizeTransactionTax(&items[i])
+                items[i].ID = mod.nextID
+                mod.nextID++
+                mod.txs = append(mod.txs, items[i])
         }
-        mu.Unlock()
+        mod.mu.Unlock()
         jsonResponse(w, http.StatusOK, map[string]interface{}{
                 "imported": len(items),
                 "message":  fmt.Sprintf("%d transaksi berhasil diimpor", len(items)),
@@ -259,15 +307,17 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
-        mu.Lock()
-        data := make([]Transaction, len(transactions))
-        copy(data, transactions)
-        mu.Unlock()
+        mod := moduleFromRequest(r)
+        mod.mu.Lock()
+        data := make([]Transaction, len(mod.txs))
+        copy(data, mod.txs)
+        mod.mu.Unlock()
 
         stats := DashboardStats{}
         stats.TotalTransaksi = len(data)
 
         kegiatanMap := map[string]*KegiatanStat{}
+        pptkMap := map[string]*PPTKStat{}
         monthlyMap := map[string]*MonthlyStat{}
 
         var totalPotongan float64
@@ -283,6 +333,16 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
                 }
                 k.Total += t.Nilai
                 k.Count++
+
+                if t.PPTK != "" {
+                        p, ok := pptkMap[t.PPTK]
+                        if !ok {
+                                pptkMap[t.PPTK] = &PPTKStat{PPTK: t.PPTK}
+                                p = pptkMap[t.PPTK]
+                        }
+                        p.Total += t.Nilai
+                        p.Count++
+                }
 
                 bulan := ""
                 if len(t.Tanggal) >= 7 {
@@ -302,11 +362,19 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         stats.NilaiBersih = stats.TotalNilai - stats.TotalPajak - totalPotongan
         stats.Realisasi = stats.TotalNilai
 
-        settingsMu.RLock()
-        for _, r := range appSettings.Rak {
+        mod.mu.Lock()
+        for _, r := range mod.settings.Rak {
                 stats.TotalPagu += r.Anggaran
+                if r.PPTK != "" {
+                        p, ok := pptkMap[r.PPTK]
+                        if !ok {
+                                pptkMap[r.PPTK] = &PPTKStat{PPTK: r.PPTK}
+                                p = pptkMap[r.PPTK]
+                        }
+                        p.Pagu += r.Anggaran
+                }
         }
-        settingsMu.RUnlock()
+        mod.mu.Unlock()
         stats.SisaPagu = stats.TotalPagu - stats.Realisasi
         if stats.TotalPagu > 0 {
                 stats.PersenRealisasi = (stats.Realisasi / stats.TotalPagu) * 100
@@ -314,6 +382,9 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
 
         for _, v := range kegiatanMap {
                 stats.NilaiPerKegiatan = append(stats.NilaiPerKegiatan, *v)
+        }
+        for _, v := range pptkMap {
+                stats.NilaiPerPPTK = append(stats.NilaiPerPPTK, *v)
         }
         for _, v := range monthlyMap {
                 stats.MonthlyStats = append(stats.MonthlyStats, *v)
@@ -334,22 +405,19 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
                 return
         }
+        mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodGet:
-                settingsMu.RLock()
-                copyAnggaran := map[string]float64{}
-                for k, v := range appSettings.AnggaranKegiatan {
-                        copyAnggaran[k] = v
-                }
-                rakCopy := make([]RakRow, len(appSettings.Rak))
-                copy(rakCopy, appSettings.Rak)
+                mod.mu.Lock()
+                copyAnggaran := cloneAnggaranMap(mod.settings.AnggaranKegiatan)
+                rakCopy := cloneRakRows(mod.settings.Rak)
                 out := AppSettings{
-                        PA:               appSettings.PA,
-                        Bendahara:        appSettings.Bendahara,
+                        PA:               mod.settings.PA,
+                        Bendahara:        mod.settings.Bendahara,
                         AnggaranKegiatan: copyAnggaran,
                         Rak:              rakCopy,
                 }
-                settingsMu.RUnlock()
+                mod.mu.Unlock()
                 jsonResponse(w, http.StatusOK, out)
 
         case http.MethodPut:
@@ -362,22 +430,22 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
                         return
                 }
-                settingsMu.Lock()
+                mod.mu.Lock()
                 if incoming.PA.Nama != "" {
-                        appSettings.PA = incoming.PA
+                        mod.settings.PA = incoming.PA
                 }
                 if incoming.Bendahara.Nama != "" {
-                        appSettings.Bendahara = incoming.Bendahara
+                        mod.settings.Bendahara = incoming.Bendahara
                 }
                 if incoming.AnggaranKegiatan != nil {
-                        if appSettings.AnggaranKegiatan == nil {
-                                appSettings.AnggaranKegiatan = map[string]float64{}
+                        if mod.settings.AnggaranKegiatan == nil {
+                                mod.settings.AnggaranKegiatan = map[string]float64{}
                         }
                         for k, v := range incoming.AnggaranKegiatan {
-                                appSettings.AnggaranKegiatan[k] = v
+                                mod.settings.AnggaranKegiatan[k] = v
                         }
                 }
-                settingsMu.Unlock()
+                mod.mu.Unlock()
                 jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
 
         default:
@@ -385,7 +453,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
         }
 }
 
-func addSampleData() {
+func addSampleData(mod *SipkeuModule) {
         samples := []Transaction{
                 {
                         Tanggal: "2026-01-10", Kegiatan: "Administrasi Keuangan Perangkat Daerah",
@@ -407,7 +475,7 @@ func addSampleData() {
                         SubKegiatan: "Penyediaan Jasa Pelayanan Umum Kantor",
                         KodeRekening: "5.1.02.02.001.00067",
                         Penerima: "BANK RIAU KEPRI SYARIAH",
-                        NoBPK: "0029/BPK/UP/1.01.0.00.0.00.01.0000/B03/05/2026",
+                        NoBPK: "0029/BPK/UP/1.01.0.00.0.00.01.0000/B01/05/2026",
                         NoBAST: "0029/BAST/DISDIK/I/2026", NoKontrak: "",
                         Pekerjaan: "Belanja Pembayaran Pajak, Bea, dan Perizinan",
                         Uraian: "Retribusi Sampah Periode April 2026 DINAS PENDIDIKAN 26987 2605100395",
@@ -422,7 +490,7 @@ func addSampleData() {
                         SubKegiatan: "Penyediaan Peralatan dan Perlengkapan Kantor",
                         KodeRekening: "5.1.02.01.001.00024",
                         Penerima: "CV. Maju Jaya",
-                        NoBPK: "0005/BPK/UP/1.01.0.00.0.00.01.0000/B02/02/2026",
+                        NoBPK: "0005/BPK/UP/1.01.0.00.0.00.01.0000/B01/02/2026",
                         NoBAST: "0005/BAST/DISDIK/II/2026", NoKontrak: "027/SPK/DISDIK/II/2026",
                         Pekerjaan: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor",
                         Uraian: "Pengadaan ATK untuk keperluan operasional kantor Dinas Pendidikan Kota Batam TA 2026",
@@ -437,7 +505,7 @@ func addSampleData() {
                         SubKegiatan: "Pemeliharaan Peralatan dan Mesin Lainnya",
                         KodeRekening: "5.1.02.03.002.00405",
                         Penerima: "CV. Tekno Mandiri",
-                        NoBPK: "0010/BPK/UP/1.01.0.00.0.00.01.0000/B03/03/2026",
+                        NoBPK: "0010/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
                         NoBAST: "0010/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026",
                         Pekerjaan: "Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer",
                         Uraian: "Pemeliharaan dan servis 5 unit PC di ruang tata usaha dan kepala bidang",
@@ -452,7 +520,7 @@ func addSampleData() {
                         SubKegiatan: "Pengadaan Mebel",
                         KodeRekening: "5.2.02.05.003.00001",
                         Penerima: "UD. Furniture Prima",
-                        NoBPK: "0015/BPK/UP/1.01.0.00.0.00.01.0000/B04/03/2026",
+                        NoBPK: "0015/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
                         NoBAST: "0015/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026-02",
                         Pekerjaan: "Belanja Modal Meja Kerja Pejabat",
                         Uraian: "Pengadaan 3 unit meja kerja pejabat untuk ruang kepala dinas dan kepala bidang",
@@ -465,29 +533,29 @@ func addSampleData() {
         }
 
         for _, s := range samples {
-                s.ID = nextID
-                nextID++
-                transactions = append(transactions, s)
+                s.ID = mod.nextID
+                mod.nextID++
+                mod.txs = append(mod.txs, s)
         }
 }
 
-func initSampleAnggaran() {
+func initSampleAnggaran(mod *SipkeuModule) {
         kegiatanTotals := map[string]float64{}
-        for _, t := range transactions {
+        for _, t := range mod.txs {
                 kegiatanTotals[t.Kegiatan] += t.Nilai
         }
-        settingsMu.Lock()
-        defer settingsMu.Unlock()
-        if appSettings.AnggaranKegiatan == nil {
-                appSettings.AnggaranKegiatan = map[string]float64{}
+        mod.mu.Lock()
+        defer mod.mu.Unlock()
+        if mod.settings.AnggaranKegiatan == nil {
+                mod.settings.AnggaranKegiatan = map[string]float64{}
         }
         for keg, total := range kegiatanTotals {
-                if _, ok := appSettings.AnggaranKegiatan[keg]; !ok {
+                if _, ok := mod.settings.AnggaranKegiatan[keg]; !ok {
                         padded := int(total*1.25/1000000) + 1
                         if padded < 100 {
                                 padded = 100
                         }
-                        appSettings.AnggaranKegiatan[keg] = float64(padded) * 1000000
+                        mod.settings.AnggaranKegiatan[keg] = float64(padded) * 1000000
                 }
         }
 }
@@ -516,6 +584,9 @@ func main() {
         mux.HandleFunc("/assets/portal-nezuko.png", servePNG(portalNezukoPNG))
         mux.HandleFunc("/assets/portal-zenitsu.png", servePNG(portalZenitsuPNG))
         mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
+        if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
+                mux.Handle("/assets/op-runners/", http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub))))
+        }
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
@@ -532,13 +603,26 @@ func main() {
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(handleKasSaveRealisasi)))
         mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(handleKasUnlockRealisasi)))
 
-        addSampleData()
+        initSipkeuModules()
+        sek := sipkeuModules["sekretariat"]
+        paud := sipkeuModules["paud"]
+
+        addSampleData(sek)
         tryLoadDefaultAnggaran()
-        settingsMu.RLock()
-        hasAnggaran := len(appSettings.AnggaranKegiatan) > 0
-        settingsMu.RUnlock()
-        if !hasAnggaran {
-                initSampleAnggaran()
+        sek.mu.Lock()
+        hasAnggaranSek := len(sek.settings.AnggaranKegiatan) > 0
+        sek.mu.Unlock()
+        if !hasAnggaranSek {
+                initSampleAnggaran(sek)
+        }
+        paud.mu.Lock()
+        hasAnggaranPaud := len(paud.settings.AnggaranKegiatan) > 0
+        paud.mu.Unlock()
+        if !hasAnggaranPaud && hasAnggaranSek {
+                sek.mu.Lock()
+                paud.settings.Rak = cloneRakRows(sek.settings.Rak)
+                paud.settings.AnggaranKegiatan = cloneAnggaranMap(sek.settings.AnggaranKegiatan)
+                sek.mu.Unlock()
         }
 
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)

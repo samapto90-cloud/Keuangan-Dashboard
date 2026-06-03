@@ -3,12 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/xuri/excelize/v2"
 )
 
 func main() {
 	for _, fp := range os.Args[1:] {
+		if fp == "0" || fp == "76" {
+			continue
+		}
 		fmt.Println("================================================================================")
 		fmt.Println("FILE:", fp)
 		f, err := excelize.OpenFile(fp)
@@ -19,27 +23,29 @@ func main() {
 		for _, sn := range f.GetSheetList() {
 			rows, _ := f.GetRows(sn)
 			fmt.Printf("--- Sheet: %s (%d rows) ---\n", sn, len(rows))
-			limit := len(rows)
-			if limit > 30 {
-				limit = 30
+			start := 43
+			end := len(rows)
+			if len(os.Args) > 2 {
+				start, _ = strconv.Atoi(os.Args[2])
 			}
-			for i := 0; i < limit; i++ {
+			if len(os.Args) > 3 {
+				end, _ = strconv.Atoi(os.Args[3])
+			}
+			for i := start; i < end && i < len(rows); i++ {
 				row := rows[i]
 				parts := []string{}
 				for j, c := range row {
-					if j >= 25 {
+					if j >= 8 {
 						break
 					}
 					if c != "" {
-						if len(c) > 55 {
-							c = c[:55] + "…"
+						if len(c) > 60 {
+							c = c[:60] + "…"
 						}
 						parts = append(parts, fmt.Sprintf("[%d]%s", j+1, c))
 					}
 				}
-				if len(parts) > 0 {
-					fmt.Printf("R%d: %s\n", i+1, joinParts(parts))
-				}
+				fmt.Printf("R%d: %s\n", i+1, joinParts(parts))
 			}
 		}
 		f.Close()

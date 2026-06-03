@@ -77,6 +77,10 @@ func normalizeAnggaranUnit(rows []RakRow) {
 }
 
 func applyRakImport(rows []RakRow) ImportAnggaranResult {
+	return applyRakToAllModules(rows)
+}
+
+func applyRakToAllModules(rows []RakRow) ImportAnggaranResult {
 	anggaranMap := map[string]float64{}
 	for i := range rows {
 		rows[i].Kegiatan = strings.TrimSpace(rows[i].Kegiatan)
@@ -90,15 +94,15 @@ func applyRakImport(rows []RakRow) ImportAnggaranResult {
 			anggaranMap[rows[i].Kegiatan] += rows[i].Anggaran
 		}
 	}
-	settingsMu.Lock()
-	appSettings.Rak = rows
-	if appSettings.AnggaranKegiatan == nil {
-		appSettings.AnggaranKegiatan = map[string]float64{}
+	sipkeuModulesMu.RLock()
+	mods := make([]*SipkeuModule, 0, len(sipkeuModules))
+	for _, m := range sipkeuModules {
+		mods = append(mods, m)
 	}
-	for k, v := range anggaranMap {
-		appSettings.AnggaranKegiatan[k] = v
+	sipkeuModulesMu.RUnlock()
+	for _, mod := range mods {
+		applyRakToModule(mod, cloneRakRows(rows))
 	}
-	settingsMu.Unlock()
 	return ImportAnggaranResult{
 		Rak:              rows,
 		AnggaranKegiatan: anggaranMap,
@@ -194,7 +198,10 @@ func tryLoadDefaultAnggaran() {
 	for _, p := range candidates {
 		if _, err := os.Stat(p); err == nil {
 			if err := loadAnggaranFromExcel(p); err == nil {
-				fmt.Printf("Pagu anggaran dimuat dari %s (%d baris RAK)\n", p, len(appSettings.Rak))
+				sipkeuModulesMu.RLock()
+				n := len(sipkeuModules["sekretariat"].settings.Rak)
+				sipkeuModulesMu.RUnlock()
+				fmt.Printf("Pagu anggaran dimuat dari %s (%d baris RAK)\n", p, n)
 				return
 			}
 		}
@@ -218,6 +225,9 @@ func handleImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	normalizeAnggaranUnit(payload.Rak)
-	result := applyRakImport(payload.Rak)
+	mod := moduleFromRequest(r)
+	rows := cloneRakRows(payload.Rak)
+	result := applyRakToModule(mod, rows)
+	result.Message = fmt.Sprintf("%d baris kegiatan dan pagu anggaran berhasil dimuat", result.TotalBaris)
 	jsonResponse(w, http.StatusOK, result)
 }

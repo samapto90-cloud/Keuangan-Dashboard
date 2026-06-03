@@ -290,6 +290,262 @@
     }
     .card-chart small { font-size: 12px; color: var(--text-muted); }
 
+    /* ── One Piece PPTK Race Chart ── */
+    @keyframes opOceanDrift {
+      0% { background-position: 0 0, 0 0; }
+      100% { background-position: 160px 0, -100px 0; }
+    }
+    @keyframes opSunGlow {
+      0%, 100% { opacity: .55; transform: scale(1); }
+      50% { opacity: .85; transform: scale(1.08); }
+    }
+    @keyframes opCloudFloat {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(40px); }
+    }
+    @keyframes opRunBounce {
+      0%, 100% { transform: translateY(0) scaleX(1); }
+      50% { transform: translateY(-6px) scaleX(1); }
+    }
+    @keyframes opRunStride {
+      0% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(1px) rotate(4deg); }
+      100% { transform: translateY(0) rotate(-4deg); }
+    }
+    @keyframes opDustPuff {
+      0% { opacity: .85; transform: scale(.6); }
+      100% { opacity: 0; transform: scale(1.5) translateX(-10px); }
+    }
+    @keyframes opFlagWave {
+      0%, 100% { transform: skewX(0deg) rotate(-1deg); }
+      50% { transform: skewX(-6deg) rotate(1deg); }
+    }
+    @keyframes opShimmerTrack {
+      0% { background-position: 0 0; }
+      100% { background-position: 64px 0; }
+    }
+    @keyframes opFillFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 220% 50%; }
+    }
+    .op-race-panel {
+      position: relative; overflow: visible;
+      background: linear-gradient(165deg, #7dd3fc 0%, #38bdf8 22%, #0ea5e9 45%, #0284c7 70%, #0369a1 100%);
+      border: 3px solid #fde047;
+      border-radius: 22px; padding: 22px 22px 20px;
+      box-shadow: 0 12px 40px rgba(14,165,233,.35), 0 0 48px rgba(251,191,36,.18), inset 0 2px 0 rgba(255,255,255,.35);
+    }
+    .op-race-panel::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .25; border-radius: 20px;
+      background: repeating-linear-gradient(90deg, transparent, transparent 36px, rgba(255,255,255,.12) 36px, rgba(255,255,255,.12) 37px);
+    }
+    .op-race-panel::after {
+      content: ''; position: absolute; top: 12px; right: 24px;
+      width: 72px; height: 72px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, #fef9c3 0%, #fde047 35%, rgba(251,191,36,.2) 55%, transparent 72%);
+      animation: opSunGlow 3.5s ease-in-out infinite;
+    }
+    .op-race-ocean {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 46%; border-radius: 0 0 18px 18px;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0, rgba(255,255,255,.18) 14px, transparent 14px, transparent 32px),
+        linear-gradient(180deg, transparent, rgba(34,211,238,.35));
+      animation: opOceanDrift 6s linear infinite;
+      pointer-events: none;
+    }
+    .op-race-head {
+      position: relative; z-index: 2;
+      display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 18px;
+    }
+    .op-race-head h6 {
+      font-family: 'Bangers', 'Zen Kaku Gothic New', sans-serif;
+      font-size: 1.5rem; letter-spacing: 1.5px; color: #fff; margin: 0;
+      text-shadow: 2px 2px 0 #0369a1, 0 0 24px rgba(255,255,255,.5);
+    }
+    .op-race-head small { display: block; color: #e0f2fe; margin-top: 4px; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+    .op-race-badge {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border: 2px solid #fde047; color: #fff;
+      font-family: 'Bangers', sans-serif; font-size: 14px; letter-spacing: 1px;
+      padding: 7px 16px; border-radius: 10px;
+      box-shadow: 0 4px 0 #991b1b, 0 0 20px rgba(239,68,68,.45);
+      animation: opFlagWave 2s ease-in-out infinite;
+    }
+    .op-race-tracks { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 28px; overflow: visible; padding: 8px 0 24px; }
+    .op-race-lane {
+      display: grid; grid-template-columns: minmax(160px, 220px) 1fr;
+      gap: 14px; align-items: center;
+      opacity: 0; transform: translateX(-12px);
+      animation: cardReveal .55s cubic-bezier(.22,1,.36,1) forwards;
+      animation-delay: calc(var(--lane-delay, 0s) + .1s);
+      overflow: visible; position: relative; z-index: 1; isolation: isolate;
+    }
+    .op-race-lane:has(.op-race-runner:hover),
+    .op-race-lane:has(.op-race-runner:focus-visible) {
+      z-index: 1000;
+    }
+    .op-race-track-wrap {
+      position: relative; overflow: visible; min-height: 64px;
+    }
+    .op-race-label {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 55%, #fde68a 100%);
+      border: 2px solid #d97706; border-radius: 8px; padding: 9px 11px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    .op-race-label .op-wanted {
+      font-family: 'Bangers', sans-serif; font-size: 10px; color: #dc2626;
+      letter-spacing: 2px; line-height: 1;
+    }
+    .op-race-label strong {
+      display: block; font-size: 11px; color: #451a03; margin-top: 3px;
+      line-height: 1.3; word-break: break-word;
+    }
+    .op-race-label small {
+      display: block; font-size: 10px; color: #92400e; margin-top: 4px;
+      line-height: 1.45; white-space: normal; word-break: break-word;
+    }
+    .op-race-track {
+      position: relative; height: 56px;
+      background: linear-gradient(180deg, #d97706 0%, #b45309 48%, #92400e 100%);
+      border: 3px solid #78350f; border-radius: 999px;
+      overflow: visible; z-index: 1;
+      box-shadow:
+        inset 0 4px 10px rgba(0,0,0,.28),
+        inset 0 -2px 4px rgba(255,255,255,.12),
+        0 3px 12px rgba(0,0,0,.18);
+    }
+    .op-race-track::before {
+      content: ''; position: absolute; inset: 5px; border-radius: 999px; z-index: 2;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,.08) 0 16px,
+        transparent 16px 32px
+      );
+      animation: opShimmerTrack 2.4s linear infinite;
+      pointer-events: none;
+    }
+    .op-race-fill {
+      position: absolute; left: 5px; top: 5px; bottom: 5px; width: 0; z-index: 4;
+      border-radius: 999px; transition: width 1.4s cubic-bezier(.22,1,.36,1);
+      background: linear-gradient(90deg, #06b6d4 0%, #0284c7 28%, #2563eb 58%, #7c3aed 82%, #0891b2 100%);
+      background-size: 220% 100%;
+      animation: opFillFlow 3s linear infinite;
+      border: 2px solid rgba(255,255,255,.55);
+      box-shadow:
+        0 0 18px rgba(37,99,235,.75),
+        0 0 6px rgba(34,211,238,.55),
+        inset 0 2px 0 rgba(255,255,255,.5),
+        inset 0 -3px 6px rgba(15,23,42,.22);
+    }
+    .op-race-fill::after {
+      content: ''; position: absolute; right: 0; top: 50%;
+      width: 5px; height: calc(100% - 2px);
+      transform: translate(50%, -50%);
+      border-radius: 3px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(186,230,253,.85));
+      box-shadow: 0 0 10px rgba(255,255,255,.85), 0 0 18px rgba(34,211,238,.65);
+      pointer-events: none;
+    }
+    .op-race-lane.is-loaded .op-race-fill { width: min(var(--progress, 0%), calc(100% - 10px)); }
+    .op-race-runner {
+      position: absolute; top: 50%; left: 0;
+      width: 104px; height: 104px; margin-top: -52px; margin-left: -52px;
+      transition: left 1.4s cubic-bezier(.22,1,.36,1);
+      animation: opRunBounce .32s ease-in-out infinite;
+      z-index: 20; cursor: pointer;
+      background: transparent;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.4));
+    }
+    .op-runner-img {
+      width: 100%; height: 100%; object-fit: contain;
+      display: block; pointer-events: none;
+      transform-origin: center bottom;
+      background: transparent;
+    }
+    .op-runner-fallback {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; color: #fde047;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.45));
+    }
+    .op-race-runner:hover, .op-race-runner:focus-visible {
+      animation: opRunBounce .32s ease-in-out infinite;
+      filter: drop-shadow(0 0 16px rgba(251,191,36,.95)) drop-shadow(0 8px 12px rgba(0,0,0,.35));
+      z-index: 30;
+      transform: scale(1.08);
+    }
+    .op-runner-hover-tip {
+      position: absolute; bottom: calc(100% + 10px); top: auto;
+      left: var(--progress, 0%);
+      transform: translateX(-50%) translateY(6px);
+      min-width: 280px; max-width: min(380px, calc(100vw - 48px));
+      padding: 12px 14px;
+      background: linear-gradient(165deg, #ffffff 0%, #fffbeb 45%, #fef3c7 100%);
+      border: 2px solid #f59e0b; border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.28), 0 0 24px rgba(251,191,36,.35);
+      font-size: 12px; line-height: 1.5; color: #451a03;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .22s, transform .22s, visibility .22s;
+      white-space: normal; z-index: 10000;
+    }
+    .op-runner-hover-tip::after {
+      content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
+      border: 8px solid transparent; border-top-color: #f59e0b;
+    }
+    .op-runner-hover-tip::before {
+      content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px; margin-top: -2px;
+      border: 6px solid transparent; border-top-color: #fffbeb;
+    }
+    .op-runner-hover-tip .tip-title {
+      font-family: 'Bangers', sans-serif; font-size: 13px; letter-spacing: .5px;
+      color: #dc2626; margin-bottom: 8px; white-space: normal; word-break: break-word;
+      line-height: 1.25; padding-bottom: 6px; border-bottom: 1px dashed rgba(217,119,6,.35);
+    }
+    .op-runner-hover-tip .tip-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 16px; padding: 3px 0;
+    }
+    .op-runner-hover-tip .tip-row span:first-child {
+      color: #78716c; font-weight: 600; flex-shrink: 0;
+    }
+    .op-runner-hover-tip .tip-row strong {
+      color: #b45309; font-weight: 800; font-size: 12px;
+      white-space: nowrap; text-align: right; flex: 1;
+    }
+    .op-runner-hover-tip .tip-pct {
+      margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(245,158,11,.35);
+      text-align: center; color: #0284c7; font-weight: 800; font-size: 12px;
+    }
+    .op-race-lane:has(.op-race-runner:hover) .op-runner-hover-tip,
+    .op-race-lane:has(.op-race-runner:focus-visible) .op-runner-hover-tip {
+      opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+    }
+    .op-race-lane.is-loaded .op-race-runner { left: var(--progress, 0%); transition: left 1.4s cubic-bezier(.22,1,.36,1), transform .2s; }
+    .op-race-dust {
+      position: absolute; bottom: 2px; width: 12px; height: 12px;
+      border-radius: 50%; background: rgba(251,191,36,.55);
+      animation: opDustPuff .45s ease-out infinite;
+    }
+    .op-race-empty {
+      text-align: center; padding: 32px; color: #fff; font-size: 14px;
+      text-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .op-race-legend {
+      position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 16px; padding-top: 14px; border-top: 2px solid rgba(255,255,255,.25);
+      font-size: 11px; color: #e0f2fe;
+    }
+    .op-race-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .op-race-legend span.is-assigned { opacity: 1; }
+    .op-race-legend span.is-free { opacity: .45; }
+    @media (max-width: 576px) {
+      .op-race-lane { grid-template-columns: 1fr; }
+      .op-runner-hover-tip { min-width: 260px; left: 50% !important; transform: translateX(-50%) translateY(6px); }
+      .op-race-lane:has(.op-race-runner:hover) .op-runner-hover-tip,
+      .op-race-lane:has(.op-race-runner:focus-visible) .op-runner-hover-tip { transform: translateX(-50%) translateY(0); }
+    }
+
+
     /* ── Table ── */
     .table-card {
       background: var(--glass); backdrop-filter: blur(12px);
@@ -306,6 +562,11 @@
     }
     .table-card .card-head h6 i { color: var(--water) !important; filter: drop-shadow(0 0 8px var(--water-glow)); }
     .table-wrapper { overflow-x: auto; }
+    .trx-table-footer { font-size: 13px; color: #64748b; border-color: rgba(56,189,248,.1) !important; }
+    .trx-page-size-label { font-size: 13px; color: var(--text-muted); }
+    .trx-table-footer-totals { font-size: 13px; color: #64748b; }
+    #trx-pagination .btn { min-width: 34px; }
+    #trx-pagination .trx-page-indicator { font-size: 12px; color: var(--text-muted); padding: 0 8px; white-space: nowrap; }
     .table { margin: 0; font-size: 13px; color: var(--text-main); --bs-table-bg: transparent; --bs-table-color: var(--text-main); }
     .table thead th {
       background: rgba(56,189,248,.06); color: var(--water);
@@ -381,6 +642,33 @@
     .badge-rupiah { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.25); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
     .badge-pajak { background: rgba(251,191,36,.12); color: var(--gold); border: 1px solid rgba(251,191,36,.25); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
     .badge-pajak-jenis { background: rgba(56,189,248,.12); color: var(--water); border: 1px solid rgba(56,189,248,.2); }
+    .potongan-panel {
+      background: rgba(15,22,41,.55); border: 1px solid rgba(251,191,36,.18);
+      border-radius: 14px; padding: 14px 16px;
+    }
+    .potongan-row {
+      display: grid; grid-template-columns: minmax(180px,2fr) 90px 130px minmax(120px,1fr) 36px;
+      gap: 8px; align-items: end; margin-bottom: 8px;
+    }
+    .potongan-row .form-label { font-size: 10px; margin-bottom: 2px; color: #94a3b8; }
+    .potongan-row-head {
+      display: grid; grid-template-columns: minmax(180px,2fr) 90px 130px minmax(120px,1fr) 36px;
+      gap: 8px; font-size: 10px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; padding: 0 2px;
+    }
+    .potongan-summary-box {
+      background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2);
+      border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7;
+    }
+    .potongan-summary-box strong { color: #e2e8f0; }
+    .potongan-row .btn-remove-row {
+      width: 36px; height: 36px; padding: 0; border-radius: 8px;
+      border: 1px solid rgba(248,113,113,.35); color: #f87171; background: rgba(248,113,113,.08);
+    }
+    .potongan-row .btn-remove-row:hover { background: rgba(248,113,113,.2); color: #fff; }
+    @media (max-width: 768px) {
+      .potongan-row, .potongan-row-head { grid-template-columns: 1fr; }
+    }
     .badge.bg-light { background: rgba(255,255,255,.08) !important; color: #cbd5e1 !important; border: 1px solid rgba(255,255,255,.1); }
     .table-num { font-size: 11px; color: #64748b; font-weight: 600; }
     .empty-state { padding: 50px 20px; text-align: center; }
@@ -491,6 +779,33 @@
     }
     .sisa-positif { color: #4ade80; font-weight: 700; }
     .sisa-negatif { color: #f87171; font-weight: 700; }
+    .pagu-rekening-info {
+      background: rgba(56, 189, 248, .08);
+      border: 1px solid rgba(56, 189, 248, .22);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 12px;
+    }
+    .pagu-rekening-info .lbl {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .pagu-rekening-info strong { font-size: 14px; }
+    .pagu-rekening-info.pagu-habis {
+      background: rgba(248, 113, 113, .1);
+      border-color: rgba(248, 113, 113, .35);
+    }
+    #f-nilai.pagu-locked {
+      opacity: .65;
+      cursor: not-allowed;
+      background: rgba(248, 113, 113, .08);
+      border-color: rgba(248, 113, 113, .35);
+    }
 
     /* ── Login ── */
     #login-screen {
@@ -900,26 +1215,60 @@
       display: flex; align-items: center; gap: 8px;
       font-size: 12px; color: var(--text-muted);
     }
+    .kas-laporan-tgl > .bi-calendar3 {
+      color: #fbbf24;
+      font-size: 15px;
+      filter: drop-shadow(0 0 5px rgba(251, 191, 36, .45));
+    }
+    #kas-app-shell input[type="date"],
+    #app-shell input[type="date"] {
+      color-scheme: dark;
+      font-weight: 600;
+    }
     .kas-laporan-tgl input[type="date"] {
-      background: rgba(15,22,41,.85); border: 1px solid rgba(251,191,36,.3);
-      color: #e2e8f0; border-radius: 8px; padding: 4px 10px; font-size: 12px;
+      background: rgba(251, 191, 36, .12);
+      border: 1px solid rgba(251, 191, 36, .5);
+      color: #fef3c7;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      min-width: 150px;
+    }
+    #kas-app-shell input[type="date"]::-webkit-calendar-picker-indicator,
+    #app-shell input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 1;
+      width: 22px;
+      height: 22px;
+      margin-left: 4px;
+      border-radius: 6px;
+      background-color: #fbbf24;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a2238' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 14px 14px;
+      transition: background-color .15s ease, transform .15s ease;
+    }
+    #kas-app-shell input[type="date"]::-webkit-calendar-picker-indicator:hover,
+    #app-shell input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      background-color: #f59e0b;
+      transform: scale(1.06);
     }
     .kas-laporan-tgl input[type="date"]:focus {
-      outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.12);
+      outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.2);
     }
     #kas-print .kp-page:last-child, #kas-laporan-preview .kp-page:last-child { page-break-after: auto; break-after: auto; }
     #kas-laporan-preview { display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 8px 0; }
     .kp-title { text-align: center; margin-bottom: calc(10px * var(--kp-fit, 1)); }
     .kp-logo {
       text-align: center;
-      margin: 0 auto calc(6px * var(--kp-fit, 1));
+      margin: 0 auto calc(8px * var(--kp-fit, 1));
       line-height: 0;
     }
     .kp-logo img {
       display: block; margin: 0 auto;
-      height: calc(62px * var(--kp-fit, 1));
+      height: calc(72px * var(--kp-fit, 1));
       width: auto;
-      max-width: calc(46px * var(--kp-fit, 1));
       object-fit: contain;
       object-position: center center;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
@@ -1429,13 +1778,13 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-chakra portal-soon" onclick="openPortalApp('paud')">
+      <div class="portal-app-card portal-theme-chakra portal-active" onclick="openPortalApp('paud')">
         <div class="portal-app-icon"><img src="/assets/portal-nezuko.png" alt="Nezuko — SIPKEU PAUD" /></div>
         <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
         <p>Penatausahaan keuangan bidang Pendidikan Anak Usia Dini dan Pendidikan Kesetaraan.</p>
         <div class="portal-app-foot">
-          <span class="portal-badge portal-badge-soon">Segera</span>
-          <span class="portal-app-action">Info <i class="bi bi-info-circle"></i></span>
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
 
@@ -1515,7 +1864,9 @@ const DB = {
     "NATANIEL SURYANTO T.L, S.T. M.Si": "NIP. 19760925 200903 1 001",
     "MANSUR, S.Pd": "NIP. 19750725 200604 1 017",
     "ELDINA SRIDHANTY, SE": "NIP. 19810610 201001 2 002",
-    "HENDRI ARULAN, S.Pd": "NIP. 19670119 199103 1 009"
+    "HENDRI ARULAN, S.Pd": "NIP. 19670119 199103 1 009",
+    "Sularno, S.Pd., M.Si": "NIP. 19690408 199303 1 010",
+    "LIONI ASMIRELDA": "NIP. 19981102 202203 2 002"
   },
   rak: [] // dimuat dari server via Anggaran.xlsx
 };
@@ -1534,6 +1885,111 @@ function dbPekerjaan(keg, sub) {
 }
 // Helper: get PPTK for given row
 function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
+
+function getRakRowAnggaran(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
+  const row = (appSettings.rak || []).find(r =>
+    r.kegiatan === kegiatan &&
+    r.sub_kegiatan === subKegiatan &&
+    r.kode_rekening === kodeRekening &&
+    r.pekerjaan === pekerjaan
+  );
+  return row?.anggaran || 0;
+}
+
+function getRealisasiBrutoRakLine(kegiatan, subKegiatan, kodeRekening, pekerjaan, excludeId) {
+  return (allTransactions || []).reduce((sum, t) => {
+    if (excludeId && t.id === excludeId) return sum;
+    if (t.kegiatan === kegiatan &&
+        t.sub_kegiatan === subKegiatan &&
+        t.kode_rekening === kodeRekening &&
+        t.pekerjaan === pekerjaan) {
+      return sum + (t.nilai || 0);
+    }
+    return sum;
+  }, 0);
+}
+
+function getRakSelectionFromForm() {
+  const kegiatan = document.getElementById('f-kegiatan')?.value;
+  const sub_kegiatan = document.getElementById('f-subkegiatan')?.value;
+  const pkVal = document.getElementById('f-pekerjaan')?.value;
+  if (!kegiatan || !sub_kegiatan || !pkVal) return null;
+  try {
+    const d = JSON.parse(pkVal);
+    return { kegiatan, sub_kegiatan, kode_rekening: d.kode, pekerjaan: d.pekerjaan };
+  } catch {
+    return null;
+  }
+}
+
+function getSisaPaguFormInfo() {
+  const sel = getRakSelectionFromForm();
+  if (!sel) return null;
+  const pagu = getRakRowAnggaran(sel.kegiatan, sel.sub_kegiatan, sel.kode_rekening, sel.pekerjaan);
+  const realisasi = getRealisasiBrutoRakLine(sel.kegiatan, sel.sub_kegiatan, sel.kode_rekening, sel.pekerjaan, editingId);
+  return { ...sel, pagu, realisasi, sisa: pagu - realisasi };
+}
+
+function updatePaguRekeningUI() {
+  const wrap = document.getElementById('f-pagu-info-wrap');
+  const box = document.getElementById('f-pagu-info');
+  const nilaiEl = document.getElementById('f-nilai');
+  const hint = document.getElementById('f-pagu-hint');
+  if (!wrap || !box || !nilaiEl) return;
+
+  const info = getSisaPaguFormInfo();
+  if (!info || !info.kode_rekening) {
+    wrap.style.display = 'none';
+    nilaiEl.readOnly = false;
+    nilaiEl.classList.remove('pagu-locked');
+    nilaiEl.title = '';
+    return;
+  }
+
+  wrap.style.display = '';
+  document.getElementById('f-pagu-total').textContent = formatRupiah(info.pagu);
+  document.getElementById('f-pagu-realisasi').textContent = formatRupiah(info.realisasi);
+  const sisaEl = document.getElementById('f-pagu-sisa');
+  sisaEl.textContent = formatRupiah(info.sisa);
+  sisaEl.className = info.sisa > 0 ? 'sisa-positif' : (info.sisa < 0 ? 'sisa-negatif' : '');
+
+  const habis = info.pagu > 0 && info.sisa <= 0;
+  box.classList.toggle('pagu-habis', habis);
+
+  if (info.pagu <= 0) {
+    hint.textContent = 'Pagu untuk baris RAK ini belum tersedia di Anggaran.xlsx.';
+    nilaiEl.readOnly = false;
+    nilaiEl.classList.remove('pagu-locked');
+    nilaiEl.title = '';
+    return;
+  }
+
+  if (habis) {
+    hint.textContent = 'Sisa pagu habis — nilai bruto tidak dapat diinput.';
+    nilaiEl.value = 0;
+    nilaiEl.readOnly = true;
+    nilaiEl.classList.add('pagu-locked');
+    nilaiEl.title = 'Sisa pagu anggaran habis';
+  } else {
+    hint.textContent = `Maksimal nilai bruto: ${formatRupiah(info.sisa)}`;
+    nilaiEl.readOnly = false;
+    nilaiEl.classList.remove('pagu-locked');
+    nilaiEl.title = `Sisa pagu: ${formatRupiah(info.sisa)}`;
+  }
+}
+
+function onNilaiBrutoInput() {
+  const nilaiEl = document.getElementById('f-nilai');
+  const info = getSisaPaguFormInfo();
+  if (info && info.pagu > 0 && info.sisa > 0) {
+    let v = parseFloat(nilaiEl.value) || 0;
+    if (v > info.sisa) nilaiEl.value = Math.floor(info.sisa);
+  } else if (info && info.pagu > 0 && info.sisa <= 0) {
+    nilaiEl.value = 0;
+  }
+  window.dispatchEvent(new CustomEvent('sipkeu:bruto-input'));
+  updatePaguRekeningUI();
+}
 </script>
 
 <!-- ═══════════════ SIDEBAR ═══════════════ -->
@@ -1541,7 +1997,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   <div class="brand">
     <div class="brand-icon"><i class="bi bi-suit-spade-fill"></i></div>
     <div>
-      <h6>SIPKEU Sekretariat</h6>
+      <h6 id="sidebar-app-title">SIPKEU Sekretariat</h6>
       <small>Dinas Pendidikan Batam</small>
     </div>
   </div>
@@ -1554,8 +2010,6 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <div class="nav-label mt-2 nav-label-admin">Pengaturan</div>
     <a href="#" class="nav-admin-only" onclick="showPage('pengaturan',this)"><i class="bi bi-person-gear"></i> Pejabat Keuangan</a>
     <div class="nav-label mt-2 nav-label-admin">Data</div>
-    <a href="#" class="nav-admin-only" onclick="showModalEkspor();return false"><i class="bi bi-file-earmark-excel"></i> Ekspor Transaksi</a>
-    <a href="#" class="nav-admin-only" onclick="showModalImpor();return false"><i class="bi bi-upload"></i> Impor Transaksi</a>
     <a href="#" class="nav-admin-only" onclick="showModalImporAnggaran();return false"><i class="bi bi-table"></i> Impor Anggaran & Kegiatan</a>
     <div class="nav-label mt-2">Navigasi</div>
     <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Portal Aplikasi</a>
@@ -1573,7 +2027,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
   <div class="topbar">
     <div>
       <div class="page-title" id="topbar-title">Dashboard</div>
-      <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted">SIPKEU Sekretariat</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
+      <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted" id="topbar-app-name">SIPKEU Sekretariat</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
     </div>
     <div class="user-badge">
       <div class="avatar" id="topbar-avatar">HA</div>
@@ -1645,6 +2099,22 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       <div class="col-lg-5"><div class="card-chart h-100 ds-animate" style="--ds-delay:.4s"><h6>Komposisi Nilai vs Pajak</h6><small>Rasio bruto, pajak, netto</small><div class="mt-3 d-flex align-items-center justify-content-center" style="height:250px"><canvas id="chartDoughnut"></canvas></div></div></div>
     </div>
     <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="op-race-panel ds-animate" style="--ds-delay:.44s">
+          <div class="op-race-ocean"></div>
+          <div class="op-race-head">
+            <div>
+              <h6><i class="bi bi-trophy-fill me-1"></i> Grand Line Race — Belanja PPTK</h6>
+              <small>PPTK berlomba menggelarakan belanja — semakin jauh, semakin besar realisasinya</small>
+            </div>
+            <span class="op-race-badge">WANTED ☠ PPTK</span>
+          </div>
+          <div class="op-race-tracks" id="op-pptk-race"></div>
+          <div class="op-race-legend" id="op-pptk-legend"></div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-4">
       <div class="col-12"><div class="card-chart ds-animate" style="--ds-delay:.47s"><h6>Tren Nilai per Bulan</h6><small>Realisasi nilai transaksi bulanan TA 2026</small><div class="mt-3" style="height:200px"><canvas id="chartMonthly"></canvas></div></div></div>
     </div>
     <div class="table-card ds-animate" style="--ds-delay:.54s">
@@ -1678,7 +2148,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
           </div>
           <div class="col-md-4">
             <label class="form-label">No. BPK <span class="auto-badge">otomatis</span></label>
-            <input type="text" class="form-control" id="f-nobpk" readonly placeholder="Terisi otomatis dari tanggal" />
+            <input type="text" class="form-control" id="f-nobpk" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
           </div>
 
           <!-- Baris 2: No BAST + No Kontrak -->
@@ -1719,49 +2189,66 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <input type="text" class="form-control" id="f-koderek" readonly placeholder="Terisi otomatis" />
           </div>
 
+          <div class="col-12" id="f-pagu-info-wrap" style="display:none">
+            <div class="pagu-rekening-info" id="f-pagu-info">
+              <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                  <span class="lbl">Pagu Anggaran</span>
+                  <strong id="f-pagu-total">—</strong>
+                </div>
+                <div class="col-md-4">
+                  <span class="lbl">Realisasi (Bruto)</span>
+                  <strong id="f-pagu-realisasi">—</strong>
+                </div>
+                <div class="col-md-4">
+                  <span class="lbl">Sisa Pagu</span>
+                  <strong id="f-pagu-sisa">—</strong>
+                </div>
+              </div>
+              <div class="text-muted mt-2" id="f-pagu-hint" style="font-size:11px"></div>
+            </div>
+          </div>
+
           <!-- Baris 6: Uraian (free text) -->
           <div class="col-12">
             <label class="form-label">Uraian / Keterangan Pembayaran <span class="text-danger">*</span></label>
             <textarea class="form-control" id="f-uraian" rows="2" placeholder="Deskripsi detail pembayaran, misalnya: Retribusi Sampah Periode April 2026, Pengadaan ATK bulan Februari 2026, dll." required></textarea>
           </div>
 
-          <!-- Baris 7: Pajak + Nilai + PA -->
-          <div class="col-md-3">
-            <label class="form-label">Jenis Pajak</label>
-            <select class="form-select" id="f-jenispajak" onchange="onJenisPajakChange()">
-              <option value="">— Tidak Ada Pajak —</option>
-              <option value="PPh 21 (5%)">PPh 21 — 5% (Pegawai Tetap)</option>
-              <option value="PPh 21 (2,5%)">PPh 21 — 2,5% (Non-NPWP / PKP)</option>
-              <option value="PPh 22 (1,5%)">PPh 22 — 1,5% (Pembelian Barang)</option>
-              <option value="PPh 23 (2%)">PPh 23 — 2% (Jasa / Imbalan)</option>
-              <option value="PPh Ps.4(2) Final (10%)">PPh Pasal 4 Ayat 2 — 10% (Final)</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Jenis Potongan</label>
-            <select class="form-select" id="f-jenispotongan" onchange="onJenisPotonganChange()">
-              <option value="">— Tidak Ada Potongan —</option>
-              <option value="Iuran Wajib Pegawai">Iuran Wajib Pegawai</option>
-            </select>
-          </div>
-          <div class="col-md-3">
+          <!-- Baris 7: Nilai Bruto + ringkasan potongan -->
+          <div class="col-md-4">
             <label class="form-label">Nilai Bruto (Rp) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required oninput="autoHitungPajak()" />
+            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required oninput="onNilaiBrutoInput()" />
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
+          <div class="col-md-4">
+            <label class="form-label" id="lbl-f-pa">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-pa" readonly />
           </div>
+          <div class="col-md-4">
+            <label class="form-label">Ringkasan Potongan</label>
+            <div class="potongan-summary-box">
+              <div><strong>Total Pajak:</strong> <span id="f-total-pajak" class="text-warning">Rp 0</span></div>
+              <div><strong>Total Potongan Lain:</strong> <span id="f-total-potongan" class="text-secondary">Rp 0</span></div>
+              <div><strong>Netto Diterima:</strong> <span id="f-total-netto" class="text-success">Rp 0</span></div>
+            </div>
+          </div>
 
-          <!-- Baris 7b: Nilai pajak & potongan terpisah -->
-          <div class="col-md-4">
-            <label class="form-label">Nilai Pajak (Rp) <span class="auto-badge" id="badge-pajak-auto" style="display:none">otomatis</span></label>
-            <input type="number" class="form-control" id="f-pajak" placeholder="0" min="0" readonly />
+          <!-- Baris 7a: Multi potongan pajak -->
+          <div class="col-12">
+            <div class="potongan-panel">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <label class="form-label mb-0"><i class="bi bi-percent me-1 text-warning"></i>Potongan Pajak &amp; Potongan Lainnya</label>
+                <button type="button" class="btn btn-sm btn-outline-warning" onclick="addPotonganFormRow()"><i class="bi bi-plus-lg me-1"></i>Tambah Potongan</button>
+              </div>
+              <div class="potongan-row-head d-none d-md-grid">
+                <span>Jenis</span><span>Tarif (%)</span><span>Kategori</span><span>Nilai (Rp)</span><span></span>
+              </div>
+              <div id="potongan-rows"></div>
+              <div class="text-muted mt-1" style="font-size:11px">Tarif otomatis dihitung dari nilai bruto. Nilai dapat diubah manual jika diperlukan.</div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Nilai Potongan (Rp) <small class="text-muted">(input manual)</small></label>
-            <input type="number" class="form-control" id="f-nilaipotongan" placeholder="Ketik nominal potongan" min="0" step="1" />
-          </div>
+
+          <!-- Baris 7b: NTPN / billing (jika ada pajak) -->
           <div class="col-md-4" id="row-ntpn" style="display:none">
             <label class="form-label">NTPN <small class="text-muted">(16 digit)</small></label>
             <input type="text" class="form-control" id="f-ntpn" placeholder="0000000000000000" maxlength="16" />
@@ -1781,7 +2268,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <input type="text" class="form-control" id="f-pptk" readonly placeholder="Terisi otomatis saat pilih pekerjaan" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Bendahara Pengeluaran <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" id="lbl-f-bend">Bendahara Pengeluaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-bendahara" readonly />
           </div>
         </div>
@@ -1817,9 +2304,27 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
           <tbody id="trx-tbody"><tr><td colspan="20" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
-      <div class="p-3 border-top d-flex justify-content-between align-items-center" style="font-size:13px;color:#64748b">
-        <span id="table-info">— data</span>
-        <div><strong>Total Nilai:</strong> <span id="table-total-nilai" class="text-success fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp; <strong>Total Pajak:</strong> <span id="table-total-pajak" class="text-warning fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp; <strong>Total Potongan:</strong> <span id="table-total-potongan" class="text-secondary fw-bold ms-1">Rp 0</span></div>
+      <div class="p-3 border-top trx-table-footer">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 trx-table-footer-top">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span id="table-info">— data</span>
+            <label class="d-flex align-items-center gap-1 mb-0 trx-page-size-label">
+              Tampilkan
+              <select class="form-select form-select-sm" id="trx-page-size" style="width:auto;min-width:88px" onchange="onTrxPageSizeChange()">
+                <option value="10" selected>10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              baris
+            </label>
+          </div>
+          <div id="trx-pagination" class="d-flex align-items-center gap-1"></div>
+        </div>
+        <div class="trx-table-footer-totals">
+          <strong>Total Nilai:</strong> <span id="table-total-nilai" class="text-success fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp;
+          <strong>Total Pajak:</strong> <span id="table-total-pajak" class="text-warning fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp;
+          <strong>Total Potongan:</strong> <span id="table-total-potongan" class="text-secondary fw-bold ms-1">Rp 0</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1865,7 +2370,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <div class="row g-3">
       <div class="col-lg-6">
         <div class="form-card ds-animate" style="--ds-delay:.05s">
-          <h6><i class="bi bi-person-badge me-2"></i>Pengguna Anggaran</h6>
+          <h6 id="set-pa-title"><i class="bi bi-person-badge me-2"></i>Pengguna Anggaran</h6>
           <div class="mb-3">
             <label class="form-label">Nama Lengkap & Gelar</label>
             <input type="text" class="form-control" id="set-pa-nama" placeholder="Nama PA" />
@@ -1878,7 +2383,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       </div>
       <div class="col-lg-6">
         <div class="form-card ds-animate" style="--ds-delay:.12s">
-          <h6><i class="bi bi-wallet2 me-2"></i>Bendahara Pengeluaran</h6>
+          <h6 id="set-bend-title"><i class="bi bi-wallet2 me-2"></i>Bendahara Pengeluaran</h6>
           <div class="mb-3">
             <label class="form-label">Nama Lengkap & Gelar</label>
             <input type="text" class="form-control" id="set-bend-nama" placeholder="Nama Bendahara" />
@@ -2130,13 +2635,13 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     </table>
     <div class="rk-ttd">
       <div class="rk-ttd-box">
-        <div>Pengguna Anggaran,</div>
+        <div id="rk-pa-jabatan">Pengguna Anggaran,</div>
         <div class="rk-ttd-space"></div>
         <div><strong id="rk-pa-nama">—</strong></div>
         <div id="rk-pa-nip">—</div>
       </div>
       <div class="rk-ttd-box">
-        <div>Bendahara Pengeluaran,</div>
+        <div id="rk-bend-jabatan">Bendahara Pengeluaran,</div>
         <div class="rk-ttd-space"></div>
         <div><strong id="rk-bend-nama">—</strong></div>
         <div id="rk-bend-nip">—</div>
@@ -2190,16 +2695,18 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
           </div>
           <div class="kw-terbilang" id="kw-terbilang">—</div>
           <table class="kw-deduct-table">
-            <tr>
-              <td>Pajak</td><td>:</td>
-              <td id="kw-jenis-pajak">—</td>
-              <td class="kw-deduct-amt">Rp <span id="kw-pajak-num">0,00</span></td>
-            </tr>
-            <tr>
-              <td>Potongan</td><td>:</td>
-              <td id="kw-jenis-potongan">—</td>
-              <td class="kw-deduct-amt">Rp <span id="kw-potongan-num">0,00</span></td>
-            </tr>
+            <tbody id="kw-deduct-tbody">
+              <tr>
+                <td>Pajak</td><td>:</td>
+                <td id="kw-jenis-pajak">—</td>
+                <td class="kw-deduct-amt">Rp <span id="kw-pajak-num">0,00</span></td>
+              </tr>
+              <tr>
+                <td>Potongan</td><td>:</td>
+                <td id="kw-jenis-potongan">—</td>
+                <td class="kw-deduct-amt">Rp <span id="kw-potongan-num">0,00</span></td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -2219,7 +2726,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       <div class="kw-sign-row kw-sign-row-top">
         <div class="kw-sign-cell">
           <div class="kw-sign-title">Mengetahui/Menyetujui</div>
-          <div class="kw-sign-role">Pengguna Anggaran</div>
+          <div class="kw-sign-role" id="kw-pa-role">Pengguna Anggaran</div>
           <div class="kw-sign-space"></div>
           <div class="kw-sign-name" id="kw-pa-nama">HENDRI ARULAN, S.Pd</div>
           <div class="kw-sign-nip" id="kw-pa-nip">NIP. 19670119 199103 1 009</div>
@@ -2238,7 +2745,7 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
 
       <div class="kw-sign-row">
         <div class="kw-sign-cell">
-          <div class="kw-sign-title">Bendahara Pengeluaran</div>
+          <div class="kw-sign-title" id="kw-bend-title">Bendahara Pengeluaran</div>
           <div class="kw-sign-role">Dinas Pendidikan Kota Batam</div>
           <div class="kw-sign-space"></div>
           <div class="kw-sign-name" id="kw-bend-nama">ELDINA SRIDHANTY, SE</div>
@@ -2423,6 +2930,8 @@ let rekapRowsCache = [];
 let rekapTransactionsCache = [];
 let rekapMode = 'kegiatan';
 let allTransactions = [];
+let trxPage = 1;
+let trxPageSize = 10;
 let editingId = null;
 let deleteId = null;
 let chartKegiatan = null, chartDoughnut = null, chartMonthly = null;
@@ -2438,9 +2947,8 @@ const PORTAL_APPS = {
   },
   paud: {
     label: 'SIPKEU PAUD & Kesetaraan',
-    desc: 'Modul penatausahaan keuangan PAUD dan Pendidikan Kesetaraan.',
-    available: false,
-    soonMsg: 'Aplikasi <strong>SIPKEU PAUD &amp; Kesetaraan</strong> sedang dalam pengembangan dan akan segera tersedia.',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>PAUD & Pendidikan Kesetaraan · TA 2026',
+    available: true,
   },
   'kas-belanja': {
     label: 'Realisasi Anggaran Kas Belanja',
@@ -2448,6 +2956,27 @@ const PORTAL_APPS = {
     available: true,
   },
 };
+
+const SIPKEU_PORTAL_PROFILE = {
+  sekretariat: {
+    bpkCode: 'B01',
+    paLabel: 'Pengguna Anggaran',
+    bendaharaLabel: 'Bendahara Pengeluaran',
+    defaultPa: { nama: 'HENDRI ARULAN, S.Pd', nip: 'NIP. 19670119 199103 1 009' },
+    defaultBendahara: { nama: 'ELDINA SRIDHANTY, SE', nip: 'NIP. 19810610 201001 2 002' },
+  },
+  paud: {
+    bpkCode: 'B02',
+    paLabel: 'Kuasa Pengguna Anggaran',
+    bendaharaLabel: 'Bendahara Pembantu Pengeluaran',
+    defaultPa: { nama: 'Sularno, S.Pd., M.Si', nip: 'NIP. 19690408 199303 1 010' },
+    defaultBendahara: { nama: 'LIONI ASMIRELDA', nip: 'NIP. 19981102 202203 2 002' },
+  },
+};
+
+function getPortalAppConfig() {
+  return SIPKEU_PORTAL_PROFILE[selectedPortalApp] || SIPKEU_PORTAL_PROFILE.sekretariat;
+}
 
 function showPortal() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
@@ -2499,6 +3028,9 @@ function authHeaders(extra = {}) {
   const h = { ...extra };
   const token = sessionStorage.getItem('sipkeu_token');
   if (token) h['Authorization'] = 'Bearer ' + token;
+  if (selectedPortalApp && selectedPortalApp !== 'kas-belanja') {
+    h['X-SIPKEU-App'] = selectedPortalApp;
+  }
   return h;
 }
 
@@ -2615,6 +3147,7 @@ async function doLogout() {
 
 async function bootApp() {
   showApp();
+  applyPortalBranding();
   await loadSettings();
   initForm();
   if (isAdmin()) {
@@ -2711,47 +3244,76 @@ function showPage(name, el) {
 // ── Cascading Form ──────────────────────────────────────────────────────
 const BPK_UNIT = '1.01.0.00.0.00.01.0000';
 
-function parseBpkSeq(noBpk) {
-  const m = String(noBpk || '').match(/^(\d+)\/BPK\//i);
+function parseBpkSeq(noBpk, bpkCode) {
+  if (!noBpk || !String(noBpk).includes('/' + bpkCode + '/')) return 0;
+  const m = String(noBpk).match(/^(\d+)\/BPK\//i);
   return m ? parseInt(m[1], 10) : 0;
-}
-
-function maxBpkUrutBulan(year, month, excludeId) {
-  let maxB = 0;
-  for (const t of allTransactions) {
-    if (excludeId && t.id === excludeId) continue;
-    if (!t.tanggal || !t.tanggal.startsWith(`${year}-${month}`)) continue;
-    const bm = (t.no_bpk || '').match(/\/B(\d+)\/\d{2}\/\d{4}$/i);
-    if (bm) maxB = Math.max(maxB, parseInt(bm[1], 10));
-  }
-  return maxB;
 }
 
 function generateNoBPK(tanggal) {
   if (!tanggal) return '';
   const [year, month] = tanggal.split('-');
+  const cfg = getPortalAppConfig();
   let maxSeq = 0;
   for (const t of allTransactions) {
     if (editingId && t.id === editingId) continue;
-    maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk));
+    maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
   }
   const seq = String(maxSeq + 1).padStart(4, '0');
-  const urutBulan = maxBpkUrutBulan(year, month, editingId) + 1;
-  const bPart = 'B' + String(urutBulan).padStart(2, '0');
-  return `${seq}/BPK/UP/${BPK_UNIT}/${bPart}/${month}/${year}`;
+  return `${seq}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+}
+
+function hasTrxFormInput() {
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  if (v('f-penerima') || v('f-nobast') || v('f-nokontrak') || v('f-uraian')) return true;
+  if (v('f-kegiatan') || v('f-subkegiatan') || v('f-pekerjaan')) return true;
+  if ((parseFloat(document.getElementById('f-nilai')?.value) || 0) > 0) return true;
+  if (v('f-ntpn') || v('f-kbilling') || v('f-ntb')) return true;
+  return Array.from(document.querySelectorAll('#potongan-rows .potongan-row')).some(row => {
+    const j = row.querySelector('.potongan-jenis')?.value;
+    return !!j;
+  });
 }
 
 function updateNoBPK() {
   if (editingId) return;
-  document.getElementById('f-nobpk').value = generateNoBPK(document.getElementById('f-tanggal').value);
+  const el = document.getElementById('f-nobpk');
+  if (!el) return;
+  if (!hasTrxFormInput()) {
+    el.value = '';
+    return;
+  }
+  el.value = generateNoBPK(document.getElementById('f-tanggal').value);
+}
+
+function initTrxFormBpkListeners() {
+  const form = document.getElementById('trx-form');
+  if (!form || form.dataset.bpkListen) return;
+  form.dataset.bpkListen = '1';
+  form.addEventListener('input', e => {
+    if (editingId) return;
+    const id = e.target?.id || '';
+    if (['f-penerima', 'f-nobast', 'f-nokontrak', 'f-uraian', 'f-nilai', 'f-ntpn', 'f-kbilling', 'f-ntb'].includes(id)) {
+      updateNoBPK();
+    }
+  });
+  form.addEventListener('change', e => {
+    if (editingId) return;
+    const id = e.target?.id || '';
+    if (['f-tanggal', 'f-kegiatan', 'f-subkegiatan', 'f-pekerjaan'].includes(id)) {
+      updateNoBPK();
+    }
+  });
 }
 
 function initForm() {
   refreshKegiatanDropdown();
+  initTrxFormBpkListeners();
   // Auto-fill static fields
   document.getElementById('f-pa').value = DB.pa.nama;
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-tanggal').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-nobpk').value = '';
 }
 
 function refreshKegiatanDropdown() {
@@ -2786,6 +3348,7 @@ function onKegiatanChange() {
   pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  updatePaguRekeningUI();
   subSel.disabled = !keg;
   pkSel.disabled = true;
 
@@ -2801,6 +3364,7 @@ function onSubKegiatanChange() {
   pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  updatePaguRekeningUI();
   pkSel.disabled = !sub;
 
   if (!sub) return;
@@ -2814,15 +3378,18 @@ function onPekerjaanChange() {
   if (!val) {
     document.getElementById('f-koderek').value = '';
     document.getElementById('f-pptk').value = '';
+    updatePaguRekeningUI();
     return;
   }
   const data = JSON.parse(val);
   document.getElementById('f-koderek').value = data.kode;
   document.getElementById('f-pptk').value = data.pptk;
+  updatePaguRekeningUI();
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────
 async function loadDashboard() {
+  await loadSettings();
   const res = await apiFetch(API + '/dashboard');
   const data = await res.json();
   document.getElementById('stat-total').textContent = data.total_transaksi || 0;
@@ -2876,14 +3443,197 @@ async function loadDashboard() {
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:12},color:'#94a3b8'}}},scales:{y:{ticks:{callback:v=>'Rp '+(v/1000000).toFixed(1)+'jt',font:{size:10},color:'#94a3b8'},grid:{color:'rgba(56,189,248,.08)'}},x:{ticks:{font:{size:10},color:'#94a3b8'},grid:{display:false}}}}
   });
+
+  renderOpPptkRaceChart(data.nilai_per_pptk || []);
+}
+
+const OP_RUNNER_CHARACTERS = [
+  { label: 'Luffy', file: 'luffy.png' },
+  { label: 'Zoro', file: 'zoro.png' },
+  { label: 'Sanji', file: 'sanji.png' },
+  { label: 'Nami', file: 'nami.png' },
+  { label: 'Usopp', file: 'usopp.png' },
+  { label: 'Chopper', file: 'chopper.png' },
+  { label: 'Robin', file: 'robin.png' },
+  { label: 'Jinbe', file: 'jinbe.png' },
+  { label: 'Brook', file: 'brook.png' },
+];
+const OP_RUNNER_ASSET_VER = '3';
+
+function pptkRunnerHash(pptkName) {
+  const s = pptkName || '';
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+/** Satu ikon tokoh hanya untuk satu PPTK; urutan alfabet menentukan prioritas jika bentrok hash. */
+function buildUniqueRunnerAssignments(pptkNames) {
+  const names = [...new Set(pptkNames.filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, 'id', { sensitivity: 'base' })
+  );
+  const taken = new Set();
+  const map = new Map();
+  const n = OP_RUNNER_CHARACTERS.length;
+  for (const name of names) {
+    let idx = pptkRunnerHash(name) % n;
+    let attempts = 0;
+    while (taken.has(idx) && attempts < n) {
+      idx = (idx + 1) % n;
+      attempts++;
+    }
+    if (!taken.has(idx)) {
+      taken.add(idx);
+      map.set(name, idx);
+    } else {
+      map.set(name, -1);
+    }
+  }
+  return map;
+}
+
+function opRunnerImg(charIndex) {
+  if (charIndex == null || charIndex < 0) {
+    return '<span class="op-runner-fallback" aria-hidden="true"><i class="bi bi-person-walking"></i></span>';
+  }
+  const c = OP_RUNNER_CHARACTERS[charIndex];
+  return `<img class="op-runner-img" src="/assets/op-runners/${c.file}?v=${OP_RUNNER_ASSET_VER}" alt="${c.label}" draggable="false" />`;
+}
+
+function getPaguByPPTK(pptkName) {
+  return (appSettings.rak || []).filter(r => r.pptk === pptkName).reduce((s, r) => s + (r.anggaran || 0), 0);
+}
+
+function renderOpPptkRaceChart(pptkStats) {
+  const wrap = document.getElementById('op-pptk-race');
+  const legend = document.getElementById('op-pptk-legend');
+  if (!wrap) return;
+
+  const enriched = pptkStats.map(p => {
+    const pagu = p.pagu || getPaguByPPTK(p.pptk);
+    const realisasi = p.total || 0;
+    return { ...p, pagu, realisasi };
+  });
+  const sorted = [...enriched].sort((a, b) => b.realisasi - a.realisasi || b.pagu - a.pagu);
+  const maxReal = sorted.length ? Math.max(...sorted.map(p => p.realisasi)) : 0;
+
+  if (!sorted.length) {
+    wrap.innerHTML = '<div class="op-race-empty"><i class="bi bi-compass me-1"></i> Belum ada data belanja PPTK — tambah transaksi untuk memulai lomba Grand Line!</div>';
+    if (legend) legend.innerHTML = '';
+    return;
+  }
+
+  const assignmentMap = buildUniqueRunnerAssignments(sorted.map(p => p.pptk));
+  const ownerByChar = new Map();
+  assignmentMap.forEach((idx, pptk) => {
+    if (idx >= 0) ownerByChar.set(idx, pptk);
+  });
+
+  wrap.innerHTML = sorted.map((p, i) => {
+    const pct = p.pagu > 0
+      ? Math.min(100, Math.max(5, (p.realisasi / p.pagu) * 100))
+      : (maxReal > 0 ? Math.max(8, (p.realisasi / maxReal) * 100) : 8);
+    const shortName = p.pptk.length > 28 ? p.pptk.slice(0, 26) + '…' : p.pptk;
+    const sisa = Math.max(0, p.pagu - p.realisasi);
+    const pctLabel = p.pagu > 0 ? ((p.realisasi / p.pagu) * 100).toFixed(1) + '%' : '—';
+    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    return `<div class="op-race-lane" style="--lane-delay:${i * 0.08}s;--progress:${pct.toFixed(1)}%">
+      <div class="op-race-label">
+        <div class="op-wanted">☠ WANTED</div>
+        <strong title="${esc(p.pptk)}">${esc(shortName)}</strong>
+        <small>Pagu: ${formatRupiah(p.pagu)}<br>Realisasi: ${formatRupiah(p.realisasi)} · ${p.count || 0} trx</small>
+      </div>
+      <div class="op-race-track-wrap">
+        <div class="op-runner-hover-tip">
+          <div class="tip-title">${esc(p.pptk)}</div>
+          <div class="tip-row"><span>Pagu</span><strong>${formatRupiah(p.pagu)}</strong></div>
+          <div class="tip-row"><span>Realisasi</span><strong>${formatRupiah(p.realisasi)}</strong></div>
+          <div class="tip-row"><span>Sisa</span><strong>${formatRupiah(sisa)}</strong></div>
+          <div class="tip-pct">${pctLabel} dari pagu</div>
+        </div>
+        <div class="op-race-track">
+          <div class="op-race-fill"></div>
+          <div class="op-race-runner" tabindex="0" role="button" aria-label="Detail pagu ${esc(p.pptk)}">
+            ${opRunnerImg(assignmentMap.get(p.pptk))}<span class="op-race-dust" style="left:-6px;animation-delay:${i * 0.1}s"></span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (legend) {
+    const escLeg = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    legend.innerHTML = OP_RUNNER_CHARACTERS.map((c, i) => {
+      const owner = ownerByChar.get(i);
+      const shortOwner = owner && owner.length > 22 ? owner.slice(0, 20) + '…' : owner;
+      const cls = owner ? 'is-assigned' : 'is-free';
+      const title = owner ? `Dipakai: ${escLeg(owner)}` : 'Belum dipakai';
+      return `<span class="${cls}" title="${title}"><img src="/assets/op-runners/${c.file}?v=${OP_RUNNER_ASSET_VER}" alt="${c.label}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle" /> ${c.label}${owner ? ` · ${escLeg(shortOwner)}` : ''}</span>`;
+    }).join('') + '<span style="margin-left:auto;opacity:.85">Satu tokoh = satu PPTK · arahkan kursor ke pelari untuk detail</span>';
+  }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      wrap.querySelectorAll('.op-race-lane').forEach(lane => lane.classList.add('is-loaded'));
+    });
+  });
 }
 
 // ── Transaksi ────────────────────────────────────────────────────────────
 async function loadTransaksi() {
   const res = await apiFetch(API + '/transactions');
   allTransactions = await res.json() || [];
-  renderTable(allTransactions);
-  if (!editingId) updateNoBPK();
+  trxPage = 1;
+  renderTable();
+  updatePaguRekeningUI();
+}
+
+function getFilteredTransactions() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+  if (!q) return allTransactions;
+  return allTransactions.filter(t =>
+    (t.kegiatan||'').toLowerCase().includes(q) ||
+    (t.penerima||'').toLowerCase().includes(q) ||
+    (t.no_bpk||'').toLowerCase().includes(q) ||
+    (t.no_bast||'').toLowerCase().includes(q) ||
+    (t.no_kontrak||'').toLowerCase().includes(q) ||
+    (t.pekerjaan||'').toLowerCase().includes(q) ||
+    (t.uraian||'').toLowerCase().includes(q) ||
+    (t.jenis_pajak||'').toLowerCase().includes(q) ||
+    (t.jenis_potongan||'').toLowerCase().includes(q) ||
+    (t.potongan_pajak||[]).some(p => (p.jenis||'').toLowerCase().includes(q)) ||
+    (t.ntpn||'').toLowerCase().includes(q) ||
+    (t.tanggal||'').includes(q)
+  );
+}
+
+function onTrxPageSizeChange() {
+  trxPageSize = parseInt(document.getElementById('trx-page-size')?.value, 10) || 10;
+  trxPage = 1;
+  renderTable();
+}
+
+function goTrxPage(page) {
+  const filtered = getFilteredTransactions();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / trxPageSize));
+  trxPage = Math.min(Math.max(1, page), totalPages);
+  renderTable();
+}
+
+function renderTrxPagination(total, totalPages, start, shown) {
+  const el = document.getElementById('trx-pagination');
+  if (!el) return;
+  if (total === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  const end = start + shown;
+  el.innerHTML = `
+    <button type="button" class="btn btn-sm btn-outline-secondary" ${trxPage <= 1 ? 'disabled' : ''} onclick="goTrxPage(${trxPage - 1})" title="Halaman sebelumnya"><i class="bi bi-chevron-left"></i></button>
+    <span class="trx-page-indicator">Halaman ${trxPage} / ${totalPages}</span>
+    <button type="button" class="btn btn-sm btn-outline-secondary" ${trxPage >= totalPages ? 'disabled' : ''} onclick="goTrxPage(${trxPage + 1})" title="Halaman berikutnya"><i class="bi bi-chevron-right"></i></button>`;
+  document.getElementById('table-info').textContent =
+    `Menampilkan ${start + 1}–${end} dari ${total} data`;
 }
 
 function trxActionButtons(t) {
@@ -2892,22 +3642,31 @@ function trxActionButtons(t) {
           <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
 }
 
-function renderTable(data) {
+function renderTable() {
+  const data = getFilteredTransactions();
   const tbody = document.getElementById('trx-tbody');
-  let totalN = 0, totalP = 0;
+  let totalN = 0, totalP = 0, totalPot = 0;
   if (!data || !data.length) {
     tbody.innerHTML = `<tr><td colspan="20"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
     document.getElementById('table-total-potongan').textContent = 'Rp 0';
+    renderTrxPagination(0, 1, 0, 0);
     return;
   }
-  let totalPot = 0;
-  tbody.innerHTML = data.map((t,i) => {
-    totalN += t.nilai||0; totalP += t.pajak||0; totalPot += t.nilai_potongan||0;
+  data.forEach(t => {
+    totalN += t.nilai || 0;
+    totalP += t.pajak || 0;
+    totalPot += t.nilai_potongan || 0;
+  });
+  const totalPages = Math.max(1, Math.ceil(data.length / trxPageSize));
+  if (trxPage > totalPages) trxPage = totalPages;
+  const start = (trxPage - 1) * trxPageSize;
+  const pageData = data.slice(start, start + trxPageSize);
+  tbody.innerHTML = pageData.map((t, i) => {
     return `<tr>
-      <td class="table-num">${i+1}</td>
+      <td class="table-num">${start + i + 1}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
       <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
       <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.sub_kegiatan||''}">${t.sub_kegiatan||'-'}</td>
@@ -2919,9 +3678,9 @@ function renderTable(data) {
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.pekerjaan||''}">${t.pekerjaan||'-'}</td>
       <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.uraian||''}">${t.uraian||'-'}</td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td>
-      <td><span class="badge badge-pajak-jenis" style="font-size:10px;white-space:nowrap">${labelJenisPajak(t.jenis_pajak)}</span></td>
+      <td><span class="badge badge-pajak-jenis" style="font-size:10px;white-space:normal;max-width:160px">${formatPotonganSummary(t, 'pajak')}</span></td>
       <td class="text-end"><span class="badge-pajak">${formatRupiah(t.pajak)}</span></td>
-      <td><span class="badge bg-light text-secondary" style="font-size:10px;white-space:nowrap">${t.jenis_potongan||'—'}</span></td>
+      <td><span class="badge bg-light text-secondary" style="font-size:10px;white-space:normal;max-width:140px">${formatPotonganSummary(t, 'potongan')}</span></td>
       <td class="text-end"><span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size:11px;font-weight:600">${formatRupiah(t.nilai_potongan)}</span></td>
       <td style="font-size:11px">${t.pengguna_anggaran||'-'}</td>
       <td style="font-size:11px">${t.pptk||'-'}</td>
@@ -2930,28 +3689,15 @@ function renderTable(data) {
         <div class="d-flex gap-1">${trxActionButtons(t)}</div>
       </td></tr>`;
   }).join('');
-  document.getElementById('table-info').textContent = data.length + ' data';
   document.getElementById('table-total-nilai').textContent = formatRupiah(totalN);
   document.getElementById('table-total-pajak').textContent = formatRupiah(totalP);
   document.getElementById('table-total-potongan').textContent = formatRupiah(totalPot);
+  renderTrxPagination(data.length, totalPages, start, pageData.length);
 }
 
 function filterTable() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  if (!q) { renderTable(allTransactions); return; }
-  renderTable(allTransactions.filter(t =>
-    (t.kegiatan||'').toLowerCase().includes(q) ||
-    (t.penerima||'').toLowerCase().includes(q) ||
-    (t.no_bpk||'').toLowerCase().includes(q) ||
-    (t.no_bast||'').toLowerCase().includes(q) ||
-    (t.no_kontrak||'').toLowerCase().includes(q) ||
-    (t.pekerjaan||'').toLowerCase().includes(q) ||
-    (t.uraian||'').toLowerCase().includes(q) ||
-    (t.jenis_pajak||'').toLowerCase().includes(q) ||
-    (t.jenis_potongan||'').toLowerCase().includes(q) ||
-    (t.ntpn||'').toLowerCase().includes(q) ||
-    (t.tanggal||'').includes(q)
-  ));
+  trxPage = 1;
+  renderTable();
 }
 
 // ── Form CRUD ────────────────────────────────────────────────────────────
@@ -2965,7 +3711,24 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
   }
   const pptkFinal = pptkNama || document.getElementById('f-pptk').value;
   if (!editingId) updateNoBPK();
-  autoHitungPajak();
+  recalcAllPotonganRows();
+
+  const paguInfo = getSisaPaguFormInfo();
+  const nilaiBruto = parseFloat(document.getElementById('f-nilai').value) || 0;
+  if (paguInfo && paguInfo.pagu > 0) {
+    if (paguInfo.sisa <= 0 && nilaiBruto > 0) {
+      alert('Sisa pagu anggaran untuk kode rekening ini sudah habis.');
+      return;
+    }
+    if (nilaiBruto > paguInfo.sisa + 0.001) {
+      alert(`Nilai bruto melebihi sisa pagu (${formatRupiah(paguInfo.sisa)}).`);
+      return;
+    }
+  }
+
+  const potonganItems = collectPotonganFromForm();
+  const taxLegacy = syncLegacyTaxFieldsFromItems(potonganItems);
+
   const payload = {
     tanggal: document.getElementById('f-tanggal').value,
     kegiatan: document.getElementById('f-kegiatan').value,
@@ -2977,11 +3740,12 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     no_kontrak: document.getElementById('f-nokontrak').value,
     pekerjaan: pekerjaanText,
     uraian: document.getElementById('f-uraian').value,
-    jenis_pajak: document.getElementById('f-jenispajak').value,
-    jenis_potongan: document.getElementById('f-jenispotongan').value,
-    nilai: parseFloat(document.getElementById('f-nilai').value)||0,
-    pajak: parseFloat(document.getElementById('f-pajak').value)||0,
-    nilai_potongan: parseFloat(document.getElementById('f-nilaipotongan').value)||0,
+    potongan_pajak: potonganItems,
+    jenis_pajak: taxLegacy.jenis_pajak,
+    jenis_potongan: taxLegacy.jenis_potongan,
+    nilai: nilaiBruto,
+    pajak: taxLegacy.pajak,
+    nilai_potongan: taxLegacy.nilai_potongan,
     ntpn: document.getElementById('f-ntpn').value,
     kode_billing: document.getElementById('f-kbilling').value,
     ntb: document.getElementById('f-ntb').value,
@@ -3016,19 +3780,16 @@ function resetForm() {
   pkSel.disabled = true;
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
-  document.getElementById('f-jenispajak').value = '';
-  document.getElementById('f-jenispotongan').value = '';
-  document.getElementById('f-pajak').value = '';
-  document.getElementById('f-nilaipotongan').value = '';
+  clearPotonganFormRows();
   document.getElementById('f-ntpn').value = '';
   document.getElementById('f-kbilling').value = '';
   document.getElementById('f-ntb').value = '';
-  document.getElementById('badge-pajak-auto').style.display = 'none';
   ['row-ntpn','row-kbilling','row-ntb'].forEach(id => document.getElementById(id).style.display = 'none');
   document.getElementById('form-mode-label').textContent = 'Tambah Transaksi Baru';
   document.getElementById('btn-submit').innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
   document.getElementById('f-tanggal').value = new Date().toISOString().slice(0, 10);
   updateNoBPK();
+  updatePaguRekeningUI();
 }
 
 function editTrx(id) {
@@ -3041,21 +3802,16 @@ function editTrx(id) {
   document.getElementById('f-nokontrak').value = t.no_kontrak||'';
   document.getElementById('f-penerima').value = t.penerima||'';
   document.getElementById('f-nilai').value = t.nilai||0;
-  document.getElementById('f-pajak').value = t.pajak||0;
-  document.getElementById('f-nilaipotongan').value = t.nilai_potongan||0;
   document.getElementById('f-pa').value = DB.pa.nama;
   document.getElementById('f-pptk').value = t.pptk||'';
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-koderek').value = t.kode_rekening||'';
   document.getElementById('f-uraian').value = t.uraian||'';
-  document.getElementById('f-jenispajak').value = resolveJenisPajakValue(t);
-  document.getElementById('f-jenispotongan').value = normalizeJenisPotongan(t.jenis_potongan);
+  loadPotonganToForm(t);
   document.getElementById('f-ntpn').value = t.ntpn||'';
   document.getElementById('f-kbilling').value = t.kode_billing||'';
   document.getElementById('f-ntb').value = t.ntb||'';
-  const hasPajak = !!document.getElementById('f-jenispajak').value;
-  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => document.getElementById(id).style.display = hasPajak ? '' : 'none');
-  updateBadgePajakAuto();
+  syncTaxFieldVisibility();
 
   // Re-populate cascading dropdowns
   const kegSel = document.getElementById('f-kegiatan');
@@ -3079,6 +3835,8 @@ function editTrx(id) {
     }
   }
 
+  updatePaguRekeningUI();
+  onNilaiBrutoInput();
   document.getElementById('form-mode-label').textContent = 'Edit Transaksi';
   document.getElementById('btn-submit').innerHTML = '<i class="bi bi-check-circle me-2"></i>Update Data';
   document.querySelector('.form-card').scrollIntoView({behavior:'smooth'});
@@ -3111,10 +3869,7 @@ function cetakKwitansi(id) {
   document.getElementById('kw-pekerjaan').textContent = t.pekerjaan || '—';
   document.getElementById('kw-subkegiatan').textContent = t.sub_kegiatan || '—';
   document.getElementById('kw-nilai-num').textContent = formatKwitansiAmount(t.nilai);
-  document.getElementById('kw-pajak-num').textContent = formatKwitansiAmount(t.pajak || 0);
-  document.getElementById('kw-potongan-num').textContent = formatKwitansiAmount(t.nilai_potongan || 0);
-  document.getElementById('kw-jenis-pajak').textContent = labelJenisPajak(t.jenis_pajak) || '—';
-  document.getElementById('kw-jenis-potongan').textContent = t.jenis_potongan || '—';
+  renderKwitansiPotongan(t);
   document.getElementById('kw-penerima').innerHTML = '<strong>' + (t.penerima || '—') + '</strong>';
   document.getElementById('kw-yaitu').textContent = yaitu;
   document.getElementById('kw-penerima-ttd').textContent = t.penerima || '—';
@@ -3384,16 +4139,45 @@ async function loadSettings() {
   } catch (e) { console.warn('Gagal memuat pengaturan:', e); }
 }
 
+function applyPortalBranding() {
+  const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
+  const cfg = getPortalAppConfig();
+  const sidebarTitle = document.getElementById('sidebar-app-title');
+  const topbarApp = document.getElementById('topbar-app-name');
+  if (sidebarTitle) sidebarTitle.textContent = app.label;
+  if (topbarApp) topbarApp.textContent = app.label;
+  DB.pa = { ...cfg.defaultPa };
+  DB.bendahara = { ...cfg.defaultBendahara };
+  applyPejabatUI();
+}
+
 function applyPejabatUI() {
+  const cfg = getPortalAppConfig();
   const paNama = DB.pa?.nama || '—';
   document.getElementById('topbar-pa-nama').textContent = paNama;
-  document.getElementById('topbar-pa-jabatan').textContent = 'Pengguna Anggaran';
+  document.getElementById('topbar-pa-jabatan').textContent = cfg.paLabel;
   const parts = paNama.split(/[\s,]+/).filter(Boolean);
   document.getElementById('topbar-avatar').textContent = (parts[0]?.[0]||'P') + (parts[1]?.[0]||'A');
   const fPa = document.getElementById('f-pa');
   const fBend = document.getElementById('f-bendahara');
   if (fPa) fPa.value = DB.pa?.nama || '';
   if (fBend) fBend.value = DB.bendahara?.nama || '';
+  const lblPa = document.getElementById('lbl-f-pa');
+  const lblBend = document.getElementById('lbl-f-bend');
+  if (lblPa) lblPa.innerHTML = `${cfg.paLabel} <span class="auto-badge">otomatis</span>`;
+  if (lblBend) lblBend.innerHTML = `${cfg.bendaharaLabel} <span class="auto-badge">otomatis</span>`;
+  const setPaTitle = document.getElementById('set-pa-title');
+  const setBendTitle = document.getElementById('set-bend-title');
+  if (setPaTitle) setPaTitle.innerHTML = `<i class="bi bi-person-badge me-2"></i>${cfg.paLabel}`;
+  if (setBendTitle) setBendTitle.innerHTML = `<i class="bi bi-wallet2 me-2"></i>${cfg.bendaharaLabel}`;
+  const kwPaRole = document.getElementById('kw-pa-role');
+  const kwBendTitle = document.getElementById('kw-bend-title');
+  if (kwPaRole) kwPaRole.textContent = cfg.paLabel;
+  if (kwBendTitle) kwBendTitle.textContent = cfg.bendaharaLabel;
+  const rkPaJab = document.getElementById('rk-pa-jabatan');
+  const rkBendJab = document.getElementById('rk-bend-jabatan');
+  if (rkPaJab) rkPaJab.textContent = cfg.paLabel + ',';
+  if (rkBendJab) rkBendJab.textContent = cfg.bendaharaLabel + ',';
 }
 
 function fillSettingsForm() {
@@ -3747,112 +4531,422 @@ async function loadRekap() {
 }
 
 // ── Pajak & Potongan ──────────────────────────────────────────────────────
-const TARIF_BY_JENIS_PAJAK = {
-  'PPh 21 (5%)': 0.05,
-  'PPh 21 (2,5%)': 0.025,
-  'PPh 22 (1,5%)': 0.015,
-  'PPh 23 (2%)': 0.02,
-  'PPh Ps.4(2) Final (10%)': 0.10,
-  'PPh 21': 0.05,
-  'PPh 22': 0.015,
-  'PPh 23': 0.02,
-  'PPh Ps.4(2) Final': 0.10,
+const PAJAK_POTONGAN_CATALOG = [
+  { id: 'pph21-5', group: 'PPh Pasal 21', label: 'PPh 21 — 5% (Pegawai/Honor NPWP)', tarif: 0.05, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph21-25', group: 'PPh Pasal 21', label: 'PPh 21 — 2,5% (Honor Non-NPWP)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph21-15', group: 'PPh Pasal 21', label: 'PPh 21 — 15% (Peserta BPJS Kesehatan)', tarif: 0.15, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph22-15', group: 'PPh Pasal 22', label: 'PPh 22 — 1,5% (Pembelian Barang NPWP)', tarif: 0.015, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph22-3', group: 'PPh Pasal 22', label: 'PPh 22 — 3% (Pembelian Barang Non-NPWP)', tarif: 0.03, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph22-05', group: 'PPh Pasal 22', label: 'PPh 22 — 0,5% (Import/Pembelian)', tarif: 0.005, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph23-2', group: 'PPh Pasal 23', label: 'PPh 23 — 2% (Jasa/Imbalan NPWP)', tarif: 0.02, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph23-4', group: 'PPh Pasal 23', label: 'PPh 23 — 4% (Jasa/Imbalan Non-NPWP)', tarif: 0.04, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph23-15', group: 'PPh Pasal 23', label: 'PPh 23 — 15% (Dividen/Bunga/Royalti)', tarif: 0.15, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph26-20', group: 'PPh Pasal 26', label: 'PPh 26 — 20% (Wajib Pajak Luar Negeri)', tarif: 0.20, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-10-sewa', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Sewa Tanah/Bangunan)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-25-sewa', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2,5% (Sewa Mesin/Alat)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-10-bunga', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Bunga Deposito/Tabungan)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-25-konstruksi', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2,5% (Jasa Konstruksi)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-4-konstruksi', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 4% (Jasa Konstruksi Terintegrasi)', tarif: 0.04, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-2-reklame', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2% (Jasa Reklame)', tarif: 0.02, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-05-umkm', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 0,5% (UMKM Final)', tarif: 0.005, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-10-dividen', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Dividen)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph42-01-saham', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 0,1% (Transaksi Saham BEI)', tarif: 0.001, kategori: 'pajak', base: 'bruto' },
+  { id: 'pph15-264', group: 'PPh Pasal 15', label: 'PPh 15 — 2,64% (Angkutan/Pelayaran)', tarif: 0.0264, kategori: 'pajak', base: 'bruto' },
+  { id: 'ppn-11', group: 'PPN', label: 'PPN — 11% (DPP × 11%)', tarif: 0.11, kategori: 'pajak', base: 'dpp' },
+  { id: 'ppn-12', group: 'PPN', label: 'PPN — 12% (DPP × 12%)', tarif: 0.12, kategori: 'pajak', base: 'dpp' },
+  { id: 'iwp', group: 'Potongan Lainnya', label: 'Iuran Wajib Pegawai (IWP)', tarif: null, kategori: 'potongan', base: 'manual' },
+  { id: 'bpjs-kes', group: 'Potongan Lainnya', label: 'BPJS Kesehatan', tarif: null, kategori: 'potongan', base: 'manual' },
+  { id: 'bpjs-tk', group: 'Potongan Lainnya', label: 'BPJS Ketenagakerjaan', tarif: null, kategori: 'potongan', base: 'manual' },
+  { id: 'asuransi', group: 'Potongan Lainnya', label: 'Asuransi', tarif: null, kategori: 'potongan', base: 'manual' },
+  { id: 'tabungan', group: 'Potongan Lainnya', label: 'Tabungan / Potongan Lain', tarif: null, kategori: 'potongan', base: 'manual' },
+  { id: 'custom-pajak', group: 'Input Manual', label: '— Pajak Manual —', tarif: null, kategori: 'pajak', base: 'manual' },
+  { id: 'custom-potongan', group: 'Input Manual', label: '— Potongan Manual —', tarif: null, kategori: 'potongan', base: 'manual' },
+];
+
+const CATALOG_BY_ID = Object.fromEntries(PAJAK_POTONGAN_CATALOG.map(c => [c.id, c]));
+const CATALOG_BY_LABEL = Object.fromEntries(PAJAK_POTONGAN_CATALOG.map(c => [c.label, c]));
+const LEGACY_LABEL_TO_ID = {
+  'PPh 21 (5%)': 'pph21-5',
+  'PPh 21 (2,5%)': 'pph21-25',
+  'PPh 22 (1,5%)': 'pph22-15',
+  'PPh 23 (2%)': 'pph23-2',
+  'PPh Ps.4(2) Final (10%)': 'pph42-10-sewa',
+  'Iuran Wajib Pegawai': 'iwp',
 };
 
-const LEGACY_JENIS_PAJAK = {
-  'PPh 21 (5%)': ['PPh 21', '5%'],
-  'PPh 21 (2,5%)': ['PPh 21', '2,5%'],
-  'PPh 23 (2%)': ['PPh 23', '2%'],
-  'PPh 22 (1,5%)': ['PPh 22', '1,5%'],
-  'PPh Ps.4(2) Final (10%)': ['PPh Ps.4(2) Final', '10%'],
-};
+let potonganManualFlags = {};
+
+function getCatalogItem(idOrLabel) {
+  return CATALOG_BY_ID[idOrLabel] || CATALOG_BY_LABEL[idOrLabel] || null;
+}
+
+function buildPotonganSelectOptions(selectedId) {
+  const groups = {};
+  PAJAK_POTONGAN_CATALOG.forEach(c => {
+    if (!groups[c.group]) groups[c.group] = [];
+    groups[c.group].push(c);
+  });
+  let html = '<option value="">— Pilih Jenis —</option>';
+  Object.entries(groups).forEach(([group, items]) => {
+    html += `<optgroup label="${group}">`;
+    items.forEach(c => {
+      html += `<option value="${c.id}"${selectedId === c.id ? ' selected' : ''}>${c.label}</option>`;
+    });
+    html += '</optgroup>';
+  });
+  return html;
+}
+
+function getPotonganItemsFromTransaction(t) {
+  if (!t) return [];
+  if (Array.isArray(t.potongan_pajak) && t.potongan_pajak.length) {
+    return t.potongan_pajak.map(item => ({ ...item }));
+  }
+  const items = [];
+  if (t.jenis_pajak) {
+    (String(t.jenis_pajak).split(';')).map(s => s.trim()).filter(Boolean).forEach(jenis => {
+      items.push({ jenis, tarif: 0, nilai: 0, kategori: 'pajak' });
+    });
+    if (items.length === 1 && (t.pajak || 0) > 0) items[0].nilai = t.pajak;
+    else if ((t.pajak || 0) > 0 && items.length) items[0].nilai = t.pajak;
+  } else if ((t.pajak || 0) > 0) {
+    items.push({ jenis: 'Pajak', tarif: 0, nilai: t.pajak, kategori: 'pajak' });
+  }
+  if (t.jenis_potongan) {
+    (String(t.jenis_potongan).split(';')).map(s => s.trim()).filter(Boolean).forEach(jenis => {
+      items.push({ jenis, tarif: 0, nilai: 0, kategori: 'potongan' });
+    });
+    const potItems = items.filter(x => x.kategori === 'potongan');
+    if (potItems.length === 1 && (t.nilai_potongan || 0) > 0) potItems[0].nilai = t.nilai_potongan;
+    else if ((t.nilai_potongan || 0) > 0 && potItems.length) potItems[0].nilai = t.nilai_potongan;
+  } else if ((t.nilai_potongan || 0) > 0) {
+    items.push({ jenis: 'Potongan', tarif: 0, nilai: t.nilai_potongan, kategori: 'potongan' });
+  }
+  return items;
+}
+
+function resolveCatalogIdFromItem(item) {
+  if (!item?.jenis) return '';
+  if (LEGACY_LABEL_TO_ID[item.jenis]) return LEGACY_LABEL_TO_ID[item.jenis];
+  const byLabel = CATALOG_BY_LABEL[item.jenis];
+  if (byLabel) return byLabel.id;
+  for (const c of PAJAK_POTONGAN_CATALOG) {
+    if (item.jenis.startsWith(c.label.split(' — ')[0])) return c.id;
+  }
+  return item.kategori === 'potongan' ? 'custom-potongan' : 'custom-pajak';
+}
+
+function calcPotonganNilai(bruto, catalogItem, tarifOverride) {
+  if (!catalogItem || catalogItem.base === 'manual') return null;
+  const tarif = tarifOverride != null ? tarifOverride : catalogItem.tarif;
+  if (tarif == null) return null;
+  if (catalogItem.base === 'dpp') {
+    const dpp = bruto / (1 + tarif);
+    return Math.round(dpp * tarif);
+  }
+  return Math.round(bruto * tarif);
+}
+
+function formatTarifPct(tarif) {
+  if (tarif == null || tarif === '') return '—';
+  const pct = tarif * 100;
+  return (pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(2).replace('.', ',')) + '%';
+}
 
 function labelJenisPajak(jenis) {
   if (!jenis) return '—';
-  const labels = {
-    'PPh 21 (5%)': 'PPh 21 — 5%',
-    'PPh 21 (2,5%)': 'PPh 21 — 2,5%',
-    'PPh 22 (1,5%)': 'PPh 22 — 1,5%',
-    'PPh 23 (2%)': 'PPh 23 — 2%',
-    'PPh Ps.4(2) Final (10%)': 'PPh Ps.4(2) — 10%',
+  return String(jenis).split(';').map(s => s.trim()).filter(Boolean).join(' · ') || '—';
+}
+
+function formatPotonganSummary(t, kategori) {
+  const items = getPotonganItemsFromTransaction(t).filter(i => i.kategori === kategori && (i.jenis || i.nilai));
+  if (!items.length) {
+    if (kategori === 'pajak') return labelJenisPajak(t?.jenis_pajak);
+    return t?.jenis_potongan || '—';
+  }
+  return items.map(i => i.jenis || '—').join(' · ');
+}
+
+function sumPotonganByKategori(items, kategori) {
+  return items.filter(i => i.kategori === kategori).reduce((s, i) => s + (parseFloat(i.nilai) || 0), 0);
+}
+
+function renderPotonganFormRows(items) {
+  const wrap = document.getElementById('potongan-rows');
+  if (!wrap) return;
+  potonganManualFlags = {};
+  wrap.innerHTML = '';
+  if (!items.length) return;
+  items.forEach((item, idx) => addPotonganFormRow(item, idx));
+  updatePotonganSummaryDisplay();
+  syncTaxFieldVisibility();
+}
+
+function addPotonganFormRow(preset, idx) {
+  const wrap = document.getElementById('potongan-rows');
+  if (!wrap) return;
+  const rowIdx = idx != null ? idx : wrap.querySelectorAll('.potongan-row').length;
+  const catalogId = preset ? resolveCatalogIdFromItem(preset) : '';
+  const catalog = getCatalogItem(catalogId);
+  const isCustom = catalogId === 'custom-pajak' || catalogId === 'custom-potongan';
+  const row = document.createElement('div');
+  row.className = 'potongan-row';
+  row.dataset.idx = rowIdx;
+  row.innerHTML = `
+    <div>
+      <select class="form-select form-select-sm potongan-jenis" onchange="onPotonganJenisChange(${rowIdx})">${buildPotonganSelectOptions(catalogId)}</select>
+      <input type="text" class="form-control form-control-sm potongan-jenis-custom mt-1" placeholder="Nama pajak/potongan" style="display:${isCustom ? '' : 'none'}" value="${isCustom ? (preset?.jenis || '') : ''}" oninput="onPotonganCustomJenisInput(${rowIdx})" />
+    </div>
+    <div>
+      <input type="text" class="form-control form-control-sm potongan-tarif" placeholder="—" value="${preset?.tarif ? formatTarifPct(preset.tarif) : (catalog?.tarif != null ? formatTarifPct(catalog.tarif) : '')}" ${catalog?.tarif != null && !isCustom ? 'readonly' : ''} oninput="onPotonganTarifInput(${rowIdx})" />
+    </div>
+    <div>
+      <select class="form-select form-select-sm potongan-kategori" onchange="onPotonganKategoriChange(${rowIdx})">
+        <option value="pajak"${(preset?.kategori || catalog?.kategori || 'pajak') === 'pajak' ? ' selected' : ''}>Pajak</option>
+        <option value="potongan"${(preset?.kategori || catalog?.kategori) === 'potongan' ? ' selected' : ''}>Potongan Lain</option>
+      </select>
+    </div>
+    <div>
+      <input type="number" class="form-control form-control-sm potongan-nilai" placeholder="0" min="0" step="1" value="${preset?.nilai || ''}" oninput="onPotonganNilaiInput(${rowIdx})" />
+    </div>
+    <div>
+      <button type="button" class="btn btn-remove-row" title="Hapus baris" onclick="removePotonganFormRow(${rowIdx})"><i class="bi bi-trash"></i></button>
+    </div>`;
+  wrap.appendChild(row);
+  if (preset?.nilai != null && preset.nilai > 0) potonganManualFlags[rowIdx] = true;
+  recalcPotonganRow(rowIdx, !potonganManualFlags[rowIdx]);
+}
+
+function getPotonganRowEl(idx) {
+  return document.querySelector(`.potongan-row[data-idx="${idx}"]`);
+}
+
+function parseTarifInput(val) {
+  if (!val || val === '—') return null;
+  const n = parseFloat(String(val).replace('%', '').replace(',', '.'));
+  return isNaN(n) ? null : n / 100;
+}
+
+function onPotonganJenisChange(idx) {
+  potonganManualFlags[idx] = false;
+  const row = getPotonganRowEl(idx);
+  if (!row) return;
+  const catalogId = row.querySelector('.potongan-jenis').value;
+  const catalog = getCatalogItem(catalogId);
+  const customEl = row.querySelector('.potongan-jenis-custom');
+  const tarifEl = row.querySelector('.potongan-tarif');
+  const katEl = row.querySelector('.potongan-kategori');
+  const isCustom = catalogId === 'custom-pajak' || catalogId === 'custom-potongan';
+  customEl.style.display = isCustom ? '' : 'none';
+  if (isCustom) customEl.value = '';
+  if (catalog) {
+    katEl.value = catalog.kategori;
+    if (catalog.tarif != null) {
+      tarifEl.value = formatTarifPct(catalog.tarif);
+      tarifEl.readOnly = true;
+    } else {
+      tarifEl.value = '';
+      tarifEl.readOnly = false;
+    }
+  } else {
+    tarifEl.value = '';
+    tarifEl.readOnly = false;
+  }
+  recalcPotonganRow(idx, true);
+  updatePotonganSummaryDisplay();
+  syncTaxFieldVisibility();
+  updateNoBPK();
+}
+
+function onPotonganKategoriChange(idx) {
+  updatePotonganSummaryDisplay();
+  syncTaxFieldVisibility();
+}
+
+function onPotonganCustomJenisInput(idx) {
+  updateNoBPK();
+}
+
+function onPotonganTarifInput(idx) {
+  potonganManualFlags[idx] = false;
+  recalcPotonganRow(idx, true);
+}
+
+function onPotonganNilaiInput(idx) {
+  potonganManualFlags[idx] = true;
+  updatePotonganSummaryDisplay();
+}
+
+function removePotonganFormRow(idx) {
+  getPotonganRowEl(idx)?.remove();
+  delete potonganManualFlags[idx];
+  reindexPotonganRows();
+  updatePotonganSummaryDisplay();
+  syncTaxFieldVisibility();
+  updateNoBPK();
+}
+
+function reindexPotonganRows() {
+  const rows = document.querySelectorAll('#potongan-rows .potongan-row');
+  const newFlags = {};
+  rows.forEach((row, i) => {
+    const oldIdx = row.dataset.idx;
+    row.dataset.idx = i;
+    newFlags[i] = potonganManualFlags[oldIdx];
+    row.querySelector('.potongan-jenis').setAttribute('onchange', `onPotonganJenisChange(${i})`);
+    row.querySelector('.potongan-jenis-custom')?.setAttribute('oninput', `onPotonganCustomJenisInput(${i})`);
+    row.querySelector('.potongan-tarif')?.setAttribute('oninput', `onPotonganTarifInput(${i})`);
+    row.querySelector('.potongan-kategori')?.setAttribute('onchange', `onPotonganKategoriChange(${i})`);
+    row.querySelector('.potongan-nilai')?.setAttribute('oninput', `onPotonganNilaiInput(${i})`);
+    row.querySelector('.btn-remove-row')?.setAttribute('onclick', `removePotonganFormRow(${i})`);
+  });
+  potonganManualFlags = newFlags;
+}
+
+function recalcPotonganRow(idx, force) {
+  const row = getPotonganRowEl(idx);
+  if (!row) return;
+  if (potonganManualFlags[idx] && !force) {
+    updatePotonganSummaryDisplay();
+    return;
+  }
+  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
+  const catalogId = row.querySelector('.potongan-jenis').value;
+  const catalog = getCatalogItem(catalogId);
+  const tarif = parseTarifInput(row.querySelector('.potongan-tarif').value);
+  const nilai = calcPotonganNilai(bruto, catalog, tarif);
+  if (nilai != null) row.querySelector('.potongan-nilai').value = nilai;
+  updatePotonganSummaryDisplay();
+}
+
+function recalcAllPotonganRows() {
+  document.querySelectorAll('#potongan-rows .potongan-row').forEach(row => {
+    const idx = row.dataset.idx;
+    recalcPotonganRow(idx, !potonganManualFlags[idx]);
+  });
+  updatePotonganSummaryDisplay();
+}
+
+function collectPotonganFromForm() {
+  const items = [];
+  document.querySelectorAll('#potongan-rows .potongan-row').forEach(row => {
+    const catalogId = row.querySelector('.potongan-jenis').value;
+    const catalog = getCatalogItem(catalogId);
+    const isCustom = catalogId === 'custom-pajak' || catalogId === 'custom-potongan';
+    const customJenis = row.querySelector('.potongan-jenis-custom')?.value?.trim();
+    const jenis = isCustom ? customJenis : (catalog?.label || customJenis || '');
+    const nilai = parseFloat(row.querySelector('.potongan-nilai').value) || 0;
+    const tarif = parseTarifInput(row.querySelector('.potongan-tarif').value) || 0;
+    const kategori = row.querySelector('.potongan-kategori').value || 'pajak';
+    if (!catalogId && !jenis && !nilai) return;
+    items.push({ jenis, tarif, nilai, kategori });
+  });
+  return items;
+}
+
+function syncLegacyTaxFieldsFromItems(items) {
+  const pajakItems = items.filter(i => i.kategori === 'pajak');
+  const potItems = items.filter(i => i.kategori === 'potongan');
+  return {
+    jenis_pajak: pajakItems.map(i => i.jenis).filter(Boolean).join('; '),
+    jenis_potongan: potItems.map(i => i.jenis).filter(Boolean).join('; '),
+    pajak: sumPotonganByKategori(items, 'pajak'),
+    nilai_potongan: sumPotonganByKategori(items, 'potongan'),
   };
-  return labels[jenis] || jenis;
 }
 
-function splitJenisPajak(t) {
-  if (!t) return { pajak: '', tarif: '' };
-  const full = t.jenis_pajak || '';
-  if (!full) return { pajak: '', tarif: '' };
-  if (LEGACY_JENIS_PAJAK[full]) {
-    return { pajak: LEGACY_JENIS_PAJAK[full][0], tarif: LEGACY_JENIS_PAJAK[full][1] };
-  }
-  const m = full.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { pajak: m[1].trim(), tarif: m[2].trim() };
-  return { pajak: full, tarif: '' };
+function updatePotonganSummaryDisplay() {
+  const items = collectPotonganFromForm();
+  const totalPajak = sumPotonganByKategori(items, 'pajak');
+  const totalPot = sumPotonganByKategori(items, 'potongan');
+  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
+  const elP = document.getElementById('f-total-pajak');
+  const elPot = document.getElementById('f-total-potongan');
+  const elNet = document.getElementById('f-total-netto');
+  if (elP) elP.textContent = formatRupiah(totalPajak);
+  if (elPot) elPot.textContent = formatRupiah(totalPot);
+  if (elNet) elNet.textContent = formatRupiah(Math.max(0, bruto - totalPajak - totalPot));
 }
 
-function resolveJenisPajakValue(t) {
-  if (!t) return '';
-  const raw = t.jenis_pajak || '';
-  if (TARIF_BY_JENIS_PAJAK[raw] != null) return raw;
-  const { pajak, tarif } = splitJenisPajak(t);
-  if (!pajak) return '';
-  if (tarif) {
-    const key = `${pajak} (${tarif})`;
-    if (TARIF_BY_JENIS_PAJAK[key] != null) return key;
-  }
-  if (TARIF_BY_JENIS_PAJAK[pajak] != null) return pajak;
-  return raw;
-}
-
-function normalizeJenisPotongan(val) {
-  if (!val) return '';
-  if (val === 'Iuran Wajib Pegawai') return val;
-  if (/^iuran\s*wajib\s*pegawai$/i.test(val)) return 'Iuran Wajib Pegawai';
-  return '';
-}
-
-function getTarifPajak(pajak) {
-  return TARIF_BY_JENIS_PAJAK[pajak] ?? null;
-}
-
-function updateBadgePajakAuto() {
-  const show = getTarifPajak(document.getElementById('f-jenispajak').value) != null;
-  document.getElementById('badge-pajak-auto').style.display = show ? '' : 'none';
-}
-
-function onJenisPajakChange() {
-  const pajak = document.getElementById('f-jenispajak').value;
-  const hasPajak = !!pajak;
+function syncTaxFieldVisibility() {
+  const items = collectPotonganFromForm();
+  const hasPajak = items.some(i => i.kategori === 'pajak' && (i.jenis || i.nilai));
   ['row-ntpn', 'row-kbilling', 'row-ntb'].forEach(id => {
-    document.getElementById(id).style.display = hasPajak ? '' : 'none';
+    const el = document.getElementById(id);
+    if (el) el.style.display = hasPajak ? '' : 'none';
   });
   if (!hasPajak) {
-    document.getElementById('f-pajak').value = 0;
-    document.getElementById('f-ntpn').value = '';
-    document.getElementById('f-kbilling').value = '';
-    document.getElementById('f-ntb').value = '';
-  }
-  autoHitungPajak();
-}
-
-function onJenisPotonganChange() {
-  if (!document.getElementById('f-jenispotongan').value) {
-    document.getElementById('f-nilaipotongan').value = '';
+    ['f-ntpn', 'f-kbilling', 'f-ntb'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
   }
 }
 
-function autoHitungPajak() {
-  const pajak = document.getElementById('f-jenispajak').value;
-  const tarif = getTarifPajak(pajak);
-  if (tarif != null) {
-    const nilai = parseFloat(document.getElementById('f-nilai').value) || 0;
-    document.getElementById('f-pajak').value = Math.round(nilai * tarif);
-  } else if (!pajak) {
-    document.getElementById('f-pajak').value = 0;
-  }
-  updateBadgePajakAuto();
+function clearPotonganFormRows() {
+  potonganManualFlags = {};
+  const wrap = document.getElementById('potongan-rows');
+  if (wrap) wrap.innerHTML = '';
+  updatePotonganSummaryDisplay();
+  syncTaxFieldVisibility();
 }
+
+function loadPotonganToForm(t) {
+  const items = getPotonganItemsFromTransaction(t);
+  renderPotonganFormRows(items);
+}
+
+function renderKwitansiPotongan(t) {
+  const tbody = document.getElementById('kw-deduct-tbody');
+  if (!tbody) return;
+  const items = getPotonganItemsFromTransaction(t);
+  const pajakItems = items.filter(i => i.kategori === 'pajak');
+  const potItems = items.filter(i => i.kategori === 'potongan');
+  const totalPajak = pajakItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.pajak || 0);
+  const totalPot = potItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.nilai_potongan || 0);
+  let html = '';
+  if (pajakItems.length) {
+    pajakItems.forEach((item, i) => {
+      html += `<tr><td>${i === 0 ? 'Pajak' : ''}</td><td>:</td><td>${item.jenis || '—'}</td><td class="kw-deduct-amt">Rp ${formatKwitansiAmount(item.nilai || 0)}</td></tr>`;
+    });
+  } else {
+    html += `<tr><td>Pajak</td><td>:</td><td id="kw-jenis-pajak">${labelJenisPajak(t.jenis_pajak) || '—'}</td><td class="kw-deduct-amt">Rp <span id="kw-pajak-num">${formatKwitansiAmount(totalPajak)}</span></td></tr>`;
+  }
+  if (potItems.length) {
+    potItems.forEach((item, i) => {
+      html += `<tr><td>${i === 0 ? 'Potongan' : ''}</td><td>:</td><td>${item.jenis || '—'}</td><td class="kw-deduct-amt">Rp ${formatKwitansiAmount(item.nilai || 0)}</td></tr>`;
+    });
+  } else {
+    html += `<tr><td>Potongan</td><td>:</td><td id="kw-jenis-potongan">${t.jenis_potongan || '—'}</td><td class="kw-deduct-amt">Rp <span id="kw-potongan-num">${formatKwitansiAmount(totalPot)}</span></td></tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+function initPotonganFormListeners() {
+  window.addEventListener('sipkeu:bruto-input', () => {
+    recalcAllPotonganRows();
+    updatePotonganSummaryDisplay();
+  });
+  const rowsWrap = document.getElementById('potongan-rows');
+  if (rowsWrap && !rowsWrap.dataset.listenersBound) {
+    rowsWrap.dataset.listenersBound = '1';
+    rowsWrap.addEventListener('change', () => {
+      recalcAllPotonganRows();
+      updatePotonganSummaryDisplay();
+    });
+    rowsWrap.addEventListener('input', (e) => {
+      if (e.target.matches('.potongan-nilai, .potongan-tarif, .potongan-jenis-custom')) {
+        updatePotonganSummaryDisplay();
+      }
+    });
+  }
+  updatePotonganSummaryDisplay();
+}
+
+// Legacy stubs (import / backward compat)
+function autoHitungPajak() { recalcAllPotonganRows(); updatePotonganSummaryDisplay(); }
+function onJenisPajakChange() { syncTaxFieldVisibility(); }
+function onJenisPotonganChange() {}
 
 // ── Export Columns Definition ─────────────────────────────────────────────
 const EXPORT_COLS = [
@@ -3923,7 +5017,7 @@ function doEkspor() {
 // ── Template Download ─────────────────────────────────────────────────────
 function downloadTemplate() {
   const header = EXPORT_COLS.map(c => c.label);
-  const example = ['2026-01-10','Administrasi Keuangan Perangkat Daerah','Penyediaan Administrasi Pelaksanaan Tugas ASN','5.1.02.02.001.00080','CV. Contoh Maju','0001/BPK/UP/...','0001/BAST/DISDIK/I/2026','','Belanja ATK','Pengadaan ATK bulan Januari 2026','PPh 22 (1,5%)','Iuran Wajib Pegawai',1000000,15000,10000,'1234567890123456','820260100000001','BND2026010001','HENDRI ARULAN, S.Pd','RAMA WARNI, MM','ELDINA SRIDHANTY, SE'];
+  const example = ['2026-01-10','Administrasi Keuangan Perangkat Daerah','Penyediaan Administrasi Pelaksanaan Tugas ASN','5.1.02.02.001.00080','CV. Contoh Maju','0001/BPK/UP/...','0001/BAST/DISDIK/I/2026','','Belanja ATK','Pengadaan ATK bulan Januari 2026','PPh 22 — 1,5% (Pembelian Barang NPWP)','Iuran Wajib Pegawai (IWP)',1000000,15000,10000,'1234567890123456','820260100000001','BND2026010001','HENDRI ARULAN, S.Pd','RAMA WARNI, MM','ELDINA SRIDHANTY, SE'];
   const ws = XLSX.utils.aoa_to_sheet([header, example]);
   ws['!cols'] = EXPORT_COLS.map((_, i) => ({ wch: [6,40,40,20,30,32,24,24,40,50,12,14,14,14,14,18,16,14,14,30,30,25][i] || 15 }));
   const wb = XLSX.utils.book_new();
@@ -4016,9 +5110,15 @@ async function doImpor() {
   const btn = document.getElementById('btn-confirm-impor');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
   try {
+    const payload = importData.map(t => {
+      const items = getPotonganItemsFromTransaction(t);
+      if (!items.length) return t;
+      const legacy = syncLegacyTaxFieldsFromItems(items);
+      return { ...t, potongan_pajak: items, ...legacy };
+    });
     const res = await apiFetch(API + '/transactions/import', {
       method: 'POST',
-      body: JSON.stringify(importData),
+      body: JSON.stringify(payload),
     });
     const result = await res.json();
     bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
@@ -5651,7 +6751,7 @@ function kasRowsToHTML(rows, opts = {}) {
 
 function kasTitleBlockHTML(bl) {
   return `<div class="kp-title">
-    <div class="kp-logo"><img src="/assets/logo-batam.png" alt="Logo Pemerintah Kota Batam" /></div>
+    <div class="kp-logo"><img src="/assets/logo-batam.png?v=3" alt="Logo Pemerintah Kota Batam" /></div>
     <h4>REALISASI ANGGARAN KAS BELANJA</h4>
     <p>DINAS PENDIDIKAN KOTA BATAM</p>
     <p>TAHUN ANGGARAN 2026</p>
@@ -5928,69 +7028,127 @@ function printKasLaporan() {
   }, 500);
 }
 
-function kasExcelPushHeader(data, bl) {
-  const blank = () => ['', '', '', '', '', '', '', ''];
-  for (let i = 0; i < 3; i++) data.push(blank());
-  data.push(['REALISASI ANGGARAN KAS BELANJA', '', '', '', '', '', '', '']);
-  data.push(['DINAS PENDIDIKAN KOTA BATAM', '', '', '', '', '', '', '']);
-  data.push(['TAHUN ANGGARAN 2026', '', '', '', '', '', '', '']);
-  data.push(blank());
-  data.push(blank());
-  data.push(['SKPD', ':', 'DINAS PENDIDIKAN', '', '', '', '', '']);
-  data.push(['BULAN', ':', bl, '', '', '', '', '']);
-  data.push(blank());
-  data.push(blank());
+function kasExcelBlank() {
+  return ['', '', '', '', '', '', '', ''];
 }
 
-function kasExcelPushTableHeader(data, bl, opts = {}) {
-  if (opts.pengecualian) {
-    data.push(['PENGECUALIAN', '', '', '', '', '', '', '']);
-  }
-  data.push(['KODE REKENING', 'URAIAN', '', bl, '', '', '', '']);
-  data.push(['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%', '']);
-  data.push(['', '', '', '', '', '', '', '']);
-  data.push(['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100']);
+function kasExcelNumFromDisplay(v) {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number') return v;
+  return parseKasNumber(String(v).replace('%', '').trim());
 }
 
-function kasExcelPenCell(v, row, field) {
-  if (row.kode === KAS_PEN_SEWA_HOTEL_KODE) {
-    if (field === 'anggaran_kas' || field === 'realisasi') return v ?? 0;
-    return 0;
-  }
-  if (row.afterTotal || row.angOnly) {
-    if (field === 'anggaran_kas') return v || 0;
-    return 0;
-  }
-  if (row.uraian === 'TOTAL BELANJA PENGECUALIAN') {
-    if (field === 'anggaran_kas') return v || 0;
-    if (field === 'realisasi' || field === 'sisa_sd' || field === 'persen') return v ?? 0;
-    return 0;
-  }
-  if (row.uraian === 'TOTAL SERAPAN ANGGARAN') {
-    if (field === 'anggaran_kas' || field === 'sisa_sd' || field === 'realisasi') return v ?? 0;
-    return 0;
-  }
-  if (field === 'sisa_bulan_lalu' || field === 'realisasi' || field === 'persen') return v ?? 0;
-  return v ?? 0;
-}
-
-function kasExcelPushRows(data, rows, opts = {}) {
-  rows.forEach(r => {
-    const isTotal = (r.uraian || '').startsWith('TOTAL');
-    const hideKode = isTotal || r.uraian === 'TOTAL BELANJA';
-    const pen = opts.pengecualian;
-    const cell = (v, field) => pen ? kasExcelPenCell(v, r, field) : (v ?? 0);
-    data.push([
+/** Baris Excel — data & format selaras laporan PDF (kasRowsToHTML / kasPenRowCells). */
+function kasExcelRowValues(r, pen) {
+  const isTotal = (r.uraian || '').startsWith('TOTAL');
+  if (pen) {
+    const hideKode = isTotal || (r.afterTotal && !kasPenIsSewaHotel(r));
+    const { c3, c4, c5, c6, c7 } = kasPenRowCells(r);
+    return [
       hideKode ? '' : (r.kode || ''),
       '',
       r.uraian || '',
-      cell(r.sisa_bulan_lalu, 'sisa_bulan_lalu'),
-      cell(r.anggaran_kas, 'anggaran_kas'),
-      cell(r.realisasi, 'realisasi'),
-      cell(r.sisa_sd, 'sisa_sd'),
-      pen ? kasExcelPenCell(r.persen, r, 'persen') : (r.persen ?? 0),
-    ]);
-  });
+      kasExcelNumFromDisplay(c3),
+      kasExcelNumFromDisplay(c4),
+      kasExcelNumFromDisplay(c5),
+      kasExcelNumFromDisplay(c6),
+      kasExcelNumFromDisplay(c7),
+    ];
+  }
+  const hideKode = isTotal || r.uraian === 'TOTAL BELANJA';
+  return [
+    hideKode ? '' : (r.kode || ''),
+    '',
+    r.uraian || '',
+    r.sisa_bulan_lalu ?? 0,
+    r.anggaran_kas ?? 0,
+    r.realisasi ?? 0,
+    r.sisa_sd ?? 0,
+    r.persen ?? 0,
+  ];
+}
+
+function kasExcelPushHeader(data, bl, merges) {
+  for (let i = 0; i < 3; i++) data.push(kasExcelBlank());
+  const t0 = data.length;
+  data.push(['REALISASI ANGGARAN KAS BELANJA', '', '', '', '', '', '', '']);
+  data.push(['DINAS PENDIDIKAN KOTA BATAM', '', '', '', '', '', '', '']);
+  data.push(['TAHUN ANGGARAN 2026', '', '', '', '', '', '', '']);
+  merges.push(
+    { s: { r: t0, c: 0 }, e: { r: t0, c: 7 } },
+    { s: { r: t0 + 1, c: 0 }, e: { r: t0 + 1, c: 7 } },
+    { s: { r: t0 + 2, c: 0 }, e: { r: t0 + 2, c: 7 } },
+  );
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(['SKPD', ':', 'DINAS PENDIDIKAN', '', '', '', '', '']);
+  data.push(['BULAN', ':', bl, '', '', '', '', '']);
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+}
+
+function kasExcelPushTableHeader(data, bl, opts, merges) {
+  if (opts.pengecualian) {
+    const pr = data.length;
+    data.push(['PENGECUALIAN', '', '', '', '', '', '', '']);
+    merges.push({ s: { r: pr, c: 0 }, e: { r: pr, c: 7 } });
+  }
+  const h1 = data.length;
+  data.push(['KODE REKENING', 'URAIAN', '', bl, '', '', '', '']);
+  data.push(['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%', '']);
+  data.push(kasExcelBlank());
+  data.push(['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100']);
+  merges.push(
+    { s: { r: h1, c: 0 }, e: { r: h1 + 1, c: 0 } },
+    { s: { r: h1, c: 1 }, e: { r: h1 + 1, c: 2 } },
+    { s: { r: h1, c: 3 }, e: { r: h1, c: 7 } },
+  );
+  return h1;
+}
+
+function kasExcelPushRows(data, rows, pen) {
+  rows.forEach(r => data.push(kasExcelRowValues(r, pen)));
+}
+
+function kasExcelPushRekon(data) {
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(['REKONSILIASI BPKAD', '', '', '', '', '', '', '']);
+  data.push(['KASUBID PENGELOLAAN KAS DAERAH', '', '', '', '', '', '', '']);
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(['KASUBID AKUNTANSI BELANJA', '', '', '', '', '', '', '']);
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  for (let i = 0; i < 3; i++) data.push(kasExcelBlank());
+}
+
+function kasExcelPushTtd(data, merges) {
+  const ttdCol = 5;
+  const t0 = data.length;
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  const row = () => kasExcelBlank();
+  const put = (text) => {
+    const r = row();
+    r[ttdCol] = text;
+    data.push(r);
+  };
+  put(formatKasTglCetak());
+  put('PENGGUNA ANGGARAN');
+  data.push(kasExcelBlank());
+  data.push(kasExcelBlank());
+  put('Hendri Arulan, S.Pd., M.M');
+  put('NIP. 19670719 199103 1 009');
+  merges.push(
+    { s: { r: t0 + 2, c: ttdCol }, e: { r: t0 + 2, c: 7 } },
+    { s: { r: t0 + 3, c: ttdCol }, e: { r: t0 + 3, c: 7 } },
+    { s: { r: t0 + 6, c: ttdCol }, e: { r: t0 + 6, c: 7 } },
+    { s: { r: t0 + 7, c: ttdCol }, e: { r: t0 + 7, c: 7 } },
+  );
 }
 
 function kasExcelFormatNumbers(ws, dataStart, dataLen) {
@@ -6009,75 +7167,49 @@ function kasExcelFormatNumbers(ws, dataStart, dataLen) {
 function exportKasExcel() {
   const bulan = getKasBulan();
   const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
-  const tgl = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   const wb = XLSX.utils.book_new();
   const data = [];
-  const blank = () => ['', '', '', '', '', '', '', ''];
+  const merges = [];
 
-  kasExcelPushHeader(data, bl);
-  kasExcelPushTableHeader(data, bl);
+  kasExcelPushHeader(data, bl, merges);
+  kasExcelPushTableHeader(data, bl, {}, merges);
   const summaryStart = data.length;
-  kasExcelPushRows(data, kasReportCache);
+  kasExcelPushRows(data, kasReportCache, false);
 
-  data.push(blank());
-  data.push(blank());
-  data.push(['REKONSILIASI BPKAD', '', '', '', '', '', '', '']);
-  data.push(['KASUBID PENGELOLAAN KAS DAERAH', '', '', '', '', '', '', '']);
-  data.push(blank());
-  data.push(blank());
-  data.push(blank());
-  data.push(blank());
-  data.push(['KASUBID AKUNTANSI BELANJA', '', '', '', '', '', '', '']);
-  data.push(blank());
-  data.push(blank());
-  data.push(blank());
-  for (let i = 0; i < 3; i++) data.push(blank());
+  kasExcelPushRekon(data);
 
   const page2HeaderRow = data.length;
-  kasExcelPushTableHeader(data, bl, { pengecualian: true });
+  kasExcelPushTableHeader(data, bl, { pengecualian: true }, merges);
   const pengecualianStart = data.length;
-  kasExcelPushRows(data, buildKasPengecualianRows(bulan), { pengecualian: true });
-  data.push(blank());
-  data.push(blank());
-  data.push(['', '', '', '', 'Batam, ' + new Date().getFullYear(), '', '', '']);
-  data.push(['', '', '', '', 'PENGGUNA ANGGARAN', '', '', '']);
-  data.push(blank());
-  data.push(blank());
-  data.push(['', '', '', '', 'Hendri Arulan, S.Pd.,M.M', '', '', '']);
-  data.push(['', '', '', '', 'NIP. 19670719 199103 1 009', '', '', '']);
+  kasExcelPushRows(data, buildKasPengecualianRows(bulan), true);
+
+  kasExcelPushTtd(data, merges);
 
   const ws = XLSX.utils.aoa_to_sheet(data);
   ws['!cols'] = [
-    { wch: 22 }, { wch: 6 }, { wch: 38 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 10 },
+    { wch: 24 }, { wch: 4 }, { wch: 42 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 },
   ];
-  ws['!merges'] = [
-    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
-    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
-    { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } },
-    { s: { r: 12, c: 0 }, e: { r: 13, c: 0 } },
-    { s: { r: 12, c: 1 }, e: { r: 13, c: 2 } },
-    { s: { r: 12, c: 3 }, e: { r: 12, c: 7 } },
-    { s: { r: page2HeaderRow + 1, c: 0 }, e: { r: page2HeaderRow + 2, c: 0 } },
-    { s: { r: page2HeaderRow + 1, c: 1 }, e: { r: page2HeaderRow + 2, c: 2 } },
-    { s: { r: page2HeaderRow + 1, c: 3 }, e: { r: page2HeaderRow + 1, c: 7 } },
-    { s: { r: page2HeaderRow, c: 0 }, e: { r: page2HeaderRow, c: 7 } },
-  ];
+  ws['!merges'] = merges;
   ws['!rows'] = [{ hpt: 0 }];
+  ws['!rowBreaks'] = [page2HeaderRow];
   if (!ws['!pageSetup']) ws['!pageSetup'] = {};
   ws['!pageSetup'].paperSize = 9;
   ws['!pageSetup'].orientation = 'portrait';
   ws['!pageSetup'].scale = 85;
+  ws['!pageSetup'].fitToWidth = 1;
+  ws['!pageSetup'].fitToHeight = 0;
 
-  kasExcelFormatNumbers(ws, summaryStart, data.length);
+  kasExcelFormatNumbers(ws, summaryStart, page2HeaderRow);
   kasExcelFormatNumbers(ws, pengecualianStart, data.length);
 
   XLSX.utils.book_append_sheet(wb, ws, 'CETAK Realisasi');
-  XLSX.writeFile(wb, `Angkas Belanja 2026 - ${KAS_BULAN_NAMA[bulan] || bl}.xlsx`);
+  XLSX.writeFile(wb, kasPdfFilename().replace('.pdf', '.xlsx'));
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   setTimeout(() => document.getElementById('ds-loader')?.classList.add('hidden'), 900);
+  initPotonganFormListeners();
   await tryRestoreSession();
 });
 </script>
