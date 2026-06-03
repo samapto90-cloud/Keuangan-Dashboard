@@ -800,17 +800,204 @@
       font-size: 20px; font-weight: 800; color: #fff; letter-spacing: .3px;
     }
     #kas-main .kas-content { padding: 24px 28px 40px; }
+    #kas-main .kas-bulan-picker { position: relative; }
     #kas-main .kas-bulan-pill {
       display: flex; align-items: center; gap: 10px;
-      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.18);
-      border-radius: 999px; padding: 6px 14px 6px 12px;
+      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.28);
+      border-radius: 999px; padding: 6px 14px 6px 12px; cursor: pointer;
+      transition: all .2s ease; color: inherit;
     }
-    #kas-main .kas-bulan-pill label { font-size: 11px; font-weight: 700; color: #fbbf24; margin: 0; white-space: nowrap; }
-    #kas-main .kas-bulan-pill select {
-      background: transparent; border: none; color: #fff; font-size: 12px; font-weight: 700;
-      padding: 0; min-width: 100px; cursor: pointer;
+    #kas-main .kas-bulan-pill:hover { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.35); }
+    #kas-main .kas-bulan-pill .lbl { font-size: 11px; font-weight: 700; color: #fbbf24; white-space: nowrap; }
+    #kas-main .kas-bulan-pill .val {
+      font-size: 13px; font-weight: 800; white-space: nowrap;
+      padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.06);
     }
-    #kas-main .kas-bulan-pill select:focus { outline: none; box-shadow: none; }
+    #kas-main .kas-bulan-pill .bi-chevron-down { font-size: 11px; color: #94a3b8; margin-left: 2px; }
+    #kas-main .kas-bulan-menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 8px); z-index: 200;
+      min-width: 200px; padding: 8px; border-radius: 14px;
+      background: rgba(12,16,32,.98); border: 1px solid rgba(251,191,36,.2);
+      box-shadow: 0 16px 40px rgba(0,0,0,.45); backdrop-filter: blur(12px);
+    }
+    #kas-main .kas-bulan-menu.open { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    #kas-main .kas-bulan-opt {
+      border: none; border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 800;
+      cursor: pointer; text-align: left; transition: transform .15s ease, filter .15s ease;
+    }
+    #kas-main .kas-bulan-opt:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    #kas-main .kas-bulan-opt.active { outline: 2px solid #fff; outline-offset: 1px; }
+    .kas-bulan-c-januari { background: rgba(96,165,250,.22); color: #93c5fd; }
+    .kas-bulan-c-februari { background: rgba(167,139,250,.22); color: #c4b5fd; }
+    .kas-bulan-c-maret { background: rgba(52,211,153,.22); color: #6ee7b7; }
+    .kas-bulan-c-april { background: rgba(251,191,36,.25); color: #fde68a; }
+    .kas-bulan-c-mei { background: rgba(251,146,60,.22); color: #fdba74; }
+    .kas-bulan-c-juni { background: rgba(244,114,182,.22); color: #f9a8d4; }
+    .kas-bulan-c-juli { background: rgba(239,68,68,.22); color: #fca5a5; }
+    .kas-bulan-c-agustus { background: rgba(20,184,166,.22); color: #5eead4; }
+    .kas-bulan-c-september { background: rgba(139,92,246,.22); color: #c4b5fd; }
+    .kas-bulan-c-oktober { background: rgba(234,179,8,.22); color: #fde047; }
+    .kas-bulan-c-november { background: rgba(6,182,212,.22); color: #67e8f9; }
+    .kas-bulan-c-desember { background: rgba(34,197,94,.22); color: #86efac; }
+    #kas-print { display: none; font-family: Arial, sans-serif; color: #000; background: #fff; }
+    #kas-print .kp-page, #kas-laporan-preview .kp-page {
+      width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm; max-width: 210mm;
+      margin: 0 auto;
+      padding: 1.5cm 1.1cm 1.3cm 1.1cm;
+      box-sizing: border-box; background: #fff;
+      page-break-after: always; break-after: page;
+      display: flex; flex-direction: column;
+    }
+    .kp-page-hdr, .kp-page-ftr {
+      flex: 0 0 0.8cm; min-height: 0.8cm; max-height: 0.8cm;
+    }
+    .kp-page-body {
+      flex: 1 1 auto; min-height: 0;
+      display: flex; flex-direction: column;
+      --kp-fit: 1;
+      overflow: hidden;
+    }
+    .kp-report-main {
+      width: 100%; flex: 1 1 auto;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    #kas-print .kp-page-1 .kp-page-body,
+    #kas-laporan-preview .kp-page-1 .kp-page-body {
+      display: flex; flex-direction: column;
+    }
+    #kas-print .kp-page-1 .kp-rekon, #kas-laporan-preview .kp-page-1 .kp-rekon {
+      width: 100%; margin-top: calc(8px * var(--kp-fit, 1)); flex: 0 0 auto;
+    }
+    #kas-print .kp-page-2 .kp-page-body,
+    #kas-laporan-preview .kp-page-2 .kp-page-body {
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    #kas-print .kp-page-2 .kp-pen-content,
+    #kas-laporan-preview .kp-page-2 .kp-pen-content {
+      flex: 1 1 auto; min-height: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    #kas-print .kp-page-2 .kp-table-wrap,
+    #kas-laporan-preview .kp-page-2 .kp-table-wrap {
+      flex: 0 1 auto; min-height: 0; max-height: 100%;
+      overflow: hidden;
+      transform-origin: top center;
+    }
+    #kas-print .kp-page-2 .kp-ttd-row, #kas-laporan-preview .kp-page-2 .kp-ttd-row {
+      flex: 0 0 auto; margin-top: 0;
+      padding-top: calc(6px * var(--kp-fit, 1));
+      display: flex; justify-content: flex-end; width: 100%;
+    }
+    .kp-ttd-single {
+      text-align: center; font-size: calc(11pt * var(--kp-fit, 1)); width: calc(240px * var(--kp-fit, 1)); max-width: 55%;
+      box-sizing: border-box;
+    }
+    .kp-ttd-space { height: calc(52px * var(--kp-fit, 1)); }
+    .kp-ttd-name { font-weight: 800; text-decoration: underline; margin-top: 4px; }
+    .kas-laporan-tgl {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .kas-laporan-tgl input[type="date"] {
+      background: rgba(15,22,41,.85); border: 1px solid rgba(251,191,36,.3);
+      color: #e2e8f0; border-radius: 8px; padding: 4px 10px; font-size: 12px;
+    }
+    .kas-laporan-tgl input[type="date"]:focus {
+      outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.12);
+    }
+    #kas-print .kp-page:last-child, #kas-laporan-preview .kp-page:last-child { page-break-after: auto; break-after: auto; }
+    #kas-laporan-preview { display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 8px 0; }
+    .kp-title { text-align: center; margin-bottom: calc(10px * var(--kp-fit, 1)); }
+    .kp-logo {
+      text-align: center;
+      margin: 0 auto calc(6px * var(--kp-fit, 1));
+      line-height: 0;
+    }
+    .kp-logo img {
+      display: block; margin: 0 auto;
+      height: calc(62px * var(--kp-fit, 1));
+      width: auto;
+      max-width: calc(46px * var(--kp-fit, 1));
+      object-fit: contain;
+      object-position: center center;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .kp-title h4 { margin: 0 0 calc(4px * var(--kp-fit, 1)); font-size: calc(13pt * var(--kp-fit, 1)); font-weight: 800; text-transform: uppercase; letter-spacing: .5px; text-align: center; }
+    .kp-title p { margin: calc(2px * var(--kp-fit, 1)) 0; font-size: calc(11pt * var(--kp-fit, 1)); font-weight: 600; text-align: center; }
+    .kp-meta { font-size: calc(11pt * var(--kp-fit, 1)); margin-bottom: calc(8px * var(--kp-fit, 1)); line-height: 1.7; }
+    .kp-meta strong { font-weight: 800; }
+    .kp-table-wrap { overflow: hidden; width: 100%; }
+    .kp-table {
+      width: 100%; border-collapse: collapse; table-layout: fixed;
+      font-size: calc(8.5pt * var(--kp-fit, 1)); border-spacing: 0;
+    }
+    .kp-table th, .kp-table td {
+      border: 1px solid #222; box-sizing: border-box;
+      padding: calc(5px * var(--kp-fit, 1)) calc(4px * var(--kp-fit, 1)); vertical-align: middle;
+      overflow-wrap: break-word; word-wrap: break-word;
+    }
+    .kp-table thead th {
+      background: #d9d9d9; font-weight: 700;
+      text-align: center; vertical-align: middle;
+      font-size: calc(7.5pt * var(--kp-fit, 1)); line-height: 1.2;
+      padding: calc(5px * var(--kp-fit, 1)) calc(3px * var(--kp-fit, 1));
+    }
+    .kp-table thead tr.kp-th-idx th {
+      font-size: calc(7pt * var(--kp-fit, 1)); line-height: 1.15;
+      padding: calc(4px * var(--kp-fit, 1)) calc(2px * var(--kp-fit, 1));
+      white-space: normal;
+    }
+    .kp-table thead .kp-pen-title {
+      background: #fff; font-size: calc(12pt * var(--kp-fit, 1)); font-weight: 800;
+      text-align: center; text-transform: uppercase;
+      padding: calc(7px * var(--kp-fit, 1)) calc(8px * var(--kp-fit, 1)); border-bottom: none;
+    }
+    .kp-table thead tr.kp-th-main th { border-top: none; }
+    .kp-table .col-kode { width: 11%; }
+    .kp-table .col-urai { width: 23%; }
+    .kp-table .col-num { width: 13.2%; }
+    .kp-table tbody td.col-kode {
+      text-align: left; vertical-align: top;
+      font-size: calc(7.5pt * var(--kp-fit, 1)); line-height: 1.25;
+      word-break: break-all; white-space: normal;
+    }
+    .kp-table tbody td.col-urai {
+      text-align: left; vertical-align: top;
+      font-size: calc(8pt * var(--kp-fit, 1)); line-height: 1.25;
+      white-space: normal; overflow-wrap: anywhere;
+    }
+    .kp-table tbody td.col-num {
+      text-align: right; vertical-align: middle;
+      font-size: calc(7.5pt * var(--kp-fit, 1)); line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap; padding-left: 2px; padding-right: calc(4px * var(--kp-fit, 1));
+    }
+    .kp-table tbody tr.lvl-1 .col-urai { padding-left: calc(8px * var(--kp-fit, 1)); }
+    .kp-table tbody tr.lvl-2 .col-urai { padding-left: calc(12px * var(--kp-fit, 1)); }
+    .kp-table tbody tr.row-total td { font-weight: 800; background: #d9d9d9; }
+    .kp-table tbody tr.lvl-0 .col-urai,
+    .kp-table tbody tr.lvl-1 .col-urai { font-weight: 700; text-transform: uppercase; }
+    .kp-table.pengecualian-table tbody tr.lvl-detail .col-kode { font-size: calc(7pt * var(--kp-fit, 1)); }
+    .kp-table.pengecualian-table tbody tr.lvl-detail .col-urai { font-size: calc(7.5pt * var(--kp-fit, 1)); padding-left: 0; }
+    .kp-table.pengecualian-table tbody tr.lvl-2 .col-urai { font-weight: 600; text-transform: none; }
+    .kp-table.pengecualian-table tbody tr.row-total .col-urai { text-transform: uppercase; }
+    .kp-table.pengecualian-table .col-kode { width: 12%; }
+    .kp-table.pengecualian-table .col-urai { width: 28%; }
+    .kp-table.pengecualian-table .col-num { width: 12%; }
+    .kp-table.pengecualian-table tbody tr.after-total td { border-top: 2px solid #222; }
+    .kp-rekon { font-size: calc(11pt * var(--kp-fit, 1)); width: 100%; box-sizing: border-box; }
+    .kp-rekon-title { text-align: center; font-weight: 800; margin: 0 0 calc(8px * var(--kp-fit, 1)); text-transform: uppercase; letter-spacing: .3px; font-size: calc(11pt * var(--kp-fit, 1)); }
+    .kp-rekon-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: calc(10px * var(--kp-fit, 1)); width: 100%; }
+    .kp-rekon-box {
+      border: 1px solid #222; padding: calc(10px * var(--kp-fit, 1)) calc(12px * var(--kp-fit, 1));
+      min-height: calc(115px * var(--kp-fit, 1));
+      display: flex; flex-direction: column; text-align: center; box-sizing: border-box;
+    }
+    .kp-rekon-box-title { font-weight: 700; font-size: calc(10pt * var(--kp-fit, 1)); line-height: 1.35; margin-bottom: calc(6px * var(--kp-fit, 1)); }
+    .kp-rekon-box-space { flex: 1; min-height: calc(65px * var(--kp-fit, 1)); }
+    .kp-rekon-box-line { font-size: 9pt; margin-top: 3px; color: #333; }
     .kas-page { display: none; }
     .kas-page.active { display: block; }
     .kas-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -850,35 +1037,151 @@
       padding: 4px 8px; font-size: 11px; text-align: right;
     }
     .kas-table input.kas-input:focus { outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.15); }
+    .kas-table input.kas-input.kas-input-locked {
+      opacity: .72; cursor: not-allowed;
+      background: rgba(15,22,41,.45) !important;
+      border-color: rgba(148,163,184,.18) !important; color: #94a3b8;
+    }
+    .kas-realisasi-calc {
+      display: block; padding: 4px 6px; text-align: right;
+      color: #94a3b8; font-weight: 600; font-variant-numeric: tabular-nums;
+      font-size: 11px;
+    }
+    tr.total-row .kas-realisasi-calc { color: #fbbf24; font-weight: 800; }
+    .kas-realisasi-lock-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; color: #4ade80;
+      background: rgba(74,222,128,.1); border: 1px solid rgba(74,222,128,.25);
+      border-radius: 999px; padding: 4px 10px;
+    }
+    @keyframes kasBtnFlamePulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(249,115,22,.55), 0 0 22px rgba(239,68,68,.35), inset 0 1px 0 rgba(255,255,255,.25); }
+      50% { box-shadow: 0 0 18px rgba(251,191,36,.85), 0 0 36px rgba(239,68,68,.55), inset 0 1px 0 rgba(255,255,255,.35); }
+    }
+    @keyframes kasBtnFlameShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire {
+      position: relative; overflow: hidden; z-index: 0;
+      background: linear-gradient(135deg, #7c2d12, #ea580c, #fbbf24, #dc2626, #ea580c) !important;
+      background-size: 240% 240% !important;
+      animation: kasBtnFlameShift 2.2s ease infinite, kasBtnFlamePulse 1.4s ease-in-out infinite;
+      border-color: #fb923c !important; color: #fff !important;
+      font-weight: 800; text-shadow: 0 1px 4px rgba(0,0,0,.45);
+    }
+    #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+      background: radial-gradient(ellipse at 50% 120%, rgba(255,120,0,.45) 0%, transparent 65%);
+      animation: kasFlameFlicker 1.1s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire i {
+      filter: drop-shadow(0 0 4px rgba(251,191,36,.9));
+      animation: kasFlameFlicker 1.6s ease-in-out infinite alternate;
+    }
+    .kas-realisasi-pen-wrap { margin-top: 20px; border-top: 1px solid rgba(251,191,36,.15); padding-top: 4px; }
+    .kas-pen-table tr.kas-pen-section-title th {
+      background: rgba(251,191,36,.1); color: #fbbf24; font-weight: 800;
+      text-transform: uppercase; text-align: center; font-size: 12px;
+      letter-spacing: .6px; padding: 12px 8px;
+      border-bottom: 2px solid rgba(251,191,36,.28);
+    }
+    .kas-pen-table tr.after-total td { border-top: 2px solid rgba(251,191,36,.22); }
+    .kas-pen-table tr.lvl-detail td:nth-child(2) { padding-left: 28px; font-size: 10px; }
+    .kas-pen-table tr.lvl-detail td:first-child { font-size: 10px; }
     .kas-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .kas-pct-ok { color: #4ade80; font-weight: 700; }
     .kas-pct-warn { color: #fbbf24; font-weight: 700; }
     .kas-pct-over { color: #f87171; font-weight: 700; }
+    /* ── Kas flame dashboard chart (Demon Slayer / Breathing Flame theme) ── */
+    @keyframes kasFlameFlicker {
+      0% { opacity: .55; transform: scaleY(1); }
+      100% { opacity: .95; transform: scaleY(1.06); }
+    }
+    @keyframes kasEmberFloat {
+      0% { transform: translateY(0) scale(1); opacity: .8; }
+      100% { transform: translateY(-18px) scale(.6); opacity: 0; }
+    }
+    .kas-flame-panel {
+      position: relative; overflow: hidden;
+      background: linear-gradient(165deg, #120608 0%, #1f0a0a 35%, #1a2238 100%);
+      border: 2px solid rgba(255, 80, 0, .35);
+      border-radius: 20px; padding: 22px 22px 16px; margin-bottom: 20px;
+      box-shadow: 0 0 48px rgba(255, 69, 0, .12), inset 0 -40px 80px rgba(255, 100, 0, .06);
+    }
+    .kas-flame-panel::before {
+      content: ''; position: absolute; bottom: -20px; left: 0; right: 0; height: 140px;
+      background: radial-gradient(ellipse at 50% 100%, rgba(255,69,0,.35) 0%, rgba(220,38,38,.12) 40%, transparent 72%);
+      pointer-events: none; animation: kasFlameFlicker 2.4s ease-in-out infinite alternate;
+    }
+    .kas-flame-panel::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, #f97316, #fbbf24, #ef4444, transparent);
+      opacity: .7;
+    }
+    .kas-flame-head {
+      display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+      gap: 12px; margin-bottom: 16px; position: relative; z-index: 1;
+    }
+    .kas-flame-head h6 {
+      margin: 0; font-weight: 800; font-size: 15px; color: #fef3c7;
+      text-shadow: 0 0 20px rgba(251, 191, 36, .45);
+    }
+    .kas-flame-head h6 i { color: #f97316; }
+    .kas-flame-head small { display: block; color: #94a3b8; margin-top: 4px; font-size: 11px; }
+    .kas-flame-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      background: linear-gradient(135deg, rgba(220,38,38,.35), rgba(249,115,22,.25));
+      border: 1px solid rgba(251, 191, 36, .35); color: #fde68a;
+      box-shadow: 0 0 16px rgba(255, 69, 0, .2);
+    }
+    .kas-flame-canvas-wrap {
+      position: relative; height: 340px; z-index: 1;
+    }
+    .kas-flame-embers {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .kas-flame-ember {
+      position: absolute; bottom: 8%; width: 4px; height: 4px; border-radius: 50%;
+      background: #fbbf24; box-shadow: 0 0 6px #f97316;
+      animation: kasEmberFloat 2.5s ease-out infinite;
+    }
+    .kas-flame-legend {
+      display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; position: relative; z-index: 1;
+      font-size: 11px; color: #94a3b8;
+    }
+    .kas-flame-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .kas-flame-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .kas-flame-legend .lg-ang { background: linear-gradient(180deg, #fef08a, #f97316, #991b1b); }
+    .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fde68a, #ea580c); box-shadow: 0 0 8px rgba(251,191,36,.5); }
     .kas-upload-zone {
       border: 2px dashed rgba(251,191,36,.3); border-radius: 16px; padding: 32px;
       text-align: center; background: rgba(251,191,36,.04); transition: border-color .2s;
     }
     .kas-upload-zone:hover { border-color: rgba(251,191,36,.55); }
-    #kas-print {
-      display: none; font-family: Arial, sans-serif; color: #000; background: #fff;
-    }
+    #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
+    @page { size: A4 portrait; margin: 0; }
     @media print {
       body.kas-printing * { visibility: hidden; }
       body.kas-printing #kas-print, body.kas-printing #kas-print * { visibility: visible; }
       body.kas-printing #kas-print {
-        display: block !important; position: fixed; inset: 0; z-index: 99999; padding: 16mm;
+        display: block !important; position: static; z-index: 99999;
+        background: #fff; overflow: visible;
       }
+      body.kas-printing #kas-print .kp-page {
+        width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+        margin: 0 auto; box-sizing: border-box;
+        padding: 1.5cm 1.1cm 1.3cm 1.1cm;
+        display: flex; flex-direction: column;
+        page-break-after: always; break-after: page;
+      }
+      body.kas-printing #kas-print .kp-page:last-child { page-break-after: auto; break-after: auto; }
+      body.kas-printing #kas-print .kp-page-2 .kp-page-body { overflow: hidden; }
+      body.kas-printing #kas-print .kp-page-2 .kp-table-wrap { overflow: hidden; }
+      body.kas-printing #kas-print .kp-rekon-box { border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
-    .kp-title { text-align: center; margin-bottom: 12px; }
-    .kp-title h4 { margin: 0; font-size: 14px; font-weight: 800; text-transform: uppercase; }
-    .kp-title p { margin: 2px 0; font-size: 11px; }
-    .kp-meta { font-size: 11px; margin-bottom: 10px; }
-    .kp-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-    .kp-table th, .kp-table td { border: 1px solid #333; padding: 5px 6px; }
-    .kp-table th { background: #f0f0f0; font-weight: 700; text-align: center; }
-    .kp-table .num { text-align: right; }
-    .kp-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; font-size: 10px; text-align: center; }
-    .kp-ttd-space { height: 55px; }
     .btn-logout {
       margin-top: 8px; width: 100%; padding: 8px 12px; border-radius: 10px;
       background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.25);
@@ -1630,14 +1933,6 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
       </div>
 
       <div class="kas-nav-section">
-        <div class="kas-nav-section-title">Ekspor &amp; Cetak</div>
-        <div class="kas-nav-actions">
-          <button type="button" class="kas-nav-action" onclick="exportKasExcel()"><i class="bi bi-file-earmark-excel"></i><span>Ekspor Excel</span></button>
-          <button type="button" class="kas-nav-action" onclick="printKasLaporan()"><i class="bi bi-printer"></i><span>Cetak PDF</span></button>
-        </div>
-      </div>
-
-      <div class="kas-nav-section">
         <div class="kas-nav-section-title">Navigasi</div>
         <a href="#" class="kas-nav-link" onclick="backToPortal();return false">
           <span class="kas-nav-icon"><i class="bi bi-grid-3x3-gap"></i></span>
@@ -1665,9 +1960,15 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
         <div class="page-title" id="kas-topbar-title">Dashboard Realisasi</div>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Kas Belanja</li><li class="breadcrumb-item active" id="kas-topbar-crumb">Dashboard</li></ol></nav>
       </div>
-      <div class="kas-bulan-pill">
-        <label for="kas-bulan-select"><i class="bi bi-calendar3 me-1"></i>Periode</label>
-        <select id="kas-bulan-select" onchange="onKasBulanChange()">
+      <div class="kas-bulan-picker" id="kas-bulan-picker">
+        <button type="button" class="kas-bulan-pill" id="kas-bulan-btn" onclick="toggleKasBulanMenu(event)">
+          <i class="bi bi-calendar3" style="color:#fbbf24"></i>
+          <span class="lbl">Periode</span>
+          <span class="val kas-bulan-c-april" id="kas-bulan-display">April</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="kas-bulan-menu" id="kas-bulan-menu"></div>
+        <select id="kas-bulan-select" onchange="onKasBulanChange()" style="display:none" aria-hidden="true">
           <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
           <option value="april" selected>April</option><option value="mei">Mei</option><option value="juni">Juni</option>
           <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
@@ -1680,18 +1981,38 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <!-- Dashboard -->
     <div id="kas-page-dashboard" class="kas-page active">
       <div class="kas-stat-grid" id="kas-stat-grid">
+        <div class="kas-stat"><div class="lbl">Total Pagu APBD</div><div class="val" id="kas-stat-pagu" style="font-size:16px">Rp 0</div><div class="sub">Pagu keseluruhan dari RAK</div></div>
         <div class="kas-stat"><div class="lbl">Baris RAK</div><div class="val" id="kas-stat-rak">0</div><div class="sub">Dari upload APBD</div></div>
         <div class="kas-stat"><div class="lbl">Anggaran Kas Bulan Ini</div><div class="val" id="kas-stat-anggaran" style="font-size:16px">Rp 0</div><div class="sub">Kolom RAK per bulan</div></div>
         <div class="kas-stat"><div class="lbl">Realisasi Bulan Ini</div><div class="val" id="kas-stat-realisasi" style="font-size:16px">Rp 0</div><div class="sub">Input manual akuntan</div></div>
         <div class="kas-stat"><div class="lbl">Sisa Anggaran Kas</div><div class="val" id="kas-stat-sisa" style="font-size:16px">Rp 0</div><div class="sub">(Sisa lalu + Angkas) − Realisasi</div></div>
         <div class="kas-stat"><div class="lbl">% Realisasi</div><div class="val" id="kas-stat-persen">0%</div><div class="sub">Realisasi / Anggaran Kas</div></div>
       </div>
+
+      <div class="kas-flame-panel" id="kas-flame-panel">
+        <div class="kas-flame-head">
+          <div>
+            <h6><i class="bi bi-fire me-2"></i>Kobaran Api Realisasi Kas</h6>
+            <small>Perbandingan Anggaran Kas vs Realisasi per jenis belanja — <strong id="kas-flame-bulan-label">April 2026</strong></small>
+          </div>
+          <span class="kas-flame-badge"><i class="bi bi-lightning-charge-fill"></i> Flame Breathing Style</span>
+        </div>
+        <div class="kas-flame-canvas-wrap">
+          <div class="kas-flame-embers" id="kas-flame-embers"></div>
+          <canvas id="kas-flame-chart"></canvas>
+        </div>
+        <div class="kas-flame-legend">
+          <span><i class="lg-ang"></i> Anggaran Kas Bulan Ini</span>
+          <span><i class="lg-rea"></i> Realisasi Bulan Ini</span>
+        </div>
+      </div>
+
       <div class="kas-card">
         <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Singkat</h6>
         <small>
           <strong>1.</strong> Upload file <em>Kertas Kerja RAK APBD</em> (sheet RAK BELANJA).<br>
-          <strong>2.</strong> Pilih bulan, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
-          <strong>3.</strong> Ekspor Excel atau cetak laporan format <em>Angkas Belanja</em> per bulan.
+          <strong>2.</strong> Pilih bulan di kanan atas, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
+          <strong>3.</strong> Lihat grafik di atas berubah sesuai bulan — ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
         </small>
       </div>
     </div>
@@ -1719,9 +2040,16 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
     <!-- Input Realisasi -->
     <div id="kas-page-realisasi" class="kas-page">
       <div class="kas-card">
-        <div class="kas-toolbar justify-content-between">
-          <div><h6 class="mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>Input Realisasi Bulanan</h6><small>Kolom realisasi diisi manual — sisa &amp; persen dihitung otomatis</small></div>
-          <button class="btn btn-warning btn-sm" onclick="saveKasRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
+        <div class="kas-toolbar justify-content-between flex-wrap">
+          <div>
+            <h6 class="mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>Input Realisasi Bulanan</h6>
+            <small>Kolom realisasi: input manual hanya baris rincian — baris induk dihitung otomatis seperti sheet BELANJA</small>
+            <span class="kas-realisasi-lock-badge ms-2" id="kas-realisasi-lock-badge" style="display:none"><i class="bi bi-lock-fill"></i> Tersimpan — terkunci</span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-warning btn-sm" id="btn-kas-perbaiki-realisasi" onclick="unlockKasRealisasi()" disabled><i class="bi bi-unlock me-1"></i>Perbaiki</button>
+            <button type="button" class="btn btn-warning btn-sm" id="btn-kas-simpan-realisasi" onclick="saveKasRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
+          </div>
         </div>
         <div class="kas-table-wrap">
           <table class="kas-table" id="kas-realisasi-table">
@@ -1736,20 +2064,42 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
             <tbody id="kas-realisasi-body"></tbody>
           </table>
         </div>
+        <div class="kas-table-wrap kas-realisasi-pen-wrap">
+          <table class="kas-table kas-pen-table" id="kas-realisasi-pen-table">
+            <thead>
+              <tr class="kas-pen-section-title"><th colspan="7"><i class="bi bi-list-nested me-2"></i>Pengecualian</th></tr>
+              <tr>
+                <th style="width:90px">Kode Rek.</th><th>Uraian</th>
+                <th class="kas-num">Sisa Kas Bulan Lalu (3)</th>
+                <th class="kas-num">Anggaran Kas Bulan Ini (4)</th>
+                <th class="kas-num">Realisasi Bulan Ini (5)</th>
+                <th class="kas-num">Sisa s/d Bulan Ini (6)</th>
+                <th class="kas-num">% (7)</th>
+              </tr>
+            </thead>
+            <tbody id="kas-realisasi-pen-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- Laporan -->
     <div id="kas-page-laporan" class="kas-page">
       <div class="kas-card">
-        <div class="kas-toolbar justify-content-between">
+        <div class="kas-toolbar justify-content-between flex-wrap">
           <div><h6 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2 text-warning"></i>Preview Laporan Angkas Belanja</h6><small>Format sesuai <em>Angkas Belanja 2026 - April.xlsx</em></small></div>
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <label class="kas-laporan-tgl mb-0">
+              <i class="bi bi-calendar3"></i>
+              <span>Tanggal cetak</span>
+              <input type="date" id="kas-tgl-cetak" onchange="renderKasLaporanPreview()">
+            </label>
             <button class="btn btn-outline-warning btn-sm" onclick="exportKasExcel()"><i class="bi bi-download me-1"></i>Excel</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="saveKasPdf()"><i class="bi bi-file-earmark-pdf me-1"></i>Simpan PDF</button>
             <button class="btn btn-warning btn-sm" onclick="printKasLaporan()"><i class="bi bi-printer me-1"></i>Cetak</button>
           </div>
         </div>
-        <div id="kas-laporan-preview" class="p-3" style="background:#fff;color:#000;border-radius:12px;overflow:auto"></div>
+        <div id="kas-laporan-preview" class="p-3" style="background:#1a2238;border-radius:12px;overflow:auto"></div>
       </div>
     </div>
     </div><!-- /kas-content -->
@@ -4277,9 +4627,239 @@ const KAS_BULAN_LABEL = {
   januari:'JANUARI', februari:'FEBRUARI', maret:'MARET', april:'APRIL', mei:'MEI', juni:'JUNI',
   juli:'JULI', agustus:'AGUSTUS', september:'SEPTEMBER', oktober:'OKTOBER', november:'NOVEMBER', desember:'DESEMBER'
 };
+const KAS_BULAN_NAMA = {
+  januari:'Januari', februari:'Februari', maret:'Maret', april:'April', mei:'Mei', juni:'Juni',
+  juli:'Juli', agustus:'Agustus', september:'September', oktober:'Oktober', november:'November', desember:'Desember'
+};
+
+function initKasBulanPicker() {
+  const menu = document.getElementById('kas-bulan-menu');
+  if (!menu || menu.dataset.ready) return;
+  menu.innerHTML = Object.keys(KAS_BULAN_NAMA).map(k =>
+    `<button type="button" class="kas-bulan-opt kas-bulan-c-${k}${k === getKasBulan() ? ' active' : ''}" data-bulan="${k}" onclick="pickKasBulan('${k}')">${KAS_BULAN_NAMA[k]}</button>`
+  ).join('');
+  menu.dataset.ready = '1';
+  updateKasBulanDisplay(getKasBulan());
+}
+
+function updateKasBulanDisplay(bulan) {
+  const el = document.getElementById('kas-bulan-display');
+  if (!el) return;
+  el.textContent = KAS_BULAN_NAMA[bulan] || bulan;
+  el.className = 'val kas-bulan-c-' + bulan;
+}
+
+function toggleKasBulanMenu(e) {
+  e?.stopPropagation();
+  initKasBulanPicker();
+  document.getElementById('kas-bulan-menu')?.classList.toggle('open');
+}
+
+function pickKasBulan(bulan) {
+  const sel = document.getElementById('kas-bulan-select');
+  if (sel) sel.value = bulan;
+  document.querySelectorAll('.kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
+  updateKasBulanDisplay(bulan);
+  document.getElementById('kas-bulan-menu')?.classList.remove('open');
+  onKasBulanChange();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#kas-bulan-picker')) {
+    document.getElementById('kas-bulan-menu')?.classList.remove('open');
+  }
+});
 let kasReportCache = [];
 let kasRakImportData = [];
 let kasStateCache = { rak_rows: [], imported_at: '' };
+let kasFlameChart = null;
+
+function kasFlameGradient(ctx, area) {
+  const g = ctx.createLinearGradient(0, area.bottom, 0, area.top);
+  g.addColorStop(0, '#7f1d1d');
+  g.addColorStop(0.3, '#dc2626');
+  g.addColorStop(0.55, '#ea580c');
+  g.addColorStop(0.78, '#f97316');
+  g.addColorStop(0.92, '#fbbf24');
+  g.addColorStop(1, '#fef08a');
+  return g;
+}
+
+function kasFlameRealGradient(ctx, area) {
+  const g = ctx.createLinearGradient(0, area.bottom, 0, area.top);
+  g.addColorStop(0, '#9a3412');
+  g.addColorStop(0.5, '#fb923c');
+  g.addColorStop(1, '#fde047');
+  return g;
+}
+
+const kasFlameBarPlugin = {
+  id: 'kasFlameBarPlugin',
+  afterDatasetsDraw(chart) {
+    const meta = chart.getDatasetMeta(0);
+    if (!meta?.data?.length) return;
+    const { ctx, chartArea } = chart;
+    meta.data.forEach(bar => {
+      if (!bar || bar.hidden) return;
+      const { x, y, base, width } = bar;
+      const h = base - y;
+      if (h < 12) return;
+      const w = width * 0.92;
+      ctx.save();
+      ctx.shadowColor = 'rgba(255,100,0,.55)';
+      ctx.shadowBlur = 14;
+      const grad = ctx.createLinearGradient(x, base, x, y - h * 0.12);
+      grad.addColorStop(0, 'rgba(220,38,38,.9)');
+      grad.addColorStop(0.5, 'rgba(249,115,22,.85)');
+      grad.addColorStop(1, 'rgba(254,240,138,.95)');
+      ctx.beginPath();
+      ctx.moveTo(x - w / 2, y);
+      ctx.lineTo(x - w / 3, y - h * 0.08);
+      ctx.quadraticCurveTo(x - w / 8, y - h * 0.18, x, y - h * 0.22);
+      ctx.quadraticCurveTo(x + w / 8, y - h * 0.16, x + w / 3, y - h * 0.06);
+      ctx.lineTo(x + w / 2, y);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    });
+  },
+};
+
+function initKasFlameEmbers() {
+  const box = document.getElementById('kas-flame-embers');
+  if (!box || box.dataset.ready) return;
+  box.innerHTML = Array.from({ length: 14 }, (_, i) => {
+    const left = 8 + Math.random() * 84;
+    const delay = (Math.random() * 2.5).toFixed(2);
+    const dur = (2 + Math.random() * 2).toFixed(2);
+    return `<span class="kas-flame-ember" style="left:${left}%;animation-delay:${delay}s;animation-duration:${dur}s"></span>`;
+  }).join('');
+  box.dataset.ready = '1';
+}
+
+function buildKasFlameChartData() {
+  const rows = kasReportCache.filter(r => r.level === 2 && !String(r.uraian || '').startsWith('TOTAL'));
+  const labels = rows.map(r => {
+    const u = r.uraian || '';
+    return u.length > 22 ? u.slice(0, 20) + '…' : u;
+  });
+  return {
+    labels,
+    fullLabels: rows.map(r => r.uraian || ''),
+    anggaran: rows.map(r => r.anggaran_kas || 0),
+    realisasi: rows.map(r => r.realisasi || 0),
+    persen: rows.map(r => r.persen || 0),
+  };
+}
+
+function renderKasFlameChart() {
+  initKasFlameEmbers();
+  const bulan = getKasBulan();
+  const bl = document.getElementById('kas-flame-bulan-label');
+  if (bl) bl.textContent = (KAS_BULAN_NAMA[bulan] || bulan) + ' 2026';
+
+  const canvas = document.getElementById('kas-flame-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const { labels, fullLabels, anggaran, realisasi } = buildKasFlameChartData();
+  if (kasFlameChart) { kasFlameChart.destroy(); kasFlameChart = null; }
+
+  kasFlameChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Anggaran Kas',
+          data: anggaran,
+          backgroundColor: ctx => {
+            const a = ctx.chart.chartArea;
+            return a ? kasFlameGradient(ctx.chart.ctx, a) : '#ea580c';
+          },
+          borderColor: 'rgba(254,240,138,.35)',
+          borderWidth: 1,
+          borderRadius: { topLeft: 6, topRight: 6 },
+          borderSkipped: false,
+          order: 2,
+        },
+        {
+          label: 'Realisasi',
+          data: realisasi,
+          type: 'line',
+          borderColor: '#fde047',
+          backgroundColor: 'rgba(251,191,36,.08)',
+          borderWidth: 3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointBackgroundColor: '#fef08a',
+          pointBorderColor: '#dc2626',
+          pointBorderWidth: 2,
+          tension: 0.35,
+          fill: true,
+          order: 1,
+          yAxisID: 'y',
+        },
+      ],
+    },
+    plugins: [kasFlameBarPlugin],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,8,8,.92)',
+          borderColor: 'rgba(249,115,22,.5)',
+          borderWidth: 1,
+          titleColor: '#fde68a',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          callbacks: {
+            title: items => fullLabels[items[0]?.dataIndex] || items[0]?.label || '',
+            label: ctx => {
+              const v = ctx.parsed.y ?? 0;
+              return ' ' + ctx.dataset.label + ': Rp ' + v.toLocaleString('id-ID', { minimumFractionDigits: 2 });
+            },
+            afterBody: items => {
+              const i = items[0]?.dataIndex;
+              if (i == null) return '';
+              const p = buildKasFlameChartData().persen[i] || 0;
+              return '% Realisasi: ' + p.toFixed(2) + '%';
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: '#cbd5e1', font: { size: 10, weight: '600' }, maxRotation: 45, minRotation: 25 },
+          grid: { color: 'rgba(255,69,0,.06)' },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 10 },
+            callback: v => {
+              if (v >= 1e9) return (v / 1e9).toFixed(1) + ' M';
+              if (v >= 1e6) return (v / 1e6).toFixed(0) + ' jt';
+              if (v >= 1e3) return (v / 1e3).toFixed(0) + ' rb';
+              return v;
+            },
+          },
+          grid: { color: 'rgba(255,100,0,.08)' },
+        },
+      },
+      animation: {
+        duration: 900,
+        easing: 'easeOutQuart',
+      },
+    },
+  });
+}
 
 function getKasBulan() {
   return document.getElementById('kas-bulan-select')?.value || 'april';
@@ -4305,6 +4885,7 @@ function kasPctClass(p) {
 
 async function bootKasApp() {
   showKasApp();
+  initKasBulanPicker();
   await loadKasData();
   showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));
 }
@@ -4317,10 +4898,14 @@ function showKasPage(page, navEl) {
   const titles = { dashboard:'Dashboard Realisasi', import:'Upload RAK APBD', realisasi:'Input Realisasi', laporan:'Laporan Angkas' };
   document.getElementById('kas-topbar-title').textContent = titles[page] || 'Kas Belanja';
   document.getElementById('kas-topbar-crumb').textContent = titles[page] || page;
-  if (page === 'laporan') renderKasLaporanPreview();
+  if (page === 'laporan') { initKasTglCetak(); renderKasLaporanPreview(); }
+  if (page === 'dashboard') renderKasFlameChart();
 }
 
 function onKasBulanChange() {
+  const bulan = getKasBulan();
+  updateKasBulanDisplay(bulan);
+  document.querySelectorAll('.kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
   loadKasData();
 }
 
@@ -4342,6 +4927,8 @@ async function loadKasData() {
 
 function renderKasDashboard() {
   const totalRow = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  const totalPagu = kasStateCache.total_pagu ?? (kasStateCache.rak_rows || []).reduce((s, r) => s + (r.anggaran || 0), 0);
+  document.getElementById('kas-stat-pagu').textContent = formatRupiah(totalPagu);
   document.getElementById('kas-stat-rak').textContent = (kasStateCache.rak_rows || []).length;
   document.getElementById('kas-stat-anggaran').textContent = formatRupiah(totalRow.anggaran_kas || 0);
   document.getElementById('kas-stat-realisasi').textContent = formatRupiah(totalRow.realisasi || 0);
@@ -4351,51 +4938,281 @@ function renderKasDashboard() {
     const imp = document.getElementById('kas-stat-rak');
     if (imp) imp.title = 'Terakhir import: ' + kasStateCache.imported_at;
   }
+  renderKasFlameChart();
 }
 
-function renderKasRealisasiTable() {
-  const tbody = document.getElementById('kas-realisasi-body');
-  if (!tbody) return;
-  tbody.innerHTML = kasReportCache.map(r => {
-    const isTotal = r.uraian === 'TOTAL BELANJA';
-    const key = isTotal ? '5.' : (r.kode || '');
-    const cls = isTotal ? 'total-row' : ('lvl-' + (r.level || 0));
-    return `<tr class="${cls}" data-kode="${key}">
-      <td>${r.kode || ''}</td>
-      <td>${r.uraian || ''}</td>
-      <td class="kas-num">${formatKasAmount(r.sisa_bulan_lalu)}</td>
-      <td class="kas-num">${formatKasAmount(r.anggaran_kas)}</td>
-      <td class="kas-num"><input type="text" class="kas-input kas-realisasi-input" data-kode="${key}" value="${formatKasAmount(r.realisasi)}" onchange="recalcKasRow(this)" /></td>
-      <td class="kas-num kas-calc-sisa">${formatKasAmount(r.sisa_sd)}</td>
-      <td class="kas-num kas-calc-pct ${kasPctClass(r.persen)}">${(r.persen || 0).toFixed(2)}%</td>
-    </tr>`;
-  }).join('');
+function isKasRealisasiLocked() {
+  return !!kasStateCache.realisasi_locked;
 }
 
-function recalcKasRow(input) {
-  const tr = input.closest('tr');
-  const sisaLalu = parseKasNumber(tr.children[2].textContent);
-  const anggaran = parseKasNumber(tr.children[3].textContent);
-  const realisasi = parseKasNumber(input.value);
+function kasGetStoredRealisasi(kode) {
+  const bulan = getKasBulan();
+  return (kasStateCache.realisasi?.[bulan]?.[kode]) || 0;
+}
+
+const KAS_MAIN_LEAF_KODES = [
+  '5.1.01.', '5.1.02.', '5.1.05.', '5.1.06.',
+  '5.2.02.', '5.2.03.', '5.2.04.', '5.2.05.',
+  '5.3.01.',
+];
+
+const KAS_MAIN_CHILDREN = {
+  '5.1.': ['5.1.01.', '5.1.02.', '5.1.05.', '5.1.06.'],
+  '5.2.': ['5.2.02.', '5.2.03.', '5.2.04.', '5.2.05.'],
+  '5.3.': ['5.3.01.'],
+  '5.': ['5.1.', '5.2.', '5.3.'],
+};
+
+const KAS_PEN_CHILDREN = {
+  '5.1.02.': null, // dihitung dari detail pengecualian
+  '5.1.': ['5.1.01.', '5.1.02.', '5.1.05.', '5.1.06.'],
+  '5.3.': ['5.3.01.'],
+  '5.': ['5.1.', '5.3.'],
+};
+
+const KAS_PEN_SEWA_HOTEL_KODE = '5.1.02.02.005.00043';
+
+function kasPenDetailLeafKodes() {
+  return KAS_PEN_DETAIL_ROWS.filter(r => !r.angOnly).map(r => r.kode);
+}
+
+function kasPenIsSewaHotel(r) {
+  return r && r.kode === KAS_PEN_SEWA_HOTEL_KODE;
+}
+
+function kasMainRealisasiEditable(r) {
+  return KAS_MAIN_LEAF_KODES.includes(r.kode);
+}
+
+function kasPenRealisasiEditable(r) {
+  if (!r.isDetail || !r.kode) return false;
+  if (kasPenIsSewaHotel(r)) return true;
+  return !r.angOnly && !r.afterTotal;
+}
+
+function kasRealisasiCellHtml(kode, value, editable, locked, extraClass) {
+  const lockCls = locked ? ' kas-input-locked' : '';
+  const ro = locked ? ' readonly' : '';
+  const cls = extraClass || ' kas-realisasi-main-input';
+  if (editable) {
+    return `<input type="text" class="kas-input kas-realisasi-input${cls}${lockCls}" data-kode="${kode}" value="${formatKasAmount(value)}" oninput="recalcKasAllTables()"${ro} title="Input manual realisasi" />`;
+  }
+  return `<span class="kas-realisasi-calc" data-kode="${kode}" title="Dihitung otomatis (rumus penjumlahan)">${formatKasAmount(value)}</span>`;
+}
+
+function kasUpdateRowSisaPct(tr, sisaLalu, anggaran, realisasi) {
+  if (!tr) return;
   const sisa = sisaLalu + anggaran - realisasi;
   const pct = anggaran > 0 ? (realisasi / anggaran) * 100 : 0;
-  tr.querySelector('.kas-calc-sisa').textContent = formatKasAmount(sisa);
+  const sisaEl = tr.querySelector('.kas-calc-sisa');
   const pctEl = tr.querySelector('.kas-calc-pct');
-  pctEl.textContent = pct.toFixed(2) + '%';
-  pctEl.className = 'kas-num kas-calc-pct ' + kasPctClass(pct);
+  if (sisaEl) sisaEl.textContent = formatKasAmount(sisa);
+  if (pctEl) {
+    pctEl.textContent = pct.toFixed(2) + '%';
+    pctEl.className = 'kas-num kas-calc-pct ' + kasPctClass(pct);
+  }
 }
 
-function collectKasRealisasiFromTable() {
+function kasSumChildRealisasi(map, children) {
+  return children.reduce((s, k) => s + (map[k] || 0), 0);
+}
+
+function kasReadMainRealisasiFromDOM() {
   const map = {};
-  document.querySelectorAll('.kas-realisasi-input').forEach(inp => {
+  document.querySelectorAll('#kas-realisasi-body .kas-realisasi-main-input').forEach(inp => {
+    map[inp.dataset.kode] = parseKasNumber(inp.value);
+  });
+  Object.keys(KAS_MAIN_CHILDREN).forEach(parent => {
+    map[parent] = kasSumChildRealisasi(map, KAS_MAIN_CHILDREN[parent]);
+  });
+  return map;
+}
+
+function kasReadPenRealisasiFromDOM() {
+  const map = {};
+  document.querySelectorAll('#kas-realisasi-pen-body .kas-realisasi-pen-input').forEach(inp => {
     map[inp.dataset.kode] = parseKasNumber(inp.value);
   });
   return map;
 }
 
-async function saveKasRealisasi() {
+function kasComputePenRealisasiMap(mainMap, penDetails) {
+  const pen5102 = kasPenDetailLeafKodes().reduce((s, k) => s + (penDetails[k] || 0), 0);
+  const penMap = {
+    '5.1.01.': mainMap['5.1.01.'] || 0,
+    '5.1.02.': pen5102,
+    '5.1.05.': mainMap['5.1.05.'] || 0,
+    '5.1.06.': mainMap['5.1.06.'] || 0,
+  };
+  penMap['5.1.'] = kasSumChildRealisasi(penMap, KAS_PEN_CHILDREN['5.1.']);
+  penMap['5.3.01.'] = mainMap['5.3.01.'] || 0;
+  penMap['5.3.'] = penMap['5.3.01.'];
+  penMap['5.'] = kasSumChildRealisasi(penMap, KAS_PEN_CHILDREN['5.']);
+  penMap['TOTAL_PEN'] = penMap['5.'];
+  penMap['TOTAL_SERAPAN'] = (mainMap['5.'] || 0) - penMap['TOTAL_PEN'];
+  return penMap;
+}
+
+function recalcKasPenRollup() {
+  const tbody = document.getElementById('kas-realisasi-pen-body');
+  if (!tbody) return;
+  const mainMap = kasReadMainRealisasiFromDOM();
+  const penDetails = kasReadPenRealisasiFromDOM();
+  const penMap = kasComputePenRealisasiMap(mainMap, penDetails);
+
+  tbody.querySelectorAll('tr[data-pen-key]').forEach(tr => {
+    const kode = tr.dataset.kode;
+    const penKey = tr.dataset.penKey || kode;
+    const sisaLalu = parseKasNumber(tr.children[2]?.textContent);
+    const anggaran = parseKasNumber(tr.children[3]?.textContent);
+    let realisasi = 0;
+    if (kasPenRealisasiEditable({ isDetail: tr.classList.contains('lvl-detail'), kode, angOnly: tr.dataset.angOnly === '1', afterTotal: tr.classList.contains('after-total') })) {
+      realisasi = penDetails[kode] || 0;
+    } else if (penKey === 'TOTAL_SERAPAN') {
+      realisasi = penMap['TOTAL_SERAPAN'];
+    } else if (penKey === 'TOTAL_PEN') {
+      realisasi = penMap['TOTAL_PEN'];
+    } else if (kode && penMap[kode] != null) {
+      realisasi = penMap[kode];
+    }
+    const calc = tr.querySelector('.kas-realisasi-calc');
+    if (calc) calc.textContent = formatKasAmount(realisasi);
+    kasUpdateRowSisaPct(tr, sisaLalu, anggaran, realisasi);
+    const pctEl = tr.querySelector('.kas-calc-pct');
+    if (pctEl && anggaran > 0 && tr.dataset.angOnly !== '1') {
+      const pct = (realisasi / anggaran) * 100;
+      pctEl.textContent = pct.toFixed(2) + '%';
+      pctEl.className = 'kas-num kas-calc-pct ' + kasPctClass(pct);
+    }
+  });
+}
+
+function recalcKasMainRollup() {
+  const tbody = document.getElementById('kas-realisasi-body');
+  if (!tbody) return;
+  const map = kasReadMainRealisasiFromDOM();
+  tbody.querySelectorAll('tr[data-kode]').forEach(tr => {
+    const kode = tr.dataset.kode;
+    const sisaLalu = parseKasNumber(tr.children[2]?.textContent);
+    const anggaran = parseKasNumber(tr.children[3]?.textContent);
+    const realisasi = map[kode] ?? 0;
+    const calc = tr.querySelector('.kas-realisasi-calc');
+    if (calc) calc.textContent = formatKasAmount(realisasi);
+    kasUpdateRowSisaPct(tr, sisaLalu, anggaran, realisasi);
+  });
+}
+
+function recalcKasAllTables() {
+  recalcKasMainRollup();
+  recalcKasPenRollup();
+}
+
+function buildRealisasiPayload() {
+  recalcKasAllTables();
+  const map = {};
+  document.querySelectorAll('.kas-realisasi-main-input, .kas-realisasi-pen-input').forEach(inp => {
+    map[inp.dataset.kode] = parseKasNumber(inp.value);
+  });
+  Object.keys(KAS_MAIN_CHILDREN).forEach(parent => {
+    map[parent] = kasSumChildRealisasi(map, KAS_MAIN_CHILDREN[parent]);
+  });
+  return map;
+}
+
+function applyKasRealisasiLockUI() {
+  const locked = isKasRealisasiLocked();
+  document.querySelectorAll('.kas-realisasi-input').forEach(inp => {
+    inp.readOnly = locked;
+    inp.classList.toggle('kas-input-locked', locked);
+  });
+  const btnSave = document.getElementById('btn-kas-simpan-realisasi');
+  const btnFix = document.getElementById('btn-kas-perbaiki-realisasi');
+  if (btnSave) btnSave.disabled = locked;
+  if (btnFix) {
+    btnFix.disabled = !locked;
+    btnFix.classList.toggle('kas-btn-perbaiki-fire', locked);
+  }
+  const badge = document.getElementById('kas-realisasi-lock-badge');
+  if (badge) badge.style.display = locked ? 'inline-flex' : 'none';
+}
+
+function renderKasRealisasiTable() {
+  const tbody = document.getElementById('kas-realisasi-body');
+  if (!tbody) return;
+  const locked = isKasRealisasiLocked();
+  tbody.innerHTML = kasReportCache.map(r => {
+    const isTotal = r.uraian === 'TOTAL BELANJA';
+    const key = isTotal ? '5.' : (r.kode || '');
+    const cls = isTotal ? 'total-row' : ('lvl-' + (r.level || 0));
+    const editable = kasMainRealisasiEditable(r);
+    return `<tr class="${cls}" data-kode="${key}">
+      <td>${r.kode || ''}</td>
+      <td>${r.uraian || ''}</td>
+      <td class="kas-num">${formatKasAmount(r.sisa_bulan_lalu)}</td>
+      <td class="kas-num">${formatKasAmount(r.anggaran_kas)}</td>
+      <td class="kas-num">${kasRealisasiCellHtml(key, r.realisasi || 0, editable, locked)}</td>
+      <td class="kas-num kas-calc-sisa">${formatKasAmount(r.sisa_sd)}</td>
+      <td class="kas-num kas-calc-pct ${kasPctClass(r.persen)}">${(r.persen || 0).toFixed(2)}%</td>
+    </tr>`;
+  }).join('');
+  applyKasRealisasiLockUI();
+  renderKasPenRealisasiTable();
+  recalcKasAllTables();
+}
+
+function renderKasPenRealisasiTable() {
+  const tbody = document.getElementById('kas-realisasi-pen-body');
+  if (!tbody) return;
+  const locked = isKasRealisasiLocked();
   const bulan = getKasBulan();
-  const realisasi = collectKasRealisasiFromTable();
+  const rows = buildKasPengecualianRows(bulan);
+  tbody.innerHTML = rows.map(r => {
+    const isTotalPen = r.uraian === 'TOTAL BELANJA PENGECUALIAN';
+    const isTotalSerapan = r.uraian === 'TOTAL SERAPAN ANGGARAN';
+    const isTotal = isTotalPen || isTotalSerapan;
+    const hideKode = isTotal || (r.afterTotal && !kasPenIsSewaHotel(r));
+    let cls = 'lvl-' + (r.level || 0);
+    if (isTotal) cls = 'total-row';
+    else if (r.afterTotal) cls = 'lvl-detail after-total';
+    else if (r.isDetail) cls = 'lvl-detail';
+    const kode = r.kode || '';
+    const penKey = isTotalPen ? 'TOTAL_PEN' : (isTotalSerapan ? 'TOTAL_SERAPAN' : kode);
+    const editable = kasPenRealisasiEditable(r);
+    const c3 = formatKasAmount(r.sisa_bulan_lalu != null && r.sisa_bulan_lalu !== 0 ? r.sisa_bulan_lalu : 0);
+    const c4 = (r.anggaran_kas == null || (r.anggaran_kas === 0 && !r.isDetail)) ? formatKasAmount(0) : formatKasAmount(r.anggaran_kas);
+    const realCell = ((r.afterTotal && !kasPenIsSewaHotel(r)) || r.angOnly)
+      ? `<span class="kas-realisasi-calc">${formatKasAmount(0)}</span>`
+      : kasRealisasiCellHtml(kode, r.realisasi || 0, editable, locked, ' kas-realisasi-pen-input');
+    const c6 = (r.afterTotal && !kasPenIsSewaHotel(r)) || r.angOnly ? formatKasAmount(0) : formatKasAmount(r.sisa_sd ?? 0);
+    const c7 = kasFormatPenPct((r.angOnly || !r.anggaran_kas || (r.afterTotal && !kasPenIsSewaHotel(r))) ? 0 : (r.persen || 0));
+    return `<tr class="${cls}" data-kode="${kode}" data-pen-key="${penKey}"${r.angOnly ? ' data-ang-only="1"' : ''}>
+      <td>${hideKode ? '' : kode}</td>
+      <td>${r.uraian || ''}</td>
+      <td class="kas-num">${c3}</td>
+      <td class="kas-num">${c4}</td>
+      <td class="kas-num">${realCell}</td>
+      <td class="kas-num kas-calc-sisa">${c6}</td>
+      <td class="kas-num kas-calc-pct">${c7}%</td>
+    </tr>`;
+  }).join('');
+  applyKasRealisasiLockUI();
+}
+
+function recalcKasRow(input) {
+  recalcKasAllTables();
+}
+
+function collectKasRealisasiFromTable() {
+  return buildRealisasiPayload();
+}
+
+async function saveKasRealisasi() {
+  if (isKasRealisasiLocked()) {
+    alert('Data realisasi terkunci. Klik Perbaiki untuk mengubah.');
+    return;
+  }
+  const bulan = getKasBulan();
+  const realisasi = buildRealisasiPayload();
   try {
     const res = await apiFetch(API + '/kas-belanja/realisasi', {
       method: 'PUT',
@@ -4404,10 +5221,31 @@ async function saveKasRealisasi() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
     kasReportCache = data.report || [];
+    kasStateCache.realisasi = kasStateCache.realisasi || {};
+    kasStateCache.realisasi[bulan] = realisasi;
+    kasStateCache.realisasi_locked = data.realisasi_locked !== false;
+    renderKasRealisasiTable();
     renderKasDashboard();
     alert(data.message || 'Realisasi disimpan');
   } catch (err) {
     alert(err.message || 'Gagal menyimpan realisasi');
+  }
+}
+
+async function unlockKasRealisasi() {
+  if (!isKasRealisasiLocked()) return;
+  const bulan = getKasBulan();
+  try {
+    const res = await apiFetch(API + '/kas-belanja/realisasi/unlock', {
+      method: 'POST',
+      body: JSON.stringify({ bulan }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal membuka kunci');
+    kasStateCache.realisasi_locked = false;
+    renderKasRealisasiTable();
+  } catch (err) {
+    alert(err.message || 'Gagal mengaktifkan mode perbaiki');
   }
 }
 
@@ -4502,82 +5340,739 @@ async function doKasImportRAK() {
   }
 }
 
-function buildKasLaporanHTML() {
-  const bulan = getKasBulan();
-  const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
-  let rows = '';
-  kasReportCache.forEach(r => {
-    const pad = r.level === 1 ? 'padding-left:12px' : r.level === 2 ? 'padding-left:24px' : '';
-    const bold = r.uraian === 'TOTAL BELANJA' || r.level === 0 ? 'font-weight:700' : '';
-    rows += `<tr style="${bold}">
-      <td>${r.kode || ''}</td>
-      <td style="${pad}">${r.uraian || ''}</td>
-      <td class="num">${formatKasAmount(r.sisa_bulan_lalu)}</td>
-      <td class="num">${formatKasAmount(r.anggaran_kas)}</td>
-      <td class="num">${formatKasAmount(r.realisasi)}</td>
-      <td class="num">${formatKasAmount(r.sisa_sd)}</td>
-      <td class="num">${(r.persen||0).toFixed(2)}</td>
-    </tr>`;
+function kasAggRows(rows) {
+  const a = rows.reduce((acc, r) => ({
+    sisa_bulan_lalu: acc.sisa_bulan_lalu + (r.sisa_bulan_lalu || 0),
+    anggaran_kas: acc.anggaran_kas + (r.anggaran_kas || 0),
+    realisasi: acc.realisasi + (r.realisasi || 0),
+    sisa_sd: acc.sisa_sd + (r.sisa_sd || 0),
+  }), { sisa_bulan_lalu: 0, anggaran_kas: 0, realisasi: 0, sisa_sd: 0 });
+  a.persen = a.anggaran_kas > 0 ? (a.realisasi / a.anggaran_kas) * 100 : 0;
+  return a;
+}
+
+/** Urutan & uraian baris detail 5.1.02 — sesuai template Angkas/PDF resmi */
+const KAS_PEN_DETAIL_ROWS = [
+  { kode: '5.1.02.03.002.00035', uraian: 'Belanja Pemeliharaan Alat Angkutan-Alat Angkutan Darat Bermotor-Kendaraan Dinas Bermotor Perorangan (Bahan Bakar Pelumas)', angOnly: false },
+  { kode: '5.1.02.03.002.00038', uraian: 'Belanja Pemeliharaan Alat Angkutan-Alat Angkutan Darat Bermotor-Kendaraan Bermotor Beroda Dua', angOnly: false },
+  { kode: '5.1.02.02.001.00059', uraian: 'Belanja Tagihan Telepon', angOnly: false },
+  { kode: '5.1.02.02.001.00060', uraian: 'Belanja Tagihan Air', angOnly: false },
+  { kode: '5.1.02.02.001.00061', uraian: 'Belanja Tagihan Listrik', angOnly: false },
+  { kode: '5.1.02.02.001.00063', uraian: 'Belanja Kawat/Faksimili/Internet/TV Berlangganan', angOnly: false },
+  { kode: '5.1.02.04.001.00001', uraian: 'Belanja Perjalanan Dinas Biasa', angOnly: false },
+  { kode: '5.1.02.04.01.00002', uraian: 'Belanja Perjalanan Dinas Tetap', angOnly: false },
+  { kode: '5.1.02.04.001.00003', uraian: 'Belanja Perjalanan Dinas Dalam Kota', angOnly: false },
+  { kode: '5.1.02.04.001.00004', uraian: 'Belanja Perjalanan Dinas Paket Meeting Dalam Kota', angOnly: false },
+];
+
+const KAS_PEN_HIERARCHY = [
+  { kode: '5.', uraian: 'BELANJA DAERAH', level: 0 },
+  { kode: '5.1.', uraian: 'BELANJA OPERASI', level: 1 },
+  { kode: '5.1.01.', uraian: 'Belanja Pegawai', level: 2 },
+  { kode: '5.1.02.', uraian: 'Belanja Barang dan Jasa', level: 2, insertDetails: true },
+  { kode: '5.1.05.', uraian: 'Belanja Hibah', level: 2 },
+  { kode: '5.1.06.', uraian: 'Belanja Bantuan Sosial', level: 2 },
+  { kode: '5.3.', uraian: 'BELANJA TIDAK TERDUGA', level: 1 },
+  { kode: '5.3.01.', uraian: 'Belanja Tidak Terduga', level: 2 },
+];
+
+function kasRakMap() {
+  const m = {};
+  (kasStateCache.rak_rows || []).forEach(r => { if (r.kode_rekening) m[r.kode_rekening] = r; });
+  return m;
+}
+
+function kasRakAngkas(rak, bulan) {
+  return (rak && rak.bulan && rak.bulan[bulan]) ? (rak.bulan[bulan] || 0) : 0;
+}
+
+function kasFindRak(kode, rakMap) {
+  if (rakMap[kode]) return rakMap[kode];
+  const rows = kasStateCache.rak_rows || [];
+  let found = rows.find(r => r.kode_rekening === kode);
+  if (found) return found;
+  const parts = kode.split('.');
+  const last = parts[parts.length - 1];
+  if (/^\d+$/.test(last)) {
+    const padded = parts.slice(0, -1).concat(last.padStart(5, '0')).join('.');
+    if (padded !== kode) {
+      return rakMap[padded] || rows.find(r => r.kode_rekening === padded) || null;
+    }
+  }
+  return null;
+}
+
+function kasPenDetailFromTemplate(tpl, bulan, rakMap) {
+  const rak = kasFindRak(tpl.kode, rakMap);
+  const angkas = kasRakAngkas(rak, bulan);
+  const uraian = (rak && (rak.nama_rekening || rak.nama_sub_kegiatan)) ? (rak.nama_rekening || rak.nama_sub_kegiatan).trim() : tpl.uraian;
+  if (tpl.angOnly) {
+    return { kode: tpl.kode, uraian, level: 3, isDetail: true, angOnly: true,
+      sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi: null, sisa_sd: null, persen: null };
+  }
+  const realisasi = kasGetStoredRealisasi(tpl.kode);
+  const sisaSd = angkas > 0 ? angkas - realisasi : (realisasi > 0 ? -realisasi : null);
+  const persen = angkas > 0 ? (realisasi / angkas) * 100 : null;
+  return { kode: tpl.kode, uraian, level: 3, isDetail: true,
+    sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
+}
+
+function kasPenHierarchyRow(def, vals) {
+  const ang = vals.anggaran_kas || 0;
+  const real = vals.realisasi || 0;
+  const sisaLalu = vals.sisa_bulan_lalu || 0;
+  const sisaSd = vals.sisa_sd != null ? vals.sisa_sd : (sisaLalu + ang - real);
+  const persen = ang > 0 ? (real / ang) * 100 : 0;
+  return {
+    kode: def.kode, uraian: def.uraian, level: def.level, isDetail: false,
+    sisa_bulan_lalu: sisaLalu, anggaran_kas: ang, realisasi: real,
+    sisa_sd: sisaSd, persen,
+  };
+}
+
+function kasPenAggDetails(details) {
+  let ang = 0, sisa = 0, real = 0, sisaLalu = 0;
+  details.forEach(d => {
+    ang += d.anggaran_kas || 0;
+    real += d.realisasi || 0;
+    sisaLalu += d.sisa_bulan_lalu || 0;
+    if (d.sisa_sd != null) sisa += d.sisa_sd || 0;
+    else if (d.anggaran_kas) sisa += (d.anggaran_kas || 0) - (d.realisasi || 0);
   });
+  if (!sisa && ang) sisa = ang - real;
+  const persen = ang > 0 ? (real / ang) * 100 : 0;
+  return { anggaran_kas: ang, sisa_sd: sisa, realisasi: real, sisa_bulan_lalu: sisaLalu, persen };
+}
+
+function kasPenMainRowVals(kode, bulan, rakMap) {
+  const main = kasReportRowForKode(kode);
+  const ang = main.anggaran_kas || kasRakAngkas(rakMap[kode], bulan);
+  const real = main.realisasi || kasGetStoredRealisasi(kode);
+  const sisaLalu = main.sisa_bulan_lalu || 0;
+  const sisaSd = sisaLalu + ang - real;
+  const persen = ang > 0 ? (real / ang) * 100 : 0;
+  return { anggaran_kas: ang, sisa_sd: sisaSd, realisasi: real, sisa_bulan_lalu: sisaLalu, persen };
+}
+
+function kasReportRowForKode(kode) {
+  return kasReportCache.find(r => r.kode === kode) || {};
+}
+
+function buildKasPengecualianRows(bulan) {
+  const rakMap = kasRakMap();
+  const details5102 = KAS_PEN_DETAIL_ROWS.map(t => kasPenDetailFromTemplate(t, bulan, rakMap));
+  const pen5102 = kasPenAggDetails(details5102);
+
+  const vals = {};
+  vals['5.1.02.'] = pen5102;
+  vals['5.1.01.'] = kasPenMainRowVals('5.1.01.', bulan, rakMap);
+  vals['5.1.05.'] = kasPenMainRowVals('5.1.05.', bulan, rakMap);
+  vals['5.1.06.'] = kasPenMainRowVals('5.1.06.', bulan, rakMap);
+  vals['5.3.01.'] = kasPenMainRowVals('5.3.01.', bulan, rakMap);
+  vals['5.1.'] = kasPenAggDetails([
+    kasPenHierarchyRow({ kode: '5.1.01.' }, vals['5.1.01.']),
+    kasPenHierarchyRow({ kode: '5.1.02.' }, pen5102),
+    kasPenHierarchyRow({ kode: '5.1.05.' }, vals['5.1.05.']),
+    kasPenHierarchyRow({ kode: '5.1.06.' }, vals['5.1.06.']),
+  ]);
+  vals['5.3.'] = { ...vals['5.3.01.'] };
+  vals['5.'] = kasPenAggDetails([
+    kasPenHierarchyRow({ kode: '5.1.' }, vals['5.1.']),
+    kasPenHierarchyRow({ kode: '5.3.' }, vals['5.3.']),
+  ]);
+
+  const out = [];
+  KAS_PEN_HIERARCHY.forEach(def => {
+    out.push(kasPenHierarchyRow(def, vals[def.kode] || {}));
+    if (def.insertDetails) details5102.forEach(d => out.push(d));
+  });
+
+  const totalBelanja = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  const pen5ang = vals['5.'].anggaran_kas || 0;
+  const serapanAngkas = (totalBelanja.anggaran_kas || 0) - pen5ang;
+
+  out.push({
+    kode: '', uraian: 'TOTAL BELANJA PENGECUALIAN', level: 0,
+    sisa_bulan_lalu: 0, anggaran_kas: pen5ang, realisasi: vals['5.'].realisasi || 0,
+    sisa_sd: pen5ang - (vals['5.'].realisasi || 0), persen: pen5ang > 0 ? ((vals['5.'].realisasi || 0) / pen5ang) * 100 : 0,
+  });
+  out.push({
+    kode: '', uraian: 'TOTAL SERAPAN ANGGARAN', level: 0,
+    sisa_bulan_lalu: 0, anggaran_kas: serapanAngkas,
+    realisasi: (totalBelanja.realisasi || 0) - (vals['5.'].realisasi || 0),
+    sisa_sd: totalBelanja.sisa_sd || totalBelanja.anggaran_kas || 0, persen: 0,
+  });
+
+  const sewaRak = rakMap[KAS_PEN_SEWA_HOTEL_KODE];
+  const sewaAng = kasRakAngkas(sewaRak, bulan);
+  const sewaReal = kasGetStoredRealisasi(KAS_PEN_SEWA_HOTEL_KODE);
+  out.push({
+    kode: KAS_PEN_SEWA_HOTEL_KODE,
+    uraian: (sewaRak && sewaRak.nama_rekening) ? sewaRak.nama_rekening.trim() : 'Belanja Sewa Hotel',
+    level: 3, isDetail: true, afterTotal: true,
+    sisa_bulan_lalu: null, anggaran_kas: sewaAng, realisasi: sewaReal,
+    sisa_sd: null, persen: null,
+  });
+
+  return out;
+}
+
+function kasTableHeadHTML(bl, opts = {}) {
+  const penTitle = opts.pengecualian
+    ? `<tr><th colspan="7" class="kp-pen-title">PENGECUALIAN</th></tr>`
+    : '';
+  return `<thead>
+      ${penTitle}
+      <tr class="kp-th-main">
+        <th rowspan="2" class="col-kode">KODE<br>REKENING</th>
+        <th rowspan="2" class="col-urai">URAIAN</th>
+        <th colspan="5">${bl}</th>
+      </tr>
+      <tr class="kp-th-main">
+        <th class="col-num">SISA ANGGARAN KAS<br>BULAN LALU</th>
+        <th class="col-num">ANGGARAN KAS<br>BULAN INI</th>
+        <th class="col-num">REALISASI<br>BULAN INI</th>
+        <th class="col-num">SISA ANGGARAN KAS<br>S/D BULAN INI</th>
+        <th class="col-num">%</th>
+      </tr>
+      <tr class="kp-th-idx">
+        <th class="col-kode">1</th>
+        <th class="col-urai">2</th>
+        <th class="col-num">3</th>
+        <th class="col-num">4</th>
+        <th class="col-num">5</th>
+        <th class="col-num">6=(3+4)-5</th>
+        <th class="col-num">7=5/4×100</th>
+      </tr>
+    </thead>`;
+}
+
+function kasFormatPenCell(v) {
+  if (v === '' || v == null || v === 0 || (typeof v === 'number' && Math.abs(v) < 0.005)) return formatKasAmount(0);
+  return formatKasAmount(v);
+}
+
+function kasFormatPenPct(v) {
+  if (v === '' || v == null || v === 0 || (typeof v === 'number' && Math.abs(v) < 0.005)) return '0,00';
+  return Number(v).toFixed(2);
+}
+
+function kasPenRowCells(r) {
+  const z = formatKasAmount(0);
+  const zp = kasFormatPenPct(0);
+  if (kasPenIsSewaHotel(r)) {
+    return {
+      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c5: kasFormatPenCell(r.realisasi), c6: z, c7: zp,
+    };
+  }
+  if (r.afterTotal || r.angOnly) {
+    return {
+      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c5: z, c6: z, c7: zp,
+    };
+  }
+  if (r.uraian === 'TOTAL BELANJA PENGECUALIAN') {
+    return {
+      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd),
+      c7: kasFormatPenPct(r.persen),
+    };
+  }
+  if (r.uraian === 'TOTAL SERAPAN ANGGARAN') {
+    return {
+      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd), c7: zp,
+    };
+  }
+  if (r.isDetail) {
+    return {
+      c3: z,
+      c4: kasFormatPenCell(r.anggaran_kas),
+      c5: kasFormatPenCell(r.realisasi),
+      c6: kasFormatPenCell(r.sisa_sd),
+      c7: kasFormatPenPct(r.persen),
+    };
+  }
+  return {
+    c3: z,
+    c4: kasFormatPenCell(r.anggaran_kas),
+    c5: kasFormatPenCell(r.realisasi),
+    c6: kasFormatPenCell(r.sisa_sd),
+    c7: kasFormatPenPct(r.persen),
+  };
+}
+
+function kasRekonBlockHTML() {
+  return `<div class="kp-rekon">
+    <p class="kp-rekon-title">REKONSILIASI BPKAD</p>
+    <div class="kp-rekon-boxes">
+      <div class="kp-rekon-box">
+        <div class="kp-rekon-box-title">KASUBID PENGELOLAAN KAS DAERAH</div>
+        <div class="kp-rekon-box-space"></div>
+      </div>
+      <div class="kp-rekon-box">
+        <div class="kp-rekon-box-title">KASUBID AKUNTANSI BELANJA</div>
+        <div class="kp-rekon-box-space"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function kasRowsToHTML(rows, opts = {}) {
+  const pen = opts.pengecualian;
+  const fmtStd = (v) => formatKasAmount(v ?? 0);
+  const fmtPctStd = (v) => kasFormatPenPct(v ?? 0);
+  return rows.map(r => {
+    const isTotal = (r.uraian || '').startsWith('TOTAL');
+    const hideKode = isTotal || (r.uraian === 'TOTAL BELANJA');
+    const lvl = isTotal ? 'row-total' : (r.afterTotal ? 'lvl-detail after-total' : (r.isDetail ? 'lvl-detail' : 'lvl-' + (r.level || 0)));
+    let c3, c4, c5, c6, c7;
+    if (pen) {
+      ({ c3, c4, c5, c6, c7 } = kasPenRowCells(r));
+    } else {
+      c3 = fmtStd(r.sisa_bulan_lalu);
+      c4 = fmtStd(r.anggaran_kas);
+      c5 = fmtStd(r.realisasi);
+      c6 = fmtStd(r.sisa_sd);
+      c7 = fmtPctStd(r.persen);
+    }
+    return `<tr class="${lvl}">
+      <td class="col-kode">${hideKode ? '' : (r.kode || '')}</td>
+      <td class="col-urai">${r.uraian || ''}</td>
+      <td class="col-num">${c3}</td>
+      <td class="col-num">${c4}</td>
+      <td class="col-num">${c5}</td>
+      <td class="col-num">${c6}</td>
+      <td class="col-num">${c7}</td>
+    </tr>`;
+  }).join('');
+}
+
+function kasTitleBlockHTML(bl) {
   return `<div class="kp-title">
+    <div class="kp-logo"><img src="/assets/logo-batam.png" alt="Logo Pemerintah Kota Batam" /></div>
     <h4>REALISASI ANGGARAN KAS BELANJA</h4>
     <p>DINAS PENDIDIKAN KOTA BATAM</p>
     <p>TAHUN ANGGARAN 2026</p>
   </div>
-  <div class="kp-meta"><strong>SKPD</strong> : DINAS PENDIDIKAN &nbsp;&nbsp; <strong>BULAN</strong> : ${bl}</div>
-  <table class="kp-table">
-    <thead>
-      <tr><th rowspan="2">KODE REKENING</th><th rowspan="2">URAIAN</th><th colspan="5">${bl}</th></tr>
-      <tr><th>SISA ANGGARAN KAS BULAN LALU</th><th>ANGGARAN KAS BULAN INI</th><th>REALISASI BULAN INI</th><th>SISA ANGGARAN KAS S/D BULAN INI</th><th>%</th></tr>
-      <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6=(3+4)-5</td><td>7=5/4*100</td></tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div class="kp-ttd">
-    <div><div>Mengetahui,</div><div>Pengguna Anggaran</div><div class="kp-ttd-space"></div><div><strong>HENDRI ARULAN, S.Pd</strong></div><div>NIP. 19670119 199103 1 009</div></div>
-    <div><div>Batam, ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</div><div>Bendahara Pengeluaran</div><div class="kp-ttd-space"></div><div><strong>ELDINA SRIDHANTY, SE</strong></div><div>NIP. 19810610 201001 2 002</div></div>
+  <div class="kp-meta">
+    <div><strong>SKPD</strong>&nbsp;&nbsp;&nbsp;&nbsp;: DINAS PENDIDIKAN</div>
+    <div><strong>BULAN</strong>&nbsp;&nbsp;&nbsp;: ${bl}</div>
   </div>`;
+}
+
+function buildKasLaporanHTML() {
+  const bulan = getKasBulan();
+  const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
+  const pengecualianRows = buildKasPengecualianRows(bulan);
+  const tglCetak = formatKasTglCetak();
+
+  const page1 = `<div class="kp-page kp-page-1">
+  <div class="kp-page-hdr"></div>
+  <div class="kp-page-body">
+  <div class="kp-report-main">
+  ${kasTitleBlockHTML(bl)}
+  <div class="kp-table-wrap">
+  <table class="kp-table">
+    ${kasTableHeadHTML(bl)}
+    <tbody>${kasRowsToHTML(kasReportCache)}</tbody>
+  </table>
+  </div>
+  ${kasRekonBlockHTML()}
+  </div>
+  </div>
+  <div class="kp-page-ftr"></div>
+  </div>`;
+
+  const page2 = `<div class="kp-page kp-page-2">
+  <div class="kp-page-hdr"></div>
+  <div class="kp-page-body">
+  <div class="kp-pen-content">
+  <div class="kp-table-wrap">
+  <table class="kp-table pengecualian-table">
+    ${kasTableHeadHTML(bl, { pengecualian: true })}
+    <tbody>${kasRowsToHTML(pengecualianRows, { pengecualian: true })}</tbody>
+  </table>
+  </div>
+  <div class="kp-ttd-row">
+  <div class="kp-ttd-single">
+    <div>${tglCetak}</div>
+    <div>PENGGUNA ANGGARAN</div>
+    <div class="kp-ttd-space"></div>
+    <div class="kp-ttd-name">Hendri Arulan, S.Pd., M.M</div>
+    <div>NIP. 19670719 199103 1 009</div>
+  </div>
+  </div>
+  </div>
+  </div>
+  <div class="kp-page-ftr"></div>
+  </div>`;
+
+  return page1 + page2;
 }
 
 function renderKasLaporanPreview() {
   const el = document.getElementById('kas-laporan-preview');
-  if (el) el.innerHTML = buildKasLaporanHTML();
+  if (!el) return;
+  el.innerHTML = buildKasLaporanHTML();
+  requestAnimationFrame(() => requestAnimationFrame(() => fitKasLaporanPages(el)));
+}
+
+function fitKasLaporanPages(root) {
+  const pages = (root || document).querySelectorAll('.kp-page');
+  pages.forEach(page => {
+    if (page.classList.contains('kp-page-2')) fitKasPage2(page);
+    else fitKasPageGeneric(page);
+  });
+}
+
+function resetKasPageFit(body, tableWrap) {
+  body.style.setProperty('--kp-fit', '1');
+  if (tableWrap) {
+    tableWrap.style.zoom = '';
+    tableWrap.style.transform = '';
+    tableWrap.style.marginBottom = '';
+    tableWrap.style.width = '';
+  }
+}
+
+function fitKasPageGeneric(page) {
+  const body = page.querySelector('.kp-page-body');
+  if (!body) return;
+  resetKasPageFit(body, null);
+  void body.offsetHeight;
+  const avail = body.clientHeight;
+  let needed = body.scrollHeight;
+  if (!avail || !needed) return;
+  let fit = (avail * 0.98) / needed;
+  fit = Math.max(0.78, Math.min(1.42, fit));
+  body.style.setProperty('--kp-fit', fit.toFixed(4));
+  void body.offsetHeight;
+  needed = body.scrollHeight;
+  if (needed > avail) {
+    fit = Math.max(0.78, fit * (avail / needed));
+    body.style.setProperty('--kp-fit', fit.toFixed(4));
+  }
+}
+
+function scaleKasTableWrap(tableWrap, scale) {
+  tableWrap.style.zoom = '';
+  tableWrap.style.transform = '';
+  tableWrap.style.marginBottom = '';
+  tableWrap.style.width = '';
+  if (scale >= 0.998) return;
+  const tableH = tableWrap.scrollHeight;
+  tableWrap.style.zoom = String(scale);
+  void tableWrap.offsetHeight;
+  const scaledH = tableWrap.getBoundingClientRect().height;
+  if (scaledH > tableH * scale + 1.5) {
+    tableWrap.style.zoom = '';
+    tableWrap.style.transform = `scale(${scale})`;
+    tableWrap.style.transformOrigin = 'top center';
+    tableWrap.style.marginBottom = `${-(tableH * (1 - scale))}px`;
+    tableWrap.style.width = `${(100 / scale).toFixed(3)}%`;
+  }
+}
+
+function fitKasPage2(page) {
+  const body = page.querySelector('.kp-page-body');
+  const penContent = page.querySelector('.kp-pen-content');
+  const tableWrap = page.querySelector('.kp-table-wrap');
+  const ttd = page.querySelector('.kp-ttd-row');
+  if (!body || !tableWrap) return fitKasPageGeneric(page);
+
+  resetKasPageFit(body, tableWrap);
+  void body.offsetHeight;
+
+  const avail = body.clientHeight;
+  if (!avail) return;
+
+  let fit = 1;
+  for (let i = 0; i < 14; i++) {
+    body.style.setProperty('--kp-fit', fit.toFixed(4));
+    void body.offsetHeight;
+    const total = (penContent || body).scrollHeight;
+    if (total <= avail * 0.992 || fit <= 0.62) break;
+    fit = Math.max(0.62, fit * ((avail * 0.992) / total));
+  }
+
+  void body.offsetHeight;
+  const ttdH = ttd ? ttd.getBoundingClientRect().height : 0;
+  const gap = 6;
+  const tableMax = avail - ttdH - gap;
+  const tableH = tableWrap.scrollHeight;
+
+  if (tableH > tableMax && tableMax > 48) {
+    let scale = tableMax / tableH;
+    scale = Math.max(0.58, Math.min(1, scale));
+    scaleKasTableWrap(tableWrap, scale);
+  }
+}
+
+function mountKasLaporanForExport() {
+  const host = document.getElementById('kas-print');
+  host.innerHTML = buildKasLaporanHTML();
+  const prevStyle = host.getAttribute('style') || '';
+  host.style.cssText = 'position:fixed;left:-10000px;top:0;display:block;visibility:visible;background:#fff;z-index:-1;';
+  fitKasLaporanPages(host);
+  return { host, prevStyle };
+}
+
+function restoreKasPrintHost(host, prevStyle) {
+  if (prevStyle) host.setAttribute('style', prevStyle);
+  else { host.removeAttribute('style'); host.style.display = 'none'; }
+}
+
+const KAS_TGL_BULAN_FULL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function initKasTglCetak() {
+  const el = document.getElementById('kas-tgl-cetak');
+  if (el && !el.value) el.value = new Date().toISOString().slice(0, 10);
+}
+
+function getKasTglCetak() {
+  const el = document.getElementById('kas-tgl-cetak');
+  return el?.value || new Date().toISOString().slice(0, 10);
+}
+
+function formatKasTglCetak(val) {
+  const iso = val || getKasTglCetak();
+  const d = new Date(iso + 'T12:00:00');
+  if (isNaN(d.getTime())) return `Batam, ${new Date().getFullYear()}`;
+  return `Batam, ${d.getDate()} ${KAS_TGL_BULAN_FULL[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function kasPdfFilename() {
+  const bulan = getKasBulan();
+  const bl = KAS_BULAN_NAMA[bulan] || bulan;
+  return `Angkas Belanja 2026 - ${bl}.pdf`;
+}
+
+async function renderKasPageCanvas(pageEl) {
+  const h2c = window.html2canvas;
+  if (typeof h2c !== 'function') throw new Error('Library html2canvas belum dimuat. Tekan Ctrl+F5.');
+  const w = pageEl.offsetWidth;
+  const h = pageEl.offsetHeight;
+  if (!w || !h) throw new Error('Render laporan gagal (ukuran halaman nol).');
+  const canvas = await h2c(pageEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    width: w,
+    height: h,
+    windowWidth: w,
+    windowHeight: h,
+    scrollX: 0,
+    scrollY: 0,
+    logging: false,
+  });
+  if (!canvas?.width) throw new Error('Render laporan gagal (canvas kosong).');
+  return canvas;
+}
+
+async function saveKasPdf() {
+  const { host, prevStyle } = mountKasLaporanForExport();
+  try {
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const pages = [...host.querySelectorAll('.kp-page')];
+    if (!pages.length) throw new Error('Tidak ada halaman laporan.');
+
+    if (window.PDFLib?.PDFDocument) {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const pageW = 595.28;
+      const pageH = 841.89;
+      for (const pageEl of pages) {
+        const canvas = await renderKasPageCanvas(pageEl);
+        const page = pdfDoc.addPage([pageW, pageH]);
+        let img;
+        try {
+          img = await pdfDoc.embedJpg(dataUrlToBytes(canvas.toDataURL('image/jpeg', 0.92)));
+        } catch {
+          img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png')));
+        }
+        page.drawImage(img, { x: 0, y: 0, width: pageW, height: pageH });
+      }
+      downloadPdfBlob(await pdfDoc.save(), kasPdfFilename());
+      return;
+    }
+
+    const h2pdf = window.html2pdf;
+    if (typeof h2pdf !== 'function') throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+    await h2pdf().set({
+      margin: 0,
+      filename: kasPdfFilename(),
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    }).from(host).save();
+  } catch (err) {
+    console.error('Simpan PDF gagal:', err);
+    alert('Gagal menyimpan PDF: ' + (err.message || err));
+  } finally {
+    restoreKasPrintHost(host, prevStyle);
+  }
 }
 
 function printKasLaporan() {
-  const host = document.getElementById('kas-print');
-  host.innerHTML = buildKasLaporanHTML();
+  const { host, prevStyle } = mountKasLaporanForExport();
+  fitKasLaporanPages(host);
+  host.style.cssText = 'display:block;position:static;background:#fff;';
   document.body.classList.add('kas-printing');
   window.print();
-  setTimeout(() => document.body.classList.remove('kas-printing'), 500);
+  setTimeout(() => {
+    document.body.classList.remove('kas-printing');
+    restoreKasPrintHost(host, prevStyle);
+  }, 500);
+}
+
+function kasExcelPushHeader(data, bl) {
+  const blank = () => ['', '', '', '', '', '', '', ''];
+  for (let i = 0; i < 3; i++) data.push(blank());
+  data.push(['REALISASI ANGGARAN KAS BELANJA', '', '', '', '', '', '', '']);
+  data.push(['DINAS PENDIDIKAN KOTA BATAM', '', '', '', '', '', '', '']);
+  data.push(['TAHUN ANGGARAN 2026', '', '', '', '', '', '', '']);
+  data.push(blank());
+  data.push(blank());
+  data.push(['SKPD', ':', 'DINAS PENDIDIKAN', '', '', '', '', '']);
+  data.push(['BULAN', ':', bl, '', '', '', '', '']);
+  data.push(blank());
+  data.push(blank());
+}
+
+function kasExcelPushTableHeader(data, bl, opts = {}) {
+  if (opts.pengecualian) {
+    data.push(['PENGECUALIAN', '', '', '', '', '', '', '']);
+  }
+  data.push(['KODE REKENING', 'URAIAN', '', bl, '', '', '', '']);
+  data.push(['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%', '']);
+  data.push(['', '', '', '', '', '', '', '']);
+  data.push(['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100']);
+}
+
+function kasExcelPenCell(v, row, field) {
+  if (row.kode === KAS_PEN_SEWA_HOTEL_KODE) {
+    if (field === 'anggaran_kas' || field === 'realisasi') return v ?? 0;
+    return 0;
+  }
+  if (row.afterTotal || row.angOnly) {
+    if (field === 'anggaran_kas') return v || 0;
+    return 0;
+  }
+  if (row.uraian === 'TOTAL BELANJA PENGECUALIAN') {
+    if (field === 'anggaran_kas') return v || 0;
+    if (field === 'realisasi' || field === 'sisa_sd' || field === 'persen') return v ?? 0;
+    return 0;
+  }
+  if (row.uraian === 'TOTAL SERAPAN ANGGARAN') {
+    if (field === 'anggaran_kas' || field === 'sisa_sd' || field === 'realisasi') return v ?? 0;
+    return 0;
+  }
+  if (field === 'sisa_bulan_lalu' || field === 'realisasi' || field === 'persen') return v ?? 0;
+  return v ?? 0;
+}
+
+function kasExcelPushRows(data, rows, opts = {}) {
+  rows.forEach(r => {
+    const isTotal = (r.uraian || '').startsWith('TOTAL');
+    const hideKode = isTotal || r.uraian === 'TOTAL BELANJA';
+    const pen = opts.pengecualian;
+    const cell = (v, field) => pen ? kasExcelPenCell(v, r, field) : (v ?? 0);
+    data.push([
+      hideKode ? '' : (r.kode || ''),
+      '',
+      r.uraian || '',
+      cell(r.sisa_bulan_lalu, 'sisa_bulan_lalu'),
+      cell(r.anggaran_kas, 'anggaran_kas'),
+      cell(r.realisasi, 'realisasi'),
+      cell(r.sisa_sd, 'sisa_sd'),
+      pen ? kasExcelPenCell(r.persen, r, 'persen') : (r.persen ?? 0),
+    ]);
+  });
+}
+
+function kasExcelFormatNumbers(ws, dataStart, dataLen) {
+  const numCols = [3, 4, 5, 6, 7];
+  for (let R = dataStart; R < dataLen; R++) {
+    numCols.forEach(C => {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      if (ws[addr] && typeof ws[addr].v === 'number') {
+        ws[addr].t = 'n';
+        ws[addr].z = '#,##0.00';
+      }
+    });
+  }
 }
 
 function exportKasExcel() {
   const bulan = getKasBulan();
   const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
+  const tgl = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   const wb = XLSX.utils.book_new();
-  const data = [
-    ['', '', '', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', '', '', ''],
-    ['REALISASI ANGGARAN KAS BELANJA'],
-    ['DINAS PENDIDIKAN KOTA BATAM'],
-    ['TAHUN ANGGARAN 2026'],
-    [],
-    ['SKPD', ':', 'DINAS PENDIDIKAN'],
-    ['BULAN', ':', bl],
-    [],
-    ['KODE REKENING', 'URAIAN', '', bl],
-    ['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%'],
-    [],
-    ['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100'],
-  ];
-  kasReportCache.forEach(r => {
-    data.push([r.kode || '', r.uraian || '', '', r.sisa_bulan_lalu, r.anggaran_kas, r.realisasi, r.sisa_sd, r.persen]);
-  });
+  const data = [];
+  const blank = () => ['', '', '', '', '', '', '', ''];
+
+  kasExcelPushHeader(data, bl);
+  kasExcelPushTableHeader(data, bl);
+  const summaryStart = data.length;
+  kasExcelPushRows(data, kasReportCache);
+
+  data.push(blank());
+  data.push(blank());
+  data.push(['REKONSILIASI BPKAD', '', '', '', '', '', '', '']);
+  data.push(['KASUBID PENGELOLAAN KAS DAERAH', '', '', '', '', '', '', '']);
+  data.push(blank());
+  data.push(blank());
+  data.push(blank());
+  data.push(blank());
+  data.push(['KASUBID AKUNTANSI BELANJA', '', '', '', '', '', '', '']);
+  data.push(blank());
+  data.push(blank());
+  data.push(blank());
+  for (let i = 0; i < 3; i++) data.push(blank());
+
+  const page2HeaderRow = data.length;
+  kasExcelPushTableHeader(data, bl, { pengecualian: true });
+  const pengecualianStart = data.length;
+  kasExcelPushRows(data, buildKasPengecualianRows(bulan), { pengecualian: true });
+  data.push(blank());
+  data.push(blank());
+  data.push(['', '', '', '', 'Batam, ' + new Date().getFullYear(), '', '', '']);
+  data.push(['', '', '', '', 'PENGGUNA ANGGARAN', '', '', '']);
+  data.push(blank());
+  data.push(blank());
+  data.push(['', '', '', '', 'Hendri Arulan, S.Pd.,M.M', '', '', '']);
+  data.push(['', '', '', '', 'NIP. 19670719 199103 1 009', '', '', '']);
+
   const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [
+    { wch: 22 }, { wch: 6 }, { wch: 38 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 10 },
+  ];
+  ws['!merges'] = [
+    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
+    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
+    { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } },
+    { s: { r: 12, c: 0 }, e: { r: 13, c: 0 } },
+    { s: { r: 12, c: 1 }, e: { r: 13, c: 2 } },
+    { s: { r: 12, c: 3 }, e: { r: 12, c: 7 } },
+    { s: { r: page2HeaderRow + 1, c: 0 }, e: { r: page2HeaderRow + 2, c: 0 } },
+    { s: { r: page2HeaderRow + 1, c: 1 }, e: { r: page2HeaderRow + 2, c: 2 } },
+    { s: { r: page2HeaderRow + 1, c: 3 }, e: { r: page2HeaderRow + 1, c: 7 } },
+    { s: { r: page2HeaderRow, c: 0 }, e: { r: page2HeaderRow, c: 7 } },
+  ];
+  ws['!rows'] = [{ hpt: 0 }];
+  if (!ws['!pageSetup']) ws['!pageSetup'] = {};
+  ws['!pageSetup'].paperSize = 9;
+  ws['!pageSetup'].orientation = 'portrait';
+  ws['!pageSetup'].scale = 85;
+
+  kasExcelFormatNumbers(ws, summaryStart, data.length);
+  kasExcelFormatNumbers(ws, pengecualianStart, data.length);
+
   XLSX.utils.book_append_sheet(wb, ws, 'CETAK Realisasi');
-  XLSX.writeFile(wb, `Angkas Belanja 2026 - ${bl.charAt(0)+bl.slice(1).toLowerCase()}.xlsx`);
+  XLSX.writeFile(wb, `Angkas Belanja 2026 - ${KAS_BULAN_NAMA[bulan] || bl}.xlsx`);
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────

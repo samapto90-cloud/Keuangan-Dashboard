@@ -35,20 +35,22 @@ type KasReportRow struct {
 }
 
 type KasBelanjaState struct {
-	Tahun      int                        `json:"tahun"`
-	RakRows    []RakBelanjaRow            `json:"rak_rows"`
-	Realisasi  map[string]map[string]float64 `json:"realisasi"`
-	SisaManual map[string]map[string]float64 `json:"sisa_manual"`
-	ImportedAt string                     `json:"imported_at"`
-	Message    string                     `json:"message,omitempty"`
+	Tahun           int                             `json:"tahun"`
+	RakRows         []RakBelanjaRow                 `json:"rak_rows"`
+	Realisasi       map[string]map[string]float64   `json:"realisasi"`
+	SisaManual      map[string]map[string]float64   `json:"sisa_manual"`
+	RealisasiLocked map[string]bool                 `json:"realisasi_locked"`
+	ImportedAt      string                          `json:"imported_at"`
+	Message         string                          `json:"message,omitempty"`
 }
 
 var (
 	kasState = KasBelanjaState{
-		Tahun:      2026,
-		RakRows:    []RakBelanjaRow{},
-		Realisasi:  map[string]map[string]float64{},
-		SisaManual: map[string]map[string]float64{},
+		Tahun:           2026,
+		RakRows:         []RakBelanjaRow{},
+		Realisasi:       map[string]map[string]float64{},
+		SisaManual:      map[string]map[string]float64{},
+		RealisasiLocked: map[string]bool{},
 	}
 	kasMu sync.RWMutex
 )
@@ -198,6 +200,14 @@ func sumPrevSisa(state KasBelanjaState, kode, prevBulan string) float64 {
 	return 0
 }
 
+func totalPaguFromRak(rows []RakBelanjaRow) float64 {
+	var total float64
+	for _, r := range rows {
+		total += r.Anggaran
+	}
+	return total
+}
+
 func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 	sess := getSession(r)
 	if sess == nil {
@@ -214,15 +224,18 @@ func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 		state := kasState
 		report := buildKasReport(state, bulan)
 		kasMu.RUnlock()
+		locked := state.RealisasiLocked != nil && state.RealisasiLocked[bulan]
 		jsonResponse(w, http.StatusOK, map[string]interface{}{
-			"tahun":      state.Tahun,
-			"rak_rows":   state.RakRows,
-			"realisasi":  state.Realisasi,
-			"sisa_manual": state.SisaManual,
-			"imported_at": state.ImportedAt,
-			"bulan":      bulan,
-			"report":     report,
-			"bulan_list": bulanKeys,
+			"tahun":            state.Tahun,
+			"rak_rows":         state.RakRows,
+			"realisasi":        state.Realisasi,
+			"sisa_manual":      state.SisaManual,
+			"realisasi_locked": locked,
+			"imported_at":      state.ImportedAt,
+			"total_pagu":       totalPaguFromRak(state.RakRows),
+			"bulan":            bulan,
+			"report":           report,
+			"bulan_list":       bulanKeys,
 		})
 	default:
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
@@ -265,6 +278,51 @@ func handleKasImportRAK(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+var kasMainLeafKodes = []string{
+	"5.1.01.", "5.1.02.", "5.1.05.", "5.1.06.",
+	"5.2.02.", "5.2.03.", "5.2.04.", "5.2.05.",
+	"5.3.01.",
+}
+
+var kasPenDetailLeafKodes = []string{
+	"5.1.02.03.002.00035",
+	"5.1.02.03.002.00038",
+	"5.1.02.02.001.00059",
+	"5.1.02.02.001.00060",
+	"5.1.02.02.001.00061",
+	"5.1.02.02.001.00063",
+	"5.1.02.04.001.00001",
+	"5.1.02.04.01.00002",
+	"5.1.02.04.001.00003",
+	"5.1.02.04.001.00004",
+	"5.1.02.02.005.00043",
+}
+
+func sumRealisasiKeys(m map[string]float64, keys ...string) float64 {
+	var total float64
+	for _, k := range keys {
+		total += m[k]
+	}
+	return total
+}
+
+// rollupRealisasi menerapkan rumus sheet BELANJA: baris induk = jumlah anak (kolom realisasi).
+func rollupRealisasi(raw map[string]float64) map[string]float64 {
+	out := make(map[string]float64, len(raw)+16)
+	for _, k := range kasMainLeafKodes {
+		out[k] = raw[k]
+	}
+	for _, k := range kasPenDetailLeafKodes {
+		out[k] = raw[k]
+	}
+	out["5.1."] = sumRealisasiKeys(out, "5.1.01.", "5.1.02.", "5.1.05.", "5.1.06.")
+	out["5.2."] = sumRealisasiKeys(out, "5.2.02.", "5.2.03.", "5.2.04.", "5.2.05.")
+	out["5.3.01."] = raw["5.3.01."]
+	out["5.3."] = out["5.3.01."]
+	out["5."] = sumRealisasiKeys(out, "5.1.", "5.2.", "5.3.")
+	return out
+}
+
 func handleKasSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
@@ -289,22 +347,67 @@ func handleKasSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	kasMu.Lock()
+	if kasState.RealisasiLocked != nil && kasState.RealisasiLocked[bulan] {
+		kasMu.Unlock()
+		jsonResponse(w, http.StatusForbidden, map[string]string{
+			"error": "Realisasi bulan ini terkunci. Klik Perbaiki terlebih dahulu.",
+		})
+		return
+	}
 	if kasState.Realisasi == nil {
 		kasState.Realisasi = map[string]map[string]float64{}
 	}
 	if kasState.SisaManual == nil {
 		kasState.SisaManual = map[string]map[string]float64{}
 	}
+	if kasState.RealisasiLocked == nil {
+		kasState.RealisasiLocked = map[string]bool{}
+	}
 	if payload.Realisasi != nil {
-		kasState.Realisasi[bulan] = payload.Realisasi
+		kasState.Realisasi[bulan] = rollupRealisasi(payload.Realisasi)
 	}
 	if payload.SisaManual != nil {
 		kasState.SisaManual[bulan] = payload.SisaManual
 	}
+	kasState.RealisasiLocked[bulan] = true
 	report := buildKasReport(kasState, bulan)
 	kasMu.Unlock()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"message": "Realisasi bulan " + bulan + " disimpan",
-		"report":  report,
+		"message":          "Realisasi bulan " + bulan + " disimpan",
+		"report":           report,
+		"realisasi_locked": true,
+	})
+}
+
+func handleKasUnlockRealisasi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid"})
+		return
+	}
+	var payload struct {
+		Bulan string `json:"bulan"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+		return
+	}
+	bulan := normalizeBulanKey(payload.Bulan)
+	if bulan == "" {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Bulan wajib diisi"})
+		return
+	}
+	kasMu.Lock()
+	if kasState.RealisasiLocked == nil {
+		kasState.RealisasiLocked = map[string]bool{}
+	}
+	delete(kasState.RealisasiLocked, bulan)
+	kasMu.Unlock()
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"message":          "Mode perbaikan aktif — data realisasi dapat diubah",
+		"realisasi_locked": false,
 	})
 }

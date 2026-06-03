@@ -27,6 +27,9 @@ var portalNezukoPNG []byte
 //go:embed assets/portal-zenitsu.png
 var portalZenitsuPNG []byte
 
+//go:embed assets/logo-batam.png
+var logoBatamPNG []byte
+
 type Transaction struct {
         ID               int     `json:"id"`
         Tanggal          string  `json:"tanggal"`
@@ -512,6 +515,7 @@ func main() {
         mux.HandleFunc("/assets/portal-tanjiro.png", servePNG(portalTanjiroPNG))
         mux.HandleFunc("/assets/portal-nezuko.png", servePNG(portalNezukoPNG))
         mux.HandleFunc("/assets/portal-zenitsu.png", servePNG(portalZenitsuPNG))
+        mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
@@ -526,6 +530,7 @@ func main() {
         mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
         mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(handleKasImportRAK)))
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(handleKasSaveRealisasi)))
+        mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(handleKasUnlockRealisasi)))
 
         addSampleData()
         tryLoadDefaultAnggaran()
