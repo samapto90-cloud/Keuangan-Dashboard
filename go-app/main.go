@@ -523,6 +523,9 @@ func main() {
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
         mux.HandleFunc("/data/settings", cors(handleSettings))
         mux.HandleFunc("/data/import/anggaran", cors(requireAdmin(handleImportAnggaran)))
+        mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
+        mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(handleKasImportRAK)))
+        mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(handleKasSaveRealisasi)))
 
         addSampleData()
         tryLoadDefaultAnggaran()

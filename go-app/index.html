@@ -644,6 +644,241 @@
     .login-error.show { display: block; }
     #app-shell { display: none; }
     #app-shell.visible { display: block; }
+    #kas-app-shell { display: none; }
+    #kas-app-shell.visible { display: block; }
+
+    /* ── Kas Belanja App ── */
+    :root {
+      --kas-gold: #fbbf24;
+      --kas-gold-glow: rgba(251,191,36,.35);
+      --kas-sidebar-width: 268px;
+    }
+    #kas-app-shell { min-height: 100vh; position: relative; z-index: 2; }
+    #kas-sidebar {
+      position: fixed; top: 0; left: 0; width: var(--kas-sidebar-width); height: 100vh;
+      background: linear-gradient(180deg, #0a0e1a 0%, #12182b 48%, #0f1528 100%);
+      border-right: 1px solid rgba(251,191,36,.12);
+      box-shadow: 4px 0 40px rgba(0,0,0,.45);
+      display: flex; flex-direction: column; z-index: 1000;
+      color: #94a3b8;
+    }
+    #kas-sidebar::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #fbbf24, #f59e0b, transparent);
+    }
+    .kas-sidebar-brand {
+      padding: 20px 18px 18px; border-bottom: 1px solid rgba(251,191,36,.1);
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    .kas-sidebar-brand .brand-icon {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; overflow: hidden;
+      border: 2px solid rgba(251,191,36,.45);
+      box-shadow: 0 0 24px rgba(251,191,36,.25);
+    }
+    .kas-sidebar-brand .brand-icon img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    }
+    .kas-sidebar-brand h6 {
+      margin: 0; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .3px; line-height: 1.3;
+    }
+    .kas-sidebar-brand small {
+      display: block; margin-top: 3px; font-size: 10px; color: #fbbf24; letter-spacing: .4px; font-weight: 600;
+    }
+    .kas-sidebar-brand .brand-sub {
+      font-size: 10px; color: #64748b; margin-top: 2px;
+    }
+    .kas-sidebar-nav {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 12px 10px 16px;
+      scrollbar-width: thin; scrollbar-color: rgba(251,191,36,.3) transparent;
+    }
+    .kas-nav-section { margin-bottom: 18px; }
+    .kas-nav-section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.8px;
+      color: #fbbf24; padding: 0 12px 8px; opacity: .85;
+    }
+    .kas-nav-section-title::after {
+      content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(251,191,36,.25), transparent);
+    }
+    .kas-nav-link {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 11px 12px; margin-bottom: 4px;
+      border-radius: 10px; border: 1px solid transparent;
+      color: #cbd5e1; text-decoration: none; font-size: 13px; font-weight: 600;
+      transition: all .22s ease; position: relative; box-sizing: border-box;
+    }
+    .kas-nav-link .kas-nav-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 16px;
+      background: rgba(148,163,184,.08); color: #94a3b8;
+      transition: all .22s ease;
+    }
+    .kas-nav-link .kas-nav-text { flex: 1; line-height: 1.25; }
+    .kas-nav-link .kas-nav-desc {
+      display: block; font-size: 10px; font-weight: 500; color: #64748b; margin-top: 2px;
+    }
+    .kas-nav-link:hover {
+      background: rgba(251,191,36,.06); color: #fff; border-color: rgba(251,191,36,.12);
+      transform: translateX(3px);
+    }
+    .kas-nav-link:hover .kas-nav-icon {
+      background: rgba(251,191,36,.14); color: #fbbf24;
+    }
+    .kas-nav-link.active {
+      background: linear-gradient(135deg, rgba(251,191,36,.16), rgba(245,158,11,.08));
+      color: #fff; border-color: rgba(251,191,36,.28);
+      box-shadow: 0 4px 18px rgba(251,191,36,.12), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .kas-nav-link.active .kas-nav-icon {
+      background: rgba(251,191,36,.22); color: #fbbf24;
+      box-shadow: 0 0 14px rgba(251,191,36,.2);
+    }
+    .kas-nav-link.active::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 55%; border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, #fde68a, #f59e0b);
+    }
+    .kas-nav-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 2px;
+    }
+    .kas-nav-action {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 8px; border-radius: 10px; border: 1px solid rgba(148,163,184,.12);
+      background: rgba(7,11,20,.55); color: #cbd5e1; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all .2s ease; text-align: center;
+    }
+    .kas-nav-action i { font-size: 18px; color: #94a3b8; }
+    .kas-nav-action:hover {
+      background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.25); color: #fff;
+    }
+    .kas-nav-action:hover i { color: #fbbf24; }
+    .kas-sidebar-footer {
+      flex-shrink: 0; padding: 14px 14px 16px;
+      border-top: 1px solid rgba(251,191,36,.1);
+      background: rgba(7,11,20,.45);
+    }
+    .kas-user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; margin-bottom: 10px; border-radius: 12px;
+      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.14);
+    }
+    .kas-user-card .kas-user-avatar {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #1a1200; font-size: 12px; font-weight: 800;
+      display: grid; place-items: center;
+    }
+    .kas-user-card .kas-user-name {
+      font-size: 11px; font-weight: 700; color: #fff; line-height: 1.3;
+    }
+    .kas-user-card .kas-user-meta {
+      font-size: 10px; color: #fbbf24; margin-top: 1px;
+    }
+    .kas-sidebar-footer .btn-kas-logout {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(248,113,113,.28);
+      background: rgba(248,113,113,.1); color: #fca5a5; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .kas-sidebar-footer .btn-kas-logout:hover {
+      background: rgba(248,113,113,.2); color: #fff; border-color: rgba(248,113,113,.4);
+    }
+    .kas-sidebar-footer .kas-dev-credit {
+      margin-top: 10px; text-align: center; font-size: 10px; color: #64748b;
+    }
+    #kas-main {
+      margin-left: var(--kas-sidebar-width); min-height: 100vh;
+    }
+    #kas-main .kas-topbar {
+      background: rgba(10, 15, 30, 0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(251,191,36,.12);
+      padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; margin-bottom: 0;
+      box-shadow: 0 4px 24px rgba(0,0,0,.2);
+    }
+    #kas-main .kas-topbar .page-title {
+      font-size: 20px; font-weight: 800; color: #fff; letter-spacing: .3px;
+    }
+    #kas-main .kas-content { padding: 24px 28px 40px; }
+    #kas-main .kas-bulan-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.18);
+      border-radius: 999px; padding: 6px 14px 6px 12px;
+    }
+    #kas-main .kas-bulan-pill label { font-size: 11px; font-weight: 700; color: #fbbf24; margin: 0; white-space: nowrap; }
+    #kas-main .kas-bulan-pill select {
+      background: transparent; border: none; color: #fff; font-size: 12px; font-weight: 700;
+      padding: 0; min-width: 100px; cursor: pointer;
+    }
+    #kas-main .kas-bulan-pill select:focus { outline: none; box-shadow: none; }
+    .kas-page { display: none; }
+    .kas-page.active { display: block; }
+    .kas-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kas-stat {
+      background: rgba(10,14,26,.85); border: 1px solid rgba(251,191,36,.15);
+      border-radius: 16px; padding: 18px 20px; backdrop-filter: blur(8px);
+    }
+    .kas-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+    .kas-stat .val { font-size: 20px; font-weight: 800; color: #fbbf24; margin-top: 6px; }
+    .kas-stat .sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .kas-card {
+      background: rgba(10,14,26,.88); border: 1px solid rgba(148,163,184,.12);
+      border-radius: 16px; padding: 20px; margin-bottom: 20px;
+    }
+    .kas-card h6 { font-weight: 800; margin-bottom: 4px; color: #fff; }
+    .kas-card small { color: var(--text-muted); }
+    .kas-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .kas-table-wrap {
+      overflow: auto; border: 1px solid rgba(148,163,184,.15); border-radius: 12px;
+      max-height: calc(100vh - 280px); background: rgba(7,11,20,.6);
+    }
+    .kas-table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 900px; }
+    .kas-table th {
+      position: sticky; top: 0; z-index: 2;
+      background: #1a2238; color: #e2e8f0; padding: 10px 8px;
+      border-bottom: 2px solid rgba(251,191,36,.3); text-transform: uppercase; font-size: 10px;
+    }
+    .kas-table td { padding: 8px; border-bottom: 1px solid rgba(148,163,184,.08); vertical-align: middle; }
+    .kas-table tr:hover td { background: rgba(251,191,36,.04); }
+    .kas-table .lvl-0 td:nth-child(2) { font-weight: 800; text-transform: uppercase; }
+    .kas-table .lvl-1 td:nth-child(2) { font-weight: 700; padding-left: 16px; }
+    .kas-table .lvl-2 td:nth-child(2) { padding-left: 28px; }
+    .kas-table .total-row td { font-weight: 800; background: rgba(251,191,36,.08); }
+    .kas-table input.kas-input {
+      width: 100%; min-width: 110px; background: rgba(15,22,41,.8);
+      border: 1px solid rgba(251,191,36,.25); color: #fff; border-radius: 6px;
+      padding: 4px 8px; font-size: 11px; text-align: right;
+    }
+    .kas-table input.kas-input:focus { outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.15); }
+    .kas-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .kas-pct-ok { color: #4ade80; font-weight: 700; }
+    .kas-pct-warn { color: #fbbf24; font-weight: 700; }
+    .kas-pct-over { color: #f87171; font-weight: 700; }
+    .kas-upload-zone {
+      border: 2px dashed rgba(251,191,36,.3); border-radius: 16px; padding: 32px;
+      text-align: center; background: rgba(251,191,36,.04); transition: border-color .2s;
+    }
+    .kas-upload-zone:hover { border-color: rgba(251,191,36,.55); }
+    #kas-print {
+      display: none; font-family: Arial, sans-serif; color: #000; background: #fff;
+    }
+    @media print {
+      body.kas-printing * { visibility: hidden; }
+      body.kas-printing #kas-print, body.kas-printing #kas-print * { visibility: visible; }
+      body.kas-printing #kas-print {
+        display: block !important; position: fixed; inset: 0; z-index: 99999; padding: 16mm;
+      }
+    }
+    .kp-title { text-align: center; margin-bottom: 12px; }
+    .kp-title h4 { margin: 0; font-size: 14px; font-weight: 800; text-transform: uppercase; }
+    .kp-title p { margin: 2px 0; font-size: 11px; }
+    .kp-meta { font-size: 11px; margin-bottom: 10px; }
+    .kp-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    .kp-table th, .kp-table td { border: 1px solid #333; padding: 5px 6px; }
+    .kp-table th { background: #f0f0f0; font-weight: 700; text-align: center; }
+    .kp-table .num { text-align: right; }
+    .kp-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; font-size: 10px; text-align: center; }
+    .kp-ttd-space { height: 55px; }
     .btn-logout {
       margin-top: 8px; width: 100%; padding: 8px 12px; border-radius: 10px;
       background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.25);
@@ -901,13 +1136,13 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-leaf portal-soon" onclick="openPortalApp('kas-belanja')">
+      <div class="portal-app-card portal-theme-leaf portal-active" onclick="openPortalApp('kas-belanja')">
         <div class="portal-app-icon"><img src="/assets/portal-zenitsu.png" alt="Zenitsu — Realisasi Kas Belanja" /></div>
         <h3>Realisasi Anggaran Kas Belanja</h3>
         <p>Monitoring dan laporan realisasi anggaran kas belanja per kegiatan dan periode.</p>
         <div class="portal-app-foot">
-          <span class="portal-badge portal-badge-soon">Segera</span>
-          <span class="portal-app-action">Info <i class="bi bi-info-circle"></i></span>
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
     </div>
@@ -1361,6 +1596,168 @@ function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
 </div>
 </div><!-- /app-shell -->
 
+<!-- ═══════════════ KAS BELANJA APP ═══════════════ -->
+<div id="kas-app-shell">
+  <div id="kas-sidebar">
+    <div class="kas-sidebar-brand">
+      <div class="brand-icon"><img src="/assets/portal-zenitsu.png" alt="Realisasi Kas" /></div>
+      <div>
+        <h6>Realisasi Kas Belanja</h6>
+        <small>TA 2026 · APBD</small>
+        <div class="brand-sub">Dinas Pendidikan Kota Batam</div>
+      </div>
+    </div>
+
+    <nav class="kas-sidebar-nav">
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Menu Akuntan</div>
+        <a href="#" class="kas-nav-link active" id="kas-nav-dashboard" onclick="showKasPage('dashboard',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-speedometer2"></i></span>
+          <span class="kas-nav-text">Dashboard<span class="kas-nav-desc">Ringkasan realisasi kas</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="kas-nav-import" onclick="showKasPage('import',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-cloud-upload"></i></span>
+          <span class="kas-nav-text">Upload RAK APBD<span class="kas-nav-desc">Impor kertas kerja RAK</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="kas-nav-realisasi" onclick="showKasPage('realisasi',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-pencil-square"></i></span>
+          <span class="kas-nav-text">Input Realisasi<span class="kas-nav-desc">Isi realisasi per bulan</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="kas-nav-laporan" onclick="showKasPage('laporan',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-file-earmark-spreadsheet"></i></span>
+          <span class="kas-nav-text">Laporan Angkas<span class="kas-nav-desc">Preview laporan resmi</span></span>
+        </a>
+      </div>
+
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Ekspor &amp; Cetak</div>
+        <div class="kas-nav-actions">
+          <button type="button" class="kas-nav-action" onclick="exportKasExcel()"><i class="bi bi-file-earmark-excel"></i><span>Ekspor Excel</span></button>
+          <button type="button" class="kas-nav-action" onclick="printKasLaporan()"><i class="bi bi-printer"></i><span>Cetak PDF</span></button>
+        </div>
+      </div>
+
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Navigasi</div>
+        <a href="#" class="kas-nav-link" onclick="backToPortal();return false">
+          <span class="kas-nav-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+          <span class="kas-nav-text">Portal Aplikasi<span class="kas-nav-desc">Kembali ke beranda SIPKEU</span></span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="kas-sidebar-footer">
+      <div class="kas-user-card">
+        <div class="kas-user-avatar" id="kas-user-avatar">AD</div>
+        <div>
+          <div class="kas-user-name" id="kas-sidebar-user">Administrator</div>
+          <div class="kas-user-meta">Modul Kas Belanja</div>
+        </div>
+      </div>
+      <button type="button" class="btn-kas-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Keluar Aplikasi</button>
+      <div class="kas-dev-credit">Developer by Mangatas Surbakti</div>
+    </div>
+  </div>
+
+  <div id="kas-main">
+    <div class="kas-topbar">
+      <div>
+        <div class="page-title" id="kas-topbar-title">Dashboard Realisasi</div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Kas Belanja</li><li class="breadcrumb-item active" id="kas-topbar-crumb">Dashboard</li></ol></nav>
+      </div>
+      <div class="kas-bulan-pill">
+        <label for="kas-bulan-select"><i class="bi bi-calendar3 me-1"></i>Periode</label>
+        <select id="kas-bulan-select" onchange="onKasBulanChange()">
+          <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
+          <option value="april" selected>April</option><option value="mei">Mei</option><option value="juni">Juni</option>
+          <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
+          <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="kas-content">
+    <!-- Dashboard -->
+    <div id="kas-page-dashboard" class="kas-page active">
+      <div class="kas-stat-grid" id="kas-stat-grid">
+        <div class="kas-stat"><div class="lbl">Baris RAK</div><div class="val" id="kas-stat-rak">0</div><div class="sub">Dari upload APBD</div></div>
+        <div class="kas-stat"><div class="lbl">Anggaran Kas Bulan Ini</div><div class="val" id="kas-stat-anggaran" style="font-size:16px">Rp 0</div><div class="sub">Kolom RAK per bulan</div></div>
+        <div class="kas-stat"><div class="lbl">Realisasi Bulan Ini</div><div class="val" id="kas-stat-realisasi" style="font-size:16px">Rp 0</div><div class="sub">Input manual akuntan</div></div>
+        <div class="kas-stat"><div class="lbl">Sisa Anggaran Kas</div><div class="val" id="kas-stat-sisa" style="font-size:16px">Rp 0</div><div class="sub">(Sisa lalu + Angkas) − Realisasi</div></div>
+        <div class="kas-stat"><div class="lbl">% Realisasi</div><div class="val" id="kas-stat-persen">0%</div><div class="sub">Realisasi / Anggaran Kas</div></div>
+      </div>
+      <div class="kas-card">
+        <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Singkat</h6>
+        <small>
+          <strong>1.</strong> Upload file <em>Kertas Kerja RAK APBD</em> (sheet RAK BELANJA).<br>
+          <strong>2.</strong> Pilih bulan, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
+          <strong>3.</strong> Ekspor Excel atau cetak laporan format <em>Angkas Belanja</em> per bulan.
+        </small>
+      </div>
+    </div>
+
+    <!-- Import RAK -->
+    <div id="kas-page-import" class="kas-page">
+      <div class="kas-card">
+        <h6><i class="bi bi-cloud-upload me-2 text-warning"></i>Upload Kertas Kerja RAK APBD</h6>
+        <small>Format: <code>01. KERTAS KERJA RAK APBD PERGESERAN ... DISDIK.xlsx</code> — sheet <strong>RAK BELANJA</strong></small>
+        <div class="kas-upload-zone mt-3">
+          <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:#fbbf24"></i>
+          <p class="mt-2 mb-2" style="font-size:13px">Pilih file Excel RAK APBD (.xlsx)</p>
+          <input type="file" id="kas-rak-file" class="form-control" accept=".xlsx,.xls" onchange="previewKasRAK(event)" style="max-width:420px;margin:0 auto" />
+        </div>
+        <div id="kas-rak-preview" class="mt-3" style="display:none">
+          <div class="alert alert-success py-2" id="kas-rak-alert" style="font-size:12px"></div>
+          <div class="kas-table-wrap" style="max-height:320px">
+            <table class="kas-table"><thead><tr><th>Kode Rek.</th><th>Uraian</th><th>Sub Kegiatan</th><th class="kas-num">Anggaran</th><th class="kas-num">RAK Bulan</th></tr></thead><tbody id="kas-rak-preview-body"></tbody></table>
+          </div>
+          <button class="btn btn-warning mt-3" id="btn-kas-import-rak" onclick="doKasImportRAK()"><i class="bi bi-check-circle me-1"></i>Import Data RAK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Realisasi -->
+    <div id="kas-page-realisasi" class="kas-page">
+      <div class="kas-card">
+        <div class="kas-toolbar justify-content-between">
+          <div><h6 class="mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>Input Realisasi Bulanan</h6><small>Kolom realisasi diisi manual — sisa &amp; persen dihitung otomatis</small></div>
+          <button class="btn btn-warning btn-sm" onclick="saveKasRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
+        </div>
+        <div class="kas-table-wrap">
+          <table class="kas-table" id="kas-realisasi-table">
+            <thead><tr>
+              <th style="width:90px">Kode Rek.</th><th>Uraian</th>
+              <th class="kas-num">Sisa Kas Bulan Lalu (3)</th>
+              <th class="kas-num">Anggaran Kas Bulan Ini (4)</th>
+              <th class="kas-num">Realisasi Bulan Ini (5)</th>
+              <th class="kas-num">Sisa s/d Bulan Ini (6)</th>
+              <th class="kas-num">% (7)</th>
+            </tr></thead>
+            <tbody id="kas-realisasi-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laporan -->
+    <div id="kas-page-laporan" class="kas-page">
+      <div class="kas-card">
+        <div class="kas-toolbar justify-content-between">
+          <div><h6 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2 text-warning"></i>Preview Laporan Angkas Belanja</h6><small>Format sesuai <em>Angkas Belanja 2026 - April.xlsx</em></small></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-warning btn-sm" onclick="exportKasExcel()"><i class="bi bi-download me-1"></i>Excel</button>
+            <button class="btn btn-warning btn-sm" onclick="printKasLaporan()"><i class="bi bi-printer me-1"></i>Cetak</button>
+          </div>
+        </div>
+        <div id="kas-laporan-preview" class="p-3" style="background:#fff;color:#000;border-radius:12px;overflow:auto"></div>
+      </div>
+    </div>
+    </div><!-- /kas-content -->
+  </div><!-- /kas-main -->
+</div><!-- /kas-app-shell -->
+
+<div id="kas-print"></div>
+
 <!-- ══ REKAP PRINT (PDF) ══ -->
 <div id="rekap-print">
   <div class="rk-wrap">
@@ -1697,9 +2094,8 @@ const PORTAL_APPS = {
   },
   'kas-belanja': {
     label: 'Realisasi Anggaran Kas Belanja',
-    desc: 'Modul monitoring realisasi anggaran kas belanja.',
-    available: false,
-    soonMsg: 'Aplikasi <strong>Realisasi Anggaran Kas Belanja</strong> sedang dalam pengembangan dan akan segera tersedia.',
+    desc: 'Modul realisasi anggaran kas belanja — upload RAK APBD, input realisasi, laporan Angkas.',
+    available: true,
   },
 };
 
@@ -1707,18 +2103,21 @@ function showPortal() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('kas-app-shell')?.classList.remove('visible');
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
 }
 
 function showLogin(appKey) {
   selectedPortalApp = appKey || 'sekretariat';
+  sessionStorage.setItem('sipkeu_app', selectedPortalApp);
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   document.getElementById('login-app-label').textContent = app.label;
   document.getElementById('login-app-desc').innerHTML = app.desc;
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('kas-app-shell')?.classList.remove('visible');
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
   document.getElementById('login-error')?.classList.remove('show');
@@ -1727,6 +2126,7 @@ function showLogin(appKey) {
 function openPortalApp(appKey) {
   const app = PORTAL_APPS[appKey];
   if (!app) return;
+  sessionStorage.setItem('sipkeu_app', appKey);
   if (app.available) {
     showLogin(appKey);
     document.getElementById('login-username')?.focus();
@@ -1739,6 +2139,7 @@ function openPortalApp(appKey) {
 
 function backToPortal() {
   sessionStorage.removeItem('sipkeu_token');
+  sessionStorage.removeItem('sipkeu_app');
   currentUser = null;
   showPortal();
 }
@@ -1770,7 +2171,22 @@ function showApp() {
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
+  document.getElementById('kas-app-shell')?.classList.remove('visible');
   applyRoleUI();
+}
+
+function showKasApp() {
+  document.getElementById('portal-screen')?.classList.add('hidden');
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('kas-app-shell')?.classList.add('visible');
+  if (currentUser) {
+    const parts = (currentUser.name || 'AD').split(/\s+/);
+    const av = document.getElementById('kas-user-avatar');
+    if (av) av.textContent = (parts[0]?.[0] || 'A') + (parts[1]?.[0] || 'D');
+    const el = document.getElementById('kas-sidebar-user');
+    if (el) el.textContent = `${currentUser.name} · ${isAdmin() ? 'Administrator' : 'Operator'}`;
+  }
 }
 
 function applyRoleUI() {
@@ -1793,13 +2209,14 @@ function applyRoleUI() {
 
 async function tryRestoreSession() {
   const token = sessionStorage.getItem('sipkeu_token');
+  selectedPortalApp = sessionStorage.getItem('sipkeu_app') || 'sekretariat';
   if (!token) { showPortal(); return; }
-  selectedPortalApp = 'sekretariat';
   try {
     const res = await apiFetch(API + '/auth/me');
     if (!res.ok) throw new Error();
     currentUser = await res.json();
-    await bootApp();
+    if (selectedPortalApp === 'kas-belanja') await bootKasApp();
+    else await bootApp();
   } catch {
     sessionStorage.removeItem('sipkeu_token');
     showPortal();
@@ -1825,8 +2242,10 @@ async function doLogin(e) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login gagal');
     sessionStorage.setItem('sipkeu_token', data.token);
+    sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     currentUser = data;
-    await bootApp();
+    if (selectedPortalApp === 'kas-belanja') await bootKasApp();
+    else await bootApp();
   } catch (err) {
     errEl.textContent = err.message || 'Login gagal';
     errEl.classList.add('show');
@@ -3852,6 +4271,314 @@ async function doImporAnggaran() {
   }
   frame();
 })();
+
+// ── Kas Belanja Module ───────────────────────────────────────────────────
+const KAS_BULAN_LABEL = {
+  januari:'JANUARI', februari:'FEBRUARI', maret:'MARET', april:'APRIL', mei:'MEI', juni:'JUNI',
+  juli:'JULI', agustus:'AGUSTUS', september:'SEPTEMBER', oktober:'OKTOBER', november:'NOVEMBER', desember:'DESEMBER'
+};
+let kasReportCache = [];
+let kasRakImportData = [];
+let kasStateCache = { rak_rows: [], imported_at: '' };
+
+function getKasBulan() {
+  return document.getElementById('kas-bulan-select')?.value || 'april';
+}
+
+function formatKasAmount(n) {
+  if (n == null || isNaN(n)) return '0,00';
+  return Number(n).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseKasNumber(v) {
+  if (v == null || v === '') return 0;
+  const s = String(v).replace(/\s/g,'').replace(/\./g,'').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function kasPctClass(p) {
+  if (p >= 100) return 'kas-pct-over';
+  if (p >= 75) return 'kas-pct-warn';
+  return 'kas-pct-ok';
+}
+
+async function bootKasApp() {
+  showKasApp();
+  await loadKasData();
+  showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));
+}
+
+function showKasPage(page, navEl) {
+  document.querySelectorAll('.kas-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('kas-page-' + page)?.classList.add('active');
+  document.querySelectorAll('#kas-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  const titles = { dashboard:'Dashboard Realisasi', import:'Upload RAK APBD', realisasi:'Input Realisasi', laporan:'Laporan Angkas' };
+  document.getElementById('kas-topbar-title').textContent = titles[page] || 'Kas Belanja';
+  document.getElementById('kas-topbar-crumb').textContent = titles[page] || page;
+  if (page === 'laporan') renderKasLaporanPreview();
+}
+
+function onKasBulanChange() {
+  loadKasData();
+}
+
+async function loadKasData() {
+  const bulan = getKasBulan();
+  try {
+    const res = await apiFetch(API + '/kas-belanja?bulan=' + encodeURIComponent(bulan));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat data');
+    kasReportCache = data.report || [];
+    kasStateCache = data;
+    renderKasDashboard();
+    renderKasRealisasiTable();
+    if (document.getElementById('kas-page-laporan')?.classList.contains('active')) renderKasLaporanPreview();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderKasDashboard() {
+  const totalRow = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  document.getElementById('kas-stat-rak').textContent = (kasStateCache.rak_rows || []).length;
+  document.getElementById('kas-stat-anggaran').textContent = formatRupiah(totalRow.anggaran_kas || 0);
+  document.getElementById('kas-stat-realisasi').textContent = formatRupiah(totalRow.realisasi || 0);
+  document.getElementById('kas-stat-sisa').textContent = formatRupiah(totalRow.sisa_sd || 0);
+  document.getElementById('kas-stat-persen').textContent = (totalRow.persen || 0).toFixed(2) + '%';
+  if (kasStateCache.imported_at) {
+    const imp = document.getElementById('kas-stat-rak');
+    if (imp) imp.title = 'Terakhir import: ' + kasStateCache.imported_at;
+  }
+}
+
+function renderKasRealisasiTable() {
+  const tbody = document.getElementById('kas-realisasi-body');
+  if (!tbody) return;
+  tbody.innerHTML = kasReportCache.map(r => {
+    const isTotal = r.uraian === 'TOTAL BELANJA';
+    const key = isTotal ? '5.' : (r.kode || '');
+    const cls = isTotal ? 'total-row' : ('lvl-' + (r.level || 0));
+    return `<tr class="${cls}" data-kode="${key}">
+      <td>${r.kode || ''}</td>
+      <td>${r.uraian || ''}</td>
+      <td class="kas-num">${formatKasAmount(r.sisa_bulan_lalu)}</td>
+      <td class="kas-num">${formatKasAmount(r.anggaran_kas)}</td>
+      <td class="kas-num"><input type="text" class="kas-input kas-realisasi-input" data-kode="${key}" value="${formatKasAmount(r.realisasi)}" onchange="recalcKasRow(this)" /></td>
+      <td class="kas-num kas-calc-sisa">${formatKasAmount(r.sisa_sd)}</td>
+      <td class="kas-num kas-calc-pct ${kasPctClass(r.persen)}">${(r.persen || 0).toFixed(2)}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function recalcKasRow(input) {
+  const tr = input.closest('tr');
+  const sisaLalu = parseKasNumber(tr.children[2].textContent);
+  const anggaran = parseKasNumber(tr.children[3].textContent);
+  const realisasi = parseKasNumber(input.value);
+  const sisa = sisaLalu + anggaran - realisasi;
+  const pct = anggaran > 0 ? (realisasi / anggaran) * 100 : 0;
+  tr.querySelector('.kas-calc-sisa').textContent = formatKasAmount(sisa);
+  const pctEl = tr.querySelector('.kas-calc-pct');
+  pctEl.textContent = pct.toFixed(2) + '%';
+  pctEl.className = 'kas-num kas-calc-pct ' + kasPctClass(pct);
+}
+
+function collectKasRealisasiFromTable() {
+  const map = {};
+  document.querySelectorAll('.kas-realisasi-input').forEach(inp => {
+    map[inp.dataset.kode] = parseKasNumber(inp.value);
+  });
+  return map;
+}
+
+async function saveKasRealisasi() {
+  const bulan = getKasBulan();
+  const realisasi = collectKasRealisasiFromTable();
+  try {
+    const res = await apiFetch(API + '/kas-belanja/realisasi', {
+      method: 'PUT',
+      body: JSON.stringify({ bulan, realisasi }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
+    kasReportCache = data.report || [];
+    renderKasDashboard();
+    alert(data.message || 'Realisasi disimpan');
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan realisasi');
+  }
+}
+
+function parseRakBelanjaSheet(rows) {
+  if (!rows.length) throw new Error('Sheet kosong');
+  const header = rows[0].map(h => String(h || '').trim().toUpperCase());
+  const idx = (...names) => {
+    for (const n of names) {
+      const i = header.indexOf(String(n).toUpperCase());
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  const iKode = idx('KODE REKENING');
+  const iNama = idx('NAMA REKENING');
+  const iKeg = idx('NAMA KEGIATAN');
+  const iSub = idx('NAMA SUB KEGIATAN');
+  const iAnggaran = idx('ANGGARAN');
+  const bulanCols = {};
+  ['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'].forEach(b => {
+    const i = idx(b);
+    if (i >= 0) bulanCols[b.toLowerCase()] = i;
+  });
+  if (iKode < 0) throw new Error('Kolom KODE REKENING tidak ditemukan');
+  const get = (row, i) => (i < 0 || i >= row.length ? '' : String(row[i] ?? '').trim());
+  const out = [];
+  for (const row of rows.slice(1)) {
+    const kode = get(row, iKode);
+    if (!kode || !kode.startsWith('5')) continue;
+    const bulan = {};
+    for (const [bk, ci] of Object.entries(bulanCols)) {
+      bulan[bk] = parseKasNumber(row[ci]);
+    }
+    out.push({
+      kode_rekening: kode,
+      nama_rekening: get(row, iNama),
+      nama_kegiatan: get(row, iKeg),
+      nama_sub_kegiatan: get(row, iSub),
+      anggaran: parseKasNumber(row[iAnggaran]),
+      bulan,
+    });
+  }
+  return out;
+}
+
+function previewKasRAK(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      const sheetName = wb.SheetNames.find(n => n.toUpperCase().includes('RAK')) || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      kasRakImportData = parseRakBelanjaSheet(rows);
+      if (!kasRakImportData.length) throw new Error('Tidak ada baris belanja valid');
+      const bulan = getKasBulan();
+      document.getElementById('kas-rak-alert').innerHTML = `<i class="bi bi-check-circle me-1"></i>${kasRakImportData.length} baris siap diimpor dari sheet <strong>${sheetName}</strong>`;
+      document.getElementById('kas-rak-preview-body').innerHTML = kasRakImportData.slice(0, 20).map(r =>
+        `<tr><td>${r.kode_rekening}</td><td>${r.nama_rekening||'-'}</td><td style="max-width:160px">${r.nama_sub_kegiatan||'-'}</td><td class="kas-num">${formatKasAmount(r.anggaran)}</td><td class="kas-num">${formatKasAmount(r.bulan?.[bulan]||0)}</td></tr>`
+      ).join('') + (kasRakImportData.length > 20 ? `<tr><td colspan="5" class="text-center text-muted">… dan ${kasRakImportData.length-20} baris lainnya</td></tr>` : '');
+      document.getElementById('kas-rak-preview').style.display = '';
+    } catch (err) {
+      kasRakImportData = [];
+      document.getElementById('kas-rak-alert').className = 'alert alert-danger py-2';
+      document.getElementById('kas-rak-alert').textContent = err.message;
+      document.getElementById('kas-rak-preview').style.display = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function doKasImportRAK() {
+  if (!kasRakImportData.length) return;
+  const btn = document.getElementById('btn-kas-import-rak');
+  btn.disabled = true;
+  try {
+    const res = await apiFetch(API + '/kas-belanja/import-rak', {
+      method: 'POST',
+      body: JSON.stringify({ tahun: 2026, rak_rows: kasRakImportData }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Import gagal');
+    alert(data.message || 'RAK berhasil diimpor');
+    await loadKasData();
+    showKasPage('realisasi', document.getElementById('kas-nav-realisasi'));
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function buildKasLaporanHTML() {
+  const bulan = getKasBulan();
+  const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
+  let rows = '';
+  kasReportCache.forEach(r => {
+    const pad = r.level === 1 ? 'padding-left:12px' : r.level === 2 ? 'padding-left:24px' : '';
+    const bold = r.uraian === 'TOTAL BELANJA' || r.level === 0 ? 'font-weight:700' : '';
+    rows += `<tr style="${bold}">
+      <td>${r.kode || ''}</td>
+      <td style="${pad}">${r.uraian || ''}</td>
+      <td class="num">${formatKasAmount(r.sisa_bulan_lalu)}</td>
+      <td class="num">${formatKasAmount(r.anggaran_kas)}</td>
+      <td class="num">${formatKasAmount(r.realisasi)}</td>
+      <td class="num">${formatKasAmount(r.sisa_sd)}</td>
+      <td class="num">${(r.persen||0).toFixed(2)}</td>
+    </tr>`;
+  });
+  return `<div class="kp-title">
+    <h4>REALISASI ANGGARAN KAS BELANJA</h4>
+    <p>DINAS PENDIDIKAN KOTA BATAM</p>
+    <p>TAHUN ANGGARAN 2026</p>
+  </div>
+  <div class="kp-meta"><strong>SKPD</strong> : DINAS PENDIDIKAN &nbsp;&nbsp; <strong>BULAN</strong> : ${bl}</div>
+  <table class="kp-table">
+    <thead>
+      <tr><th rowspan="2">KODE REKENING</th><th rowspan="2">URAIAN</th><th colspan="5">${bl}</th></tr>
+      <tr><th>SISA ANGGARAN KAS BULAN LALU</th><th>ANGGARAN KAS BULAN INI</th><th>REALISASI BULAN INI</th><th>SISA ANGGARAN KAS S/D BULAN INI</th><th>%</th></tr>
+      <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6=(3+4)-5</td><td>7=5/4*100</td></tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="kp-ttd">
+    <div><div>Mengetahui,</div><div>Pengguna Anggaran</div><div class="kp-ttd-space"></div><div><strong>HENDRI ARULAN, S.Pd</strong></div><div>NIP. 19670119 199103 1 009</div></div>
+    <div><div>Batam, ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</div><div>Bendahara Pengeluaran</div><div class="kp-ttd-space"></div><div><strong>ELDINA SRIDHANTY, SE</strong></div><div>NIP. 19810610 201001 2 002</div></div>
+  </div>`;
+}
+
+function renderKasLaporanPreview() {
+  const el = document.getElementById('kas-laporan-preview');
+  if (el) el.innerHTML = buildKasLaporanHTML();
+}
+
+function printKasLaporan() {
+  const host = document.getElementById('kas-print');
+  host.innerHTML = buildKasLaporanHTML();
+  document.body.classList.add('kas-printing');
+  window.print();
+  setTimeout(() => document.body.classList.remove('kas-printing'), 500);
+}
+
+function exportKasExcel() {
+  const bulan = getKasBulan();
+  const bl = KAS_BULAN_LABEL[bulan] || bulan.toUpperCase();
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['', '', '', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', '', '', ''],
+    ['REALISASI ANGGARAN KAS BELANJA'],
+    ['DINAS PENDIDIKAN KOTA BATAM'],
+    ['TAHUN ANGGARAN 2026'],
+    [],
+    ['SKPD', ':', 'DINAS PENDIDIKAN'],
+    ['BULAN', ':', bl],
+    [],
+    ['KODE REKENING', 'URAIAN', '', bl],
+    ['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%'],
+    [],
+    ['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100'],
+  ];
+  kasReportCache.forEach(r => {
+    data.push([r.kode || '', r.uraian || '', '', r.sisa_bulan_lalu, r.anggaran_kas, r.realisasi, r.sisa_sd, r.persen]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, 'CETAK Realisasi');
+  XLSX.writeFile(wb, `Angkas Belanja 2026 - ${bl.charAt(0)+bl.slice(1).toLowerCase()}.xlsx`);
+}
 
 // ── Init ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
