@@ -33,6 +33,9 @@ var logoBatamPNG []byte
 //go:embed assets/op-runners/*
 var opRunnersFS embed.FS
 
+//go:embed assets/naruto-runners/*
+var narutoRunnersFS embed.FS
+
 type PotonganItem struct {
         Jenis    string  `json:"jenis"`
         Tarif    float64 `json:"tarif"`
@@ -586,6 +589,9 @@ func main() {
         mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
         if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
                 mux.Handle("/assets/op-runners/", http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub))))
+        }
+        if nrSub, err := fs.Sub(narutoRunnersFS, "assets/naruto-runners"); err == nil {
+                mux.Handle("/assets/naruto-runners/", http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub))))
         }
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))

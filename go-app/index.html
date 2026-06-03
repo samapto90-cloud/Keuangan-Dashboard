@@ -3458,7 +3458,38 @@ const OP_RUNNER_CHARACTERS = [
   { label: 'Jinbe', file: 'jinbe.png' },
   { label: 'Brook', file: 'brook.png' },
 ];
+const NARUTO_RUNNER_CHARACTERS = [
+  { label: 'Naruto', file: 'naruto.png' },
+  { label: 'Sasuke', file: 'sasuke.png' },
+  { label: 'Hinata', file: 'hinata.png' },
+  { label: 'Kakashi', file: 'kakashi.png' },
+  { label: 'Gaara', file: 'gaara.png' },
+  { label: 'Neji', file: 'neji.png' },
+  { label: 'Shikamaru', file: 'shikamaru.png' },
+  { label: 'Rock Lee', file: 'lee.png' },
+  { label: 'Jiraiya', file: 'jiraiya.png' },
+];
 const OP_RUNNER_ASSET_VER = '3';
+const NARUTO_RUNNER_ASSET_VER = '2';
+
+function getPptkRunnerSet() {
+  if (selectedPortalApp === 'paud') {
+    return { chars: NARUTO_RUNNER_CHARACTERS, base: '/assets/naruto-runners/', ver: NARUTO_RUNNER_ASSET_VER };
+  }
+  return { chars: OP_RUNNER_CHARACTERS, base: '/assets/op-runners/', ver: OP_RUNNER_ASSET_VER };
+}
+
+function applyPptkRaceTheme() {
+  const isPaud = selectedPortalApp === 'paud';
+  const head = document.querySelector('.op-race-panel .op-race-head h6');
+  if (head) {
+    head.innerHTML = isPaud
+      ? '<i class="bi bi-shield-shaded me-1"></i> Konoha Race — Belanja PPTK'
+      : '<i class="bi bi-trophy-fill me-1"></i> Grand Line Race — Belanja PPTK';
+  }
+  const badge = document.querySelector('.op-race-badge');
+  if (badge) badge.textContent = isPaud ? 'Konoha' : 'Grand Line';
+}
 
 function pptkRunnerHash(pptkName) {
   const s = pptkName || '';
@@ -3474,7 +3505,8 @@ function buildUniqueRunnerAssignments(pptkNames) {
   );
   const taken = new Set();
   const map = new Map();
-  const n = OP_RUNNER_CHARACTERS.length;
+  const runnerSet = getPptkRunnerSet();
+  const n = runnerSet.chars.length;
   for (const name of names) {
     let idx = pptkRunnerHash(name) % n;
     let attempts = 0;
@@ -3496,8 +3528,9 @@ function opRunnerImg(charIndex) {
   if (charIndex == null || charIndex < 0) {
     return '<span class="op-runner-fallback" aria-hidden="true"><i class="bi bi-person-walking"></i></span>';
   }
-  const c = OP_RUNNER_CHARACTERS[charIndex];
-  return `<img class="op-runner-img" src="/assets/op-runners/${c.file}?v=${OP_RUNNER_ASSET_VER}" alt="${c.label}" draggable="false" />`;
+  const set = getPptkRunnerSet();
+  const c = set.chars[charIndex];
+  return `<img class="op-runner-img" src="${set.base}${c.file}?v=${set.ver}" alt="${c.label}" draggable="false" />`;
 }
 
 function getPaguByPPTK(pptkName) {
@@ -3508,6 +3541,13 @@ function renderOpPptkRaceChart(pptkStats) {
   const wrap = document.getElementById('op-pptk-race');
   const legend = document.getElementById('op-pptk-legend');
   if (!wrap) return;
+  applyPptkRaceTheme();
+  const runnerSet = getPptkRunnerSet();
+  const isPaud = selectedPortalApp === 'paud';
+  const wantedLabel = isPaud ? '🍃 SHINOBI' : '☠ WANTED';
+  const emptyMsg = isPaud
+    ? 'Belum ada data belanja PPTK — tambah transaksi untuk memulai Konoha Race!'
+    : 'Belum ada data belanja PPTK — tambah transaksi untuk memulai lomba Grand Line!';
 
   const enriched = pptkStats.map(p => {
     const pagu = p.pagu || getPaguByPPTK(p.pptk);
@@ -3518,7 +3558,7 @@ function renderOpPptkRaceChart(pptkStats) {
   const maxReal = sorted.length ? Math.max(...sorted.map(p => p.realisasi)) : 0;
 
   if (!sorted.length) {
-    wrap.innerHTML = '<div class="op-race-empty"><i class="bi bi-compass me-1"></i> Belum ada data belanja PPTK — tambah transaksi untuk memulai lomba Grand Line!</div>';
+    wrap.innerHTML = `<div class="op-race-empty"><i class="bi bi-compass me-1"></i> ${emptyMsg}</div>`;
     if (legend) legend.innerHTML = '';
     return;
   }
@@ -3539,7 +3579,7 @@ function renderOpPptkRaceChart(pptkStats) {
     const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
     return `<div class="op-race-lane" style="--lane-delay:${i * 0.08}s;--progress:${pct.toFixed(1)}%">
       <div class="op-race-label">
-        <div class="op-wanted">☠ WANTED</div>
+        <div class="op-wanted">${wantedLabel}</div>
         <strong title="${esc(p.pptk)}">${esc(shortName)}</strong>
         <small>Pagu: ${formatRupiah(p.pagu)}<br>Realisasi: ${formatRupiah(p.realisasi)} · ${p.count || 0} trx</small>
       </div>
@@ -3563,12 +3603,12 @@ function renderOpPptkRaceChart(pptkStats) {
 
   if (legend) {
     const escLeg = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-    legend.innerHTML = OP_RUNNER_CHARACTERS.map((c, i) => {
+    legend.innerHTML = runnerSet.chars.map((c, i) => {
       const owner = ownerByChar.get(i);
       const shortOwner = owner && owner.length > 22 ? owner.slice(0, 20) + '…' : owner;
       const cls = owner ? 'is-assigned' : 'is-free';
       const title = owner ? `Dipakai: ${escLeg(owner)}` : 'Belum dipakai';
-      return `<span class="${cls}" title="${title}"><img src="/assets/op-runners/${c.file}?v=${OP_RUNNER_ASSET_VER}" alt="${c.label}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle" /> ${c.label}${owner ? ` · ${escLeg(shortOwner)}` : ''}</span>`;
+      return `<span class="${cls}" title="${title}"><img src="${runnerSet.base}${c.file}?v=${runnerSet.ver}" alt="${c.label}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle" /> ${c.label}${owner ? ` · ${escLeg(shortOwner)}` : ''}</span>`;
     }).join('') + '<span style="margin-left:auto;opacity:.85">Satu tokoh = satu PPTK · arahkan kursor ke pelari untuk detail</span>';
   }
 
@@ -4149,6 +4189,7 @@ function applyPortalBranding() {
   DB.pa = { ...cfg.defaultPa };
   DB.bendahara = { ...cfg.defaultBendahara };
   applyPejabatUI();
+  applyPptkRaceTheme();
 }
 
 function applyPejabatUI() {
