@@ -1,0 +1,41 @@
+services:
+  sipkeu:
+    build:
+      context: ./go-app
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: ${PORT:-3000}
+      TZ: ${TZ:-Asia/Jakarta}
+      ANGGARAN_FILE: ${ANGGARAN_FILE:-/app/Anggaran.xlsx}
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN:-https://sakubijak.com}
+      SIPKEU_ADMIN_USER: ${SIPKEU_ADMIN_USER:-admin}
+      SIPKEU_ADMIN_PASSWORD: ${SIPKEU_ADMIN_PASSWORD:-admin2026}
+      SIPKEU_OPERATOR_USER: ${SIPKEU_OPERATOR_USER:-operator}
+      SIPKEU_OPERATOR_PASSWORD: ${SIPKEU_OPERATOR_PASSWORD:-operator2026}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      sipkeu:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:

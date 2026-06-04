@@ -50,3 +50,9 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Production / local build
+go-app/keuangan.exe
+deploy/.env
+.env
+*.exe

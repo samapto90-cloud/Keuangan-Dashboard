@@ -1,0 +1,5 @@
+keuangan.exe
+*.exe
+_ref-angkas*
+_sample-*
+cmd/process_sticker/*.png

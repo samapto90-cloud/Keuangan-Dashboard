@@ -1,0 +1,28 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy SIPKEU ke Hostinger VPS
+        uses: hostinger/deploy-on-vps@v2
+        with:
+          api-key: ${{ secrets.HOSTINGER_API_KEY }}
+          virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
+          project-name: sipkeu-sakubijak
+          docker-compose-path: docker-compose.yml
+          environment-variables: |
+            PORT=3000
+            TZ=Asia/Jakarta
+            ALLOWED_ORIGIN=https://sakubijak.com
+            SIPKEU_ADMIN_USER=admin
+            SIPKEU_ADMIN_PASSWORD=${{ secrets.SIPKEU_ADMIN_PASSWORD }}
+            SIPKEU_OPERATOR_USER=operator
+            SIPKEU_OPERATOR_PASSWORD=${{ secrets.SIPKEU_OPERATOR_PASSWORD }}

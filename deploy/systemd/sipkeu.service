@@ -1,0 +1,18 @@
+[Unit]
+Description=SIPKEU — Sistem Informasi Penatausahaan Keuangan
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sipkeu
+Group=sipkeu
+WorkingDirectory=/opt/sipkeu
+EnvironmentFile=/opt/sipkeu/.env
+ExecStart=/opt/sipkeu/keuangan
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

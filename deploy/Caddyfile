@@ -1,0 +1,21 @@
+# Reverse proxy + HTTPS otomatis (Let's Encrypt)
+# Pastikan DNS A record sakubijak.com → IP server sudah aktif sebelum deploy.
+
+sakubijak.com, www.sakubijak.com {
+	encode gzip zstd
+
+	@health path /health
+	handle @health {
+		reverse_proxy sipkeu:3000
+	}
+
+	handle {
+		reverse_proxy sipkeu:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+}

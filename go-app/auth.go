@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -24,13 +25,29 @@ type Session struct {
 }
 
 var (
-	defaultUsers = map[string]UserAccount{
-		"admin":    {Password: "admin2026", Role: "admin", Name: "Administrator SIPKEU"},
-		"operator": {Password: "operator2026", Role: "operator", Name: "Operator SIPKEU"},
-	}
-	sessions   = map[string]Session{}
-	sessionsMu sync.RWMutex
+	defaultUsers map[string]UserAccount
+	sessions     = map[string]Session{}
+	sessionsMu   sync.RWMutex
 )
+
+func initAuth() {
+	adminUser := envOr("SIPKEU_ADMIN_USER", "admin")
+	adminPass := envOr("SIPKEU_ADMIN_PASSWORD", "admin2026")
+	opUser := envOr("SIPKEU_OPERATOR_USER", "operator")
+	opPass := envOr("SIPKEU_OPERATOR_PASSWORD", "operator2026")
+
+	defaultUsers = map[string]UserAccount{
+		strings.ToLower(adminUser): {Password: adminPass, Role: "admin", Name: "Administrator SIPKEU"},
+		strings.ToLower(opUser):    {Password: opPass, Role: "operator", Name: "Operator SIPKEU"},
+	}
+}
+
+func envOr(key, fallback string) string {
+	if v := strings.TrimSpace(os.Getenv(key)); v != "" {
+		return v
+	}
+	return fallback
+}
 
 func newSessionToken() (string, error) {
 	b := make([]byte, 32)

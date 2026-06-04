@@ -151,9 +151,15 @@ func normalizeTransactionTax(t *Transaction) {
         t.JenisPotongan = strings.Join(jenisPotonganParts, "; ")
 }
 
+var allowedOrigin string
+
 func cors(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
-                w.Header().Set("Access-Control-Allow-Origin", "*")
+                origin := allowedOrigin
+                if origin == "" {
+                        origin = "*"
+                }
+                w.Header().Set("Access-Control-Allow-Origin", origin)
                 w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
                 if r.Method == http.MethodOptions {
@@ -162,6 +168,15 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
                 }
                 next(w, r)
         }
+}
+
+func withSecurityHeaders(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+                w.Header().Set("X-Content-Type-Options", "nosniff")
+                w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+                w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+                next.ServeHTTP(w, r)
+        })
 }
 
 func servePNG(data []byte) http.HandlerFunc {
@@ -568,8 +583,16 @@ func main() {
         if port == "" {
                 port = "3000"
         }
+        allowedOrigin = strings.TrimSpace(os.Getenv("ALLOWED_ORIGIN"))
+        initAuth()
 
         mux := http.NewServeMux()
+
+        mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+                w.Header().Set("Content-Type", "application/json")
+                w.WriteHeader(http.StatusOK)
+                w.Write([]byte(`{"status":"ok"}`))
+        })
 
         mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -632,5 +655,5 @@ func main() {
         }
 
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        log.Fatal(http.ListenAndServe(":"+port, mux))
+        log.Fatal(http.ListenAndServe(":"+port, withSecurityHeaders(mux)))
 }
