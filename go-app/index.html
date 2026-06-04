@@ -1850,6 +1850,66 @@
     .kas-flame-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
     .kas-flame-legend .lg-ang { background: linear-gradient(180deg, #dbeafe, #3b82f6, #1e3a8a); }
     .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fecaca, #dc2626); box-shadow: 0 0 8px rgba(220,38,38,.45); }
+    .kas-gundam-chart {
+      position: relative; z-index: 1; height: 100%; min-height: 300px;
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: clamp(6px, 1.2vw, 14px); padding: 8px 6px 44px;
+      overflow-x: auto; overflow-y: hidden;
+    }
+    .kas-gundam-chart-axis {
+      position: absolute; left: 0; right: 0; bottom: 40px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,.35), transparent);
+    }
+    .kas-gundam-col {
+      flex: 1 1 0; min-width: 52px; max-width: 96px; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      position: relative;
+    }
+    .kas-gundam-ang {
+      position: absolute; bottom: 0; width: 58%; min-width: 28px;
+      border-radius: 6px 6px 2px 2px;
+      background: linear-gradient(180deg, rgba(96,165,250,.55), rgba(37,99,235,.22));
+      border: 1px solid rgba(147,197,253,.35);
+      box-shadow: 0 0 12px rgba(37,99,235,.18);
+      transition: height .85s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+    }
+    .kas-gundam-ms {
+      position: absolute; bottom: 0; z-index: 2;
+      display: flex; align-items: flex-end; justify-content: center;
+      transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1), bottom .85s cubic-bezier(.22,1,.36,1);
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(34,211,238,.25));
+      cursor: default;
+    }
+    .kas-gundam-ms img {
+      width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
+      display: block; pointer-events: none;
+    }
+    .kas-gundam-ms:hover, .kas-gundam-ms:focus-visible {
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,.5)) drop-shadow(0 0 20px rgba(34,211,238,.55));
+      transform: scale(1.06);
+    }
+    .kas-gundam-label {
+      position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%);
+      width: 110%; font-size: 9px; font-weight: 700; color: #94a3b8;
+      text-align: center; line-height: 1.25;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .kas-gundam-tip {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+      min-width: 160px; max-width: 220px; padding: 8px 10px; border-radius: 10px;
+      background: rgba(15,23,42,.96); border: 1px solid rgba(59,130,246,.35);
+      box-shadow: 0 8px 24px rgba(0,0,0,.45); font-size: 10px; color: #e2e8f0;
+      z-index: 10; pointer-events: none; white-space: normal;
+    }
+    .kas-gundam-col:hover .kas-gundam-tip, .kas-gundam-col:focus-within .kas-gundam-tip { display: block; }
+    .kas-gundam-tip strong { color: #93c5fd; display: block; margin-bottom: 4px; font-size: 10px; }
+    .kas-gundam-tip .tip-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; }
+    .kas-gundam-tip .tip-pct { margin-top: 4px; color: #22d3ee; font-weight: 800; }
+    .kas-gundam-empty {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      font-size: 12px; color: #64748b; text-align: center; padding: 20px;
+    }
     .kas-upload-zone {
       border: 2px dashed rgba(59,130,246,.32); border-radius: 16px; padding: 32px;
       text-align: center; background: rgba(59,130,246,.04); transition: border-color .2s;
@@ -2817,13 +2877,13 @@ function onNilaiBrutoInput() {
         <button type="button" class="kas-bulan-pill" id="kas-bulan-btn" onclick="toggleKasBulanMenu(event)">
           <i class="bi bi-calendar3" style="color:#60a5fa"></i>
           <span class="lbl">Periode</span>
-          <span class="val kas-bulan-c-april" id="kas-bulan-display">April</span>
+          <span class="val" id="kas-bulan-display">—</span>
           <i class="bi bi-chevron-down"></i>
         </button>
         <div class="kas-bulan-menu" id="kas-bulan-menu"></div>
         <select id="kas-bulan-select" onchange="onKasBulanChange()" style="display:none" aria-hidden="true">
           <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
-          <option value="april" selected>April</option><option value="mei">Mei</option><option value="juni">Juni</option>
+          <option value="april">April</option><option value="mei">Mei</option><option value="juni">Juni</option>
           <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
           <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
         </select>
@@ -2846,17 +2906,17 @@ function onNilaiBrutoInput() {
         <div class="kas-flame-head">
           <div>
             <h6><i class="bi bi-crosshair me-2"></i>HUD Scanner Realisasi Kas</h6>
-            <small>Perbandingan Anggaran Kas vs Realisasi per jenis belanja — <strong id="kas-flame-bulan-label">April 2026</strong></small>
+            <small>Perbandingan Anggaran Kas vs Realisasi per jenis belanja — <strong id="kas-flame-bulan-label">—</strong></small>
           </div>
           <span class="kas-flame-badge"><i class="bi bi-broadcast"></i> Mobile Suit Mode · RX-78</span>
         </div>
         <div class="kas-flame-canvas-wrap">
           <div class="kas-flame-embers" id="kas-flame-embers"></div>
-          <canvas id="kas-flame-chart"></canvas>
+          <div class="kas-gundam-chart" id="kas-gundam-chart" role="img" aria-label="Grafik realisasi anggaran kas dengan ikon Gundam"></div>
         </div>
         <div class="kas-flame-legend">
-          <span><i class="lg-ang"></i> Anggaran Kas Bulan Ini</span>
-          <span><i class="lg-rea"></i> Realisasi Bulan Ini</span>
+          <span><i class="lg-ang"></i> Pilar biru = Anggaran Kas</span>
+          <span><i class="lg-rea"></i> Tinggi &amp; ukuran Gundam = Realisasi</span>
         </div>
       </div>
 
@@ -2865,7 +2925,7 @@ function onNilaiBrutoInput() {
         <small>
           <strong>1.</strong> Upload file <em>Kertas Kerja RAK APBD</em> (sheet RAK BELANJA).<br>
           <strong>2.</strong> Pilih bulan di kanan atas, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
-          <strong>3.</strong> Lihat grafik di atas berubah sesuai bulan — ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
+          <strong>3.</strong> Lihat armada Gundam di grafik — tinggi &amp; ukuran robot = realisasi per jenis belanja. Ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
         </small>
       </div>
     </div>
@@ -6409,15 +6469,33 @@ const KAS_BULAN_NAMA = {
   januari:'Januari', februari:'Februari', maret:'Maret', april:'April', mei:'Mei', juni:'Juni',
   juli:'Juli', agustus:'Agustus', september:'September', oktober:'Oktober', november:'November', desember:'Desember'
 };
+const KAS_BULAN_KEYS = Object.keys(KAS_BULAN_NAMA);
+
+function getCurrentKasBulan() {
+  return KAS_BULAN_KEYS[new Date().getMonth()] || 'januari';
+}
+
+function setDefaultKasBulan() {
+  const bulan = getCurrentKasBulan();
+  const sel = document.getElementById('kas-bulan-select');
+  if (sel) sel.value = bulan;
+  updateKasBulanDisplay(bulan);
+}
 
 function initKasBulanPicker() {
   const menu = document.getElementById('kas-bulan-menu');
-  if (!menu || menu.dataset.ready) return;
-  menu.innerHTML = Object.keys(KAS_BULAN_NAMA).map(k =>
-    `<button type="button" class="kas-bulan-opt kas-bulan-c-${k}${k === getKasBulan() ? ' active' : ''}" data-bulan="${k}" onclick="pickKasBulan('${k}')">${KAS_BULAN_NAMA[k]}</button>`
-  ).join('');
-  menu.dataset.ready = '1';
-  updateKasBulanDisplay(getKasBulan());
+  if (!menu) return;
+  const bulan = getKasBulan();
+  if (!menu.dataset.ready) {
+    menu.innerHTML = KAS_BULAN_KEYS.map(k =>
+      `<button type="button" class="kas-bulan-opt kas-bulan-c-${k}${k === bulan ? ' active' : ''}" data-bulan="${k}" onclick="pickKasBulan('${k}')">${KAS_BULAN_NAMA[k]}</button>`
+    ).join('');
+    menu.dataset.ready = '1';
+  } else {
+    document.querySelectorAll('.kas-bulan-opt').forEach(b =>
+      b.classList.toggle('active', b.dataset.bulan === bulan));
+  }
+  updateKasBulanDisplay(bulan);
 }
 
 function updateKasBulanDisplay(bulan) {
@@ -6450,60 +6528,99 @@ document.addEventListener('click', e => {
 let kasReportCache = [];
 let kasRakImportData = [];
 let kasStateCache = { rak_rows: [], imported_at: '' };
-let kasFlameChart = null;
+let kasGundamChartReady = false;
 
-function kasFlameGradient(ctx, area) {
-  const g = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-  g.addColorStop(0, '#1e3a8a');
-  g.addColorStop(0.35, '#2563eb');
-  g.addColorStop(0.65, '#3b82f6');
-  g.addColorStop(0.85, '#93c5fd');
-  g.addColorStop(1, '#dbeafe');
-  return g;
+const GUNDAM_ICONS = [
+  { file: '01-rx78.png', name: 'RX-78-2' },
+  { file: '02-wing-zero.png', name: 'Wing Zero' },
+  { file: '03-exia.png', name: 'Exia' },
+  { file: '04-barbatos.png', name: 'Barbatos' },
+  { file: '05-sazabi.png', name: 'Sazabi' },
+  { file: '06-wing-custom.png', name: 'Wing Custom' },
+  { file: '07-unicorn.png', name: 'Unicorn' },
+  { file: '08-red-frame.png', name: 'Red Frame' },
+  { file: '09-full-armor.png', name: 'Full Armor' },
+  { file: '10-zz.png', name: 'ZZ Gundam' },
+  { file: '11-freedom.png', name: 'Freedom' },
+  { file: '12-banshee.png', name: 'Banshee' },
+];
+const GUNDAM_ICON_BASE = '/assets/gundam-icons/';
+const GUNDAM_ICON_VER = '1';
+
+function gundamIconUrl(file) {
+  return `${GUNDAM_ICON_BASE}${file}?v=${GUNDAM_ICON_VER}`;
 }
 
-function kasFlameRealGradient(ctx, area) {
-  const g = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-  g.addColorStop(0, '#9a3412');
-  g.addColorStop(0.5, '#fb923c');
-  g.addColorStop(1, '#fde047');
-  return g;
+function preloadGundamIcons() {
+  if (kasGundamChartReady) return Promise.resolve();
+  return Promise.all(GUNDAM_ICONS.map(g => new Promise(resolve => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = gundamIconUrl(g.file);
+  }))).then(() => { kasGundamChartReady = true; });
 }
 
-const kasFlameBarPlugin = {
-  id: 'kasFlameBarPlugin',
-  afterDatasetsDraw(chart) {
-    const meta = chart.getDatasetMeta(0);
-    if (!meta?.data?.length) return;
-    const { ctx, chartArea } = chart;
-    meta.data.forEach(bar => {
-      if (!bar || bar.hidden) return;
-      const { x, y, base, width } = bar;
-      const h = base - y;
-      if (h < 12) return;
-      const w = width * 0.92;
-      ctx.save();
-      ctx.shadowColor = 'rgba(34,211,238,.55)';
-      ctx.shadowBlur = 14;
-      const grad = ctx.createLinearGradient(x, base, x, y - h * 0.12);
-      grad.addColorStop(0, 'rgba(30,64,175,.9)');
-      grad.addColorStop(0.5, 'rgba(59,130,246,.85)');
-      grad.addColorStop(1, 'rgba(34,211,238,.95)');
-      ctx.beginPath();
-      ctx.moveTo(x - w / 2, y);
-      ctx.lineTo(x - w / 3, y - h * 0.08);
-      ctx.quadraticCurveTo(x - w / 8, y - h * 0.18, x, y - h * 0.22);
-      ctx.quadraticCurveTo(x + w / 8, y - h * 0.16, x + w / 3, y - h * 0.06);
-      ctx.lineTo(x + w / 2, y);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.globalAlpha = 0.85;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.restore();
-    });
-  },
-};
+function kasGundamIconSize(realisasi, maxReal, chartH) {
+  const minPx = 34;
+  const maxPx = Math.min(108, chartH * 0.42);
+  if (maxReal <= 0) return minPx;
+  return minPx + (realisasi / maxReal) * (maxPx - minPx);
+}
+
+function kasGundamLiftHeight(realisasi, maxScale, chartH) {
+  if (maxScale <= 0) return 0;
+  return Math.max(8, (realisasi / maxScale) * chartH);
+}
+
+function renderKasGundamChart() {
+  initKasFlameEmbers();
+  const bulan = getKasBulan();
+  const bl = document.getElementById('kas-flame-bulan-label');
+  if (bl) bl.textContent = (KAS_BULAN_NAMA[bulan] || bulan) + ' 2026';
+
+  const box = document.getElementById('kas-gundam-chart');
+  if (!box) return;
+
+  const { fullLabels, anggaran, realisasi, persen } = buildKasFlameChartData();
+  if (!fullLabels.length) {
+    box.innerHTML = '<div class="kas-gundam-empty"><i class="bi bi-robot me-1"></i> Upload RAK APBD dan isi realisasi untuk menampilkan armada Gundam.</div>';
+    return;
+  }
+
+  const wrap = box.closest('.kas-flame-canvas-wrap');
+  const chartH = Math.max(220, (wrap?.clientHeight || 340) - 52);
+  const maxScale = Math.max(...anggaran, ...realisasi, 1);
+  const maxReal = Math.max(...realisasi, 1);
+
+  box.innerHTML = '<div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + fullLabels.map((label, i) => {
+    const ang = anggaran[i] || 0;
+    const real = realisasi[i] || 0;
+    const pct = persen[i] || 0;
+    const angH = kasGundamLiftHeight(ang, maxScale, chartH);
+    const lift = kasGundamLiftHeight(real, maxScale, chartH);
+    const icon = kasGundamIconSize(real, maxReal, chartH);
+    const g = GUNDAM_ICONS[i % GUNDAM_ICONS.length];
+    const pctCls = pct >= 100 ? 'kas-pct-over' : pct >= 75 ? 'kas-pct-warn' : 'kas-pct-ok';
+    return `<div class="kas-gundam-col" tabindex="0">
+      <div class="kas-gundam-ang" style="height:${angH.toFixed(1)}px" title="Anggaran Kas"></div>
+      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:${lift.toFixed(1)}px" title="${label.replace(/"/g, '&quot;')}">
+        <img src="${gundamIconUrl(g.file)}" alt="${g.name}" loading="lazy" />
+        <div class="kas-gundam-tip">
+          <strong>${label}</strong>
+          <div class="tip-row"><span>Anggaran Kas</span><span>Rp ${formatKasAmount(ang)}</span></div>
+          <div class="tip-row"><span>Realisasi</span><span>Rp ${formatKasAmount(real)}</span></div>
+          <div class="tip-pct ${pctCls}">${pct.toFixed(2)}% realisasi</div>
+        </div>
+      </div>
+      <div class="kas-gundam-label" title="${label.replace(/"/g, '&quot;')}">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+async function renderKasFlameChart() {
+  await preloadGundamIcons();
+  renderKasGundamChart();
+}
 
 function initKasFlameEmbers() {
   const box = document.getElementById('kas-flame-embers');
@@ -6532,114 +6649,8 @@ function buildKasFlameChartData() {
   };
 }
 
-function renderKasFlameChart() {
-  initKasFlameEmbers();
-  const bulan = getKasBulan();
-  const bl = document.getElementById('kas-flame-bulan-label');
-  if (bl) bl.textContent = (KAS_BULAN_NAMA[bulan] || bulan) + ' 2026';
-
-  const canvas = document.getElementById('kas-flame-chart');
-  if (!canvas || typeof Chart === 'undefined') return;
-
-  const { labels, fullLabels, anggaran, realisasi } = buildKasFlameChartData();
-  if (kasFlameChart) { kasFlameChart.destroy(); kasFlameChart = null; }
-
-  kasFlameChart = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Anggaran Kas',
-          data: anggaran,
-          backgroundColor: ctx => {
-            const a = ctx.chart.chartArea;
-            return a ? kasFlameGradient(ctx.chart.ctx, a) : '#2563eb';
-          },
-          borderColor: 'rgba(147,197,253,.35)',
-          borderWidth: 1,
-          borderRadius: { topLeft: 6, topRight: 6 },
-          borderSkipped: false,
-          order: 2,
-        },
-        {
-          label: 'Realisasi',
-          data: realisasi,
-          type: 'line',
-          borderColor: '#dc2626',
-          backgroundColor: 'rgba(220,38,38,.08)',
-          borderWidth: 3,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          pointBackgroundColor: '#fecaca',
-          pointBorderColor: '#dc2626',
-          pointBorderWidth: 2,
-          tension: 0.35,
-          fill: true,
-          order: 1,
-          yAxisID: 'y',
-        },
-      ],
-    },
-    plugins: [kasFlameBarPlugin],
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15,23,42,.92)',
-          borderColor: 'rgba(59,130,246,.5)',
-          borderWidth: 1,
-          titleColor: '#bfdbfe',
-          bodyColor: '#e2e8f0',
-          padding: 12,
-          callbacks: {
-            title: items => fullLabels[items[0]?.dataIndex] || items[0]?.label || '',
-            label: ctx => {
-              const v = ctx.parsed.y ?? 0;
-              return ' ' + ctx.dataset.label + ': Rp ' + v.toLocaleString('id-ID', { minimumFractionDigits: 2 });
-            },
-            afterBody: items => {
-              const i = items[0]?.dataIndex;
-              if (i == null) return '';
-              const p = buildKasFlameChartData().persen[i] || 0;
-              return '% Realisasi: ' + p.toFixed(2) + '%';
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: { color: '#cbd5e1', font: { size: 10, weight: '600' }, maxRotation: 45, minRotation: 25 },
-          grid: { color: 'rgba(37,99,235,.08)' },
-        },
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: '#94a3b8',
-            font: { size: 10 },
-            callback: v => {
-              if (v >= 1e9) return (v / 1e9).toFixed(1) + ' M';
-              if (v >= 1e6) return (v / 1e6).toFixed(0) + ' jt';
-              if (v >= 1e3) return (v / 1e3).toFixed(0) + ' rb';
-              return v;
-            },
-          },
-          grid: { color: 'rgba(59,130,246,.08)' },
-        },
-      },
-      animation: {
-        duration: 900,
-        easing: 'easeOutQuart',
-      },
-    },
-  });
-}
-
 function getKasBulan() {
-  return document.getElementById('kas-bulan-select')?.value || 'april';
+  return document.getElementById('kas-bulan-select')?.value || getCurrentKasBulan();
 }
 
 function formatKasAmount(n) {
@@ -6662,6 +6673,7 @@ function kasPctClass(p) {
 
 async function bootKasApp() {
   showKasApp();
+  setDefaultKasBulan();
   initKasBulanPicker();
   await loadKasData();
   showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));

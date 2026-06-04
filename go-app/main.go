@@ -36,6 +36,9 @@ var opRunnersFS embed.FS
 //go:embed assets/naruto-runners/*
 var narutoRunnersFS embed.FS
 
+//go:embed assets/gundam-icons/*
+var gundamIconsFS embed.FS
+
 type PotonganItem struct {
         Jenis    string  `json:"jenis"`
         Tarif    float64 `json:"tarif"`
@@ -663,6 +666,9 @@ func main() {
         }
         if nrSub, err := fs.Sub(narutoRunnersFS, "assets/naruto-runners"); err == nil {
                 mux.Handle("/assets/naruto-runners/", http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub))))
+        }
+        if gdSub, err := fs.Sub(gundamIconsFS, "assets/gundam-icons"); err == nil {
+                mux.Handle("/assets/gundam-icons/", http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub))))
         }
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))

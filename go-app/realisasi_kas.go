@@ -75,6 +75,18 @@ var angkasTemplate = []struct {
 	{"5.3.01.", "Belanja Tidak Terduga", 2},
 }
 
+func currentBulanKey() string {
+	now := time.Now()
+	if loc, err := time.LoadLocation("Asia/Jakarta"); err == nil {
+		now = now.In(loc)
+	}
+	idx := int(now.Month()) - 1
+	if idx >= 0 && idx < len(bulanKeys) {
+		return bulanKeys[idx]
+	}
+	return bulanKeys[0]
+}
+
 func normalizeBulanKey(s string) string {
 	return strings.ToLower(strings.TrimSpace(s))
 }
@@ -218,7 +230,7 @@ func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		bulan := normalizeBulanKey(r.URL.Query().Get("bulan"))
 		if bulan == "" {
-			bulan = "april"
+			bulan = currentBulanKey()
 		}
 		kasMu.RLock()
 		state := kasState
