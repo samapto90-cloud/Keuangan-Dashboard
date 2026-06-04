@@ -41,6 +41,8 @@ type KasBelanjaState struct {
 	SisaManual      map[string]map[string]float64   `json:"sisa_manual"`
 	RealisasiLocked map[string]bool                 `json:"realisasi_locked"`
 	ImportedAt      string                          `json:"imported_at"`
+	Version         string                          `json:"version,omitempty"`
+	VersionLabel    string                          `json:"version_label,omitempty"`
 	Message         string                          `json:"message,omitempty"`
 }
 
@@ -248,6 +250,8 @@ func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 			"bulan":            bulan,
 			"report":           report,
 			"bulan_list":       bulanKeys,
+			"version":          state.Version,
+			"version_label":    state.VersionLabel,
 		})
 	default:
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
@@ -264,8 +268,10 @@ func handleKasImportRAK(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
-		Tahun   int             `json:"tahun"`
-		RakRows []RakBelanjaRow `json:"rak_rows"`
+		Tahun        int             `json:"tahun"`
+		RakRows      []RakBelanjaRow `json:"rak_rows"`
+		Version      string          `json:"version"`
+		VersionLabel string          `json:"version_label"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
@@ -275,19 +281,31 @@ func handleKasImportRAK(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data RAK kosong"})
 		return
 	}
+	version := strings.ToLower(strings.TrimSpace(payload.Version))
+	if version == "" {
+		version = "apbd"
+	}
+	versionLabel := strings.TrimSpace(payload.VersionLabel)
+	if versionLabel == "" {
+		versionLabel = rakVersionLabel(version)
+	}
 	kasMu.Lock()
 	if payload.Tahun > 0 {
 		kasState.Tahun = payload.Tahun
 	}
 	kasState.RakRows = payload.RakRows
+	kasState.Version = version
+	kasState.VersionLabel = versionLabel
 	kasState.ImportedAt = time.Now().Format("2006-01-02 15:04:05")
 	kasMu.Unlock()
 	persistKasState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"message":   "Data RAK APBD berhasil diimpor",
-		"total":     len(payload.RakRows),
-		"rak_rows":  payload.RakRows,
-		"imported_at": kasState.ImportedAt,
+		"message":       "Data RAK " + versionLabel + " berhasil diimpor",
+		"total":         len(payload.RakRows),
+		"rak_rows":      payload.RakRows,
+		"version":       version,
+		"version_label": versionLabel,
+		"imported_at":   kasState.ImportedAt,
 	})
 }
 

@@ -1852,9 +1852,9 @@
     .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fecaca, #dc2626); box-shadow: 0 0 8px rgba(220,38,38,.45); }
     .kas-gundam-chart {
       position: relative; z-index: 1; height: 100%; min-height: 300px;
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: clamp(6px, 1.2vw, 14px); padding: 8px 6px 44px;
-      overflow-x: auto; overflow-y: hidden;
+      display: flex; align-items: flex-end; justify-content: space-around;
+      flex-wrap: nowrap; gap: clamp(8px, 1.6vw, 22px); padding: 22px 10px 46px;
+      overflow: visible;
     }
     .kas-gundam-chart-axis {
       position: absolute; left: 0; right: 0; bottom: 40px; height: 1px;
@@ -1879,15 +1879,31 @@
       display: flex; align-items: flex-end; justify-content: center;
       transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1);
       filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(34,211,238,.25));
-      cursor: default;
+      cursor: default; perspective: 900px;
+    }
+    @keyframes kasGundamSpin {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+    @keyframes kasGundamFloat {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -7px; }
     }
     .kas-gundam-ms img {
-      width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
+      width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
       display: block; pointer-events: none;
+      transform-style: preserve-3d;
+      animation: kasGundamSpin var(--spin, 7s) linear infinite;
+      will-change: transform;
     }
+    .kas-gundam-ms { animation: kasGundamFloat 3.6s ease-in-out infinite; }
     .kas-gundam-ms:hover, .kas-gundam-ms:focus-visible {
-      filter: drop-shadow(0 6px 16px rgba(0,0,0,.5)) drop-shadow(0 0 20px rgba(34,211,238,.55));
-      transform: translateX(-50%) scale(1.06);
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(34,211,238,.6));
+      animation-play-state: paused;
+    }
+    .kas-gundam-ms:hover img, .kas-gundam-ms:focus-visible img { animation-play-state: paused; }
+    @media (prefers-reduced-motion: reduce) {
+      .kas-gundam-ms, .kas-gundam-ms img { animation: none !important; }
     }
     .kas-gundam-label {
       position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%);
@@ -2818,7 +2834,7 @@ function onNilaiBrutoInput() {
       <div class="brand-icon gundam-helmet-icon" aria-hidden="true"></div>
       <div>
         <h6>Realisasi Kas Belanja</h6>
-        <small>TA 2026 · Federation</small>
+        <small id="kas-rak-version-label">TA 2026 · Federation</small>
         <div class="brand-sub">Dinas Pendidikan Kota Batam</div>
       </div>
     </div>
@@ -2935,6 +2951,23 @@ function onNilaiBrutoInput() {
       <div class="kas-card">
         <h6><i class="bi bi-cloud-upload me-2 text-warning"></i>Upload Kertas Kerja RAK APBD</h6>
         <small>Format: <code>01. KERTAS KERJA RAK APBD PERGESERAN ... DISDIK.xlsx</code> — sheet <strong>RAK BELANJA</strong></small>
+        <div class="row g-3 mt-1" style="max-width:520px;margin:0 auto">
+          <div class="col-12">
+            <label class="form-label fw-bold mb-1" style="font-size:12px">Versi Anggaran RAK</label>
+            <select class="form-select form-select-sm" id="kas-rak-version">
+              <option value="apbd">APBD (Murni)</option>
+              <option value="pergeseran-1">Pergeseran APBD I</option>
+              <option value="pergeseran-2">Pergeseran APBD II</option>
+              <option value="pergeseran-3">Pergeseran APBD III</option>
+              <option value="pergeseran-4">Pergeseran APBD IV</option>
+              <option value="apbdp">APBDP (Perubahan)</option>
+              <option value="apbdp-pergeseran-1">APBDP Pergeseran I</option>
+              <option value="apbdp-pergeseran-2">APBDP Pergeseran II</option>
+              <option value="apbdp-pergeseran-3">APBDP Pergeseran III</option>
+            </select>
+            <div class="form-text" style="font-size:11px">Pilih versi yang sesuai isi file Excel (pergeseran / APBDP).</div>
+          </div>
+        </div>
         <div class="kas-upload-zone mt-3">
           <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:#60a5fa"></i>
           <p class="mt-2 mb-2" style="font-size:13px">Pilih file Excel RAK APBD (.xlsx)</p>
@@ -3287,6 +3320,7 @@ function onNilaiBrutoInput() {
             <option value="pergeseran-1">Pergeseran APBD I</option>
             <option value="pergeseran-2">Pergeseran APBD II</option>
             <option value="pergeseran-3">Pergeseran APBD III</option>
+            <option value="pergeseran-4">Pergeseran APBD IV</option>
             <option value="apbdp">APBDP (Perubahan)</option>
             <option value="apbdp-pergeseran-1">APBDP Pergeseran I</option>
             <option value="apbdp-pergeseran-2">APBDP Pergeseran II</option>
@@ -3380,6 +3414,7 @@ const RAK_VERSION_LABELS = {
   'pergeseran-1': 'Pergeseran APBD I',
   'pergeseran-2': 'Pergeseran APBD II',
   'pergeseran-3': 'Pergeseran APBD III',
+  'pergeseran-4': 'Pergeseran APBD IV',
   'apbdp': 'APBDP (Perubahan)',
   'apbdp-pergeseran-1': 'APBDP Pergeseran I',
   'apbdp-pergeseran-2': 'APBDP Pergeseran II',
@@ -6561,8 +6596,8 @@ function preloadGundamIcons() {
 }
 
 function kasGundamIconSize(ratio, chartH) {
-  const minPx = 64;
-  const maxPx = chartH;
+  const minPx = 72;
+  const maxPx = chartH * 0.92;
   const r = Math.max(0, Math.min(1, ratio));
   return minPx + r * (maxPx - minPx);
 }
@@ -6588,7 +6623,7 @@ function renderKasGundamChart() {
   }
 
   const wrap = box.closest('.kas-flame-canvas-wrap');
-  const chartH = Math.max(220, (wrap?.clientHeight || 340) - 52);
+  const chartH = Math.max(220, (wrap?.clientHeight || 440) - 68);
   const maxScale = Math.max(...anggaran, ...realisasi, 1);
 
   box.innerHTML = '<div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + fullLabels.map((label, i) => {
@@ -6601,9 +6636,10 @@ function renderKasGundamChart() {
     const icon = kasGundamIconSize(ratio, chartH);
     const g = GUNDAM_ICONS[i % GUNDAM_ICONS.length];
     const pctCls = pct >= 100 ? 'kas-pct-over' : pct >= 75 ? 'kas-pct-warn' : 'kas-pct-ok';
+    const spin = (6 + (i % 5)).toFixed(0);
     return `<div class="kas-gundam-col" tabindex="0">
       <div class="kas-gundam-ang" style="height:${angH.toFixed(1)}px" title="Anggaran Kas"></div>
-      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:0" title="${label.replace(/"/g, '&quot;')}">
+      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:0;--spin:${spin}s" title="${label.replace(/"/g, '&quot;')}">
         <img src="${gundamIconUrl(g.file)}" alt="${g.name}" loading="lazy" />
         <div class="kas-gundam-tip">
           <strong>${label}</strong>
@@ -6699,6 +6735,13 @@ function onKasBulanChange() {
   loadKasData();
 }
 
+function updateKasRakVersionUI() {
+  const el = document.getElementById('kas-rak-version-label');
+  if (!el) return;
+  const label = kasStateCache?.version_label || (kasStateCache?.version ? rakVersionLabel(kasStateCache.version) : '');
+  el.textContent = label ? ('TA 2026 · ' + label) : 'TA 2026 · APBD';
+}
+
 async function loadKasData() {
   const bulan = getKasBulan();
   try {
@@ -6707,6 +6750,11 @@ async function loadKasData() {
     if (!res.ok) throw new Error(data.error || 'Gagal memuat data');
     kasReportCache = data.report || [];
     kasStateCache = data;
+    if (data.version) {
+      const vsel = document.getElementById('kas-rak-version');
+      if (vsel) vsel.value = data.version;
+    }
+    updateKasRakVersionUI();
     renderKasDashboard();
     renderKasRealisasiTable();
     if (document.getElementById('kas-page-laporan')?.classList.contains('active')) renderKasLaporanPreview();
@@ -7114,9 +7162,10 @@ async function doKasImportRAK() {
   const btn = document.getElementById('btn-kas-import-rak');
   btn.disabled = true;
   try {
+    const version = document.getElementById('kas-rak-version')?.value || 'apbd';
     const res = await apiFetch(API + '/kas-belanja/import-rak', {
       method: 'POST',
-      body: JSON.stringify({ tahun: 2026, rak_rows: kasRakImportData }),
+      body: JSON.stringify({ tahun: 2026, rak_rows: kasRakImportData, version, version_label: rakVersionLabel(version) }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Import gagal');

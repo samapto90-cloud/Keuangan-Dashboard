@@ -43,6 +43,7 @@ var rakVersionLabels = map[string]string{
 	"pergeseran-1":      "Pergeseran APBD I",
 	"pergeseran-2":      "Pergeseran APBD II",
 	"pergeseran-3":      "Pergeseran APBD III",
+	"pergeseran-4":      "Pergeseran APBD IV",
 	"apbdp":             "APBDP (Perubahan)",
 	"apbdp-pergeseran-1": "APBDP Pergeseran I",
 	"apbdp-pergeseran-2": "APBDP Pergeseran II",
