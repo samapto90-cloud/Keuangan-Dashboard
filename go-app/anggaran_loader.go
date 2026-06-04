@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -24,8 +25,39 @@ type RakRow struct {
 type ImportAnggaranResult struct {
 	Rak              []RakRow           `json:"rak"`
 	AnggaranKegiatan map[string]float64 `json:"anggaran_kegiatan"`
+	RakMeta          RakMeta            `json:"rak_meta"`
 	TotalBaris       int                `json:"total_baris"`
 	Message          string             `json:"message"`
+}
+
+type RakMeta struct {
+	Version       string  `json:"version"`
+	Label         string  `json:"label"`
+	ImportedAt    string  `json:"imported_at"`
+	RowCount      int     `json:"row_count"`
+	TotalAnggaran float64 `json:"total_anggaran"`
+}
+
+var rakVersionLabels = map[string]string{
+	"apbd":              "APBD (Murni)",
+	"pergeseran-1":      "Pergeseran APBD I",
+	"pergeseran-2":      "Pergeseran APBD II",
+	"pergeseran-3":      "Pergeseran APBD III",
+	"apbdp":             "APBDP (Perubahan)",
+	"apbdp-pergeseran-1": "APBDP Pergeseran I",
+	"apbdp-pergeseran-2": "APBDP Pergeseran II",
+	"apbdp-pergeseran-3": "APBDP Pergeseran III",
+}
+
+func rakVersionLabel(key string) string {
+	k := strings.ToLower(strings.TrimSpace(key))
+	if l, ok := rakVersionLabels[k]; ok {
+		return l
+	}
+	if k != "" {
+		return strings.ToUpper(k)
+	}
+	return "APBD (Murni)"
 }
 
 var legacyPPTK = map[string]string{
@@ -44,11 +76,135 @@ func pptkForRow(kode, pekerjaan string) string {
 	return ""
 }
 
+func normalizeHeaderCell(h string) string {
+	return strings.Join(strings.Fields(strings.ToUpper(strings.TrimSpace(h))), " ")
+}
+
+func findAnggaranHeaderRow(rows [][]string) int {
+	limit := 20
+	if len(rows) < limit {
+		limit = len(rows)
+	}
+	for r := 0; r < limit; r++ {
+		for _, h := range rows[r] {
+			u := normalizeHeaderCell(h)
+			if strings.Contains(u, "NAMA KEGIATAN") || u == "KEGIATAN" || strings.Contains(u, "URAIAN KEGIATAN") {
+				return r
+			}
+		}
+	}
+	return 0
+}
+
+func headerIndexExact(header map[string]int, names ...string) int {
+	for _, n := range names {
+		if i, ok := header[normalizeHeaderCell(n)]; ok {
+			return i
+		}
+	}
+	return -1
+}
+
+func headerIndexContains(row []string, skip func(string) bool, needles ...string) int {
+	for i, h := range row {
+		u := normalizeHeaderCell(h)
+		if u == "" || (skip != nil && skip(u)) {
+			continue
+		}
+		for _, n := range needles {
+			if strings.Contains(u, normalizeHeaderCell(n)) {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
+func skipNonAnggaranHeader(u string) bool {
+	if strings.Contains(u, "SUB KEG") || strings.Contains(u, "KODE REK") || strings.Contains(u, "NIP") {
+		return !strings.Contains(u, "ANGGARAN") && !strings.Contains(u, "PAGU") && !strings.Contains(u, "JUMLAH")
+	}
+	return strings.Contains(u, "NO.") || strings.Contains(u, "NOMOR") || strings.Contains(u, "TAHUN") ||
+		strings.Contains(u, "BULAN") || strings.Contains(u, "SIFAT") || strings.Contains(u, "SKPD") || strings.Contains(u, "OPD")
+}
+
+func findAnggaranColumnIndex(headerRow []string, dataRows [][]string) int {
+	header := make([]string, len(headerRow))
+	headerMap := map[string]int{}
+	for i, h := range headerRow {
+		header[i] = normalizeHeaderCell(h)
+		if header[i] != "" {
+			headerMap[header[i]] = i
+		}
+	}
+
+	candidates := map[int]bool{}
+	for _, name := range []string{"ANGGARAN", "PAGU ANGGARAN", "JUMLAH ANGGARAN", "NILAI ANGGARAN", "TOTAL ANGGARAN", "JUMLAH BIAYA", "PAGU"} {
+		if i := headerIndexExact(headerMap, name); i >= 0 {
+			candidates[i] = true
+		}
+	}
+	for i, h := range header {
+		if h == "" {
+			continue
+		}
+		if strings.Contains(h, "ANGGARAN") || strings.Contains(h, "PAGU") || strings.Contains(h, "JUMLAH") ||
+			strings.Contains(h, "NILAI") || strings.Contains(h, "TOTAL") || strings.Contains(h, "BIAYA") ||
+			strings.Contains(h, "VOLUME") || strings.Contains(h, "RPA") {
+			if strings.Contains(h, "SUB KEG") || strings.Contains(h, "KODE REK") || strings.Contains(h, "NIP PPTK") ||
+				strings.Contains(h, "RENCANA") || strings.Contains(h, "INDIKATOR") {
+				continue
+			}
+			candidates[i] = true
+		}
+	}
+	if len(candidates) == 0 {
+		return -1
+	}
+
+	sample := dataRows
+	if len(sample) > 40 {
+		sample = sample[:40]
+	}
+	bestCol := -1
+	bestScore := -1.0
+	for col := range candidates {
+		hits := 0
+		total := 0.0
+		for _, row := range sample {
+			val := parseAnggaranValue(cellAt(row, col))
+			if val > 0 {
+				hits++
+				total += val
+			}
+		}
+		score := float64(hits)*10000 + total/1e6
+		if strings.Contains(header[col], "ANGGARAN") || strings.Contains(header[col], "PAGU") ||
+			strings.Contains(header[col], "JUMLAH") || strings.Contains(header[col], "TOTAL") {
+			score += 100
+		}
+		if score > bestScore {
+			bestScore = score
+			bestCol = col
+		}
+	}
+	return bestCol
+}
+
+func cellAt(row []string, i int) string {
+	if i < 0 || i >= len(row) {
+		return ""
+	}
+	return strings.TrimSpace(row[i])
+}
+
 func parseAnggaranValue(raw string) float64 {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return 0
 	}
+	raw = strings.TrimPrefix(strings.TrimPrefix(raw, "Rp."), "Rp")
+	raw = strings.TrimSpace(raw)
 	if strings.Count(raw, ".") > 1 {
 		raw = strings.ReplaceAll(raw, ".", "")
 		raw = strings.ReplaceAll(raw, ",", ".")
@@ -100,15 +256,23 @@ func applyRakToAllModules(rows []RakRow) ImportAnggaranResult {
 		mods = append(mods, m)
 	}
 	sipkeuModulesMu.RUnlock()
+	var totalAnggaran float64
+	for _, r := range rows {
+		totalAnggaran += r.Anggaran
+	}
+	meta := RakMeta{
+		Version:       "apbd",
+		Label:         rakVersionLabel("apbd"),
+		ImportedAt:    time.Now().Format(time.RFC3339),
+		RowCount:      len(rows),
+		TotalAnggaran: totalAnggaran,
+	}
+	var last ImportAnggaranResult
 	for _, mod := range mods {
-		applyRakToModule(mod, cloneRakRows(rows))
+		last = applyRakToModule(mod, cloneRakRows(rows), &meta)
 	}
-	return ImportAnggaranResult{
-		Rak:              rows,
-		AnggaranKegiatan: anggaranMap,
-		TotalBaris:       len(rows),
-		Message:          fmt.Sprintf("%d baris kegiatan dan pagu anggaran berhasil dimuat", len(rows)),
-	}
+	last.Message = fmt.Sprintf("%d baris kegiatan dan pagu anggaran berhasil dimuat", len(rows))
+	return last
 }
 
 func loadAnggaranFromExcel(path string) error {
@@ -127,41 +291,54 @@ func loadAnggaranFromExcel(path string) error {
 		return fmt.Errorf("file kosong")
 	}
 
+	headerRowIdx := findAnggaranHeaderRow(rows)
+	headerRow := rows[headerRowIdx]
+	dataRows := rows[headerRowIdx+1:]
+
 	header := map[string]int{}
-	for i, h := range rows[0] {
-		header[strings.ToUpper(strings.TrimSpace(h))] = i
+	for i, h := range headerRow {
+		header[normalizeHeaderCell(h)] = i
 	}
 
-	idx := func(names ...string) int {
-		for _, n := range names {
-			if i, ok := header[strings.ToUpper(n)]; ok {
-				return i
-			}
-		}
-		return -1
+	idx := func(names ...string) int { return headerIndexExact(header, names...) }
+	idxContains := func(names ...string) int {
+		return headerIndexContains(headerRow, skipNonAnggaranHeader, names...)
 	}
 
-	iKeg := idx("NAMA KEGIATAN")
+	iKeg := idx("NAMA KEGIATAN", "KEGIATAN", "URAIAN KEGIATAN")
+	if iKeg < 0 {
+		iKeg = idxContains("NAMA KEGIATAN", "KEGIATAN")
+	}
 	iSubKode := idx("KODE SUB KEGIATAN")
-	iSubNama := idx("NAMA SUB KEGIATAN")
-	iKodeRek := idx("KODE REKENING")
-	iNamaRek := idx("NAMA REKENING", "PEKERJAAN")
+	iSubNama := idx("NAMA SUB KEGIATAN", "SUB KEGIATAN", "URAIAN SUB KEGIATAN")
+	if iSubNama < 0 {
+		iSubNama = idxContains("SUB KEGIATAN")
+	}
+	iKodeRek := idx("KODE REKENING", "KODE REK")
+	if iKodeRek < 0 {
+		iKodeRek = idxContains("KODE REKENING", "KODE REK")
+	}
+	iNamaRek := idx("NAMA REKENING", "PEKERJAAN", "URAIAN REKENING")
+	if iNamaRek < 0 {
+		iNamaRek = idxContains("NAMA REKENING", "PEKERJAAN", "URAIAN REKENING")
+	}
 	iPPTK := idx("PPTK", "NAMA PPTK")
-	iPPTKNip := idx("NIP PPTK")
-	iAnggaran := idx("ANGGARAN", "PAGU")
+	if iPPTK < 0 {
+		iPPTK = idxContains("PPTK")
+	}
+	iPPTKNip := idx("NIP PPTK", "NIP")
+	iAnggaran := findAnggaranColumnIndex(headerRow, dataRows)
 
-	if iKeg < 0 || iAnggaran < 0 {
-		return fmt.Errorf("kolom wajib tidak ditemukan (NAMA KEGIATAN, ANGGARAN)")
+	if iKeg < 0 {
+		return fmt.Errorf("kolom wajib tidak ditemukan (NAMA KEGIATAN)")
+	}
+	if iAnggaran < 0 {
+		return fmt.Errorf("kolom anggaran/pagu tidak ditemukan")
 	}
 
 	var rak []RakRow
-	for _, row := range rows[1:] {
-		get := func(i int) string {
-			if i < 0 || i >= len(row) {
-				return ""
-			}
-			return strings.TrimSpace(row[i])
-		}
+	for _, row := range dataRows {
+		get := func(i int) string { return cellAt(row, i) }
 		keg := get(iKeg)
 		if keg == "" {
 			continue
@@ -187,6 +364,17 @@ func loadAnggaranFromExcel(path string) error {
 }
 
 func tryLoadDefaultAnggaran() {
+	sipkeuModulesMu.RLock()
+	sek := sipkeuModules["sekretariat"]
+	sipkeuModulesMu.RUnlock()
+	if sek != nil {
+		sek.mu.Lock()
+		hasRak := len(sek.settings.Rak) > 0
+		sek.mu.Unlock()
+		if hasRak {
+			return
+		}
+	}
 	candidates := []string{
 		"Anggaran.xlsx",
 		filepath.Join("go-app", "Anggaran.xlsx"),
@@ -214,7 +402,9 @@ func handleImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
-		Rak []RakRow `json:"rak"`
+		Rak          []RakRow `json:"rak"`
+		Version      string   `json:"version"`
+		VersionLabel string   `json:"version_label"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
@@ -225,9 +415,34 @@ func handleImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	normalizeAnggaranUnit(payload.Rak)
+	var totalAnggaran float64
+	for _, r := range payload.Rak {
+		totalAnggaran += r.Anggaran
+	}
+	if totalAnggaran <= 0 {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": "Kolom pagu/anggaran tidak terbaca — semua nilai anggaran 0. Periksa nama kolom pagu di file Excel.",
+		})
+		return
+	}
+	version := strings.ToLower(strings.TrimSpace(payload.Version))
+	if version == "" {
+		version = "apbd"
+	}
+	label := strings.TrimSpace(payload.VersionLabel)
+	if label == "" {
+		label = rakVersionLabel(version)
+	}
+	meta := RakMeta{
+		Version:       version,
+		Label:         label,
+		ImportedAt:    time.Now().Format(time.RFC3339),
+		RowCount:      len(payload.Rak),
+		TotalAnggaran: totalAnggaran,
+	}
 	mod := moduleFromRequest(r)
 	rows := cloneRakRows(payload.Rak)
-	result := applyRakToModule(mod, rows)
-	result.Message = fmt.Sprintf("%d baris kegiatan dan pagu anggaran berhasil dimuat", result.TotalBaris)
+	result := applyRakToModule(mod, rows, &meta)
+	result.Message = fmt.Sprintf("Anggaran %s — %d baris kegiatan berhasil dimuat (mengganti anggaran aktif sebelumnya)", label, result.TotalBaris)
 	jsonResponse(w, http.StatusOK, result)
 }

@@ -25,6 +25,7 @@ func initSipkeuModules() {
 		"sekretariat": {
 			ID:      "sekretariat",
 			BPKCode: "B01",
+			nextID:  1,
 			settings: AppSettings{
 				PA:               Pejabat{Nama: "HENDRI ARULAN, S.Pd", Nip: "NIP. 19670119 199103 1 009"},
 				Bendahara:        Pejabat{Nama: "ELDINA SRIDHANTY, SE", Nip: "NIP. 19810610 201001 2 002"},
@@ -34,6 +35,7 @@ func initSipkeuModules() {
 		"paud": {
 			ID:      "paud",
 			BPKCode: "B02",
+			nextID:  1,
 			settings: AppSettings{
 				PA:               Pejabat{Nama: "Sularno, S.Pd., M.Si", Nip: "NIP. 19690408 199303 1 010"},
 				Bendahara:        Pejabat{Nama: "LIONI ASMIRELDA", Nip: "NIP. 19981102 202203 2 002"},
@@ -57,6 +59,27 @@ func moduleFromRequest(r *http.Request) *SipkeuModule {
 	return mod
 }
 
+func normalizeModuleIDs(mod *SipkeuModule) {
+	mod.mu.Lock()
+	defer mod.mu.Unlock()
+	if mod.nextID <= 0 {
+		mod.nextID = 1
+	}
+	maxID := 0
+	for i := range mod.txs {
+		if mod.txs[i].ID <= 0 {
+			mod.txs[i].ID = mod.nextID
+			mod.nextID++
+		}
+		if mod.txs[i].ID > maxID {
+			maxID = mod.txs[i].ID
+		}
+	}
+	if maxID >= mod.nextID {
+		mod.nextID = maxID + 1
+	}
+}
+
 func cloneRakRows(rows []RakRow) []RakRow {
 	out := make([]RakRow, len(rows))
 	copy(out, rows)
@@ -71,8 +94,9 @@ func cloneAnggaranMap(src map[string]float64) map[string]float64 {
 	return out
 }
 
-func applyRakToModule(mod *SipkeuModule, rows []RakRow) ImportAnggaranResult {
+func applyRakToModule(mod *SipkeuModule, rows []RakRow, meta *RakMeta) ImportAnggaranResult {
 	anggaranMap := map[string]float64{}
+	var totalAnggaran float64
 	for i := range rows {
 		rows[i].Kegiatan = strings.TrimSpace(rows[i].Kegiatan)
 		rows[i].SubKegiatan = strings.TrimSpace(rows[i].SubKegiatan)
@@ -84,6 +108,7 @@ func applyRakToModule(mod *SipkeuModule, rows []RakRow) ImportAnggaranResult {
 		if rows[i].Kegiatan != "" {
 			anggaranMap[rows[i].Kegiatan] += rows[i].Anggaran
 		}
+		totalAnggaran += rows[i].Anggaran
 	}
 	mod.mu.Lock()
 	mod.settings.Rak = rows
@@ -93,11 +118,16 @@ func applyRakToModule(mod *SipkeuModule, rows []RakRow) ImportAnggaranResult {
 	for k, v := range anggaranMap {
 		mod.settings.AnggaranKegiatan[k] = v
 	}
+	if meta != nil {
+		mod.settings.RakMeta = *meta
+	}
+	outMeta := mod.settings.RakMeta
 	mod.mu.Unlock()
 	persistModule(mod)
 	return ImportAnggaranResult{
 		Rak:              rows,
 		AnggaranKegiatan: anggaranMap,
+		RakMeta:          outMeta,
 		TotalBaris:       len(rows),
 	}
 }

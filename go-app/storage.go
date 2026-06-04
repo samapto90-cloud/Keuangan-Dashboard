@@ -94,6 +94,7 @@ func loadModuleFromDisk(mod *SipkeuModule) bool {
 		mod.settings.Bendahara = snap.Settings.Bendahara
 	}
 	mod.mu.Unlock()
+	normalizeModuleIDs(mod)
 	log.Printf("Data modul %s dimuat dari %s (%d transaksi)", mod.ID, path, len(snap.Txs))
 	return true
 }

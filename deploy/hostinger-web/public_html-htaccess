@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Jika file/folder statis ada, serve langsung
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Semua request lain → proxy PHP ke Go backend
+RewriteRule ^ index.php [L]

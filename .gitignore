@@ -53,8 +53,11 @@ Thumbs.db
 
 # Production / local build
 go-app/keuangan.exe
+go-app/keuangan-linux-amd64
 deploy/.env
+deploy/hostinger-web/.env.production
 .env
-go-app/data/
-data/
+deploy/hostinger-web/node_modules/
+deploy/hostinger-web/package-lock.json
+deploy/hostinger-web/package.json
 *.exe

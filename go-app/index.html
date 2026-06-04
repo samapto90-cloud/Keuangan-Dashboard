@@ -6,7 +6,7 @@
   <title>SIPKEU Portal — Dinas Pendidikan Kota Batam</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -188,7 +188,7 @@
     .topbar {
       background: rgba(10, 15, 30, 0.85); backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--glass-border);
-      padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
       position: sticky; top: 0; z-index: 100;
       box-shadow: 0 4px 30px rgba(0,0,0,.2);
     }
@@ -698,6 +698,92 @@
       #fx-canvas { display: none; }
     }
 
+    /* ── Mobile / HP ── */
+    .mobile-nav-btn {
+      display: none;
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      border: 1px solid rgba(56,189,248,.25); background: rgba(56,189,248,.08);
+      color: #fff; font-size: 22px; cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    .mobile-nav-btn:active { transform: scale(.96); }
+    .sidebar-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 1040;
+      background: rgba(0,0,0,.55);
+    }
+    .table-scroll-hint {
+      display: none; font-size: 11px; color: var(--text-muted);
+      padding: 8px 14px 0; text-align: center;
+    }
+    .table-scroll-hint i { color: var(--water); }
+
+    @media (max-width: 991px) {
+      #sidebar, #kas-sidebar {
+        transform: translateX(-105%);
+        transition: transform .28s cubic-bezier(.4,0,.2,1);
+        box-shadow: 8px 0 40px rgba(0,0,0,.5);
+      }
+      body.sidebar-open #sidebar,
+      body.kas-sidebar-open #kas-sidebar {
+        transform: translateX(0);
+        z-index: 1050;
+      }
+      body.sidebar-open .sidebar-backdrop[data-for="main"],
+      body.kas-sidebar-open .sidebar-backdrop[data-for="kas"] { display: block; }
+      body.sidebar-open, body.kas-sidebar-open { overflow: hidden; }
+
+      #main, #kas-main { margin-left: 0 !important; }
+      .mobile-nav-btn { display: inline-flex; }
+
+      .topbar, #kas-main .kas-topbar {
+        padding: 10px 14px; gap: 10px; flex-wrap: wrap;
+      }
+      .topbar > div:first-child,
+      #kas-main .kas-topbar > div:first-child { flex: 1; min-width: 0; }
+      .topbar .page-title, #kas-main .kas-topbar .page-title {
+        font-size: 17px; line-height: 1.2;
+      }
+      .topbar .breadcrumb, #kas-main .kas-topbar .breadcrumb { font-size: 11px; }
+      .topbar .user-badge { padding: 6px 10px; gap: 8px; }
+      .topbar .user-badge > div:last-child { display: none; }
+
+      .page, #kas-main .kas-content { padding: 14px 12px 24px; }
+      .stat-card { padding: 16px; }
+      .stat-card .value { font-size: 18px; }
+      .table-card .card-head { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+      .trx-admin-tools { flex-wrap: wrap; width: 100%; }
+      .trx-admin-tools .form-control { width: 100% !important; max-width: none !important; }
+      .table-scroll-hint { display: block; }
+      .table-wrapper {
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+      }
+      .table { font-size: 12px; min-width: 720px; }
+      .table thead th, .table tbody td { padding: 9px 10px; }
+      #trx-pagination { flex-wrap: wrap; justify-content: center; gap: 6px; }
+      .op-race-panel { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .card-chart h6 { font-size: 13px; }
+      .form-card { padding: 16px 14px; }
+      .modal-dialog { margin: 10px; max-width: calc(100vw - 20px); }
+      .login-card { padding: 28px 20px; border-radius: 16px; }
+      .login-roles { grid-template-columns: 1fr; }
+      #portal-screen { padding: 20px 14px 32px; }
+      .portal-grid { grid-template-columns: 1fr; gap: 14px; }
+      .portal-app-card { min-height: auto; padding: 22px 18px; }
+      #kas-main .kas-topbar { align-items: flex-start; }
+      #kas-main .kas-bulan-picker { width: 100%; }
+      #kas-main .kas-bulan-pill { width: 100%; justify-content: space-between; }
+    }
+
+    @media (max-width: 576px) {
+      .topbar .user-badge .avatar { width: 32px; height: 32px; font-size: 11px; }
+      .stat-card .icon-wrap { width: 40px; height: 40px; font-size: 18px; }
+      .btn, .form-control, .form-select { font-size: 16px; }
+      .login-brand h4 { font-size: 24px; }
+      .portal-header h1 { letter-spacing: 2px; }
+      #sidebar nav a:hover, .kas-nav-link:hover { transform: none; }
+    }
+
     /* ── @media print ── */
     @media print {
       @page { size: A4 portrait; margin: 0; }
@@ -886,6 +972,164 @@
     }
     .portal-app-card.portal-theme-leaf .portal-app-icon {
       border-color: rgba(251,191,36,.45); box-shadow: 0 0 20px rgba(251,191,36,.2);
+    }
+    .portal-app-card.portal-theme-inuyasha {
+      border-color: rgba(196,30,58,.45);
+      background: linear-gradient(145deg, rgba(88,28,135,.22) 0%, rgba(26,15,30,.92) 45%, rgba(127,29,29,.18) 100%);
+    }
+    .portal-app-card.portal-theme-inuyasha:hover {
+      border-color: rgba(233,69,96,.65);
+      box-shadow: 0 12px 40px rgba(147,51,234,.28), 0 0 32px rgba(196,30,58,.22);
+    }
+    .portal-app-card.portal-theme-inuyasha .portal-app-icon {
+      border-color: rgba(233,69,96,.55);
+      box-shadow: 0 0 24px rgba(147,51,234,.35), inset 0 0 20px rgba(196,30,58,.15);
+      background: radial-gradient(circle at 35% 30%, rgba(251,191,36,.25), rgba(88,28,135,.4) 55%, rgba(127,29,29,.5));
+      display: grid; place-items: center; font-size: 32px;
+    }
+    .portal-app-card.portal-theme-inuyasha .portal-app-action { color: #f472b6; }
+    .portal-app-card.portal-theme-inuyasha h3 {
+      font-family: 'Shippori Mincho', 'Bangers', serif;
+      text-shadow: 0 0 20px rgba(196,30,58,.35);
+    }
+
+    /* ── Tema Inuyasha (SIPKEU PAUD) ── */
+    body.theme-inuyasha {
+      --inuyasha-red: #c41e3a;
+      --inuyasha-red-hot: #9f1239;
+      --inuyasha-red-glow: rgba(196, 30, 58, 0.55);
+      --shikon: #9333ea;
+      --shikon-glow: rgba(147, 51, 234, 0.45);
+      --silver: #cbd5e1;
+      --feudal-gold: #d97706;
+      --naruto: var(--inuyasha-red);
+      --naruto-hot: var(--inuyasha-red-hot);
+      --naruto-glow: var(--inuyasha-red-glow);
+      --chakra: var(--shikon);
+      --chakra-deep: #6b21a8;
+      --chakra-glow: var(--shikon-glow);
+      --leaf: #f472b6;
+      --leaf-deep: #db2777;
+      --gold: #fbbf24;
+      --glass-border: rgba(196, 30, 58, 0.28);
+      --primary: var(--inuyasha-red);
+      --primary-dark: var(--inuyasha-red-hot);
+      --water: var(--shikon);
+      --water-deep: #6b21a8;
+      --water-glow: var(--shikon-glow);
+      --flame: var(--inuyasha-red);
+      --flame-hot: var(--inuyasha-red-hot);
+      --flame-glow: var(--inuyasha-red-glow);
+      --sidebar-bg: linear-gradient(180deg, #1a0f14 0%, #2a1520 42%, #1e1028 100%);
+    }
+    body.theme-inuyasha .fx-vignette {
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(147,51,234,.12) 0%, transparent 38%),
+        radial-gradient(ellipse at 20% 55%, rgba(196,30,58,.18) 0%, transparent 42%),
+        radial-gradient(ellipse at 80% 50%, rgba(251,191,36,.08) 0%, transparent 40%),
+        radial-gradient(ellipse at center, transparent 22%, rgba(0,0,0,.65) 100%);
+    }
+    body.theme-inuyasha #sidebar::before {
+      background: linear-gradient(90deg, transparent, var(--inuyasha-red), var(--shikon), transparent);
+    }
+    body.theme-inuyasha #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, var(--inuyasha-red), var(--shikon), var(--feudal-gold), var(--silver), var(--inuyasha-red));
+      border-color: rgba(147,51,234,.55);
+      box-shadow: 0 0 28px var(--shikon-glow), 0 0 12px var(--inuyasha-red-glow);
+    }
+    body.theme-inuyasha #sidebar .brand h6 {
+      font-family: 'Shippori Mincho', 'Bangers', serif;
+      text-shadow: 0 0 18px var(--inuyasha-red-glow);
+    }
+    body.theme-inuyasha #sidebar nav .nav-label { color: #f472b6; }
+    body.theme-inuyasha #sidebar nav a::before {
+      background: linear-gradient(180deg, var(--inuyasha-red), var(--shikon));
+    }
+    body.theme-inuyasha #sidebar nav a.active {
+      background: linear-gradient(135deg, rgba(196,30,58,.22), rgba(147,51,234,.18));
+      border-color: rgba(196,30,58,.35);
+      box-shadow: 0 4px 20px rgba(147,51,234,.2);
+    }
+    body.theme-inuyasha .loader-ring {
+      border-color: rgba(196,30,58,.2);
+      border-top-color: var(--inuyasha-red);
+      border-right-color: var(--shikon);
+    }
+    body.theme-inuyasha .loader-text {
+      background: linear-gradient(90deg, var(--inuyasha-red), var(--shikon), var(--feudal-gold));
+      -webkit-background-clip: text; background-clip: text;
+    }
+    body.theme-inuyasha .btn-primary,
+    body.theme-inuyasha #btn-submit.btn-primary {
+      background: linear-gradient(135deg, var(--inuyasha-red-hot), var(--inuyasha-red)) !important;
+      box-shadow: 0 4px 20px var(--inuyasha-red-glow) !important;
+    }
+    body.theme-inuyasha .stat-card .icon-wrap {
+      background: linear-gradient(135deg, rgba(196,30,58,.2), rgba(147,51,234,.15));
+      border-color: rgba(196,30,58,.25);
+    }
+    body.theme-inuyasha .login-card {
+      border-color: rgba(196,30,58,.25);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 0 40px rgba(147,51,234,.12);
+    }
+    body.theme-inuyasha .login-brand h4 {
+      font-family: 'Shippori Mincho', 'Bangers', serif;
+      background: linear-gradient(135deg, #fff, #fecdd3, #e9d5ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-inuyasha .login-app-label {
+      background: rgba(147,51,234,.15); color: #f9a8d4;
+      border-color: rgba(196,30,58,.35);
+    }
+    body.theme-inuyasha .login-role-hint strong { color: #f472b6; }
+    body.theme-inuyasha .op-race-panel {
+      background: linear-gradient(165deg, #fecaca 0%, #c41e3a 18%, #7c2d12 42%, #4c1d95 68%, #1e1b4b 100%);
+      border-color: #fbbf24;
+      box-shadow: 0 12px 40px rgba(196,30,58,.35), 0 0 48px rgba(147,51,234,.22), inset 0 2px 0 rgba(255,255,255,.2);
+    }
+    body.theme-inuyasha .op-race-panel::after {
+      background: radial-gradient(circle, rgba(251,191,36,.9) 0%, rgba(196,30,58,.35) 40%, transparent 70%);
+    }
+    body.theme-inuyasha .op-race-head h6 {
+      font-family: 'Shippori Mincho', 'Bangers', serif;
+      text-shadow: 2px 2px 0 #581c87, 0 0 24px rgba(251,191,36,.45);
+    }
+    body.theme-inuyasha .op-race-head small { color: #fce7f3; }
+    body.theme-inuyasha .op-race-badge {
+      background: linear-gradient(135deg, #9333ea, #c41e3a);
+      border-color: #fde68a;
+      box-shadow: 0 4px 0 #581c87, 0 0 20px rgba(147,51,234,.45);
+    }
+    body.theme-inuyasha .op-race-label {
+      background: linear-gradient(180deg, #fff7ed 0%, #fed7aa 55%, #fdba74 100%);
+      border-color: #9a3412;
+    }
+    body.theme-inuyasha .op-race-label .op-wanted { color: #7c2d12; }
+    body.theme-inuyasha .op-race-track {
+      background: linear-gradient(180deg, #9333ea 0%, #7c3aed 45%, #581c87 100%);
+      border-color: #4c1d95;
+    }
+    body.theme-inuyasha .op-race-fill {
+      background: linear-gradient(90deg, #fbbf24, #f472b6, #c41e3a, #fbbf24);
+    }
+    body.theme-inuyasha .inuyasha-runner-avatar {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff, var(--ir-bg, #c41e3a) 70%);
+      border: 2px solid #fde68a;
+      box-shadow: 0 4px 14px rgba(0,0,0,.35), 0 0 16px rgba(147,51,234,.35);
+      font-size: 22px; line-height: 1;
+      animation: inuyashaRunnerBob 1.2s ease-in-out infinite;
+    }
+    @keyframes inuyashaRunnerBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    body.theme-inuyasha .inuyasha-legend-emoji {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%; font-size: 14px;
+      background: var(--leg-bg, #c41e3a); border: 1px solid rgba(255,255,255,.25);
+      vertical-align: middle; margin-right: 4px;
     }
     .portal-app-card h3 {
       font-size: 17px; font-weight: 800; margin: 0 0 8px; color: #fff; position: relative; z-index: 1; line-height: 1.35;
@@ -1107,7 +1351,7 @@
     #kas-main .kas-topbar {
       background: rgba(10, 15, 30, 0.88); backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(251,191,36,.12);
-      padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
       position: sticky; top: 0; z-index: 100; margin-bottom: 0;
       box-shadow: 0 4px 24px rgba(0,0,0,.2);
     }
@@ -1778,10 +2022,10 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-chakra portal-active" onclick="openPortalApp('paud')">
-        <div class="portal-app-icon"><img src="/assets/portal-nezuko.png" alt="Nezuko — SIPKEU PAUD" /></div>
+      <div class="portal-app-card portal-theme-inuyasha portal-active" onclick="openPortalApp('paud')">
+        <div class="portal-app-icon" aria-hidden="true">💎</div>
         <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
-        <p>Penatausahaan keuangan bidang Pendidikan Anak Usia Dini dan Pendidikan Kesetaraan.</p>
+        <p>Penatausahaan keuangan bidang PAUD &amp; Kesetaraan — tema Feudal Japan · Shikon no Tama.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
@@ -1837,9 +2081,6 @@
       <button type="submit" class="btn btn-primary w-100 py-2" id="btn-login">
         <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
       </button>
-      <div class="text-center mt-3" style="font-size:11px;color:var(--text-muted)">
-        Password default: <code>admin2026</code> / <code>operator2026</code>
-      </div>
       <button type="button" class="login-back-portal w-100 justify-content-center" onclick="showPortal()">
         <i class="bi bi-arrow-left"></i> Kembali ke Portal Aplikasi
       </button>
@@ -1898,7 +2139,7 @@ function getRakRowAnggaran(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
 
 function getRealisasiBrutoRakLine(kegiatan, subKegiatan, kodeRekening, pekerjaan, excludeId) {
   return (allTransactions || []).reduce((sum, t) => {
-    if (excludeId && t.id === excludeId) return sum;
+    if (excludeId != null && t.id === excludeId) return sum;
     if (t.kegiatan === kegiatan &&
         t.sub_kegiatan === subKegiatan &&
         t.kode_rekening === kodeRekening &&
@@ -1993,9 +2234,10 @@ function onNilaiBrutoInput() {
 </script>
 
 <!-- ═══════════════ SIDEBAR ═══════════════ -->
+<div class="sidebar-backdrop" data-for="main" onclick="closeMobileSidebar()"></div>
 <div id="sidebar">
   <div class="brand">
-    <div class="brand-icon"><i class="bi bi-suit-spade-fill"></i></div>
+    <div class="brand-icon" id="sidebar-brand-icon"><i class="bi bi-suit-spade-fill"></i></div>
     <div>
       <h6 id="sidebar-app-title">SIPKEU Sekretariat</h6>
       <small>Dinas Pendidikan Batam</small>
@@ -2025,6 +2267,7 @@ function onNilaiBrutoInput() {
 <!-- ═══════════════ MAIN ═══════════════ -->
 <div id="main">
   <div class="topbar">
+    <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('main')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
     <div>
       <div class="page-title" id="topbar-title">Dashboard</div>
       <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted" id="topbar-app-name">SIPKEU Sekretariat</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
@@ -2069,7 +2312,7 @@ function onNilaiBrutoInput() {
     <div class="row g-3 mb-4">
       <div class="col-sm-6 col-xl-3">
         <div class="stat-card stat-sage ds-animate d-flex justify-content-between align-items-start" style="--ds-delay:.1s">
-          <div><div class="label">Total Pagu</div><div class="value" id="stat-pagu" style="font-size:18px">—</div><div class="sub">Dari impor anggaran</div></div>
+          <div><div class="label">Total Pagu</div><div class="value" id="stat-pagu" style="font-size:18px">—</div><div class="sub" id="stat-pagu-version">Dari impor anggaran</div></div>
           <div class="icon-wrap"><i class="bi bi-piggy-bank"></i></div>
         </div>
       </div>
@@ -2288,8 +2531,10 @@ function onNilaiBrutoInput() {
           <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
           <button class="btn btn-sm btn-outline-success" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-file-earmark-excel me-1"></i>Ekspor</button>
           <button class="btn btn-sm btn-outline-primary" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
         </div>
       </div>
+      <div class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke kiri/kanan untuk melihat semua kolom</div>
       <div class="table-wrapper">
         <table class="table table-hover">
           <thead>
@@ -2406,6 +2651,7 @@ function onNilaiBrutoInput() {
 
 <!-- ═══════════════ KAS BELANJA APP ═══════════════ -->
 <div id="kas-app-shell">
+  <div class="sidebar-backdrop" data-for="kas" onclick="closeMobileSidebar()"></div>
   <div id="kas-sidebar">
     <div class="kas-sidebar-brand">
       <div class="brand-icon"><img src="/assets/portal-zenitsu.png" alt="Realisasi Kas" /></div>
@@ -2461,6 +2707,7 @@ function onNilaiBrutoInput() {
 
   <div id="kas-main">
     <div class="kas-topbar">
+      <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('kas')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
       <div>
         <div class="page-title" id="kas-topbar-title">Dashboard Realisasi</div>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Kas Belanja</li><li class="breadcrumb-item active" id="kas-topbar-crumb">Dashboard</li></ol></nav>
@@ -2863,8 +3110,31 @@ function onNilaiBrutoInput() {
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
+        <div class="alert alert-info py-2 mb-3" style="font-size:12px">
+          <i class="bi bi-info-circle me-1"></i>
+          <strong>Satu anggaran aktif</strong> — setiap impor <em>mengganti</em> seluruh data pagu/kegiatan sebelumnya (bukan menambah).
+          Transaksi yang sudah diinput <strong>tidak dihapus</strong>. Pilih versi anggaran yang sesuai file Excel Anda.
+        </div>
+        <div id="import-anggaran-current" class="mb-3" style="display:none">
+          <span class="badge bg-secondary">Anggaran aktif: <span id="import-anggaran-current-label">—</span></span>
+          <span class="text-muted ms-2" style="font-size:11px" id="import-anggaran-current-detail"></span>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Versi Anggaran</label>
+          <select class="form-select" id="import-anggaran-version">
+            <option value="apbd">APBD (Murni)</option>
+            <option value="pergeseran-1">Pergeseran APBD I</option>
+            <option value="pergeseran-2">Pergeseran APBD II</option>
+            <option value="pergeseran-3">Pergeseran APBD III</option>
+            <option value="apbdp">APBDP (Perubahan)</option>
+            <option value="apbdp-pergeseran-1">APBDP Pergeseran I</option>
+            <option value="apbdp-pergeseran-2">APBDP Pergeseran II</option>
+            <option value="apbdp-pergeseran-3">APBDP Pergeseran III</option>
+          </select>
+          <div class="form-text">Pilih versi yang sama dengan isi file Excel (pergeseran / APBDP).</div>
+        </div>
         <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
-          <div class="form-text mb-0 flex-grow-1">Format kolom: <strong>NAMA KEGIATAN</strong>, KODE SUB KEGIATAN, <strong>NAMA SUB KEGIATAN</strong>, KODE REKENING, NAMA REKENING, <strong>PPTK</strong>, <strong>NIP PPTK</strong>, <strong>ANGGARAN</strong> (pagu). File bawaan: <code>Anggaran.xlsx</code></div>
+          <div class="form-text mb-0 flex-grow-1">Kolom wajib: <strong>NAMA KEGIATAN</strong>, <strong>ANGGARAN</strong> (pagu). Kolom lain: sub kegiatan, kode rekening, pekerjaan, PPTK, NIP PPTK.</div>
           <button type="button" class="btn btn-outline-success btn-sm flex-shrink-0" onclick="downloadTemplateAnggaran()"><i class="bi bi-download me-1"></i>Unduh Template Kosong</button>
         </div>
         <div class="mb-3">
@@ -2917,16 +3187,43 @@ function onNilaiBrutoInput() {
   </div>
 </div>
 
+<!-- Modal Hapus Semua -->
+<div class="modal fade" id="modalHapusSemua" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title text-danger"><i class="bi bi-trash3 me-2"></i>Hapus Semua Transaksi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p>Anda akan menghapus <strong id="hapus-semua-count">0</strong> transaksi sekaligus. Tindakan ini <strong>tidak dapat dibatalkan</strong>.</p>
+        <p class="text-muted mb-2" style="font-size:13px">Ketik <code>HAPUS</code> untuk konfirmasi:</p>
+        <input type="text" class="form-control" id="hapus-semua-confirm-input" placeholder="HAPUS" autocomplete="off" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-danger" id="btn-confirm-hapus-semua" disabled>Hapus Semua</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script>
-const API = (location.hostname === 'sakubijak.com' && location.port !== '8888')
-  ? 'https://sakubijak.com:8888/data'
-  : '/data';
-let appSettings = { pa: {}, bendahara: {}, anggaran_kegiatan: {}, rak: [] };
+const API = '/data';
+let appSettings = { pa: {}, bendahara: {}, anggaran_kegiatan: {}, rak: [], rak_meta: {} };
+
+const RAK_VERSION_LABELS = {
+  'apbd': 'APBD (Murni)',
+  'pergeseran-1': 'Pergeseran APBD I',
+  'pergeseran-2': 'Pergeseran APBD II',
+  'pergeseran-3': 'Pergeseran APBD III',
+  'apbdp': 'APBDP (Perubahan)',
+  'apbdp-pergeseran-1': 'APBDP Pergeseran I',
+  'apbdp-pergeseran-2': 'APBDP Pergeseran II',
+  'apbdp-pergeseran-3': 'APBDP Pergeseran III',
+};
 let importAnggaranData = [];
 let rekapRowsCache = [];
 let rekapTransactionsCache = [];
@@ -2949,7 +3246,7 @@ const PORTAL_APPS = {
   },
   paud: {
     label: 'SIPKEU PAUD & Kesetaraan',
-    desc: 'Sistem Informasi Penatausahaan Keuangan<br>PAUD & Pendidikan Kesetaraan · TA 2026',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>PAUD & Pendidikan Kesetaraan · Tema Inuyasha · TA 2026',
     available: true,
   },
   'kas-belanja': {
@@ -2980,11 +3277,54 @@ function getPortalAppConfig() {
   return SIPKEU_PORTAL_PROFILE[selectedPortalApp] || SIPKEU_PORTAL_PROFILE.sekretariat;
 }
 
+function rakVersionLabel(key) {
+  return RAK_VERSION_LABELS[key] || (key ? String(key).toUpperCase() : 'APBD (Murni)');
+}
+
+function formatRakMetaSummary(meta) {
+  if (!meta?.label && !meta?.version) return '';
+  const label = meta.label || rakVersionLabel(meta.version);
+  const rows = meta.row_count || (appSettings.rak?.length || 0);
+  const parts = [label, rows ? rows + ' baris' : ''];
+  if (meta.imported_at) {
+    try {
+      parts.push(new Date(meta.imported_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }));
+    } catch (_) {}
+  }
+  return parts.filter(Boolean).join(' · ');
+}
+
+function updateRakMetaUI() {
+  const meta = appSettings.rak_meta || {};
+  const summary = formatRakMetaSummary(meta);
+  const paguVer = document.getElementById('stat-pagu-version');
+  if (paguVer) paguVer.textContent = summary || 'Belum ada impor anggaran';
+  const curWrap = document.getElementById('import-anggaran-current');
+  const curLabel = document.getElementById('import-anggaran-current-label');
+  const curDetail = document.getElementById('import-anggaran-current-detail');
+  if (curWrap && curLabel) {
+    if (summary) {
+      curWrap.style.display = '';
+      curLabel.textContent = meta.label || rakVersionLabel(meta.version);
+      if (curDetail) {
+        curDetail.textContent = [
+          meta.row_count ? meta.row_count + ' baris RAK' : '',
+          meta.total_anggaran ? formatRupiah(meta.total_anggaran) : '',
+        ].filter(Boolean).join(' · ');
+      }
+    } else {
+      curWrap.style.display = 'none';
+    }
+  }
+}
+
 function showPortal() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.body.classList.remove('theme-inuyasha');
+  document.getElementById('login-screen')?.classList.remove('theme-inuyasha');
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
 }
@@ -2995,6 +3335,7 @@ function showLogin(appKey) {
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   document.getElementById('login-app-label').textContent = app.label;
   document.getElementById('login-app-desc').innerHTML = app.desc;
+  document.getElementById('login-screen')?.classList.toggle('theme-inuyasha', selectedPortalApp === 'paud');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -3220,6 +3561,20 @@ function playBreathSlash() {
   setTimeout(() => overlay.classList.remove('active'), 600);
 }
 
+function closeMobileSidebar() {
+  document.body.classList.remove('sidebar-open', 'kas-sidebar-open');
+}
+
+function toggleMobileSidebar(which) {
+  if (which === 'kas') {
+    document.body.classList.toggle('kas-sidebar-open');
+    document.body.classList.remove('sidebar-open');
+  } else {
+    document.body.classList.toggle('sidebar-open');
+    document.body.classList.remove('kas-sidebar-open');
+  }
+}
+
 function showPage(name, el) {
   if (!isAdmin() && name !== 'transaksi') {
     return showPage('transaksi', document.getElementById('nav-transaksi'));
@@ -3240,6 +3595,7 @@ function showPage(name, el) {
   if (name === 'transaksi') loadTransaksi();
   if (name === 'rekap') loadRekap();
   if (name === 'pengaturan') { loadSettings(); fillSettingsForm(); }
+  closeMobileSidebar();
   return false;
 }
 
@@ -3258,7 +3614,7 @@ function generateNoBPK(tanggal) {
   const cfg = getPortalAppConfig();
   let maxSeq = 0;
   for (const t of allTransactions) {
-    if (editingId && t.id === editingId) continue;
+    if (editingId != null && t.id === editingId) continue;
     maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
   }
   const seq = String(maxSeq + 1).padStart(4, '0');
@@ -3278,7 +3634,7 @@ function hasTrxFormInput() {
 }
 
 function updateNoBPK() {
-  if (editingId) return;
+  if (editingId != null) return;
   const el = document.getElementById('f-nobpk');
   if (!el) return;
   if (!hasTrxFormInput()) {
@@ -3293,14 +3649,14 @@ function initTrxFormBpkListeners() {
   if (!form || form.dataset.bpkListen) return;
   form.dataset.bpkListen = '1';
   form.addEventListener('input', e => {
-    if (editingId) return;
+    if (editingId != null) return;
     const id = e.target?.id || '';
     if (['f-penerima', 'f-nobast', 'f-nokontrak', 'f-uraian', 'f-nilai', 'f-ntpn', 'f-kbilling', 'f-ntb'].includes(id)) {
       updateNoBPK();
     }
   });
   form.addEventListener('change', e => {
-    if (editingId) return;
+    if (editingId != null) return;
     const id = e.target?.id || '';
     if (['f-tanggal', 'f-kegiatan', 'f-subkegiatan', 'f-pekerjaan'].includes(id)) {
       updateNoBPK();
@@ -3486,11 +3842,11 @@ function applyPptkRaceTheme() {
   const head = document.querySelector('.op-race-panel .op-race-head h6');
   if (head) {
     head.innerHTML = isPaud
-      ? '<i class="bi bi-shield-shaded me-1"></i> Konoha Race — Belanja PPTK'
+      ? '<i class="bi bi-gem me-1"></i> Shikon Quest — Belanja PPTK'
       : '<i class="bi bi-trophy-fill me-1"></i> Grand Line Race — Belanja PPTK';
   }
   const badge = document.querySelector('.op-race-badge');
-  if (badge) badge.textContent = isPaud ? 'Konoha' : 'Grand Line';
+  if (badge) badge.textContent = isPaud ? 'Sengoku' : 'Grand Line';
 }
 
 function pptkRunnerHash(pptkName) {
@@ -3546,9 +3902,9 @@ function renderOpPptkRaceChart(pptkStats) {
   applyPptkRaceTheme();
   const runnerSet = getPptkRunnerSet();
   const isPaud = selectedPortalApp === 'paud';
-  const wantedLabel = isPaud ? '🍃 SHINOBI' : '☠ WANTED';
+  const wantedLabel = isPaud ? '💎 SHIKON' : '☠ WANTED';
   const emptyMsg = isPaud
-    ? 'Belum ada data belanja PPTK — tambah transaksi untuk memulai Konoha Race!'
+    ? 'Belum ada data belanja PPTK — tambah transaksi untuk memulai Shikon Quest!'
     : 'Belum ada data belanja PPTK — tambah transaksi untuk memulai lomba Grand Line!';
 
   const enriched = pptkStats.map(p => {
@@ -3752,7 +4108,7 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     pekerjaanText = d.pekerjaan; kodeRek = d.kode; pptkNama = d.pptk;
   }
   const pptkFinal = pptkNama || document.getElementById('f-pptk').value;
-  if (!editingId) updateNoBPK();
+  if (editingId == null) updateNoBPK();
   recalcAllPotonganRows();
 
   const paguInfo = getSisaPaguFormInfo();
@@ -3799,8 +4155,8 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
   const btn = document.getElementById('btn-submit');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
   let url = API+'/transactions', method='POST';
-  if (editingId) { url += '/'+editingId; method='PUT'; }
-  const wasEdit = !!editingId;
+  if (editingId != null) { url += '/'+editingId; method='PUT'; }
+  const wasEdit = editingId != null;
   await apiFetch(url, { method, body: JSON.stringify(payload) });
   btn.disabled = false; resetForm();
   await loadTransaksi();
@@ -3886,13 +4242,75 @@ function editTrx(id) {
 
 function confirmHapus(id) {
   deleteId = id;
-  new bootstrap.Modal(document.getElementById('modalHapus')).show();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapus')).show();
 }
+
+async function apiDeleteTransaction(id) {
+  const res = await apiFetch(API + '/transactions/delete', {
+    method: 'POST',
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || ('Gagal hapus (HTTP ' + res.status + ')'));
+  }
+  return res.json().catch(() => ({}));
+}
+
 document.getElementById('btn-confirm-hapus').addEventListener('click', async () => {
-  if (!deleteId) return;
-  await apiFetch(API+'/transactions/'+deleteId, {method:'DELETE'});
-  bootstrap.Modal.getInstance(document.getElementById('modalHapus')).hide();
-  deleteId = null; loadTransaksi();
+  if (deleteId == null) return;
+  const btn = document.getElementById('btn-confirm-hapus');
+  const id = deleteId;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menghapus…';
+  try {
+    await apiDeleteTransaction(id);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapus')).hide();
+    deleteId = null;
+    await loadTransaksi();
+  } catch (e) {
+    alert(e.message || 'Gagal menghapus transaksi.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Hapus';
+  }
+});
+
+function confirmHapusSemua() {
+  if (!isAdmin()) { alert('Hanya Administrator yang dapat menghapus semua transaksi.'); return; }
+  const n = allTransactions.length;
+  if (!n) { alert('Tidak ada transaksi untuk dihapus.'); return; }
+  document.getElementById('hapus-semua-count').textContent = n;
+  const inp = document.getElementById('hapus-semua-confirm-input');
+  const btn = document.getElementById('btn-confirm-hapus-semua');
+  if (inp) inp.value = '';
+  if (btn) btn.disabled = true;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapusSemua')).show();
+  setTimeout(() => inp?.focus(), 300);
+}
+
+document.getElementById('hapus-semua-confirm-input')?.addEventListener('input', function() {
+  const btn = document.getElementById('btn-confirm-hapus-semua');
+  if (btn) btn.disabled = this.value.trim().toUpperCase() !== 'HAPUS';
+});
+
+document.getElementById('btn-confirm-hapus-semua')?.addEventListener('click', async () => {
+  const btn = document.getElementById('btn-confirm-hapus-semua');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menghapus…';
+  try {
+    const res = await apiFetch(API + '/transactions/delete-all', { method: 'POST', body: '{}' });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Gagal hapus semua');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapusSemua')).hide();
+    await loadTransaksi();
+    alert(result.message || 'Semua transaksi berhasil dihapus.');
+  } catch (e) {
+    alert(e.message || 'Gagal menghapus semua transaksi.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Hapus Semua';
+  }
 });
 
 // ── Kwitansi ──────────────────────────────────────────────────────────────
@@ -4172,11 +4590,16 @@ function doCetak() {
 async function loadSettings() {
   try {
     const res = await apiFetch(API + '/settings');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ('HTTP ' + res.status));
+    }
     appSettings = await res.json() || appSettings;
     if (appSettings.pa) DB.pa = appSettings.pa;
     if (appSettings.bendahara) DB.bendahara = appSettings.bendahara;
     if (!appSettings.anggaran_kegiatan) appSettings.anggaran_kegiatan = {};
     applyRakFromServer(appSettings.rak);
+    updateRakMetaUI();
     applyPejabatUI();
   } catch (e) { console.warn('Gagal memuat pengaturan:', e); }
 }
@@ -4184,6 +4607,15 @@ async function loadSettings() {
 function applyPortalBranding() {
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   const cfg = getPortalAppConfig();
+  const isPaud = selectedPortalApp === 'paud';
+  document.body.classList.toggle('theme-inuyasha', isPaud);
+  document.getElementById('login-screen')?.classList.toggle('theme-inuyasha', isPaud);
+  const brandIcon = document.getElementById('sidebar-brand-icon');
+  if (brandIcon) {
+    brandIcon.innerHTML = isPaud
+      ? '<i class="bi bi-gem"></i>'
+      : '<i class="bi bi-suit-spade-fill"></i>';
+  }
   const sidebarTitle = document.getElementById('sidebar-app-title');
   const topbarApp = document.getElementById('topbar-app-name');
   if (sidebarTitle) sidebarTitle.textContent = app.label;
@@ -5176,9 +5608,15 @@ async function doImpor() {
 }
 
 // ── Impor Anggaran & Kegiatan ─────────────────────────────────────────────
+function normAnggaranHeader(h) {
+  return String(h || '').trim().toUpperCase().replace(/\s+/g, ' ');
+}
+
 function parseAnggaranNumber(v) {
-  if (typeof v === 'number') return v;
-  const s = String(v || '').trim();
+  if (typeof v === 'number' && isFinite(v)) return v;
+  let s = String(v ?? '').trim();
+  if (!s) return 0;
+  s = s.replace(/^Rp\.?\s*/i, '').replace(/\u00a0/g, ' ').trim();
   if (!s) return 0;
   let cleaned = s;
   if ((cleaned.match(/\./g) || []).length > 1) {
@@ -5187,6 +5625,63 @@ function parseAnggaranNumber(v) {
     cleaned = cleaned.replace(/\./g, '').replace(',', '.');
   }
   return parseFloat(cleaned) || 0;
+}
+
+function findAnggaranHeaderRowIndex(rows) {
+  for (let r = 0; r < Math.min(20, rows.length); r++) {
+    const cells = (rows[r] || []).map(normAnggaranHeader);
+    if (cells.some(h => h.includes('NAMA KEGIATAN') || h === 'KEGIATAN' || h.includes('URAIAN KEGIATAN'))) {
+      return r;
+    }
+  }
+  return 0;
+}
+
+function colExactAnggaran(header, ...names) {
+  for (const n of names) {
+    const i = header.indexOf(String(n).toUpperCase());
+    if (i >= 0) return i;
+  }
+  return -1;
+}
+
+function colContainsAnggaran(header, ...needles) {
+  for (let i = 0; i < header.length; i++) {
+    const h = header[i];
+    if (!h) continue;
+    if (/SUB KEG|KODE REK|NIP|NO\.|NOMOR|TAHUN|BULAN|SIFAT|SKPD|OPD/i.test(h) && !/ANGGARAN|PAGU|JUMLAH|NILAI|TOTAL|BIAYA/i.test(h)) continue;
+    for (const n of needles) {
+      if (h.includes(String(n).toUpperCase())) return i;
+    }
+  }
+  return -1;
+}
+
+function findAnggaranColumnIndex(header, dataRows) {
+  const candidates = new Set();
+  const exact = colExactAnggaran(header, 'ANGGARAN', 'PAGU ANGGARAN', 'JUMLAH ANGGARAN', 'NILAI ANGGARAN', 'TOTAL ANGGARAN', 'JUMLAH BIAYA', 'PAGU');
+  if (exact >= 0) candidates.add(exact);
+  for (let i = 0; i < header.length; i++) {
+    const h = header[i];
+    if (!h) continue;
+    if (/ANGGARAN|PAGU|JUMLAH|NILAI|TOTAL|BIAYA|VOLUME|RPA/i.test(h) && !/SUB KEG|KODE REK|NIP PPTK|RENCANA|INDIKATOR/i.test(h)) {
+      candidates.add(i);
+    }
+  }
+  if (!candidates.size) return -1;
+  const sample = dataRows.slice(0, Math.min(40, dataRows.length));
+  let best = -1, bestScore = -1;
+  for (const col of candidates) {
+    let hits = 0, total = 0;
+    for (const row of sample) {
+      const v = parseAnggaranNumber(row[col]);
+      if (v > 0) { hits++; total += v; }
+    }
+    const headerBonus = /ANGGARAN|PAGU|JUMLAH|NILAI|TOTAL/i.test(header[col] || '') ? 100 : 0;
+    const score = hits * 10000 + Math.min(total, 1e15) / 1e6 + headerBonus;
+    if (score > bestScore) { bestScore = score; best = col; }
+  }
+  return best;
 }
 
 function normalizeAnggaranUnit(rak) {
@@ -5198,28 +5693,33 @@ function normalizeAnggaranUnit(rak) {
 }
 
 function parseAnggaranSheet(rows) {
-  const header = rows[0].map(h => String(h || '').trim().toUpperCase());
-  const idx = (...names) => {
-    for (const n of names) {
-      const i = header.indexOf(String(n).toUpperCase());
-      if (i >= 0) return i;
-    }
-    return -1;
-  };
-  const iKeg = idx('NAMA KEGIATAN');
+  if (!rows?.length) throw new Error('File kosong');
+  const headerRow = findAnggaranHeaderRowIndex(rows);
+  const header = (rows[headerRow] || []).map(normAnggaranHeader);
+  const dataRows = rows.slice(headerRow + 1);
+  const idx = (...names) => colExactAnggaran(header, ...names);
+  const idxContains = (...names) => colContainsAnggaran(header, ...names);
+
+  let iKeg = idx('NAMA KEGIATAN', 'KEGIATAN', 'URAIAN KEGIATAN');
+  if (iKeg < 0) iKeg = idxContains('NAMA KEGIATAN', 'KEGIATAN');
   const iSubKode = idx('KODE SUB KEGIATAN');
-  const iSubNama = idx('NAMA SUB KEGIATAN');
-  const iKodeRek = idx('KODE REKENING');
-  const iNamaRek = idx('NAMA REKENING', 'PEKERJAAN');
-  const iPPTK = idx('PPTK', 'NAMA PPTK');
-  const iPPTKNip = idx('NIP PPTK');
-  const iAnggaran = idx('ANGGARAN', 'PAGU');
-  if (iKeg < 0 || iAnggaran < 0) {
-    throw new Error('Kolom wajib tidak ditemukan: NAMA KEGIATAN dan ANGGARAN');
-  }
+  let iSubNama = idx('NAMA SUB KEGIATAN', 'SUB KEGIATAN', 'URAIAN SUB KEGIATAN');
+  if (iSubNama < 0) iSubNama = idxContains('SUB KEGIATAN');
+  let iKodeRek = idx('KODE REKENING', 'KODE REK');
+  if (iKodeRek < 0) iKodeRek = idxContains('KODE REKENING', 'KODE REK');
+  let iNamaRek = idx('NAMA REKENING', 'PEKERJAAN', 'URAIAN REKENING');
+  if (iNamaRek < 0) iNamaRek = idxContains('NAMA REKENING', 'PEKERJAAN', 'URAIAN REKENING');
+  let iPPTK = idx('PPTK', 'NAMA PPTK');
+  if (iPPTK < 0) iPPTK = idxContains('PPTK');
+  let iPPTKNip = idx('NIP PPTK', 'NIP');
+  const iAnggaran = findAnggaranColumnIndex(header, dataRows);
+
+  if (iKeg < 0) throw new Error('Kolom NAMA KEGIATAN tidak ditemukan. Pastikan baris header berisi kolom kegiatan.');
+  if (iAnggaran < 0) throw new Error('Kolom ANGGARAN/PAGU tidak ditemukan. Kolom pagu harus berisi angka (contoh: ANGGARAN, PAGU, JUMLAH ANGGARAN).');
+
   const get = (row, i) => (i < 0 || i >= row.length ? '' : String(row[i] ?? '').trim());
   const rak = [];
-  for (const row of rows.slice(1)) {
+  for (const row of dataRows) {
     const kegiatan = get(row, iKeg);
     if (!kegiatan) continue;
     let sub = get(row, iSubNama);
@@ -5242,7 +5742,8 @@ function showModalImporAnggaran() {
   document.getElementById('import-anggaran-file').value = '';
   document.getElementById('import-anggaran-preview').style.display = 'none';
   document.getElementById('btn-confirm-impor-anggaran').style.display = 'none';
-  new bootstrap.Modal(document.getElementById('modalImporAnggaran')).show();
+  updateRakMetaUI();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImporAnggaran')).show();
 }
 
 function downloadTemplateAnggaran() {
@@ -5289,6 +5790,11 @@ function previewImporAnggaran(event) {
         return;
       }
       const totalPagu = importAnggaranData.reduce((s, r) => s + (r.anggaran || 0), 0);
+      if (totalPagu <= 0) {
+        showImportAnggaranAlert('<i class="bi bi-exclamation-triangle me-1"></i><strong>Kolom pagu/anggaran tidak terbaca</strong> — nama kegiatan ditemukan, tetapi nilai anggaran semua 0. Periksa kolom pagu (ANGGARAN, PAGU, JUMLAH ANGGARAN, dll.) atau unduh template kosong.', 'danger');
+        document.getElementById('btn-confirm-impor-anggaran').style.display = 'none';
+        return;
+      }
       const kegiatanSet = new Set(importAnggaranData.map(r => r.kegiatan));
       document.getElementById('import-anggaran-stats').innerHTML = `
         <div class="col-md-4"><div class="stat-card p-2 text-center"><div style="font-size:11px;color:#64748b">Baris RAK</div><div style="font-weight:700">${importAnggaranData.length}</div></div></div>
@@ -5314,28 +5820,52 @@ function previewImporAnggaran(event) {
 
 async function doImporAnggaran() {
   if (!importAnggaranData.length) return;
+  const version = document.getElementById('import-anggaran-version')?.value || 'apbd';
+  const versionLabel = rakVersionLabel(version);
+  const curMeta = appSettings.rak_meta || {};
+  const curSummary = formatRakMetaSummary(curMeta) || 'belum ada';
+  const newTotal = importAnggaranData.reduce((s, r) => s + (r.anggaran || 0), 0);
+  const msg = [
+    `Impor anggaran: ${versionLabel}`,
+    `${importAnggaranData.length} baris · ${formatRupiah(newTotal)}`,
+    '',
+    'Impor ini akan MENGGANTI seluruh data pagu/kegiatan aktif:',
+    `  Sekarang: ${curSummary}`,
+    `  Menjadi:  ${versionLabel} (${importAnggaranData.length} baris)`,
+    '',
+    'Transaksi yang sudah diinput TIDAK dihapus.',
+    'Lanjutkan?'
+  ].join('\n');
+  if (!confirm(msg)) return;
+
   const btn = document.getElementById('btn-confirm-impor-anggaran');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
   try {
     const res = await apiFetch(API + '/import/anggaran', {
       method: 'POST',
-      body: JSON.stringify({ rak: importAnggaranData }),
+      body: JSON.stringify({
+        rak: importAnggaranData,
+        version,
+        version_label: versionLabel,
+      }),
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Import gagal');
     appSettings.rak = result.rak || importAnggaranData;
     appSettings.anggaran_kegiatan = result.anggaran_kegiatan || {};
+    appSettings.rak_meta = result.rak_meta || appSettings.rak_meta;
     applyRakFromServer(appSettings.rak);
     refreshKegiatanDropdown();
-    bootstrap.Modal.getInstance(document.getElementById('modalImporAnggaran')).hide();
+    updateRakMetaUI();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImporAnggaran')).hide();
     if (document.getElementById('page-dashboard')?.classList.contains('active')) {
       await loadDashboard();
     }
     if (document.getElementById('page-rekap')?.classList.contains('active')) {
       await loadRekap();
     }
-    alert(result.message || `${result.total_baris || importAnggaranData.length} baris kegiatan berhasil diimpor.`);
+    alert(result.message || `${versionLabel} — ${result.total_baris || importAnggaranData.length} baris berhasil diimpor.`);
   } catch (err) {
     alert('Gagal mengimpor anggaran: ' + err.message);
   } finally {
@@ -6043,6 +6573,7 @@ function showKasPage(page, navEl) {
   document.getElementById('kas-topbar-crumb').textContent = titles[page] || page;
   if (page === 'laporan') { initKasTglCetak(); renderKasLaporanPreview(); }
   if (page === 'dashboard') renderKasFlameChart();
+  closeMobileSidebar();
 }
 
 function onKasBulanChange() {

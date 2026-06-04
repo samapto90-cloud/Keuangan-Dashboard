@@ -114,6 +114,7 @@ type AppSettings struct {
         Bendahara        Pejabat            `json:"bendahara"`
         AnggaranKegiatan map[string]float64 `json:"anggaran_kegiatan"`
         Rak              []RakRow           `json:"rak"`
+        RakMeta          RakMeta            `json:"rak_meta"`
 }
 
 func normalizeTransactionTax(t *Transaction) {
@@ -267,26 +268,67 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusOK, updated)
 
         case http.MethodDelete:
-                mod.mu.Lock()
-                found := false
-                for i, t := range mod.txs {
-                        if t.ID == id {
-                                mod.txs = append(mod.txs[:i], mod.txs[i+1:]...)
-                                found = true
-                                break
-                        }
-                }
-                mod.mu.Unlock()
-                if !found {
-                        jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
-                        return
-                }
-                persistModule(mod)
-                jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
+                deleteTransactionByID(w, mod, id)
 
         default:
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
         }
+}
+
+func deleteTransactionByID(w http.ResponseWriter, mod *SipkeuModule, id int) {
+        mod.mu.Lock()
+        found := false
+        for i, t := range mod.txs {
+                if t.ID == id {
+                        mod.txs = append(mod.txs[:i], mod.txs[i+1:]...)
+                        found = true
+                        break
+                }
+        }
+        mod.mu.Unlock()
+        if !found {
+                jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
+                return
+        }
+        persistModule(mod)
+        jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
+}
+
+func handleDeleteTransaction(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+                return
+        }
+        if getSession(r) == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        var payload struct {
+                ID int `json:"id"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+                return
+        }
+        mod := moduleFromRequest(r)
+        deleteTransactionByID(w, mod, payload.ID)
+}
+
+func handleDeleteAllTransactions(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+                return
+        }
+        mod := moduleFromRequest(r)
+        mod.mu.Lock()
+        count := len(mod.txs)
+        mod.txs = []Transaction{}
+        mod.mu.Unlock()
+        persistModule(mod)
+        jsonResponse(w, http.StatusOK, map[string]interface{}{
+                "deleted": count,
+                "message": fmt.Sprintf("%d transaksi berhasil dihapus", count),
+        })
 }
 
 func handleImport(w http.ResponseWriter, r *http.Request) {
@@ -438,6 +480,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
                         Bendahara:        mod.settings.Bendahara,
                         AnggaranKegiatan: copyAnggaran,
                         Rak:              rakCopy,
+                        RakMeta:          mod.settings.RakMeta,
                 }
                 mod.mu.Unlock()
                 jsonResponse(w, http.StatusOK, out)
@@ -628,6 +671,8 @@ func main() {
 
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
+        mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
+        mux.HandleFunc("/data/transactions/delete-all", cors(requireAdmin(handleDeleteAllTransactions)))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
         mux.HandleFunc("/data/settings", cors(handleSettings))
@@ -647,6 +692,7 @@ func main() {
 
         if !moduleHasData(sek) {
                 addSampleData(sek)
+                normalizeModuleIDs(sek)
                 persistModule(sek)
         }
         tryLoadDefaultAnggaran()
