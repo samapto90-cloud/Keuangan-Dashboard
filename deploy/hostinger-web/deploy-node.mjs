@@ -75,6 +75,10 @@ conn
       });
       await exec(conn, "mv -f ~/sipkeu/keuangan.new ~/sipkeu/keuangan && chmod +x ~/sipkeu/keuangan");
       await exec(conn, "for f in ~/hostinger-web/start-remote.sh ~/hostinger-web/.env; do [ -f \"$f\" ] && perl -pi -e 's/\\r\\n/\\n/g' \"$f\" 2>/dev/null || sed -i 's/\\r$//' \"$f\" 2>/dev/null || true; done");
+      console.log("==> Verify public_html proxy");
+      const pub = "~/domains/sakubijak.com/public_html";
+      await exec(conn, `[ -f ${pub}/index.php ] || (echo "ERROR: ${pub}/index.php hilang — jangan taruh git clone di public_html" && exit 1)`);
+      await exec(conn, `[ -f ${pub}/.htaccess ] || (echo "ERROR: ${pub}/.htaccess hilang" && exit 1)`);
       console.log("==> Start SIPKEU");
       await exec(conn, "bash ~/hostinger-web/start-remote.sh");
       console.log("\nDeploy OK: https://sakubijak.com:8888");

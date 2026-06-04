@@ -6,7 +6,7 @@
   <title>SIPKEU Portal — Dinas Pendidikan Kota Batam</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -970,9 +970,92 @@
     .portal-app-card.portal-theme-chakra .portal-app-icon {
       border-color: rgba(236,72,153,.45); box-shadow: 0 0 20px rgba(236,72,153,.2);
     }
-    .portal-app-card.portal-theme-leaf .portal-app-icon {
-      border-color: rgba(251,191,36,.45); box-shadow: 0 0 20px rgba(251,191,36,.2);
+    .portal-app-card.portal-theme-gundam .portal-app-icon {
+      border-color: rgba(59,130,246,.55); box-shadow: 0 0 24px rgba(37,99,235,.35), inset 0 0 16px rgba(220,38,38,.12);
     }
+    .portal-app-card.portal-theme-gundam {
+      border-color: rgba(59,130,246,.35);
+      background: linear-gradient(145deg, rgba(30,58,138,.28) 0%, rgba(15,23,42,.92) 48%, rgba(127,29,29,.14) 100%);
+    }
+    .portal-app-card.portal-theme-gundam:hover {
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 12px 40px rgba(37,99,235,.28), 0 0 32px rgba(220,38,38,.15);
+    }
+    .portal-app-card.portal-theme-gundam .portal-app-action { color: #60a5fa; }
+    .portal-app-card.portal-theme-gundam h3 {
+      font-family: 'Orbitron', 'Outfit', sans-serif;
+      letter-spacing: .5px;
+      text-shadow: 0 0 20px rgba(59,130,246,.35);
+    }
+    .gundam-helmet-icon {
+      position: relative;
+      background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 38%, #64748b 100%);
+      display: block;
+    }
+    .gundam-helmet-icon::before {
+      content: '';
+      position: absolute; top: 6%; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-bottom: 16px solid #dc2626;
+      filter: drop-shadow(0 0 4px rgba(220,38,38,.6));
+    }
+    .gundam-helmet-icon::after {
+      content: '';
+      position: absolute; top: 44%; left: 20%; right: 20%; height: 26%;
+      background: linear-gradient(180deg, #1e3a8a, #2563eb 55%, #22d3ee);
+      border-radius: 3px;
+      box-shadow: 0 0 10px rgba(34,211,238,.75);
+    }
+    .portal-app-icon.gundam-helmet-icon { border-radius: 14px; }
+    .kas-sidebar-brand .brand-icon.gundam-helmet-icon { border-radius: 14px; }
+
+    /* ── Tema Gundam (Realisasi Kas Belanja) ── */
+    body.theme-gundam {
+      --gundam-blue: #2563eb;
+      --gundam-blue-light: #60a5fa;
+      --gundam-red: #dc2626;
+      --gundam-white: #e2e8f0;
+      --gundam-hud: #22d3ee;
+    }
+    body.theme-gundam .fx-vignette {
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(37,99,235,.14) 0%, transparent 38%),
+        radial-gradient(ellipse at 20% 55%, rgba(220,38,38,.12) 0%, transparent 42%),
+        radial-gradient(ellipse at 80% 50%, rgba(34,211,238,.08) 0%, transparent 40%),
+        radial-gradient(ellipse at center, transparent 22%, rgba(0,0,0,.65) 100%);
+    }
+    body.theme-gundam .login-card {
+      border-color: rgba(59,130,246,.28);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 0 40px rgba(37,99,235,.14);
+    }
+    body.theme-gundam .login-brand h4 {
+      font-family: 'Orbitron', 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #fff, #bfdbfe, #fca5a5);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-gundam .login-app-label {
+      background: rgba(37,99,235,.15); color: #93c5fd;
+      border-color: rgba(59,130,246,.35);
+    }
+    body.theme-gundam .login-role-hint strong { color: #60a5fa; }
+    body.theme-gundam .login-back-portal:hover { color: #60a5fa; }
+    body.theme-gundam .btn-primary,
+    body.theme-gundam #btn-login.btn-primary {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+      box-shadow: 0 4px 20px rgba(37,99,235,.45) !important;
+    }
+    body.theme-gundam #kas-app-shell {
+      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,.1) 0%, transparent 55%);
+    }
+    body.theme-gundam .text-warning { color: #60a5fa !important; }
+    body.theme-gundam .btn-warning {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+      border-color: rgba(96,165,250,.45) !important;
+      color: #fff !important;
+    }
+
     .portal-app-card.portal-theme-inuyasha {
       border-color: rgba(196,30,58,.45);
       background: linear-gradient(145deg, rgba(88,28,135,.22) 0%, rgba(26,15,30,.92) 45%, rgba(127,29,29,.18) 100%);
@@ -1206,42 +1289,45 @@
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
 
-    /* ── Kas Belanja App ── */
+    /* ── Kas Belanja App — Gundam RX-78 Theme ── */
     :root {
-      --kas-gold: #fbbf24;
-      --kas-gold-glow: rgba(251,191,36,.35);
+      --kas-gold: #3b82f6;
+      --kas-gold-glow: rgba(59,130,246,.35);
+      --kas-red: #dc2626;
+      --kas-hud: #22d3ee;
       --kas-sidebar-width: 268px;
     }
     #kas-app-shell { min-height: 100vh; position: relative; z-index: 2; }
     #kas-sidebar {
       position: fixed; top: 0; left: 0; width: var(--kas-sidebar-width); height: 100vh;
-      background: linear-gradient(180deg, #0a0e1a 0%, #12182b 48%, #0f1528 100%);
-      border-right: 1px solid rgba(251,191,36,.12);
+      background: linear-gradient(180deg, #0a0f1a 0%, #0f172a 48%, #111827 100%);
+      border-right: 1px solid rgba(59,130,246,.14);
       box-shadow: 4px 0 40px rgba(0,0,0,.45);
       display: flex; flex-direction: column; z-index: 1000;
       color: #94a3b8;
     }
     #kas-sidebar::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, #fbbf24, #f59e0b, transparent);
+      background: linear-gradient(90deg, transparent, #dc2626, #3b82f6, #22d3ee, transparent);
     }
     .kas-sidebar-brand {
-      padding: 20px 18px 18px; border-bottom: 1px solid rgba(251,191,36,.1);
+      padding: 20px 18px 18px; border-bottom: 1px solid rgba(59,130,246,.12);
       display: flex; align-items: center; gap: 14px; flex-shrink: 0;
     }
     .kas-sidebar-brand .brand-icon {
       width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; overflow: hidden;
-      border: 2px solid rgba(251,191,36,.45);
-      box-shadow: 0 0 24px rgba(251,191,36,.25);
+      border: 2px solid rgba(59,130,246,.5);
+      box-shadow: 0 0 24px rgba(59,130,246,.28);
     }
     .kas-sidebar-brand .brand-icon img {
       width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
     }
     .kas-sidebar-brand h6 {
       margin: 0; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .3px; line-height: 1.3;
+      font-family: 'Orbitron', 'Outfit', sans-serif;
     }
     .kas-sidebar-brand small {
-      display: block; margin-top: 3px; font-size: 10px; color: #fbbf24; letter-spacing: .4px; font-weight: 600;
+      display: block; margin-top: 3px; font-size: 10px; color: #60a5fa; letter-spacing: .4px; font-weight: 600;
     }
     .kas-sidebar-brand .brand-sub {
       font-size: 10px; color: #64748b; margin-top: 2px;
@@ -1249,16 +1335,16 @@
     .kas-sidebar-nav {
       flex: 1; overflow-y: auto; overflow-x: hidden;
       padding: 12px 10px 16px;
-      scrollbar-width: thin; scrollbar-color: rgba(251,191,36,.3) transparent;
+      scrollbar-width: thin; scrollbar-color: rgba(59,130,246,.3) transparent;
     }
     .kas-nav-section { margin-bottom: 18px; }
     .kas-nav-section-title {
       display: flex; align-items: center; gap: 8px;
       font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.8px;
-      color: #fbbf24; padding: 0 12px 8px; opacity: .85;
+      color: #60a5fa; padding: 0 12px 8px; opacity: .85;
     }
     .kas-nav-section-title::after {
-      content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(251,191,36,.25), transparent);
+      content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,130,246,.25), transparent);
     }
     .kas-nav-link {
       display: flex; align-items: center; gap: 12px;
@@ -1278,25 +1364,25 @@
       display: block; font-size: 10px; font-weight: 500; color: #64748b; margin-top: 2px;
     }
     .kas-nav-link:hover {
-      background: rgba(251,191,36,.06); color: #fff; border-color: rgba(251,191,36,.12);
+      background: rgba(59,130,246,.08); color: #fff; border-color: rgba(59,130,246,.14);
       transform: translateX(3px);
     }
     .kas-nav-link:hover .kas-nav-icon {
-      background: rgba(251,191,36,.14); color: #fbbf24;
+      background: rgba(59,130,246,.16); color: #60a5fa;
     }
     .kas-nav-link.active {
-      background: linear-gradient(135deg, rgba(251,191,36,.16), rgba(245,158,11,.08));
-      color: #fff; border-color: rgba(251,191,36,.28);
-      box-shadow: 0 4px 18px rgba(251,191,36,.12), inset 0 1px 0 rgba(255,255,255,.06);
+      background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(220,38,38,.08));
+      color: #fff; border-color: rgba(59,130,246,.3);
+      box-shadow: 0 4px 18px rgba(37,99,235,.14), inset 0 1px 0 rgba(255,255,255,.06);
     }
     .kas-nav-link.active .kas-nav-icon {
-      background: rgba(251,191,36,.22); color: #fbbf24;
-      box-shadow: 0 0 14px rgba(251,191,36,.2);
+      background: rgba(59,130,246,.24); color: #93c5fd;
+      box-shadow: 0 0 14px rgba(59,130,246,.22);
     }
     .kas-nav-link.active::before {
       content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
       width: 3px; height: 55%; border-radius: 0 3px 3px 0;
-      background: linear-gradient(180deg, #fde68a, #f59e0b);
+      background: linear-gradient(180deg, #dc2626, #3b82f6);
     }
     .kas-nav-actions {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 2px;
@@ -1309,30 +1395,30 @@
     }
     .kas-nav-action i { font-size: 18px; color: #94a3b8; }
     .kas-nav-action:hover {
-      background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.25); color: #fff;
+      background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.28); color: #fff;
     }
-    .kas-nav-action:hover i { color: #fbbf24; }
+    .kas-nav-action:hover i { color: #60a5fa; }
     .kas-sidebar-footer {
       flex-shrink: 0; padding: 14px 14px 16px;
-      border-top: 1px solid rgba(251,191,36,.1);
+      border-top: 1px solid rgba(59,130,246,.12);
       background: rgba(7,11,20,.45);
     }
     .kas-user-card {
       display: flex; align-items: center; gap: 10px;
       padding: 10px 12px; margin-bottom: 10px; border-radius: 12px;
-      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.14);
+      background: rgba(37,99,235,.08); border: 1px solid rgba(59,130,246,.16);
     }
     .kas-user-card .kas-user-avatar {
       width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
-      background: linear-gradient(135deg, #fbbf24, #d97706);
-      color: #1a1200; font-size: 12px; font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6, #dc2626);
+      color: #fff; font-size: 12px; font-weight: 800;
       display: grid; place-items: center;
     }
     .kas-user-card .kas-user-name {
       font-size: 11px; font-weight: 700; color: #fff; line-height: 1.3;
     }
     .kas-user-card .kas-user-meta {
-      font-size: 10px; color: #fbbf24; margin-top: 1px;
+      font-size: 10px; color: #60a5fa; margin-top: 1px;
     }
     .kas-sidebar-footer .btn-kas-logout {
       width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(248,113,113,.28);
@@ -1350,24 +1436,25 @@
     }
     #kas-main .kas-topbar {
       background: rgba(10, 15, 30, 0.88); backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(251,191,36,.12);
+      border-bottom: 1px solid rgba(59,130,246,.14);
       padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
       position: sticky; top: 0; z-index: 100; margin-bottom: 0;
       box-shadow: 0 4px 24px rgba(0,0,0,.2);
     }
     #kas-main .kas-topbar .page-title {
       font-size: 20px; font-weight: 800; color: #fff; letter-spacing: .3px;
+      font-family: 'Orbitron', 'Outfit', sans-serif;
     }
     #kas-main .kas-content { padding: 24px 28px 40px; }
     #kas-main .kas-bulan-picker { position: relative; }
     #kas-main .kas-bulan-pill {
       display: flex; align-items: center; gap: 10px;
-      background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.28);
+      background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.28);
       border-radius: 999px; padding: 6px 14px 6px 12px; cursor: pointer;
       transition: all .2s ease; color: inherit;
     }
-    #kas-main .kas-bulan-pill:hover { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.35); }
-    #kas-main .kas-bulan-pill .lbl { font-size: 11px; font-weight: 700; color: #fbbf24; white-space: nowrap; }
+    #kas-main .kas-bulan-pill:hover { background: rgba(59,130,246,.14); border-color: rgba(59,130,246,.38); }
+    #kas-main .kas-bulan-pill .lbl { font-size: 11px; font-weight: 700; color: #60a5fa; white-space: nowrap; }
     #kas-main .kas-bulan-pill .val {
       font-size: 13px; font-weight: 800; white-space: nowrap;
       padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.06);
@@ -1376,7 +1463,7 @@
     #kas-main .kas-bulan-menu {
       display: none; position: absolute; right: 0; top: calc(100% + 8px); z-index: 200;
       min-width: 200px; padding: 8px; border-radius: 14px;
-      background: rgba(12,16,32,.98); border: 1px solid rgba(251,191,36,.2);
+      background: rgba(12,16,32,.98); border: 1px solid rgba(59,130,246,.22);
       box-shadow: 0 16px 40px rgba(0,0,0,.45); backdrop-filter: blur(12px);
     }
     #kas-main .kas-bulan-menu.open { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -1460,9 +1547,9 @@
       font-size: 12px; color: var(--text-muted);
     }
     .kas-laporan-tgl > .bi-calendar3 {
-      color: #fbbf24;
+      color: #60a5fa;
       font-size: 15px;
-      filter: drop-shadow(0 0 5px rgba(251, 191, 36, .45));
+      filter: drop-shadow(0 0 5px rgba(59, 130, 246, .45));
     }
     #kas-app-shell input[type="date"],
     #app-shell input[type="date"] {
@@ -1470,9 +1557,9 @@
       font-weight: 600;
     }
     .kas-laporan-tgl input[type="date"] {
-      background: rgba(251, 191, 36, .12);
-      border: 1px solid rgba(251, 191, 36, .5);
-      color: #fef3c7;
+      background: rgba(59, 130, 246, .12);
+      border: 1px solid rgba(59, 130, 246, .5);
+      color: #dbeafe;
       border-radius: 8px;
       padding: 6px 10px;
       font-size: 12px;
@@ -1486,8 +1573,8 @@
       height: 22px;
       margin-left: 4px;
       border-radius: 6px;
-      background-color: #fbbf24;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a2238' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z'/%3E%3C/svg%3E");
+      background-color: #3b82f6;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230f172a' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: center;
       background-size: 14px 14px;
@@ -1495,11 +1582,11 @@
     }
     #kas-app-shell input[type="date"]::-webkit-calendar-picker-indicator:hover,
     #app-shell input[type="date"]::-webkit-calendar-picker-indicator:hover {
-      background-color: #f59e0b;
+      background-color: #2563eb;
       transform: scale(1.06);
     }
     .kas-laporan-tgl input[type="date"]:focus {
-      outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.2);
+      outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.2);
     }
     #kas-print .kp-page:last-child, #kas-laporan-preview .kp-page:last-child { page-break-after: auto; break-after: auto; }
     #kas-laporan-preview { display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 8px 0; }
@@ -1595,11 +1682,11 @@
     .kas-page.active { display: block; }
     .kas-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .kas-stat {
-      background: rgba(10,14,26,.85); border: 1px solid rgba(251,191,36,.15);
+      background: rgba(10,14,26,.85); border: 1px solid rgba(59,130,246,.18);
       border-radius: 16px; padding: 18px 20px; backdrop-filter: blur(8px);
     }
     .kas-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
-    .kas-stat .val { font-size: 20px; font-weight: 800; color: #fbbf24; margin-top: 6px; }
+    .kas-stat .val { font-size: 20px; font-weight: 800; color: #60a5fa; margin-top: 6px; }
     .kas-stat .sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .kas-card {
       background: rgba(10,14,26,.88); border: 1px solid rgba(148,163,184,.12);
@@ -1616,20 +1703,20 @@
     .kas-table th {
       position: sticky; top: 0; z-index: 2;
       background: #1a2238; color: #e2e8f0; padding: 10px 8px;
-      border-bottom: 2px solid rgba(251,191,36,.3); text-transform: uppercase; font-size: 10px;
+      border-bottom: 2px solid rgba(59,130,246,.32); text-transform: uppercase; font-size: 10px;
     }
     .kas-table td { padding: 8px; border-bottom: 1px solid rgba(148,163,184,.08); vertical-align: middle; }
-    .kas-table tr:hover td { background: rgba(251,191,36,.04); }
+    .kas-table tr:hover td { background: rgba(59,130,246,.05); }
     .kas-table .lvl-0 td:nth-child(2) { font-weight: 800; text-transform: uppercase; }
     .kas-table .lvl-1 td:nth-child(2) { font-weight: 700; padding-left: 16px; }
     .kas-table .lvl-2 td:nth-child(2) { padding-left: 28px; }
-    .kas-table .total-row td { font-weight: 800; background: rgba(251,191,36,.08); }
+    .kas-table .total-row td { font-weight: 800; background: rgba(59,130,246,.08); }
     .kas-table input.kas-input {
       width: 100%; min-width: 110px; background: rgba(15,22,41,.8);
-      border: 1px solid rgba(251,191,36,.25); color: #fff; border-radius: 6px;
+      border: 1px solid rgba(59,130,246,.28); color: #fff; border-radius: 6px;
       padding: 4px 8px; font-size: 11px; text-align: right;
     }
-    .kas-table input.kas-input:focus { outline: none; border-color: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.15); }
+    .kas-table input.kas-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.15); }
     .kas-table input.kas-input.kas-input-locked {
       opacity: .72; cursor: not-allowed;
       background: rgba(15,22,41,.45) !important;
@@ -1640,7 +1727,7 @@
       color: #94a3b8; font-weight: 600; font-variant-numeric: tabular-nums;
       font-size: 11px;
     }
-    tr.total-row .kas-realisasi-calc { color: #fbbf24; font-weight: 800; }
+    tr.total-row .kas-realisasi-calc { color: #60a5fa; font-weight: 800; }
     .kas-realisasi-lock-badge {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 11px; font-weight: 700; color: #4ade80;
@@ -1648,8 +1735,8 @@
       border-radius: 999px; padding: 4px 10px;
     }
     @keyframes kasBtnFlamePulse {
-      0%, 100% { box-shadow: 0 0 10px rgba(249,115,22,.55), 0 0 22px rgba(239,68,68,.35), inset 0 1px 0 rgba(255,255,255,.25); }
-      50% { box-shadow: 0 0 18px rgba(251,191,36,.85), 0 0 36px rgba(239,68,68,.55), inset 0 1px 0 rgba(255,255,255,.35); }
+      0%, 100% { box-shadow: 0 0 10px rgba(37,99,235,.55), 0 0 22px rgba(34,211,238,.35), inset 0 1px 0 rgba(255,255,255,.25); }
+      50% { box-shadow: 0 0 18px rgba(96,165,250,.85), 0 0 36px rgba(220,38,38,.45), inset 0 1px 0 rgba(255,255,255,.35); }
     }
     @keyframes kasBtnFlameShift {
       0%, 100% { background-position: 0% 50%; }
@@ -1657,88 +1744,102 @@
     }
     #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire {
       position: relative; overflow: hidden; z-index: 0;
-      background: linear-gradient(135deg, #7c2d12, #ea580c, #fbbf24, #dc2626, #ea580c) !important;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb, #22d3ee, #dc2626, #2563eb) !important;
       background-size: 240% 240% !important;
       animation: kasBtnFlameShift 2.2s ease infinite, kasBtnFlamePulse 1.4s ease-in-out infinite;
-      border-color: #fb923c !important; color: #fff !important;
+      border-color: #60a5fa !important; color: #fff !important;
       font-weight: 800; text-shadow: 0 1px 4px rgba(0,0,0,.45);
     }
     #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire::before {
       content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
-      background: radial-gradient(ellipse at 50% 120%, rgba(255,120,0,.45) 0%, transparent 65%);
+      background: radial-gradient(ellipse at 50% 120%, rgba(34,211,238,.45) 0%, transparent 65%);
       animation: kasFlameFlicker 1.1s ease-in-out infinite alternate;
       pointer-events: none;
     }
     #btn-kas-perbaiki-realisasi.kas-btn-perbaiki-fire i {
-      filter: drop-shadow(0 0 4px rgba(251,191,36,.9));
+      filter: drop-shadow(0 0 4px rgba(34,211,238,.9));
       animation: kasFlameFlicker 1.6s ease-in-out infinite alternate;
     }
-    .kas-realisasi-pen-wrap { margin-top: 20px; border-top: 1px solid rgba(251,191,36,.15); padding-top: 4px; }
+    .kas-realisasi-pen-wrap { margin-top: 20px; border-top: 1px solid rgba(59,130,246,.16); padding-top: 4px; }
     .kas-pen-table tr.kas-pen-section-title th {
-      background: rgba(251,191,36,.1); color: #fbbf24; font-weight: 800;
+      background: rgba(59,130,246,.12); color: #93c5fd; font-weight: 800;
       text-transform: uppercase; text-align: center; font-size: 12px;
       letter-spacing: .6px; padding: 12px 8px;
-      border-bottom: 2px solid rgba(251,191,36,.28);
+      border-bottom: 2px solid rgba(59,130,246,.28);
     }
-    .kas-pen-table tr.after-total td { border-top: 2px solid rgba(251,191,36,.22); }
+    .kas-pen-table tr.after-total td { border-top: 2px solid rgba(59,130,246,.22); }
     .kas-pen-table tr.lvl-detail td:nth-child(2) { padding-left: 28px; font-size: 10px; }
     .kas-pen-table tr.lvl-detail td:first-child { font-size: 10px; }
     .kas-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .kas-pct-ok { color: #4ade80; font-weight: 700; }
-    .kas-pct-warn { color: #fbbf24; font-weight: 700; }
+    .kas-pct-warn { color: #60a5fa; font-weight: 700; }
     .kas-pct-over { color: #f87171; font-weight: 700; }
-    /* ── Kas flame dashboard chart (Demon Slayer / Breathing Flame theme) ── */
+    /* ── Kas HUD chart (Gundam / Beam Scanner theme) ── */
     @keyframes kasFlameFlicker {
       0% { opacity: .55; transform: scaleY(1); }
-      100% { opacity: .95; transform: scaleY(1.06); }
+      100% { opacity: .95; transform: scaleY(1.04); }
     }
     @keyframes kasEmberFloat {
       0% { transform: translateY(0) scale(1); opacity: .8; }
       100% { transform: translateY(-18px) scale(.6); opacity: 0; }
     }
+    @keyframes kasHudScan {
+      0% { transform: translateY(-100%); opacity: 0; }
+      15% { opacity: .35; }
+      100% { transform: translateY(340px); opacity: 0; }
+    }
     .kas-flame-panel {
       position: relative; overflow: hidden;
-      background: linear-gradient(165deg, #120608 0%, #1f0a0a 35%, #1a2238 100%);
-      border: 2px solid rgba(255, 80, 0, .35);
+      background: linear-gradient(165deg, #0a0f1a 0%, #0f172a 35%, #111827 100%);
+      border: 2px solid rgba(59,130,246,.35);
       border-radius: 20px; padding: 22px 22px 16px; margin-bottom: 20px;
-      box-shadow: 0 0 48px rgba(255, 69, 0, .12), inset 0 -40px 80px rgba(255, 100, 0, .06);
+      box-shadow: 0 0 48px rgba(37,99,235,.14), inset 0 -40px 80px rgba(34,211,238,.04);
     }
     .kas-flame-panel::before {
       content: ''; position: absolute; bottom: -20px; left: 0; right: 0; height: 140px;
-      background: radial-gradient(ellipse at 50% 100%, rgba(255,69,0,.35) 0%, rgba(220,38,38,.12) 40%, transparent 72%);
+      background: radial-gradient(ellipse at 50% 100%, rgba(37,99,235,.28) 0%, rgba(220,38,38,.1) 40%, transparent 72%);
       pointer-events: none; animation: kasFlameFlicker 2.4s ease-in-out infinite alternate;
     }
     .kas-flame-panel::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, #f97316, #fbbf24, #ef4444, transparent);
-      opacity: .7;
+      background: linear-gradient(90deg, transparent, #dc2626, #3b82f6, #22d3ee, transparent);
+      opacity: .75;
     }
     .kas-flame-head {
       display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
       gap: 12px; margin-bottom: 16px; position: relative; z-index: 1;
     }
     .kas-flame-head h6 {
-      margin: 0; font-weight: 800; font-size: 15px; color: #fef3c7;
-      text-shadow: 0 0 20px rgba(251, 191, 36, .45);
+      margin: 0; font-weight: 800; font-size: 15px; color: #dbeafe;
+      text-shadow: 0 0 20px rgba(59, 130, 246, .45);
+      font-family: 'Orbitron', 'Outfit', sans-serif;
     }
-    .kas-flame-head h6 i { color: #f97316; }
+    .kas-flame-head h6 i { color: #22d3ee; }
     .kas-flame-head small { display: block; color: #94a3b8; margin-top: 4px; font-size: 11px; }
     .kas-flame-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
-      background: linear-gradient(135deg, rgba(220,38,38,.35), rgba(249,115,22,.25));
-      border: 1px solid rgba(251, 191, 36, .35); color: #fde68a;
-      box-shadow: 0 0 16px rgba(255, 69, 0, .2);
+      background: linear-gradient(135deg, rgba(37,99,235,.35), rgba(220,38,38,.22));
+      border: 1px solid rgba(96, 165, 250, .35); color: #bfdbfe;
+      box-shadow: 0 0 16px rgba(37, 99, 235, .22);
+      font-family: 'Orbitron', 'Outfit', sans-serif;
     }
     .kas-flame-canvas-wrap {
       position: relative; height: 340px; z-index: 1;
+    }
+    .kas-flame-canvas-wrap::before {
+      content: '';
+      position: absolute; left: 0; right: 0; top: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(34,211,238,.6), transparent);
+      animation: kasHudScan 4s linear infinite;
+      pointer-events: none; z-index: 2;
     }
     .kas-flame-embers {
       position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
     .kas-flame-ember {
-      position: absolute; bottom: 8%; width: 4px; height: 4px; border-radius: 50%;
-      background: #fbbf24; box-shadow: 0 0 6px #f97316;
+      position: absolute; bottom: 8%; width: 3px; height: 3px; border-radius: 50%;
+      background: #22d3ee; box-shadow: 0 0 8px #3b82f6;
       animation: kasEmberFloat 2.5s ease-out infinite;
     }
     .kas-flame-legend {
@@ -1747,13 +1848,13 @@
     }
     .kas-flame-legend span { display: inline-flex; align-items: center; gap: 6px; }
     .kas-flame-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-    .kas-flame-legend .lg-ang { background: linear-gradient(180deg, #fef08a, #f97316, #991b1b); }
-    .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fde68a, #ea580c); box-shadow: 0 0 8px rgba(251,191,36,.5); }
+    .kas-flame-legend .lg-ang { background: linear-gradient(180deg, #dbeafe, #3b82f6, #1e3a8a); }
+    .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fecaca, #dc2626); box-shadow: 0 0 8px rgba(220,38,38,.45); }
     .kas-upload-zone {
-      border: 2px dashed rgba(251,191,36,.3); border-radius: 16px; padding: 32px;
-      text-align: center; background: rgba(251,191,36,.04); transition: border-color .2s;
+      border: 2px dashed rgba(59,130,246,.32); border-radius: 16px; padding: 32px;
+      text-align: center; background: rgba(59,130,246,.04); transition: border-color .2s;
     }
-    .kas-upload-zone:hover { border-color: rgba(251,191,36,.55); }
+    .kas-upload-zone:hover { border-color: rgba(59,130,246,.55); }
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
     @page { size: A4 portrait; margin: 0; }
     @media print {
@@ -2032,10 +2133,10 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-leaf portal-active" onclick="openPortalApp('kas-belanja')">
-        <div class="portal-app-icon"><img src="/assets/portal-zenitsu.png" alt="Zenitsu — Realisasi Kas Belanja" /></div>
+      <div class="portal-app-card portal-theme-gundam portal-active" onclick="openPortalApp('kas-belanja')">
+        <div class="portal-app-icon gundam-helmet-icon" aria-hidden="true"></div>
         <h3>Realisasi Anggaran Kas Belanja</h3>
-        <p>Monitoring dan laporan realisasi anggaran kas belanja per kegiatan dan periode.</p>
+        <p>Monitoring dan laporan realisasi anggaran kas belanja — tema Mobile Suit Gundam · RX-78.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
@@ -2654,10 +2755,10 @@ function onNilaiBrutoInput() {
   <div class="sidebar-backdrop" data-for="kas" onclick="closeMobileSidebar()"></div>
   <div id="kas-sidebar">
     <div class="kas-sidebar-brand">
-      <div class="brand-icon"><img src="/assets/portal-zenitsu.png" alt="Realisasi Kas" /></div>
+      <div class="brand-icon gundam-helmet-icon" aria-hidden="true"></div>
       <div>
         <h6>Realisasi Kas Belanja</h6>
-        <small>TA 2026 · APBD</small>
+        <small>TA 2026 · Federation</small>
         <div class="brand-sub">Dinas Pendidikan Kota Batam</div>
       </div>
     </div>
@@ -2714,7 +2815,7 @@ function onNilaiBrutoInput() {
       </div>
       <div class="kas-bulan-picker" id="kas-bulan-picker">
         <button type="button" class="kas-bulan-pill" id="kas-bulan-btn" onclick="toggleKasBulanMenu(event)">
-          <i class="bi bi-calendar3" style="color:#fbbf24"></i>
+          <i class="bi bi-calendar3" style="color:#60a5fa"></i>
           <span class="lbl">Periode</span>
           <span class="val kas-bulan-c-april" id="kas-bulan-display">April</span>
           <i class="bi bi-chevron-down"></i>
@@ -2744,10 +2845,10 @@ function onNilaiBrutoInput() {
       <div class="kas-flame-panel" id="kas-flame-panel">
         <div class="kas-flame-head">
           <div>
-            <h6><i class="bi bi-fire me-2"></i>Kobaran Api Realisasi Kas</h6>
+            <h6><i class="bi bi-crosshair me-2"></i>HUD Scanner Realisasi Kas</h6>
             <small>Perbandingan Anggaran Kas vs Realisasi per jenis belanja — <strong id="kas-flame-bulan-label">April 2026</strong></small>
           </div>
-          <span class="kas-flame-badge"><i class="bi bi-lightning-charge-fill"></i> Flame Breathing Style</span>
+          <span class="kas-flame-badge"><i class="bi bi-broadcast"></i> Mobile Suit Mode · RX-78</span>
         </div>
         <div class="kas-flame-canvas-wrap">
           <div class="kas-flame-embers" id="kas-flame-embers"></div>
@@ -2775,7 +2876,7 @@ function onNilaiBrutoInput() {
         <h6><i class="bi bi-cloud-upload me-2 text-warning"></i>Upload Kertas Kerja RAK APBD</h6>
         <small>Format: <code>01. KERTAS KERJA RAK APBD PERGESERAN ... DISDIK.xlsx</code> — sheet <strong>RAK BELANJA</strong></small>
         <div class="kas-upload-zone mt-3">
-          <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:#fbbf24"></i>
+          <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:#60a5fa"></i>
           <p class="mt-2 mb-2" style="font-size:13px">Pilih file Excel RAK APBD (.xlsx)</p>
           <input type="file" id="kas-rak-file" class="form-control" accept=".xlsx,.xls" onchange="previewKasRAK(event)" style="max-width:420px;margin:0 auto" />
         </div>
@@ -3251,7 +3352,7 @@ const PORTAL_APPS = {
   },
   'kas-belanja': {
     label: 'Realisasi Anggaran Kas Belanja',
-    desc: 'Modul realisasi anggaran kas belanja — upload RAK APBD, input realisasi, laporan Angkas.',
+    desc: 'Modul realisasi anggaran kas belanja — tema Gundam RX-78 · upload RAK, input realisasi, laporan Angkas.',
     available: true,
   },
 };
@@ -3323,8 +3424,8 @@ function showPortal() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
-  document.body.classList.remove('theme-inuyasha');
-  document.getElementById('login-screen')?.classList.remove('theme-inuyasha');
+  document.body.classList.remove('theme-inuyasha', 'theme-gundam');
+  document.getElementById('login-screen')?.classList.remove('theme-inuyasha', 'theme-gundam');
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
 }
@@ -3336,6 +3437,7 @@ function showLogin(appKey) {
   document.getElementById('login-app-label').textContent = app.label;
   document.getElementById('login-app-desc').innerHTML = app.desc;
   document.getElementById('login-screen')?.classList.toggle('theme-inuyasha', selectedPortalApp === 'paud');
+  document.getElementById('login-screen')?.classList.toggle('theme-gundam', selectedPortalApp === 'kas-belanja');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -3397,6 +3499,7 @@ function showApp() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.body.classList.remove('theme-gundam');
   applyRoleUI();
 }
 
@@ -3405,6 +3508,8 @@ function showKasApp() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.add('visible');
+  document.body.classList.add('theme-gundam');
+  document.body.classList.remove('theme-inuyasha');
   if (currentUser) {
     const parts = (currentUser.name || 'AD').split(/\s+/);
     const av = document.getElementById('kas-user-avatar');
@@ -6349,12 +6454,11 @@ let kasFlameChart = null;
 
 function kasFlameGradient(ctx, area) {
   const g = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-  g.addColorStop(0, '#7f1d1d');
-  g.addColorStop(0.3, '#dc2626');
-  g.addColorStop(0.55, '#ea580c');
-  g.addColorStop(0.78, '#f97316');
-  g.addColorStop(0.92, '#fbbf24');
-  g.addColorStop(1, '#fef08a');
+  g.addColorStop(0, '#1e3a8a');
+  g.addColorStop(0.35, '#2563eb');
+  g.addColorStop(0.65, '#3b82f6');
+  g.addColorStop(0.85, '#93c5fd');
+  g.addColorStop(1, '#dbeafe');
   return g;
 }
 
@@ -6379,12 +6483,12 @@ const kasFlameBarPlugin = {
       if (h < 12) return;
       const w = width * 0.92;
       ctx.save();
-      ctx.shadowColor = 'rgba(255,100,0,.55)';
+      ctx.shadowColor = 'rgba(34,211,238,.55)';
       ctx.shadowBlur = 14;
       const grad = ctx.createLinearGradient(x, base, x, y - h * 0.12);
-      grad.addColorStop(0, 'rgba(220,38,38,.9)');
-      grad.addColorStop(0.5, 'rgba(249,115,22,.85)');
-      grad.addColorStop(1, 'rgba(254,240,138,.95)');
+      grad.addColorStop(0, 'rgba(30,64,175,.9)');
+      grad.addColorStop(0.5, 'rgba(59,130,246,.85)');
+      grad.addColorStop(1, 'rgba(34,211,238,.95)');
       ctx.beginPath();
       ctx.moveTo(x - w / 2, y);
       ctx.lineTo(x - w / 3, y - h * 0.08);
@@ -6450,9 +6554,9 @@ function renderKasFlameChart() {
           data: anggaran,
           backgroundColor: ctx => {
             const a = ctx.chart.chartArea;
-            return a ? kasFlameGradient(ctx.chart.ctx, a) : '#ea580c';
+            return a ? kasFlameGradient(ctx.chart.ctx, a) : '#2563eb';
           },
-          borderColor: 'rgba(254,240,138,.35)',
+          borderColor: 'rgba(147,197,253,.35)',
           borderWidth: 1,
           borderRadius: { topLeft: 6, topRight: 6 },
           borderSkipped: false,
@@ -6462,12 +6566,12 @@ function renderKasFlameChart() {
           label: 'Realisasi',
           data: realisasi,
           type: 'line',
-          borderColor: '#fde047',
-          backgroundColor: 'rgba(251,191,36,.08)',
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220,38,38,.08)',
           borderWidth: 3,
           pointRadius: 5,
           pointHoverRadius: 7,
-          pointBackgroundColor: '#fef08a',
+          pointBackgroundColor: '#fecaca',
           pointBorderColor: '#dc2626',
           pointBorderWidth: 2,
           tension: 0.35,
@@ -6485,10 +6589,10 @@ function renderKasFlameChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15,8,8,.92)',
-          borderColor: 'rgba(249,115,22,.5)',
+          backgroundColor: 'rgba(15,23,42,.92)',
+          borderColor: 'rgba(59,130,246,.5)',
           borderWidth: 1,
-          titleColor: '#fde68a',
+          titleColor: '#bfdbfe',
           bodyColor: '#e2e8f0',
           padding: 12,
           callbacks: {
@@ -6509,7 +6613,7 @@ function renderKasFlameChart() {
       scales: {
         x: {
           ticks: { color: '#cbd5e1', font: { size: 10, weight: '600' }, maxRotation: 45, minRotation: 25 },
-          grid: { color: 'rgba(255,69,0,.06)' },
+          grid: { color: 'rgba(37,99,235,.08)' },
         },
         y: {
           beginAtZero: true,
@@ -6523,7 +6627,7 @@ function renderKasFlameChart() {
               return v;
             },
           },
-          grid: { color: 'rgba(255,100,0,.08)' },
+          grid: { color: 'rgba(59,130,246,.08)' },
         },
       },
       animation: {

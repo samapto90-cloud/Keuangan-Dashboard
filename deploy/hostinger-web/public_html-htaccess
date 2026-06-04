@@ -1,4 +1,5 @@
 RewriteEngine On
+DirectoryIndex index.php
 
 # Jika file/folder statis ada, serve langsung
 RewriteCond %{REQUEST_FILENAME} -f [OR]
