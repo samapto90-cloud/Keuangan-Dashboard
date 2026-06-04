@@ -94,6 +94,7 @@ func applyRakToModule(mod *SipkeuModule, rows []RakRow) ImportAnggaranResult {
 		mod.settings.AnggaranKegiatan[k] = v
 	}
 	mod.mu.Unlock()
+	persistModule(mod)
 	return ImportAnggaranResult{
 		Rak:              rows,
 		AnggaranKegiatan: anggaranMap,

@@ -219,6 +219,7 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
                 mod.nextID++
                 mod.txs = append(mod.txs, t)
                 mod.mu.Unlock()
+                persistModule(mod)
                 jsonResponse(w, http.StatusCreated, t)
 
         default:
@@ -262,6 +263,7 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
                         return
                 }
+                persistModule(mod)
                 jsonResponse(w, http.StatusOK, updated)
 
         case http.MethodDelete:
@@ -279,6 +281,7 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
                         return
                 }
+                persistModule(mod)
                 jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
 
         default:
@@ -309,6 +312,7 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                 mod.txs = append(mod.txs, items[i])
         }
         mod.mu.Unlock()
+        persistModule(mod)
         jsonResponse(w, http.StatusOK, map[string]interface{}{
                 "imported": len(items),
                 "message":  fmt.Sprintf("%d transaksi berhasil diimpor", len(items)),
@@ -464,6 +468,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
                         }
                 }
                 mod.mu.Unlock()
+                persistModule(mod)
                 jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
 
         default:
@@ -633,16 +638,24 @@ func main() {
         mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(handleKasUnlockRealisasi)))
 
         initSipkeuModules()
+        initStorage()
+        loadAllModulesFromDisk()
+        loadKasFromDisk()
+
         sek := sipkeuModules["sekretariat"]
         paud := sipkeuModules["paud"]
 
-        addSampleData(sek)
+        if !moduleHasData(sek) {
+                addSampleData(sek)
+                persistModule(sek)
+        }
         tryLoadDefaultAnggaran()
         sek.mu.Lock()
         hasAnggaranSek := len(sek.settings.AnggaranKegiatan) > 0
         sek.mu.Unlock()
         if !hasAnggaranSek {
                 initSampleAnggaran(sek)
+                persistModule(sek)
         }
         paud.mu.Lock()
         hasAnggaranPaud := len(paud.settings.AnggaranKegiatan) > 0
@@ -652,8 +665,10 @@ func main() {
                 paud.settings.Rak = cloneRakRows(sek.settings.Rak)
                 paud.settings.AnggaranKegiatan = cloneAnggaranMap(sek.settings.AnggaranKegiatan)
                 sek.mu.Unlock()
+                persistModule(paud)
         }
 
+        fmt.Printf("%s\n", storageInfo())
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
         log.Fatal(http.ListenAndServe(":"+port, withSecurityHeaders(mux)))
 }

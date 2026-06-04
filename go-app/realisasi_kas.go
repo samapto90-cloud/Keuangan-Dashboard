@@ -270,6 +270,7 @@ func handleKasImportRAK(w http.ResponseWriter, r *http.Request) {
 	kasState.RakRows = payload.RakRows
 	kasState.ImportedAt = time.Now().Format("2006-01-02 15:04:05")
 	kasMu.Unlock()
+	persistKasState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"message":   "Data RAK APBD berhasil diimpor",
 		"total":     len(payload.RakRows),
@@ -372,6 +373,7 @@ func handleKasSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 	kasState.RealisasiLocked[bulan] = true
 	report := buildKasReport(kasState, bulan)
 	kasMu.Unlock()
+	persistKasState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"message":          "Realisasi bulan " + bulan + " disimpan",
 		"report":           report,
@@ -406,6 +408,7 @@ func handleKasUnlockRealisasi(w http.ResponseWriter, r *http.Request) {
 	}
 	delete(kasState.RealisasiLocked, bulan)
 	kasMu.Unlock()
+	persistKasState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"message":          "Mode perbaikan aktif — data realisasi dapat diubah",
 		"realisasi_locked": false,

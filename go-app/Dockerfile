@@ -19,8 +19,11 @@ COPY --from=builder /keuangan ./keuangan
 COPY Anggaran.xlsx ./Anggaran.xlsx
 
 ENV PORT=3000
+ENV DATA_DIR=/app/data
 ENV ANGGARAN_FILE=/app/Anggaran.xlsx
 ENV TZ=Asia/Jakarta
+
+RUN mkdir -p /app/data && chown sipkeu:sipkeu /app/data
 
 USER sipkeu
 EXPOSE 3000

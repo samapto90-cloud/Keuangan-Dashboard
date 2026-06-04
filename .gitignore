@@ -55,4 +55,6 @@ Thumbs.db
 go-app/keuangan.exe
 deploy/.env
 .env
+go-app/data/
+data/
 *.exe
