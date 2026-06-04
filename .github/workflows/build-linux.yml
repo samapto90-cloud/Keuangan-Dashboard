@@ -1,0 +1,27 @@
+name: Build Linux Binary
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: go-app/go.sum
+
+      - name: Build keuangan linux amd64
+        working-directory: go-app
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o keuangan-linux-amd64 .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keuangan-linux-amd64
+          path: go-app/keuangan-linux-amd64
+          retention-days: 30
