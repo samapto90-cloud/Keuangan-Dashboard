@@ -132,6 +132,8 @@ func sumRakForPrefix(rows []RakBelanjaRow, prefix, field string) float64 {
 // bisa dipakai bulan berikutnya. Kunci "5." menyimpan sisa total.
 func computeKasMonth(state KasBelanjaState, bulan string, sisaPrev map[string]float64) []KasReportRow {
 	out := make([]KasReportRow, 0, len(angkasTemplate)+1)
+	var belanjaDaerah KasReportRow
+	hasBelanjaDaerah := false
 	for _, tpl := range angkasTemplate {
 		sisa := sisaPrev[tpl.Kode]
 		if manual, ok := state.SisaManual[bulan][tpl.Kode]; ok {
@@ -147,7 +149,7 @@ func computeKasMonth(state KasBelanjaState, bulan string, sisaPrev map[string]fl
 		if anggaranKas > 0 {
 			persen = (realisasi / anggaranKas) * 100
 		}
-		out = append(out, KasReportRow{
+		row := KasReportRow{
 			Kode:          tpl.Kode,
 			Uraian:        tpl.Uraian,
 			Level:         tpl.Level,
@@ -157,36 +159,27 @@ func computeKasMonth(state KasBelanjaState, bulan string, sisaPrev map[string]fl
 			SisaSD:        sisaSD,
 			Persen:        persen,
 			Editable:      true,
-		})
+		}
+		out = append(out, row)
 		sisaPrev[tpl.Kode] = sisaSD
+		if tpl.Kode == "5." {
+			belanjaDaerah = row
+			hasBelanjaDaerah = true
+		}
 	}
 
-	totalAnggaranKas := sumRakForPrefix(state.RakRows, "5.", bulan)
-	totalRealisasi := 0.0
-	if state.Realisasi[bulan] != nil {
-		totalRealisasi = state.Realisasi[bulan]["5."]
+	// TOTAL BELANJA identik dengan baris induk BELANJA DAERAH (5.). Mengambil
+	// langsung dari baris "5." menghindari tabrakan kunci carry sisa bulan lalu
+	// (dulu kunci "5." dipakai bersama sehingga sisa bulan lalu/total salah).
+	total := KasReportRow{Uraian: "TOTAL BELANJA", Editable: true}
+	if hasBelanjaDaerah {
+		total.SisaBulanLalu = belanjaDaerah.SisaBulanLalu
+		total.AnggaranKas = belanjaDaerah.AnggaranKas
+		total.Realisasi = belanjaDaerah.Realisasi
+		total.SisaSD = belanjaDaerah.SisaSD
+		total.Persen = belanjaDaerah.Persen
 	}
-	totalSisaLalu := sisaPrev["5."]
-	if manual, ok := state.SisaManual[bulan]["5."]; ok {
-		totalSisaLalu = manual
-	}
-	totalSisaSD := totalSisaLalu + totalAnggaranKas - totalRealisasi
-	totalPersen := 0.0
-	if totalAnggaranKas > 0 {
-		totalPersen = (totalRealisasi / totalAnggaranKas) * 100
-	}
-	out = append(out, KasReportRow{
-		Kode:          "",
-		Uraian:        "TOTAL BELANJA",
-		Level:         0,
-		SisaBulanLalu: totalSisaLalu,
-		AnggaranKas:   totalAnggaranKas,
-		Realisasi:     totalRealisasi,
-		SisaSD:        totalSisaSD,
-		Persen:        totalPersen,
-		Editable:      true,
-	})
-	sisaPrev["5."] = totalSisaSD
+	out = append(out, total)
 	return out
 }
 

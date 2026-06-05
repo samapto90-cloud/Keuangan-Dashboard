@@ -7374,7 +7374,22 @@ const KAS_PEN_HIERARCHY = [
 
 function kasRakMap() {
   const m = {};
-  (kasStateCache.rak_rows || []).forEach(r => { if (r.kode_rekening) m[r.kode_rekening] = r; });
+  (kasStateCache.rak_rows || []).forEach(r => {
+    const k = r.kode_rekening;
+    if (!k) return;
+    if (!m[k]) {
+      // Salin agar tidak mengubah data sumber, dan agar baris dengan kode sama
+      // bisa dijumlahkan (anggaran + rencana kas per bulan).
+      m[k] = { ...r, bulan: { ...(r.bulan || {}) }, anggaran: r.anggaran || 0 };
+    } else {
+      const dst = m[k];
+      dst.anggaran = (dst.anggaran || 0) + (r.anggaran || 0);
+      const src = r.bulan || {};
+      for (const bln in src) dst.bulan[bln] = (dst.bulan[bln] || 0) + (src[bln] || 0);
+      if (!dst.nama_rekening && r.nama_rekening) dst.nama_rekening = r.nama_rekening;
+      if (!dst.nama_sub_kegiatan && r.nama_sub_kegiatan) dst.nama_sub_kegiatan = r.nama_sub_kegiatan;
+    }
+  });
   return m;
 }
 
