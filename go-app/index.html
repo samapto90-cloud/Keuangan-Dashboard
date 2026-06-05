@@ -6819,11 +6819,54 @@ function kasPctClass(p) {
   return 'kas-pct-ok';
 }
 
+function kasMonthHasData(data, bulan) {
+  if (!data) return false;
+  let ang = 0;
+  for (const r of (data.rak_rows || [])) {
+    ang += (r.bulan && r.bulan[bulan]) || 0;
+  }
+  if (ang > 0) return true;
+  const rm = data.realisasi && data.realisasi[bulan];
+  if (rm) {
+    for (const k in rm) { if (rm[k]) return true; }
+  }
+  return false;
+}
+
+// Pilih bulan default secara otomatis: utamakan bulan berjalan bila sudah ada
+// datanya; jika belum, ambil bulan terbaru (<= bulan berjalan) yang berisi data;
+// jika tetap tidak ada, ambil bulan mana pun yang berisi data; fallback bulan berjalan.
+function pickBestKasBulan(data) {
+  const cur = getCurrentKasBulan();
+  const curIdx = KAS_BULAN_KEYS.indexOf(cur);
+  if (kasMonthHasData(data, cur)) return cur;
+  for (let i = curIdx; i >= 0; i--) {
+    if (kasMonthHasData(data, KAS_BULAN_KEYS[i])) return KAS_BULAN_KEYS[i];
+  }
+  for (let i = 0; i < KAS_BULAN_KEYS.length; i++) {
+    if (kasMonthHasData(data, KAS_BULAN_KEYS[i])) return KAS_BULAN_KEYS[i];
+  }
+  return cur;
+}
+
+function applyKasBulanSelection(bulan) {
+  const sel = document.getElementById('kas-bulan-select');
+  if (sel) sel.value = bulan;
+  updateKasBulanDisplay(bulan);
+  document.querySelectorAll('.kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
+}
+
 async function bootKasApp() {
   showKasApp();
   setDefaultKasBulan();
   initKasBulanPicker();
   await loadKasData();
+  // Otomatis pindah ke bulan yang berisi data bila bulan berjalan masih kosong.
+  const best = pickBestKasBulan(kasStateCache);
+  if (best && best !== getKasBulan()) {
+    applyKasBulanSelection(best);
+    await loadKasData();
+  }
   showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));
 }
 
