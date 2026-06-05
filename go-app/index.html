@@ -5785,11 +5785,26 @@ async function doImpor() {
   const btn = document.getElementById('btn-confirm-impor');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
   try {
+    const cfg = getPortalAppConfig();
+    // Nomor BPK lanjut dari urutan tertinggi transaksi yang sudah ada (impor menambah, tidak menghapus).
+    let maxSeq = 0;
+    for (const t of (allTransactions || [])) {
+      maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
+    }
     const payload = importData.map(t => {
-      const items = getPotonganItemsFromTransaction(t);
-      if (!items.length) return t;
+      let noBpk = String(t.no_bpk || '').trim();
+      if (!noBpk && t.tanggal) {
+        const [year, month] = String(t.tanggal).split('-');
+        if (year && month) {
+          maxSeq += 1;
+          noBpk = `${String(maxSeq).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+        }
+      }
+      const base = { ...t, no_bpk: noBpk };
+      const items = getPotonganItemsFromTransaction(base);
+      if (!items.length) return base;
       const legacy = syncLegacyTaxFieldsFromItems(items);
-      return { ...t, potongan_pajak: items, ...legacy };
+      return { ...base, potongan_pajak: items, ...legacy };
     });
     const res = await apiFetch(API + '/transactions/import', {
       method: 'POST',
@@ -5798,7 +5813,7 @@ async function doImpor() {
     const result = await res.json();
     bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
     await loadTransaksi();
-    alert(result.message || `${importData.length} transaksi berhasil diimpor.`);
+    alert(result.message || `${importData.length} transaksi ditambahkan (transaksi lama tetap tersimpan).`);
   } catch(err) {
     alert('Gagal mengimpor: ' + err.message);
   } finally {

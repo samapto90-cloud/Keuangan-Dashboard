@@ -20,6 +20,7 @@ const uploads = [
   { local: path.join(goApp, "keuangan-linux-amd64"), remote: "/home/u657726332/sipkeu/keuangan.new", mode: 0o755 },
   { local: path.join(goApp, "Anggaran.xlsx"), remote: "/home/u657726332/sipkeu/Anggaran.xlsx" },
   { local: path.join(__dirname, "start-remote.sh"), remote: "/home/u657726332/hostinger-web/start-remote.sh", mode: 0o755 },
+  { local: path.join(__dirname, "keepalive.sh"), remote: "/home/u657726332/hostinger-web/keepalive.sh", mode: 0o755 },
   { local: path.join(__dirname, ".env.production"), remote: "/home/u657726332/hostinger-web/.env" },
   { local: path.join(__dirname, "public_html-proxy.php"), remote: "/home/u657726332/domains/sakubijak.com/public_html/index.php", mode: 0o644 },
   { local: path.join(__dirname, "public_html-htaccess"), remote: "/home/u657726332/domains/sakubijak.com/public_html/.htaccess", mode: 0o644 },
@@ -74,7 +75,9 @@ conn
         });
       });
       await exec(conn, "mv -f ~/sipkeu/keuangan.new ~/sipkeu/keuangan && chmod +x ~/sipkeu/keuangan");
-      await exec(conn, "for f in ~/hostinger-web/start-remote.sh ~/hostinger-web/.env; do [ -f \"$f\" ] && perl -pi -e 's/\\r\\n/\\n/g' \"$f\" 2>/dev/null || sed -i 's/\\r$//' \"$f\" 2>/dev/null || true; done");
+      await exec(conn, "for f in ~/hostinger-web/start-remote.sh ~/hostinger-web/keepalive.sh ~/hostinger-web/.env; do [ -f \"$f\" ] && perl -pi -e 's/\\r\\n/\\n/g' \"$f\" 2>/dev/null || sed -i 's/\\r$//' \"$f\" 2>/dev/null || true; done");
+      console.log("==> Install keepalive cron (tiap 2 menit, jika crontab tersedia)");
+      await exec(conn, "command -v crontab >/dev/null 2>&1 && ((crontab -l 2>/dev/null | grep -v 'sipkeu keepalive'; echo '*/2 * * * * bash $HOME/hostinger-web/keepalive.sh # sipkeu keepalive') | crontab - && echo cron-ok) || echo 'cron-skip: pasang via hPanel/MCP -> */2 * * * * bash $HOME/hostinger-web/keepalive.sh'");
       console.log("==> Verify public_html proxy");
       const pub = "~/domains/sakubijak.com/public_html";
       await exec(conn, `[ -f ${pub}/index.php ] || (echo "ERROR: ${pub}/index.php hilang — jangan taruh git clone di public_html" && exit 1)`);

@@ -356,11 +356,13 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                 mod.nextID++
                 mod.txs = append(mod.txs, items[i])
         }
+        total := len(mod.txs)
         mod.mu.Unlock()
         persistModule(mod)
         jsonResponse(w, http.StatusOK, map[string]interface{}{
                 "imported": len(items),
-                "message":  fmt.Sprintf("%d transaksi berhasil diimpor", len(items)),
+                "total":    total,
+                "message":  fmt.Sprintf("%d transaksi ditambahkan. Total kini %d transaksi (data lama tetap tersimpan).", len(items), total),
         })
 }
 
