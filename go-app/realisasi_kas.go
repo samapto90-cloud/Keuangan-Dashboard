@@ -127,13 +127,13 @@ func sumRakForPrefix(rows []RakBelanjaRow, prefix, field string) float64 {
 	return total
 }
 
-func buildKasReport(state KasBelanjaState, bulan string) []KasReportRow {
-	bulan = normalizeBulanKey(bulan)
-	prev := previousBulan(bulan)
+// computeKasMonth menghitung laporan satu bulan memakai carry-in sisa bulan lalu
+// (sisaPrev). Setelah selesai, sisaPrev diperbarui menjadi sisa s/d bulan ini agar
+// bisa dipakai bulan berikutnya. Kunci "5." menyimpan sisa total.
+func computeKasMonth(state KasBelanjaState, bulan string, sisaPrev map[string]float64) []KasReportRow {
 	out := make([]KasReportRow, 0, len(angkasTemplate)+1)
-
 	for _, tpl := range angkasTemplate {
-		sisa := sumPrevSisa(state, tpl.Kode, prev)
+		sisa := sisaPrev[tpl.Kode]
 		if manual, ok := state.SisaManual[bulan][tpl.Kode]; ok {
 			sisa = manual
 		}
@@ -158,18 +158,15 @@ func buildKasReport(state KasBelanjaState, bulan string) []KasReportRow {
 			Persen:        persen,
 			Editable:      true,
 		})
+		sisaPrev[tpl.Kode] = sisaSD
 	}
 
 	totalAnggaranKas := sumRakForPrefix(state.RakRows, "5.", bulan)
 	totalRealisasi := 0.0
 	if state.Realisasi[bulan] != nil {
-		for _, v := range state.Realisasi[bulan] {
-			totalRealisasi += v
-		}
-		// use top-level only to avoid double count
 		totalRealisasi = state.Realisasi[bulan]["5."]
 	}
-	totalSisaLalu := sumPrevSisa(state, "5.", prev)
+	totalSisaLalu := sisaPrev["5."]
 	if manual, ok := state.SisaManual[bulan]["5."]; ok {
 		totalSisaLalu = manual
 	}
@@ -189,30 +186,29 @@ func buildKasReport(state KasBelanjaState, bulan string) []KasReportRow {
 		Persen:        totalPersen,
 		Editable:      true,
 	})
+	sisaPrev["5."] = totalSisaSD
 	return out
 }
 
-func previousBulan(bulan string) string {
+// buildKasReport menghitung laporan kas s/d bulan target secara iteratif
+// (dari Januari) sehingga linear — menghindari rekursi eksponensial sebelumnya.
+func buildKasReport(state KasBelanjaState, bulan string) []KasReportRow {
+	bulan = normalizeBulanKey(bulan)
+	targetIdx := 0
 	for i, b := range bulanKeys {
-		if b == bulan && i > 0 {
-			return bulanKeys[i-1]
+		if b == bulan {
+			targetIdx = i
+			break
 		}
 	}
-	return ""
+	sisaPrev := map[string]float64{}
+	var rows []KasReportRow
+	for m := 0; m <= targetIdx; m++ {
+		rows = computeKasMonth(state, bulanKeys[m], sisaPrev)
+	}
+	return rows
 }
 
-func sumPrevSisa(state KasBelanjaState, kode, prevBulan string) float64 {
-	if prevBulan == "" {
-		return 0
-	}
-	rows := buildKasReport(state, prevBulan)
-	for _, r := range rows {
-		if r.Kode == kode || (kode == "5." && r.Uraian == "TOTAL BELANJA") {
-			return r.SisaSD
-		}
-	}
-	return 0
-}
 
 func totalPaguFromRak(rows []RakBelanjaRow) float64 {
 	var total float64
