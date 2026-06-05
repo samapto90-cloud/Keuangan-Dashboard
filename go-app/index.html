@@ -7514,17 +7514,6 @@ function buildKasPengecualianRows(bulan) {
     sisa_sd: totalBelanja.sisa_sd || totalBelanja.anggaran_kas || 0, persen: 0,
   });
 
-  const sewaRak = rakMap[KAS_PEN_SEWA_HOTEL_KODE];
-  const sewaAng = kasRakAngkas(sewaRak, bulan);
-  const sewaReal = kasGetStoredRealisasi(KAS_PEN_SEWA_HOTEL_KODE);
-  out.push({
-    kode: KAS_PEN_SEWA_HOTEL_KODE,
-    uraian: (sewaRak && sewaRak.nama_rekening) ? sewaRak.nama_rekening.trim() : 'Belanja Sewa Hotel',
-    level: 3, isDetail: true, afterTotal: true,
-    sisa_bulan_lalu: null, anggaran_kas: sewaAng, realisasi: sewaReal,
-    sisa_sd: null, persen: null,
-  });
-
   return out;
 }
 
