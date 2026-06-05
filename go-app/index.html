@@ -3580,7 +3580,7 @@ async function apiFetch(path, options = {}) {
   const url = path.startsWith('http') || path.startsWith('/') ? path : API + path;
   const headers = authHeaders(options.headers || {});
   if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(url, { cache: 'no-store', ...options, headers });
   if (res.status === 401 && !url.includes('/auth/login')) {
     sessionStorage.removeItem('sipkeu_token');
     showLogin(selectedPortalApp || 'sekretariat');
