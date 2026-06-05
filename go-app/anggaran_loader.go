@@ -270,6 +270,14 @@ func applyRakToAllModules(rows []RakRow) ImportAnggaranResult {
 	}
 	var last ImportAnggaranResult
 	for _, mod := range mods {
+		// Seed default bersifat non-destruktif: jangan timpa modul yang sudah
+		// punya RAK sendiri, agar data antar-modul tetap independen.
+		mod.mu.Lock()
+		hasRak := len(mod.settings.Rak) > 0
+		mod.mu.Unlock()
+		if hasRak {
+			continue
+		}
 		last = applyRakToModule(mod, cloneRakRows(rows), &meta)
 	}
 	last.Message = fmt.Sprintf("%d baris kegiatan dan pagu anggaran berhasil dimuat", len(rows))
