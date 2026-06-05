@@ -7646,23 +7646,12 @@ function kasPenRowCells(r) {
 }
 
 function kasRekonValues() {
-  // Kumulatif s/d bulan ini (Januari .. bulan dipilih) agar benar di semua bulan.
-  // ANALIS KEUANGAN = total anggaran kas s/d bulan ini (Σ RAK per bulan).
-  // KASUBID AKUNTANSI = total realisasi belanja s/d bulan ini (Σ realisasi "5." per bulan).
-  const bulan = getKasBulan();
-  const idx = KAS_BULAN_KEYS.indexOf(bulan);
-  const rows = kasStateCache.rak_rows || [];
-  let anggaranKasSD = 0, realisasiSD = 0;
-  for (let i = 0; i <= idx; i++) {
-    const m = KAS_BULAN_KEYS[i];
-    for (const r of rows) {
-      const kode = (r.kode_rekening || '').trim();
-      if (kode === '5' || kode.startsWith('5.')) {
-        anggaranKasSD += (r.bulan && r.bulan[m]) || 0;
-      }
-    }
-    realisasiSD += (kasStateCache.realisasi?.[m]?.['5.']) || 0;
-  }
+  // Mengikuti baris TOTAL BELANJA pada laporan (bukan kumulatif):
+  // ANALIS KEUANGAN = kolom "Anggaran Kas Bulan Ini" (anggaran_kas).
+  // KASUBID AKUNTANSI = kolom "Realisasi" (realisasi).
+  const t = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  const anggaranKasSD = t.anggaran_kas || 0;
+  const realisasiSD = t.realisasi || 0;
   return { anggaranKasSD, realisasiSD };
 }
 
