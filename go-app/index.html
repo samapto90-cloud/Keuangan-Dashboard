@@ -1635,9 +1635,9 @@
       padding: calc(7px * var(--kp-fit, 1)) calc(8px * var(--kp-fit, 1)); border-bottom: none;
     }
     .kp-table thead tr.kp-th-main th { border-top: none; }
-    .kp-table .col-kode { width: 11%; }
-    .kp-table .col-urai { width: 23%; }
-    .kp-table .col-num { width: 13.2%; }
+    .kp-table .col-kode { width: 10%; }
+    .kp-table .col-urai { width: 21%; }
+    .kp-table .col-num { width: 13.8%; }
     .kp-table tbody td.col-kode {
       text-align: left; vertical-align: top;
       font-size: calc(7.5pt * var(--kp-fit, 1)); line-height: 1.25;
@@ -1652,11 +1652,13 @@
       text-align: right; vertical-align: middle;
       font-size: calc(7.5pt * var(--kp-fit, 1)); line-height: 1.2;
       font-variant-numeric: tabular-nums;
-      white-space: nowrap; padding-left: 2px; padding-right: calc(4px * var(--kp-fit, 1));
+      white-space: nowrap; padding-left: 1px; padding-right: calc(3px * var(--kp-fit, 1));
+      letter-spacing: -0.1px;
     }
     .kp-table tbody tr.lvl-1 .col-urai { padding-left: calc(8px * var(--kp-fit, 1)); }
     .kp-table tbody tr.lvl-2 .col-urai { padding-left: calc(12px * var(--kp-fit, 1)); }
     .kp-table tbody tr.row-total td { font-weight: 800; background: #d9d9d9; }
+    .kp-table tbody tr.row-total td.col-num { font-size: calc(7pt * var(--kp-fit, 1)); letter-spacing: -0.3px; padding-left: 1px; padding-right: calc(2px * var(--kp-fit, 1)); }
     .kp-table tbody tr.lvl-0 .col-urai,
     .kp-table tbody tr.lvl-1 .col-urai { font-weight: 700; text-transform: uppercase; }
     .kp-table.pengecualian-table tbody tr.lvl-detail .col-kode { font-size: calc(7pt * var(--kp-fit, 1)); }
