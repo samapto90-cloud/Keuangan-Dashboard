@@ -1,0 +1,7 @@
+* text=auto
+
+# Pastikan file yang dieksekusi di server Linux selalu LF
+*.php text eol=lf
+*.sh text eol=lf
+.htaccess text eol=lf
+index.php text eol=lf
