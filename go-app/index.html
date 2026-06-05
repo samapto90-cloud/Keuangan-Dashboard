@@ -2708,6 +2708,7 @@ function onNilaiBrutoInput() {
           <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
           <button class="btn btn-sm btn-outline-success" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-file-earmark-excel me-1"></i>Ekspor</button>
           <button class="btn btn-sm btn-outline-primary" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
+          <button class="btn btn-sm btn-danger" id="btn-hapus-terpilih" onclick="confirmHapusTerpilih()" title="Hapus transaksi yang dicentang" disabled><i class="bi bi-trash me-1"></i>Hapus Terpilih (<span id="trx-selected-count">0</span>)</button>
           <button class="btn btn-sm btn-outline-danger" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
         </div>
       </div>
@@ -2716,6 +2717,7 @@ function onNilaiBrutoInput() {
         <table class="table table-hover">
           <thead>
             <tr>
+              <th class="text-center" style="width:34px"><input type="checkbox" id="trx-check-all" class="form-check-input" title="Pilih semua" onchange="toggleSelectAllTrx(this.checked)" /></th>
               <th>No</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
               <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
               <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
@@ -2723,7 +2725,7 @@ function onNilaiBrutoInput() {
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="20" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="21" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top trx-table-footer">
@@ -4182,6 +4184,7 @@ async function loadTransaksi() {
   const res = await apiFetch(API + '/transactions');
   allTransactions = await res.json() || [];
   trxPage = 1;
+  if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
   renderTable();
   updatePaguRekeningUI();
 }
@@ -4245,12 +4248,14 @@ function renderTable() {
   const tbody = document.getElementById('trx-tbody');
   let totalN = 0, totalP = 0, totalPot = 0;
   if (!data || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="20"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="21"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
     document.getElementById('table-total-potongan').textContent = 'Rp 0';
     renderTrxPagination(0, 1, 0, 0);
+    pruneSelectedTrx(data);
+    updateTrxSelectionUI();
     return;
   }
   data.forEach(t => {
@@ -4263,7 +4268,9 @@ function renderTable() {
   const start = (trxPage - 1) * trxPageSize;
   const pageData = data.slice(start, start + trxPageSize);
   tbody.innerHTML = pageData.map((t, i) => {
-    return `<tr>
+    const checked = selectedTrxIds.has(t.id) ? 'checked' : '';
+    return `<tr${checked ? ' class="table-active"' : ''}>
+      <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
       <td class="table-num">${start + i + 1}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
       <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
@@ -4291,6 +4298,80 @@ function renderTable() {
   document.getElementById('table-total-pajak').textContent = formatRupiah(totalP);
   document.getElementById('table-total-potongan').textContent = formatRupiah(totalPot);
   renderTrxPagination(data.length, totalPages, start, pageData.length);
+  pruneSelectedTrx(data);
+  updateTrxSelectionUI();
+}
+
+const selectedTrxIds = new Set();
+
+function toggleSelectTrx(id, checked) {
+  if (checked) selectedTrxIds.add(id);
+  else selectedTrxIds.delete(id);
+  const row = document.querySelector(`.trx-row-check[value="${id}"]`)?.closest('tr');
+  if (row) row.classList.toggle('table-active', checked);
+  updateTrxSelectionUI();
+}
+
+function toggleSelectAllTrx(checked) {
+  const data = getFilteredTransactions();
+  data.forEach(t => { if (checked) selectedTrxIds.add(t.id); else selectedTrxIds.delete(t.id); });
+  document.querySelectorAll('.trx-row-check').forEach(cb => {
+    cb.checked = checked;
+    cb.closest('tr')?.classList.toggle('table-active', checked);
+  });
+  updateTrxSelectionUI();
+}
+
+function pruneSelectedTrx(data) {
+  const valid = new Set((data || []).map(t => t.id));
+  for (const id of Array.from(selectedTrxIds)) {
+    if (!valid.has(id)) selectedTrxIds.delete(id);
+  }
+}
+
+function updateTrxSelectionUI() {
+  const count = selectedTrxIds.size;
+  const countEl = document.getElementById('trx-selected-count');
+  if (countEl) countEl.textContent = count;
+  const btn = document.getElementById('btn-hapus-terpilih');
+  if (btn) btn.disabled = count === 0;
+  const data = getFilteredTransactions();
+  const all = document.getElementById('trx-check-all');
+  if (all) {
+    const total = data.length;
+    const selectedInData = data.filter(t => selectedTrxIds.has(t.id)).length;
+    all.checked = total > 0 && selectedInData === total;
+    all.indeterminate = selectedInData > 0 && selectedInData < total;
+  }
+}
+
+function confirmHapusTerpilih() {
+  const ids = Array.from(selectedTrxIds);
+  if (!ids.length) { alert('Pilih dulu transaksi yang ingin dihapus (centang kotak di kolom kiri).'); return; }
+  if (!confirm(`Hapus ${ids.length} transaksi terpilih? Tindakan ini tidak dapat dibatalkan.`)) return;
+  doHapusTerpilih(ids);
+}
+
+async function doHapusTerpilih(ids) {
+  const btn = document.getElementById('btn-hapus-terpilih');
+  const original = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menghapus…'; }
+  try {
+    const res = await apiFetch(API + '/transactions/delete-bulk', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(result.error || ('Gagal hapus (HTTP ' + res.status + ')'));
+    selectedTrxIds.clear();
+    await loadTransaksi();
+    alert(result.message || `${ids.length} transaksi berhasil dihapus.`);
+  } catch (e) {
+    alert(e.message || 'Gagal menghapus transaksi terpilih.');
+  } finally {
+    if (btn) { btn.innerHTML = original; }
+    updateTrxSelectionUI();
+  }
 }
 
 function filterTable() {

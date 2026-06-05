@@ -317,6 +317,52 @@ func handleDeleteTransaction(w http.ResponseWriter, r *http.Request) {
         deleteTransactionByID(w, mod, payload.ID)
 }
 
+func handleDeleteBulkTransactions(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+                return
+        }
+        if getSession(r) == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        var payload struct {
+                IDs []int `json:"ids"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+                return
+        }
+        if len(payload.IDs) == 0 {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Tidak ada transaksi yang dipilih"})
+                return
+        }
+        delSet := make(map[int]bool, len(payload.IDs))
+        for _, id := range payload.IDs {
+                delSet[id] = true
+        }
+        mod := moduleFromRequest(r)
+        mod.mu.Lock()
+        kept := mod.txs[:0]
+        deleted := 0
+        for _, t := range mod.txs {
+                if delSet[t.ID] {
+                        deleted++
+                        continue
+                }
+                kept = append(kept, t)
+        }
+        mod.txs = kept
+        remaining := len(mod.txs)
+        mod.mu.Unlock()
+        persistModule(mod)
+        jsonResponse(w, http.StatusOK, map[string]interface{}{
+                "deleted": deleted,
+                "total":   remaining,
+                "message": fmt.Sprintf("%d transaksi terpilih dihapus. Sisa %d transaksi.", deleted, remaining),
+        })
+}
+
 func handleDeleteAllTransactions(w http.ResponseWriter, r *http.Request) {
         if r.Method != http.MethodPost {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
@@ -680,6 +726,7 @@ func main() {
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
+        mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
         mux.HandleFunc("/data/transactions/delete-all", cors(requireAdmin(handleDeleteAllTransactions)))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
