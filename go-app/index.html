@@ -7456,9 +7456,11 @@ function kasPenDetailFromTemplate(tpl, bulan, rakMap) {
   const realisasi = kasGetStoredRealisasi(tpl.kode);
   const { cumAng, cumReal } = kasDetailCumSisa(rak, tpl.kode, bulan);
   const sisaSd = (cumAng || cumReal) ? (cumAng - cumReal) : null;
+  // Sisa bulan lalu = sisa s/d bulan ini dikurangi mutasi bulan ini (angkas - realisasi).
+  const sisaLalu = sisaSd != null ? (sisaSd - (angkas - realisasi)) : null;
   const persen = angkas > 0 ? (realisasi / angkas) * 100 : null;
   return { kode: tpl.kode, uraian, level: 3, isDetail: true,
-    sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
+    sisa_bulan_lalu: sisaLalu, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
 }
 
 function kasPenHierarchyRow(def, vals) {
@@ -7537,18 +7539,20 @@ function buildKasPengecualianRows(bulan) {
   // Sisa pengecualian harus kumulatif (s/d bulan ini), sama seperti TOTAL BELANJA,
   // agar pengurangan untuk TOTAL SERAPAN konsisten di bulan selain Januari.
   const penSisaSD = vals['5.'].sisa_sd || 0;
+  const penSisaLalu = vals['5.'].sisa_bulan_lalu || 0;
   const serapanAngkas = (totalBelanja.anggaran_kas || 0) - pen5ang;
   const serapanReal = (totalBelanja.realisasi || 0) - pen5real;
   const serapanSisaSD = (totalBelanja.sisa_sd || 0) - penSisaSD;
+  const serapanSisaLalu = (totalBelanja.sisa_bulan_lalu || 0) - penSisaLalu;
 
   out.push({
     kode: '', uraian: 'TOTAL BELANJA PENGECUALIAN', level: 0,
-    sisa_bulan_lalu: 0, anggaran_kas: pen5ang, realisasi: pen5real,
+    sisa_bulan_lalu: penSisaLalu, anggaran_kas: pen5ang, realisasi: pen5real,
     sisa_sd: penSisaSD, persen: pen5ang > 0 ? (pen5real / pen5ang) * 100 : 0,
   });
   out.push({
     kode: '', uraian: 'TOTAL SERAPAN ANGGARAN', level: 0,
-    sisa_bulan_lalu: 0, anggaran_kas: serapanAngkas,
+    sisa_bulan_lalu: serapanSisaLalu, anggaran_kas: serapanAngkas,
     realisasi: serapanReal,
     sisa_sd: serapanSisaSD,
     persen: serapanAngkas !== 0 ? (serapanReal / serapanAngkas) * 100 : 0,
@@ -7615,21 +7619,21 @@ function kasPenRowCells(r) {
   }
   if (r.uraian === 'TOTAL BELANJA PENGECUALIAN') {
     return {
-      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c3: kasFormatPenCell(r.sisa_bulan_lalu), c4: kasFormatPenCell(r.anggaran_kas),
       c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd),
       c7: kasFormatPenPct(r.persen),
     };
   }
   if (r.uraian === 'TOTAL SERAPAN ANGGARAN') {
     return {
-      c3: z, c4: kasFormatPenCell(r.anggaran_kas),
+      c3: kasFormatPenCell(r.sisa_bulan_lalu), c4: kasFormatPenCell(r.anggaran_kas),
       c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd),
       c7: kasFormatPenPct(r.persen),
     };
   }
   if (r.isDetail) {
     return {
-      c3: z,
+      c3: kasFormatPenCell(r.sisa_bulan_lalu),
       c4: kasFormatPenCell(r.anggaran_kas),
       c5: kasFormatPenCell(r.realisasi),
       c6: kasFormatPenCell(r.sisa_sd),
@@ -7637,7 +7641,7 @@ function kasPenRowCells(r) {
     };
   }
   return {
-    c3: z,
+    c3: kasFormatPenCell(r.sisa_bulan_lalu),
     c4: kasFormatPenCell(r.anggaran_kas),
     c5: kasFormatPenCell(r.realisasi),
     c6: kasFormatPenCell(r.sisa_sd),
