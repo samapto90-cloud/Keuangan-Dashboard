@@ -40,10 +40,13 @@ var narutoRunnersFS embed.FS
 var gundamIconsFS embed.FS
 
 type PotonganItem struct {
-        Jenis    string  `json:"jenis"`
-        Tarif    float64 `json:"tarif"`
-        Nilai    float64 `json:"nilai"`
-        Kategori string  `json:"kategori"`
+	Jenis     string  `json:"jenis"`
+	Tarif     float64 `json:"tarif"`
+	Nilai     float64 `json:"nilai"`
+	Kategori  string  `json:"kategori"`
+	KodeMAP   string  `json:"kode_map,omitempty"`
+	MasaPajak string  `json:"masa_pajak,omitempty"`
+	IDBilling string  `json:"id_billing,omitempty"`
 }
 
 type Transaction struct {
@@ -64,13 +67,20 @@ type Transaction struct {
         Nilai            float64 `json:"nilai"`
         Pajak            float64 `json:"pajak"`
         NilaiPotongan    float64 `json:"nilai_potongan"`
-        NTPN             string  `json:"ntpn"`
-        KodeBilling      string  `json:"kode_billing"`
-        NTB              string  `json:"ntb"`
-        PenggunaAnggaran string  `json:"pengguna_anggaran"`
-        PPTK             string  `json:"pptk"`
-        PPTKnip          string  `json:"pptk_nip"`
-        Bendahara        string  `json:"bendahara"`
+	NTPN             string  `json:"ntpn"`
+	KodeBilling      string  `json:"kode_billing"`
+	NTB              string  `json:"ntb"`
+	PenggunaAnggaran string  `json:"pengguna_anggaran"`
+	PPTK             string  `json:"pptk"`
+	PPTKnip          string  `json:"pptk_nip"`
+	Bendahara        string  `json:"bendahara"`
+	NamaRekening     string  `json:"nama_rekening"`
+	NoRekening       string  `json:"no_rekening"`
+	Bank             string  `json:"bank"`
+	NPWP             string  `json:"npwp"`
+	NamaWP           string  `json:"nama_wp"`
+	BPP              string  `json:"bpp"`
+	NoNP2D           string  `json:"no_np2d"`
 }
 
 type DashboardStats struct {

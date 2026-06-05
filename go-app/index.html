@@ -669,6 +669,19 @@
     @media (max-width: 768px) {
       .potongan-row, .potongan-row-head { grid-template-columns: 1fr; }
     }
+    .potongan-tax-detail { grid-column: 1 / -1; margin-top: -2px; }
+    .potongan-tax-detail .ptd-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px;
+      padding: 8px 10px; border: 1px dashed rgba(251,191,36,.3);
+      border-radius: 8px; background: rgba(251,191,36,.05);
+    }
+    .potongan-tax-detail .form-label { font-size: 10px; margin-bottom: 2px; color: #94a3b8; }
+    @media (max-width: 768px) { .potongan-tax-detail .ptd-grid { grid-template-columns: 1fr; } }
+    .np2d-section-divider {
+      font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase;
+      letter-spacing: .5px; padding: 8px 0 2px; margin-top: 6px;
+      border-top: 1px solid rgba(148,163,184,.18);
+    }
     .badge.bg-light { background: rgba(255,255,255,.08) !important; color: #cbd5e1 !important; border: 1px solid rgba(255,255,255,.1); }
     .table-num { font-size: 11px; color: #64748b; font-weight: 600; }
     .empty-state { padding: 50px 20px; text-align: center; }
@@ -797,9 +810,48 @@
       body.kwitansi-printing * { visibility: hidden; }
       body.kwitansi-printing #kwitansi-print,
       body.kwitansi-printing #kwitansi-print * { visibility: visible; }
-      body:not(.kwitansi-printing) #rekap-print,
-      body:not(.kwitansi-printing) #rekap-print * { visibility: visible; }
-      #kwitansi-print, #rekap-print { display: none !important; }
+      body:not(.kwitansi-printing):not(.np2d-printing) #rekap-print,
+      body:not(.kwitansi-printing):not(.np2d-printing) #rekap-print * { visibility: visible; }
+      #kwitansi-print, #rekap-print, #np2d-print { display: none !important; }
+      body.np2d-printing,
+      html:has(body.np2d-printing) {
+        height: 297mm !important; max-height: 297mm !important;
+        overflow: hidden !important;
+      }
+      body.np2d-printing * { visibility: hidden; }
+      body.np2d-printing #np2d-print,
+      body.np2d-printing #np2d-print * { visibility: visible; }
+      body.np2d-printing #np2d-print {
+        display: block !important; position: fixed; top: 0; left: 0;
+        width: 210mm !important; height: 297mm !important; max-height: 297mm !important;
+        margin: 0 !important; padding: 0 !important;
+        z-index: 99999; background: #fff; overflow: hidden !important;
+        page-break-before: avoid; page-break-after: avoid; page-break-inside: avoid;
+      }
+      body.np2d-printing #np2d-print .kw-a4-sheet {
+        width: 210mm !important; height: 297mm !important;
+        max-height: 297mm !important; overflow: hidden !important;
+        margin: 0 !important; page-break-inside: avoid;
+      }
+      body.np2d-printing #np2d-print .kw-scale-box {
+        width: 210mm !important; height: 297mm !important;
+        max-height: 297mm !important; overflow: hidden !important;
+      }
+      body.np2d-printing #np2d-print .kw-wrap {
+        box-shadow: none !important; border: none !important;
+        font-family: Arial, sans-serif !important;
+        padding: 6mm 10mm 5mm !important;
+      }
+      body.np2d-printing #np2d-print .kw-wrap * { font-family: Arial, sans-serif !important; }
+      body.np2d-printing .kw-kop {
+        width: 210mm !important; margin-left: 0 !important; margin-right: 0 !important;
+        padding: 5mm 8mm 3mm !important; box-sizing: border-box;
+      }
+      body.np2d-printing .kw-kop img {
+        width: 100% !important; height: auto !important; max-height: none !important;
+        object-fit: contain; object-position: center center;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
       body.kwitansi-printing #kwitansi-print {
         display: block !important; position: fixed; top: 0; left: 0;
         width: 210mm !important; height: 297mm !important; max-height: 297mm !important;
@@ -845,6 +897,32 @@
       }
     }
     #kwitansi-print, #rekap-print { display: none; }
+    #np2d-print { display: none; }
+    .np-wrap { color: #000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.45; }
+    .np-title { text-align: center; font-weight: 800; font-size: 13px; text-transform: uppercase; margin: 6px 0 2px; line-height: 1.3; }
+    .np-nomor { text-align: center; font-size: 11px; margin-bottom: 8px; }
+    .np-meta, .np-rek { border-collapse: collapse; margin: 2px 0; }
+    .np-meta td, .np-rek td { vertical-align: top; padding: 1px 4px 1px 0; font-size: 11px; }
+    .np-meta td:first-child, .np-rek td:first-child { width: 130px; white-space: nowrap; }
+    .np-meta td:nth-child(2), .np-rek td:nth-child(2) { width: 10px; }
+    .np-para { margin: 6px 0 2px; text-align: justify; }
+    .np-amount { font-weight: 700; font-size: 12px; margin: 2px 0 4px; }
+    .np-keperluan { margin: 0 0 6px; text-align: justify; font-style: italic; }
+    .np-sec-title { font-weight: 700; margin: 8px 0 3px; }
+    .np-table { width: 100%; border-collapse: collapse; margin: 2px 0 4px; font-size: 10.5px; }
+    .np-table th, .np-table td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; }
+    .np-table th { background: #e8e8e8; text-align: center; font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .np-table .np-amt { text-align: right; white-space: nowrap; }
+    .np-table .np-c { text-align: center; }
+    .np-foot-lbl { text-align: right; font-weight: 700; }
+    .np-table tfoot td { font-weight: 700; }
+    .np-closing { margin: 8px 0; text-align: justify; }
+    .np-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 6px; }
+    .np-sign-cell { text-align: center; font-size: 11px; }
+    .np-sign-space { height: 48px; }
+    .np-sign-name { font-weight: 700; text-decoration: underline; }
+    .np-sign-nip { font-size: 10.5px; }
+    .np-lembar { margin-top: 10px; font-size: 9.5px; color: #333; }
 
     /* ── Rekap Print ── */
     .rk-wrap { font-family: Arial, sans-serif; max-width: 100%; padding: 16px 20px; font-size: 11px; color: #111; }
@@ -2710,6 +2788,39 @@ function onNilaiBrutoInput() {
             <label class="form-label" id="lbl-f-bend">Bendahara Pengeluaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-bendahara" readonly />
           </div>
+
+          <!-- Baris 9: Data tambahan untuk NP2D / Kwitansi -->
+          <div class="col-12">
+            <div class="np2d-section-divider"><i class="bi bi-bank me-2"></i>Data Pemindahbukuan (NP2D)</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nama Rekening Penerima</label>
+            <input type="text" class="form-control" id="f-nama-rekening" placeholder="Nama pemilik rekening (default = penerima)" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">No. Rekening Bank</label>
+            <input type="text" class="form-control" id="f-no-rekening" placeholder="Nomor rekening tujuan" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Bank</label>
+            <input type="text" class="form-control" id="f-bank" placeholder="mis. Riau Syariah / BRI / Mandiri" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">NPWP <small class="text-muted">(bagian pajak)</small></label>
+            <input type="text" class="form-control" id="f-npwp" placeholder="NPWP wajib pajak (boleh kosong / -)" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nama WP <small class="text-muted">(Wajib Pajak)</small></label>
+            <input type="text" class="form-control" id="f-nama-wp" placeholder="Nama wajib pajak (boleh kosong / -)" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nama BPP / Bidang</label>
+            <input type="text" class="form-control" id="f-bpp" placeholder="mis. BPP Bid Pemb SMP Disdik" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">No. NP2D <span class="auto-badge">otomatis</span></label>
+            <input type="text" class="form-control" id="f-nonp2d" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
+          </div>
         </div>
 
         <div class="mt-4 d-flex gap-2">
@@ -3249,6 +3360,111 @@ function onNilaiBrutoInput() {
           <button class="btn btn-success" id="btn-simpan-kwitansi" onclick="doSimpanKwitansi()"><i class="bi bi-download me-2"></i>Simpan PDF</button>
           <button class="btn btn-outline-primary" id="btn-simpan-cetak-kwitansi" onclick="doSimpanDanCetak()"><i class="bi bi-download me-1"></i><i class="bi bi-printer me-1"></i>Simpan &amp; Cetak</button>
           <button class="btn btn-primary" onclick="doCetak()"><i class="bi bi-printer me-2"></i>Cetak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NP2D Print Sheet -->
+<div id="np2d-print">
+  <div class="kw-a4-sheet">
+  <div class="kw-scale-box">
+  <div class="kw-wrap np-wrap">
+
+    <div class="kw-kop">
+      <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
+    </div>
+
+    <div class="np-title">NOTA PERMINTAAN PEMINDAHBUKUAN DANA<br>PEJABAT PELAKSANA TEKNIS KEGIATAN (NP2D-PPTK)</div>
+    <div class="np-nomor">Nomor : <span id="np-nomor">—</span></div>
+
+    <table class="np-meta">
+      <tr><td>Dari</td><td>:</td><td><strong id="np-dari">—</strong>, selaku Pejabat Pelaksana Teknis Kegiatan (PPTK) Dinas Pendidikan Kota Batam</td></tr>
+      <tr><td>Kepada</td><td>:</td><td>Bendahara Pengeluaran Pembantu Dinas Pendidikan Kota Batam</td></tr>
+      <tr><td>Tahun Anggaran</td><td>:</td><td id="np-tahun">2026</td></tr>
+      <tr><td>Kegiatan</td><td>:</td><td id="np-kegiatan">—</td></tr>
+    </table>
+
+    <p class="np-para">Diminta untuk melakukan pemindahbukuan (overbooking) dana dari Rekening Giro Bendahara Pengeluaran Pembantu (BPP) <strong id="np-bpp">—</strong> sebesar :</p>
+    <p class="np-amount">Rp <span id="np-total-num">0,00</span> ( <span id="np-terbilang">—</span> Rupiah )</p>
+    <p class="np-para">untuk keperluan pembayaran dengan rincian sebagai berikut:</p>
+    <p class="np-keperluan" id="np-keperluan">—</p>
+
+    <div class="np-sec-title">I. Kepada : <span id="np-penerima">—</span></div>
+    <table class="np-rek">
+      <tr><td>Nama Rekening</td><td>:</td><td id="np-nama-rekening">—</td></tr>
+      <tr><td>No. Rekening Bank</td><td>:</td><td id="np-no-rekening">—</td></tr>
+      <tr><td>Bank</td><td>:</td><td id="np-bank">—</td></tr>
+    </table>
+    <table class="np-table">
+      <thead><tr><th style="width:20%">Kode Rekening</th><th style="width:18%">No Kwitansi</th><th>Uraian</th><th style="width:20%">Jumlah (Rp)</th></tr></thead>
+      <tbody>
+        <tr><td id="np-koderek">—</td><td id="np-nokwitansi">—</td><td id="np-uraian">—</td><td class="np-amt" id="np-netto">0,00</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="3" class="np-foot-lbl">Jumlah I</td><td class="np-amt" id="np-jumlah1">0,00</td></tr></tfoot>
+    </table>
+
+    <div id="np-sec2">
+      <div class="np-sec-title">II. Kepada : KAS Negara</div>
+      <table class="np-rek">
+        <tr><td>NPWP</td><td>:</td><td id="np-npwp">—</td></tr>
+        <tr><td>Nama WP</td><td>:</td><td id="np-nama-wp">—</td></tr>
+      </table>
+      <table class="np-table">
+        <thead><tr><th style="width:6%">No</th><th>Kode MAP</th><th style="width:14%">Masa</th><th style="width:12%">Tahun</th><th style="width:26%">ID Billing</th></tr></thead>
+        <tbody id="np-pajak-billing"></tbody>
+      </table>
+      <table class="np-table">
+        <thead><tr><th style="width:32%">Jenis Setoran</th><th>Uraian</th><th style="width:20%">Jumlah (Rp)</th></tr></thead>
+        <tbody id="np-pajak-setor"></tbody>
+        <tfoot><tr><td colspan="2" class="np-foot-lbl">Jumlah II</td><td class="np-amt" id="np-jumlah2">0,00</td></tr></tfoot>
+      </table>
+    </div>
+
+    <p class="np-closing">Demikian disampaikan, atas perhatian dan kerjasamanya diucapkan terima kasih.</p>
+
+    <div class="np-sign">
+      <div class="np-sign-cell">
+        <div>Mengetahui/Menyetujui,</div>
+        <div id="np-pa-role">Pengguna Anggaran</div>
+        <div class="np-sign-space"></div>
+        <div class="np-sign-name" id="np-pa-nama">—</div>
+        <div class="np-sign-nip" id="np-pa-nip">—</div>
+      </div>
+      <div class="np-sign-cell">
+        <div>Batam, <span id="np-tgl">—</span></div>
+        <div>Pejabat Pelaksana Teknis Kegiatan</div>
+        <div class="np-sign-space"></div>
+        <div class="np-sign-name" id="np-pptk-nama">—</div>
+        <div class="np-sign-nip" id="np-pptk-nip">—</div>
+      </div>
+    </div>
+
+    <div class="np-lembar">Lembar 1 : Bendahara Pengeluaran; &nbsp;&nbsp; Lembar 2 : Arsip Pejabat Pelaksana Teknis Kegiatan.</div>
+
+  </div>
+  </div>
+  </div>
+</div>
+
+<!-- Modal Preview NP2D -->
+<div class="modal fade" id="modalNP2D" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-bank me-2"></i>Preview NP2D — Nota Permintaan Pemindahbukuan Dana</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0" style="background:#e9ecef">
+        <div id="np2d-preview" style="padding:20px;display:flex;justify-content:center"></div>
+      </div>
+      <div class="modal-footer flex-wrap gap-2 justify-content-between">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-success" id="btn-simpan-np2d" onclick="doSimpanNP2D()"><i class="bi bi-download me-2"></i>Simpan PDF</button>
+          <button class="btn btn-outline-primary" id="btn-simpan-cetak-np2d" onclick="doSimpanDanCetakNP2D()"><i class="bi bi-download me-1"></i><i class="bi bi-printer me-1"></i>Simpan &amp; Cetak</button>
+          <button class="btn btn-primary" onclick="doCetakNP2D()"><i class="bi bi-printer me-2"></i>Cetak</button>
         </div>
       </div>
     </div>
@@ -3860,9 +4076,40 @@ function updateNoBPK() {
   if (!el) return;
   if (!hasTrxFormInput()) {
     el.value = '';
+    updateNoNP2D(true);
     return;
   }
   el.value = generateNoBPK(document.getElementById('f-tanggal').value);
+  updateNoNP2D();
+}
+
+const NP2D_UNIT = '1.01.06.01';
+
+function parseNp2dSeq(noNp2d) {
+  if (!noNp2d) return 0;
+  const m = String(noNp2d).match(/^(\d+)\//);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+function generateNoNP2D(tanggal) {
+  if (!tanggal) return '';
+  const [year, month] = tanggal.split('-');
+  const cfg = getPortalAppConfig();
+  let maxSeq = 0;
+  for (const t of allTransactions) {
+    if (editingId != null && t.id === editingId) continue;
+    maxSeq = Math.max(maxSeq, parseNp2dSeq(t.no_np2d));
+  }
+  const seq = String(maxSeq + 1).padStart(3, '0');
+  return `${seq}/LS/NP2D-PPTK/${cfg.bpkCode}/${NP2D_UNIT}/${month}/${year}`;
+}
+
+function updateNoNP2D(clear) {
+  if (editingId != null) return;
+  const el = document.getElementById('f-nonp2d');
+  if (!el) return;
+  if (clear || !hasTrxFormInput()) { el.value = ''; return; }
+  el.value = generateNoNP2D(document.getElementById('f-tanggal').value);
 }
 
 function initTrxFormBpkListeners() {
@@ -4258,6 +4505,7 @@ function renderTrxPagination(total, totalPages, start, shown) {
 
 function trxActionButtons(t) {
   return `<button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})"><i class="bi bi-printer"></i></button>
+          <button class="btn btn-sm btn-outline-info" title="Cetak NP2D" onclick="cetakNP2D(${t.id})"><i class="bi bi-bank"></i></button>
           <button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
 }
@@ -4451,6 +4699,13 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     pptk: pptkFinal,
     pptk_nip: dbPPTKNip(pptkFinal),
     bendahara: DB.bendahara.nama,
+    nama_rekening: document.getElementById('f-nama-rekening').value.trim() || document.getElementById('f-penerima').value.trim(),
+    no_rekening: document.getElementById('f-no-rekening').value.trim(),
+    bank: document.getElementById('f-bank').value.trim(),
+    npwp: document.getElementById('f-npwp').value.trim(),
+    nama_wp: document.getElementById('f-nama-wp').value.trim(),
+    bpp: document.getElementById('f-bpp').value.trim(),
+    no_np2d: document.getElementById('f-nonp2d').value.trim(),
   };
   const btn = document.getElementById('btn-submit');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
@@ -4505,6 +4760,13 @@ function editTrx(id) {
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-koderek').value = t.kode_rekening||'';
   document.getElementById('f-uraian').value = t.uraian||'';
+  document.getElementById('f-nama-rekening').value = t.nama_rekening||'';
+  document.getElementById('f-no-rekening').value = t.no_rekening||'';
+  document.getElementById('f-bank').value = t.bank||'';
+  document.getElementById('f-npwp').value = t.npwp||'';
+  document.getElementById('f-nama-wp').value = t.nama_wp||'';
+  document.getElementById('f-bpp').value = t.bpp||'';
+  document.getElementById('f-nonp2d').value = t.no_np2d||'';
   loadPotonganToForm(t);
   document.getElementById('f-ntpn').value = t.ntpn||'';
   document.getElementById('f-kbilling').value = t.kode_billing||'';
@@ -4884,6 +5146,188 @@ function doCetak() {
     window.print();
     setTimeout(() => document.body.classList.remove('kwitansi-printing'), 600);
   }, 350);
+}
+
+// ── NP2D (Nota Permintaan Pemindahbukuan Dana) ───────────────────────────
+let np2dFilenameBase = '';
+
+function npSetTxt(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = (val == null || val === '') ? '—' : val;
+}
+
+function cetakNP2D(id) {
+  const t = allTransactions.find(x => x.id === id);
+  if (!t) return;
+  const cfg = getPortalAppConfig();
+  const items = getPotonganItemsFromTransaction(t);
+  const pajakItems = items.filter(i => i.kategori === 'pajak');
+  const potItems = items.filter(i => i.kategori === 'potongan');
+  const totalPajak = pajakItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.pajak || 0);
+  const totalPot = potItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.nilai_potongan || 0);
+  const bruto = t.nilai || 0;
+  const netto = bruto - totalPajak - totalPot;
+  const tahun = DB.tahun || 2026;
+  const keperluan = t.uraian || t.pekerjaan || '—';
+  let pptkNip = t.pptk_nip || dbPPTKNip(t.pptk) || '';
+  if (pptkNip && !String(pptkNip).startsWith('NIP')) pptkNip = 'NIP. ' + pptkNip;
+
+  npSetTxt('np-nomor', t.no_np2d);
+  npSetTxt('np-dari', t.pptk);
+  npSetTxt('np-tahun', tahun);
+  npSetTxt('np-kegiatan', [t.kegiatan, t.sub_kegiatan].filter(Boolean).join(' , '));
+  npSetTxt('np-bpp', t.bpp);
+  npSetTxt('np-total-num', formatKwitansiAmount(bruto));
+  npSetTxt('np-terbilang', capitalizeTerbilang(terbilang(Math.round(bruto))));
+  npSetTxt('np-keperluan', keperluan);
+  npSetTxt('np-penerima', t.penerima);
+  npSetTxt('np-nama-rekening', t.nama_rekening || t.penerima);
+  npSetTxt('np-no-rekening', t.no_rekening);
+  npSetTxt('np-bank', t.bank);
+  npSetTxt('np-koderek', t.kode_rekening);
+  npSetTxt('np-nokwitansi', t.no_bpk);
+  npSetTxt('np-uraian', keperluan);
+  npSetTxt('np-netto', formatKwitansiAmount(netto));
+  npSetTxt('np-jumlah1', formatKwitansiAmount(netto));
+
+  const sec2 = document.getElementById('np-sec2');
+  if (pajakItems.length && totalPajak > 0) {
+    sec2.style.display = '';
+    npSetTxt('np-npwp', t.npwp || '-');
+    npSetTxt('np-nama-wp', t.nama_wp || t.penerima || '-');
+    document.getElementById('np-pajak-billing').innerHTML = pajakItems.map((it, i) =>
+      `<tr><td class="np-c">${i + 1}</td><td>${it.kode_map || '-'}</td><td class="np-c">${it.masa_pajak || '-'}</td><td class="np-c">${tahun}</td><td>${it.id_billing || '-'}</td></tr>`
+    ).join('');
+    document.getElementById('np-pajak-setor').innerHTML = pajakItems.map(it =>
+      `<tr><td>${it.jenis || '-'}</td><td>${keperluan}</td><td class="np-amt">${formatKwitansiAmount(it.nilai || 0)}</td></tr>`
+    ).join('');
+    npSetTxt('np-jumlah2', formatKwitansiAmount(totalPajak));
+  } else {
+    sec2.style.display = 'none';
+  }
+
+  npSetTxt('np-pa-role', cfg.paLabel);
+  npSetTxt('np-pa-nama', DB.pa.nama);
+  npSetTxt('np-pa-nip', DB.pa.nip);
+  npSetTxt('np-tgl', formatTanggalShort(t.tanggal));
+  npSetTxt('np-pptk-nama', t.pptk);
+  npSetTxt('np-pptk-nip', pptkNip || '—');
+
+  const slug = (t.no_np2d || ('NP2D-' + t.id)).replace(/[\\/:*?"<>|]/g, '_');
+  const penerimaSlug = (t.penerima || 'Penerima').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+  np2dFilenameBase = `NP2D_${slug}_${penerimaSlug}`;
+
+  const sheet = document.querySelector('#np2d-print .kw-a4-sheet');
+  fitKwitansiSheet(sheet);
+  document.getElementById('np2d-preview').innerHTML = sheet.outerHTML;
+  fitKwitansiSheet(document.querySelector('#np2d-preview .kw-a4-sheet'));
+  new bootstrap.Modal(document.getElementById('modalNP2D')).show();
+}
+
+function getNp2dPrintElement() {
+  return document.querySelector('#np2d-print .kw-a4-sheet');
+}
+
+async function buildNp2dCaptureNode() {
+  const source = getNp2dPrintElement();
+  if (!source) throw new Error('Data NP2D tidak ditemukan.');
+  fitKwitansiSheet(source);
+  const host = document.getElementById('kw-capture-host');
+  host.innerHTML = '';
+  const clone = source.cloneNode(true);
+  clone.style.transform = 'none';
+  clone.style.boxShadow = 'none';
+  clone.querySelectorAll('.kw-scale-box').forEach(el => { el.style.transform = 'none'; el.style.zoom = '1'; });
+  host.appendChild(clone);
+  fitKwitansiSheet(clone);
+  clone.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src');
+    if (src) img.src = new URL(src, window.location.origin).href;
+  });
+  await ensureKwitansiImagesLoaded(clone);
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  return clone;
+}
+
+async function renderNp2dCanvas() {
+  const h2c = window.html2canvas;
+  if (typeof h2c !== 'function') throw new Error('Library html2canvas belum dimuat. Tekan Ctrl+F5.');
+  try {
+    const sheet = await buildNp2dCaptureNode();
+    const w = Math.round(mmToPx(KW_A4_W_MM));
+    const h = Math.round(mmToPx(KW_A4_H_MM));
+    const raw = await h2c(sheet, {
+      scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff',
+      width: w, height: h, windowWidth: w, windowHeight: h, scrollX: 0, scrollY: 0, logging: false,
+      onclone(doc) {
+        doc.querySelectorAll('.np-wrap, .np-wrap *').forEach(node => {
+          node.style.setProperty('font-family', 'Arial, sans-serif', 'important');
+        });
+      },
+    });
+    if (!raw || !raw.width) throw new Error('Render NP2D gagal (canvas kosong).');
+    return cropCanvasToA4(raw);
+  } finally {
+    clearKwitansiCaptureNode();
+  }
+}
+
+async function savePdfFromCanvasGeneric(canvas, filename) {
+  if (window.PDFLib?.PDFDocument) {
+    try {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const pageW = 595.28, pageH = 841.89;
+      const page = pdfDoc.addPage([pageW, pageH]);
+      let img;
+      try { img = await pdfDoc.embedJpg(dataUrlToBytes(canvas.toDataURL('image/jpeg', 0.92))); }
+      catch { img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png'))); }
+      page.drawImage(img, { x: 0, y: 0, width: pageW, height: pageH });
+      downloadPdfBlob(await pdfDoc.save(), filename);
+      return;
+    } catch (e) { console.warn('PDFLib gagal, fallback jsPDF:', e); }
+  }
+  const JsPDF = window.jspdf?.jsPDF;
+  if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+  const pdf = new JsPDF({ orientation: 'p', unit: 'mm', format: 'a4', compress: true });
+  const pw = pdf.internal.pageSize.getWidth();
+  const ph = pdf.internal.pageSize.getHeight();
+  pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw - 0.2, ph - 0.2);
+  let pages = pdf.internal.getNumberOfPages();
+  while (pages > 1) { pdf.deletePage(pages); pages--; }
+  pdf.save(filename);
+}
+
+async function doSimpanNP2D() {
+  const btn = document.getElementById('btn-simpan-np2d');
+  const btn2 = document.getElementById('btn-simpan-cetak-np2d');
+  const orig = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan…'; }
+  if (btn2) btn2.disabled = true;
+  try {
+    const canvas = await renderNp2dCanvas();
+    await savePdfFromCanvasGeneric(canvas, (np2dFilenameBase || 'NP2D_SIPKEU').slice(0, 100) + '.pdf');
+  } catch (err) {
+    console.error('Simpan NP2D gagal:', err);
+    alert('Gagal menyimpan NP2D PDF: ' + (err.message || err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    if (btn2) btn2.disabled = false;
+  }
+}
+
+function doCetakNP2D() {
+  fitKwitansiSheet(getNp2dPrintElement());
+  document.body.classList.add('np2d-printing');
+  bootstrap.Modal.getInstance(document.getElementById('modalNP2D'))?.hide();
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => document.body.classList.remove('np2d-printing'), 600);
+  }, 350);
+}
+
+async function doSimpanDanCetakNP2D() {
+  await doSimpanNP2D();
+  doCetakNP2D();
 }
 
 // ── Settings / Pejabat ───────────────────────────────────────────────────
@@ -5486,6 +5930,13 @@ function addPotonganFormRow(preset, idx) {
     </div>
     <div>
       <button type="button" class="btn btn-remove-row" title="Hapus baris" onclick="removePotonganFormRow(${rowIdx})"><i class="bi bi-trash"></i></button>
+    </div>
+    <div class="potongan-tax-detail" style="display:${(preset?.kategori || catalog?.kategori || 'pajak') === 'pajak' ? '' : 'none'}">
+      <div class="ptd-grid">
+        <div><label class="form-label">Kode MAP / Akun Pajak</label><input type="text" class="form-control form-control-sm potongan-kodemap" placeholder="mis. 411128" value="${preset?.kode_map || ''}" /></div>
+        <div><label class="form-label">Masa Pajak</label><input type="text" class="form-control form-control-sm potongan-masa" placeholder="mis. 0505" value="${preset?.masa_pajak || ''}" /></div>
+        <div><label class="form-label">ID Billing</label><input type="text" class="form-control form-control-sm potongan-idbilling" placeholder="ID Billing pajak" value="${preset?.id_billing || ''}" /></div>
+      </div>
     </div>`;
   wrap.appendChild(row);
   if (preset?.nilai != null && preset.nilai > 0) potonganManualFlags[rowIdx] = true;
@@ -5527,6 +5978,8 @@ function onPotonganJenisChange(idx) {
     tarifEl.value = '';
     tarifEl.readOnly = false;
   }
+  const td = row.querySelector('.potongan-tax-detail');
+  if (td) td.style.display = katEl.value === 'pajak' ? '' : 'none';
   recalcPotonganRow(idx, true);
   updatePotonganSummaryDisplay();
   syncTaxFieldVisibility();
@@ -5534,6 +5987,12 @@ function onPotonganJenisChange(idx) {
 }
 
 function onPotonganKategoriChange(idx) {
+  const row = getPotonganRowEl(idx);
+  if (row) {
+    const kat = row.querySelector('.potongan-kategori')?.value;
+    const td = row.querySelector('.potongan-tax-detail');
+    if (td) td.style.display = kat === 'pajak' ? '' : 'none';
+  }
   updatePotonganSummaryDisplay();
   syncTaxFieldVisibility();
 }
@@ -5614,7 +6073,16 @@ function collectPotonganFromForm() {
     const tarif = parseTarifInput(row.querySelector('.potongan-tarif').value) || 0;
     const kategori = row.querySelector('.potongan-kategori').value || 'pajak';
     if (!catalogId && !jenis && !nilai) return;
-    items.push({ jenis, tarif, nilai, kategori });
+    const item = { jenis, tarif, nilai, kategori };
+    if (kategori === 'pajak') {
+      const kodeMap = row.querySelector('.potongan-kodemap')?.value?.trim() || '';
+      const masa = row.querySelector('.potongan-masa')?.value?.trim() || '';
+      const idBilling = row.querySelector('.potongan-idbilling')?.value?.trim() || '';
+      if (kodeMap) item.kode_map = kodeMap;
+      if (masa) item.masa_pajak = masa;
+      if (idBilling) item.id_billing = idBilling;
+    }
+    items.push(item);
   });
   return items;
 }
@@ -5746,6 +6214,13 @@ const EXPORT_COLS = [
   {label:'PA',           key:'pengguna_anggaran'},
   {label:'PPTK',         key:'pptk'},
   {label:'Bendahara',    key:'bendahara'},
+  {label:'Nama Rekening',key:'nama_rekening'},
+  {label:'No Rekening',  key:'no_rekening'},
+  {label:'Bank',         key:'bank'},
+  {label:'NPWP',         key:'npwp'},
+  {label:'Nama WP',      key:'nama_wp'},
+  {label:'BPP/Bidang',   key:'bpp'},
+  {label:'No NP2D',      key:'no_np2d'},
 ];
 
 // ── Ekspor ────────────────────────────────────────────────────────────────
