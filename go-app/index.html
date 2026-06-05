@@ -7414,6 +7414,21 @@ function kasRakAngkas(rak, bulan) {
   return (rak && rak.bulan && rak.bulan[bulan]) ? (rak.bulan[bulan] || 0) : 0;
 }
 
+// Sisa kumulatif s/d bulan ini untuk satu kode detail pengecualian:
+// Σ (anggaran kas[m] − realisasi[m]) dari Januari sampai bulan target.
+// Penting agar bulan selain Januari membawa sisa bulan-bulan sebelumnya.
+function kasDetailCumSisa(rak, kode, bulan) {
+  const idx = KAS_BULAN_KEYS.indexOf(bulan);
+  if (idx < 0) return { cumAng: 0, cumReal: 0 };
+  let cumAng = 0, cumReal = 0;
+  for (let i = 0; i <= idx; i++) {
+    const m = KAS_BULAN_KEYS[i];
+    cumAng += kasRakAngkas(rak, m);
+    cumReal += (kasStateCache.realisasi?.[m]?.[kode]) || 0;
+  }
+  return { cumAng, cumReal };
+}
+
 function kasFindRak(kode, rakMap) {
   if (rakMap[kode]) return rakMap[kode];
   const rows = kasStateCache.rak_rows || [];
@@ -7439,7 +7454,8 @@ function kasPenDetailFromTemplate(tpl, bulan, rakMap) {
       sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi: null, sisa_sd: null, persen: null };
   }
   const realisasi = kasGetStoredRealisasi(tpl.kode);
-  const sisaSd = angkas > 0 ? angkas - realisasi : (realisasi > 0 ? -realisasi : null);
+  const { cumAng, cumReal } = kasDetailCumSisa(rak, tpl.kode, bulan);
+  const sisaSd = (cumAng || cumReal) ? (cumAng - cumReal) : null;
   const persen = angkas > 0 ? (realisasi / angkas) * 100 : null;
   return { kode: tpl.kode, uraian, level: 3, isDetail: true,
     sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
@@ -7459,15 +7475,15 @@ function kasPenHierarchyRow(def, vals) {
 }
 
 function kasPenAggDetails(details) {
-  let ang = 0, sisa = 0, real = 0, sisaLalu = 0;
+  let ang = 0, sisa = 0, real = 0, sisaLalu = 0, hasSisa = false;
   details.forEach(d => {
     ang += d.anggaran_kas || 0;
     real += d.realisasi || 0;
     sisaLalu += d.sisa_bulan_lalu || 0;
-    if (d.sisa_sd != null) sisa += d.sisa_sd || 0;
+    if (d.sisa_sd != null) { sisa += d.sisa_sd || 0; hasSisa = true; }
     else if (d.anggaran_kas) sisa += (d.anggaran_kas || 0) - (d.realisasi || 0);
   });
-  if (!sisa && ang) sisa = ang - real;
+  if (!hasSisa && !sisa && ang) sisa = ang - real;
   const persen = ang > 0 ? (real / ang) * 100 : 0;
   return { anggaran_kas: ang, sisa_sd: sisa, realisasi: real, sisa_bulan_lalu: sisaLalu, persen };
 }
@@ -7518,7 +7534,9 @@ function buildKasPengecualianRows(bulan) {
   const totalBelanja = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
   const pen5ang = vals['5.'].anggaran_kas || 0;
   const pen5real = vals['5.'].realisasi || 0;
-  const penSisaSD = pen5ang - pen5real;
+  // Sisa pengecualian harus kumulatif (s/d bulan ini), sama seperti TOTAL BELANJA,
+  // agar pengurangan untuk TOTAL SERAPAN konsisten di bulan selain Januari.
+  const penSisaSD = vals['5.'].sisa_sd || 0;
   const serapanAngkas = (totalBelanja.anggaran_kas || 0) - pen5ang;
   const serapanReal = (totalBelanja.realisasi || 0) - pen5real;
   const serapanSisaSD = (totalBelanja.sisa_sd || 0) - penSisaSD;
