@@ -5783,9 +5783,12 @@ function downloadTemplate() {
 
 // ── Impor ─────────────────────────────────────────────────────────────────
 function showModalImpor() {
-  document.getElementById('import-file').value = '';
-  document.getElementById('import-preview').style.display = 'none';
-  document.getElementById('btn-confirm-impor').style.display = 'none';
+  const fileEl = document.getElementById('import-file');
+  if (fileEl) fileEl.value = '';
+  const previewEl = document.getElementById('import-preview');
+  if (previewEl) previewEl.style.display = 'none';
+  const confirmBtn = document.getElementById('btn-confirm-impor');
+  if (confirmBtn) confirmBtn.style.display = 'none';
   importData = [];
   new bootstrap.Modal(document.getElementById('modalImpor')).show();
 }
@@ -5833,22 +5836,32 @@ function previewImpor(event) {
         return t;
       });
 
-      // Preview table
+      if (!importData.length) {
+        showImportAlert('Tidak ada baris data yang bisa dibaca. Pastikan nama kolom sesuai template.', 'warning');
+        return;
+      }
+
+      // Preview table (semua akses elemen null-safe agar 1 elemen hilang
+      // tidak menggagalkan seluruh proses baca file)
       const head = document.getElementById('import-thead');
       const tbody = document.getElementById('import-tbody');
       const previewCols = ['tanggal','penerima','kegiatan','pekerjaan','jenis_pajak','pajak','jenis_potongan','nilai_potongan'];
       const previewLabels = ['Tanggal','Penerima','Kegiatan','Pekerjaan','Jenis Pajak','Pajak','Jenis Potongan','Nilai Potongan'];
-      head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
-      tbody.innerHTML = importData.slice(0, 20).map(t =>
+      if (head) head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
+      if (tbody) tbody.innerHTML = importData.slice(0, 20).map(t =>
         '<tr>' + previewCols.map(k => `<td style="font-size:11px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis">${k==='pajak'||k==='nilai_potongan' ? formatRupiah(t[k]||0) : (t[k]||'-')}</td>`).join('') + '</tr>'
       ).join('');
 
-      document.getElementById('import-count').textContent = importData.length;
-      document.getElementById('import-preview').style.display = '';
-      document.getElementById('btn-confirm-impor').style.display = '';
+      const countEl = document.getElementById('import-count');
+      if (countEl) countEl.textContent = importData.length;
+      const previewEl = document.getElementById('import-preview');
+      if (previewEl) previewEl.style.display = '';
+      const confirmBtn = document.getElementById('btn-confirm-impor');
+      if (confirmBtn) confirmBtn.style.display = '';
       showImportAlert(`<i class="bi bi-check-circle me-1"></i>${importData.length} baris data siap diimpor${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}.`, 'success');
     } catch(err) {
-      showImportAlert('<i class="bi bi-x-circle me-1"></i>Gagal membaca file: ' + err.message, 'danger');
+      console.error('previewImpor error:', err);
+      showImportAlert('<i class="bi bi-x-circle me-1"></i>Gagal membaca file: ' + (err && err.message ? err.message : err), 'danger');
     }
   };
   reader.readAsArrayBuffer(file);
@@ -5856,9 +5869,12 @@ function previewImpor(event) {
 
 function showImportAlert(msg, type) {
   const el = document.getElementById('import-alert');
-  el.className = `alert alert-${type} py-2 mb-2`;
-  el.innerHTML = msg;
-  document.getElementById('import-preview').style.display = '';
+  if (el) {
+    el.className = `alert alert-${type} py-2 mb-2`;
+    el.innerHTML = msg;
+  }
+  const preview = document.getElementById('import-preview');
+  if (preview) preview.style.display = '';
 }
 
 async function doImpor() {
