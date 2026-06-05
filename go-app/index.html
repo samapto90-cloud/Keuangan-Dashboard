@@ -7517,18 +7517,23 @@ function buildKasPengecualianRows(bulan) {
 
   const totalBelanja = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
   const pen5ang = vals['5.'].anggaran_kas || 0;
+  const pen5real = vals['5.'].realisasi || 0;
+  const penSisaSD = pen5ang - pen5real;
   const serapanAngkas = (totalBelanja.anggaran_kas || 0) - pen5ang;
+  const serapanReal = (totalBelanja.realisasi || 0) - pen5real;
+  const serapanSisaSD = (totalBelanja.sisa_sd || 0) - penSisaSD;
 
   out.push({
     kode: '', uraian: 'TOTAL BELANJA PENGECUALIAN', level: 0,
-    sisa_bulan_lalu: 0, anggaran_kas: pen5ang, realisasi: vals['5.'].realisasi || 0,
-    sisa_sd: pen5ang - (vals['5.'].realisasi || 0), persen: pen5ang > 0 ? ((vals['5.'].realisasi || 0) / pen5ang) * 100 : 0,
+    sisa_bulan_lalu: 0, anggaran_kas: pen5ang, realisasi: pen5real,
+    sisa_sd: penSisaSD, persen: pen5ang > 0 ? (pen5real / pen5ang) * 100 : 0,
   });
   out.push({
     kode: '', uraian: 'TOTAL SERAPAN ANGGARAN', level: 0,
     sisa_bulan_lalu: 0, anggaran_kas: serapanAngkas,
-    realisasi: (totalBelanja.realisasi || 0) - (vals['5.'].realisasi || 0),
-    sisa_sd: totalBelanja.sisa_sd || totalBelanja.anggaran_kas || 0, persen: 0,
+    realisasi: serapanReal,
+    sisa_sd: serapanSisaSD,
+    persen: serapanAngkas !== 0 ? (serapanReal / serapanAngkas) * 100 : 0,
   });
 
   return out;
@@ -7566,6 +7571,7 @@ function kasTableHeadHTML(bl, opts = {}) {
 
 function kasFormatPenCell(v) {
   if (v === '' || v == null || v === 0 || (typeof v === 'number' && Math.abs(v) < 0.005)) return formatKasAmount(0);
+  if (typeof v === 'number' && v < 0) return '(' + formatKasAmount(Math.abs(v)) + ')';
   return formatKasAmount(v);
 }
 
@@ -7599,7 +7605,8 @@ function kasPenRowCells(r) {
   if (r.uraian === 'TOTAL SERAPAN ANGGARAN') {
     return {
       c3: z, c4: kasFormatPenCell(r.anggaran_kas),
-      c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd), c7: zp,
+      c5: kasFormatPenCell(r.realisasi), c6: kasFormatPenCell(r.sisa_sd),
+      c7: kasFormatPenPct(r.persen),
     };
   }
   if (r.isDetail) {
@@ -7960,7 +7967,11 @@ function kasExcelBlank() {
 function kasExcelNumFromDisplay(v) {
   if (v == null || v === '') return 0;
   if (typeof v === 'number') return v;
-  return parseKasNumber(String(v).replace('%', '').trim());
+  let s = String(v).replace('%', '').trim();
+  const neg = /^\(.*\)$/.test(s);
+  if (neg) s = s.replace(/[()]/g, '');
+  const n = parseKasNumber(s);
+  return neg ? -n : n;
 }
 
 /** Baris Excel — data & format selaras laporan PDF (kasRowsToHTML / kasPenRowCells). */
