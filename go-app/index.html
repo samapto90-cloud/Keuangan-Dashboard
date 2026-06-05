@@ -1680,6 +1680,21 @@
     .kp-rekon-box-title { font-weight: 700; font-size: calc(10pt * var(--kp-fit, 1)); line-height: 1.35; margin-bottom: calc(6px * var(--kp-fit, 1)); }
     .kp-rekon-box-space { flex: 1; min-height: calc(65px * var(--kp-fit, 1)); }
     .kp-rekon-box-line { font-size: 9pt; margin-top: 3px; color: #333; }
+    .kp-rekon-rows { display: flex; flex-direction: column; gap: calc(12px * var(--kp-fit, 1)); width: 100%; }
+    .kp-rekon-row { border: 1px solid #000; box-sizing: border-box; }
+    .kp-rekon-row-title {
+      background: #d9d9d9; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      text-align: center; font-weight: 700; line-height: 1.3;
+      font-size: calc(10pt * var(--kp-fit, 1));
+      padding: calc(5px * var(--kp-fit, 1)) calc(8px * var(--kp-fit, 1));
+      border-bottom: 1px solid #000;
+    }
+    .kp-rekon-row-val {
+      text-align: right; font-weight: 600;
+      font-size: calc(11pt * var(--kp-fit, 1));
+      padding: calc(16px * var(--kp-fit, 1)) calc(16px * var(--kp-fit, 1));
+      min-height: calc(42px * var(--kp-fit, 1));
+    }
     .kas-page { display: none; }
     .kas-page.active { display: block; }
     .kas-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -1953,6 +1968,8 @@
       body.kas-printing #kas-print .kp-page-2 .kp-page-body { overflow: hidden; }
       body.kas-printing #kas-print .kp-page-2 .kp-table-wrap { overflow: hidden; }
       body.kas-printing #kas-print .kp-rekon-box { border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.kas-printing #kas-print .kp-rekon-row { border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.kas-printing #kas-print .kp-rekon-row-title { background: #d9d9d9 !important; border-bottom: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
     .btn-logout {
       margin-top: 8px; width: 100%; padding: 8px 12px; border-radius: 10px;
@@ -7603,17 +7620,25 @@ function kasPenRowCells(r) {
   };
 }
 
+function kasRekonValues() {
+  const t = kasReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  const anggaranKasSD = (t.sisa_bulan_lalu || 0) + (t.anggaran_kas || 0);
+  const realisasiSD = t.realisasi || 0;
+  return { anggaranKasSD, realisasiSD };
+}
+
 function kasRekonBlockHTML() {
+  const { anggaranKasSD, realisasiSD } = kasRekonValues();
   return `<div class="kp-rekon">
     <p class="kp-rekon-title">REKONSILIASI BPKAD</p>
-    <div class="kp-rekon-boxes">
-      <div class="kp-rekon-box">
-        <div class="kp-rekon-box-title">KASUBID PENGELOLAAN KAS DAERAH</div>
-        <div class="kp-rekon-box-space"></div>
+    <div class="kp-rekon-rows">
+      <div class="kp-rekon-row">
+        <div class="kp-rekon-row-title">ANALIS KEUANGAN PUSAT DAN DAERAH</div>
+        <div class="kp-rekon-row-val">${formatKasAmount(anggaranKasSD)}</div>
       </div>
-      <div class="kp-rekon-box">
-        <div class="kp-rekon-box-title">KASUBID AKUNTANSI BELANJA</div>
-        <div class="kp-rekon-box-space"></div>
+      <div class="kp-rekon-row">
+        <div class="kp-rekon-row-title">KASUBID AKUNTANSI</div>
+        <div class="kp-rekon-row-val">${formatKasAmount(realisasiSD)}</div>
       </div>
     </div>
   </div>`;
@@ -8013,14 +8038,15 @@ function kasExcelPushRows(data, rows, pen) {
 function kasExcelPushRekon(data) {
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
+  const { anggaranKasSD, realisasiSD } = kasRekonValues();
   data.push(['REKONSILIASI BPKAD', '', '', '', '', '', '', '']);
-  data.push(['KASUBID PENGELOLAAN KAS DAERAH', '', '', '', '', '', '', '']);
+  data.push(['ANALIS KEUANGAN PUSAT DAN DAERAH', '', '', '', '', '', '', '']);
+  data.push(['', '', '', '', '', '', formatKasAmount(anggaranKasSD), '']);
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
-  data.push(kasExcelBlank());
-  data.push(['KASUBID AKUNTANSI BELANJA', '', '', '', '', '', '', '']);
-  data.push(kasExcelBlank());
+  data.push(['KASUBID AKUNTANSI', '', '', '', '', '', '', '']);
+  data.push(['', '', '', '', '', '', formatKasAmount(realisasiSD), '']);
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
   for (let i = 0; i < 3; i++) data.push(kasExcelBlank());
