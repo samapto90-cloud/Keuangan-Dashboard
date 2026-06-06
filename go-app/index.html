@@ -994,6 +994,29 @@
     }
     .rg-page:last-child { page-break-after: auto; break-after: auto; }
     .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
+    .rg-kop.kw-kop {
+      width: calc(100% + 20mm);
+      margin-left: -10mm;
+      margin-right: -10mm;
+      padding: 2mm 8mm 3mm;
+      box-sizing: border-box;
+      border-bottom: 2.5px solid #1a1a1a;
+      margin-bottom: 3mm;
+    }
+    .rg-kop.kw-kop img {
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 788 / 160;
+      object-fit: contain;
+      object-position: center center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .rg-doc-title { text-align: center; margin-bottom: 8px; }
+    .rg-doc-title h4 { margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .rg-doc-title p { margin: 3px 0 0; font-size: 9px; color: #444; }
+    .rg-meta.rg-meta-cont { justify-content: flex-end; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #ccc; }
     #rg-measure-host {
       position: fixed; left: -16000px; top: 0; z-index: -9999;
       width: 277mm; visibility: hidden; pointer-events: none; background: #fff;
@@ -1004,8 +1027,11 @@
       background: rgba(15,23,42,.35);
     }
     .register-filter-bar .filter-item { min-width: 160px; flex: 1 1 160px; }
-    .register-filter-bar .filter-item.filter-period { min-width: 280px; flex: 1.4 1 280px; }
-    .register-period-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .register-filter-bar .filter-item.filter-period { min-width: 320px; flex: 1.6 1 320px; }
+    .register-period-grid { display: flex; flex-direction: column; gap: 6px; }
+    .register-period-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .register-period-lbl { font-size: 10px; color: #64748b; min-width: 46px; font-weight: 600; flex-shrink: 0; }
+    .register-period-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
     .register-period-range .form-control { flex: 1 1 120px; min-width: 120px; }
     .register-period-sep { font-size: 11px; color: #94a3b8; white-space: nowrap; }
     .register-filter-bar label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .35px; margin-bottom: 4px; display: block; }
@@ -1029,6 +1055,13 @@
     }
     body.register-printing #register-print .rg-page:last-child {
       page-break-after: auto; break-after: auto;
+    }
+    body.register-printing #register-print .rg-kop.kw-kop img {
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      object-fit: contain;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .anggaran-readonly {
       display: inline-block; font-size: 12px; font-weight: 700; color: #94a3b8;
@@ -3354,11 +3387,24 @@ function onNilaiBrutoInput() {
       </div>
       <div class="register-filter-bar">
         <div class="filter-item filter-period">
-          <label>Periode (Bulan)</label>
-          <div class="register-period-range">
-            <input type="month" class="form-control form-control-sm" id="reg-filter-dari" onchange="onRegisterFilterChange()" title="Dari bulan" />
-            <span class="register-period-sep">s/d</span>
-            <input type="month" class="form-control form-control-sm" id="reg-filter-sampai" onchange="onRegisterFilterChange()" title="Sampai bulan" />
+          <label>Periode</label>
+          <div class="register-period-grid">
+            <div class="register-period-row">
+              <span class="register-period-lbl">Bulan</span>
+              <div class="register-period-range">
+                <input type="month" class="form-control form-control-sm" id="reg-filter-dari" onchange="onRegisterMonthChange()" title="Dari bulan" />
+                <span class="register-period-sep">s/d</span>
+                <input type="month" class="form-control form-control-sm" id="reg-filter-sampai" onchange="onRegisterMonthChange()" title="Sampai bulan" />
+              </div>
+            </div>
+            <div class="register-period-row">
+              <span class="register-period-lbl">Tanggal</span>
+              <div class="register-period-range">
+                <input type="date" class="form-control form-control-sm" id="reg-filter-dari-tgl" onchange="onRegisterFilterChange()" title="Dari tanggal" />
+                <span class="register-period-sep">s/d</span>
+                <input type="date" class="form-control form-control-sm" id="reg-filter-sampai-tgl" onchange="onRegisterFilterChange()" title="Sampai tanggal" />
+              </div>
+            </div>
           </div>
         </div>
         <div class="filter-item">
@@ -3387,9 +3433,12 @@ function onNilaiBrutoInput() {
       <div id="register-info" class="px-3 py-2 text-muted" style="font-size:12px">—</div>
       <div id="register-preview-wrap">
         <div class="rg-wrap" id="register-preview">
-          <div class="rg-header">
+          <div class="rg-kop kw-kop">
+            <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
+          </div>
+          <div class="rg-doc-title">
             <h4 id="reg-preview-title">Register Pengeluaran</h4>
-            <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="reg-preview-tahun">2026</span></p>
+            <p>Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
           </div>
           <div class="rg-meta">
             <div id="reg-preview-filter">Filter: Semua data</div>
@@ -6450,12 +6499,43 @@ function normalizeRegisterMonthRange() {
   }
 }
 
-function getRegisterFilteredTransactions() {
+function normalizeRegisterDateRange() {
+  const dariEl = document.getElementById('reg-filter-dari-tgl');
+  const sampaiEl = document.getElementById('reg-filter-sampai-tgl');
+  if (!dariEl || !sampaiEl) return;
+  if (dariEl.value && !sampaiEl.value) sampaiEl.value = dariEl.value;
+  if (dariEl.value && sampaiEl.value && dariEl.value > sampaiEl.value) {
+    sampaiEl.value = dariEl.value;
+  }
+}
+
+function getRegisterPeriodBounds() {
+  normalizeRegisterDateRange();
+  let start = document.getElementById('reg-filter-dari-tgl')?.value || '';
+  let end = document.getElementById('reg-filter-sampai-tgl')?.value || '';
+  if (!start && !end) {
+    normalizeRegisterMonthRange();
+    const dari = document.getElementById('reg-filter-dari')?.value || '';
+    const sampai = document.getElementById('reg-filter-sampai')?.value || '';
+    if (dari) start = `${dari}-01`;
+    if (sampai || dari) end = registerMonthEnd(sampai || dari);
+  }
+  return { start, end };
+}
+
+function onRegisterMonthChange() {
   normalizeRegisterMonthRange();
   const dari = document.getElementById('reg-filter-dari')?.value || '';
   const sampai = document.getElementById('reg-filter-sampai')?.value || '';
-  const rangeStart = dari ? `${dari}-01` : '';
-  const rangeEnd = registerMonthEnd(sampai || dari);
+  const dariTglEl = document.getElementById('reg-filter-dari-tgl');
+  const sampaiTglEl = document.getElementById('reg-filter-sampai-tgl');
+  if (dari && dariTglEl) dariTglEl.value = `${dari}-01`;
+  if ((sampai || dari) && sampaiTglEl) sampaiTglEl.value = registerMonthEnd(sampai || dari);
+  onRegisterFilterChange();
+}
+
+function getRegisterFilteredTransactions() {
+  const { start: rangeStart, end: rangeEnd } = getRegisterPeriodBounds();
   const kegiatan = document.getElementById('reg-filter-kegiatan')?.value || '';
   const sub = document.getElementById('reg-filter-sub')?.value || '';
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value || '';
@@ -6472,12 +6552,21 @@ function getRegisterFilteredTransactions() {
 
 function buildRegisterFilterLabel() {
   const parts = [];
+  const dariTgl = document.getElementById('reg-filter-dari-tgl')?.value;
+  const sampaiTgl = document.getElementById('reg-filter-sampai-tgl')?.value;
   const dari = document.getElementById('reg-filter-dari')?.value;
   const sampai = document.getElementById('reg-filter-sampai')?.value;
   const kegiatan = document.getElementById('reg-filter-kegiatan')?.value;
   const sub = document.getElementById('reg-filter-sub')?.value;
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value;
-  if (dari && sampai) {
+  if (dariTgl && sampaiTgl) {
+    if (dariTgl === sampaiTgl) parts.push('Tanggal ' + formatTanggalShort(dariTgl));
+    else parts.push('Periode ' + formatTanggalShort(dariTgl) + ' – ' + formatTanggalShort(sampaiTgl));
+  } else if (dariTgl) {
+    parts.push('Dari ' + formatTanggalShort(dariTgl));
+  } else if (sampaiTgl) {
+    parts.push('Sampai ' + formatTanggalShort(sampaiTgl));
+  } else if (dari && sampai) {
     if (dari === sampai) parts.push('Bulan ' + registerFormatMonthLabel(dari));
     else parts.push('Periode ' + registerFormatMonthLabel(dari) + ' – ' + registerFormatMonthLabel(sampai));
   } else if (dari) {
@@ -6538,6 +6627,8 @@ function onRegisterFilterChange() {
 function resetRegisterFilters() {
   document.getElementById('reg-filter-dari').value = '';
   document.getElementById('reg-filter-sampai').value = '';
+  document.getElementById('reg-filter-dari-tgl').value = '';
+  document.getElementById('reg-filter-sampai-tgl').value = '';
   document.getElementById('reg-filter-kegiatan').value = '';
   document.getElementById('reg-filter-sub').value = '';
   document.getElementById('reg-filter-pekerjaan').value = '';
@@ -6627,16 +6718,20 @@ function buildRegisterTableFootHtml(rows) {
   </tr>`;
 }
 
-function buildRegisterHeaderBlock(tanggal, pageNum, totalPages) {
+function buildRegisterKopHtml() {
+  return `<div class="rg-kop kw-kop"><img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" /></div>`;
+}
+
+function buildRegisterTitleBlock() {
   const tahun = DB.tahun || 2026;
-  return `
-    <div class="rg-header">
-      <h4>Register Pengeluaran</h4>
-      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA ${escapeHtmlRegister(String(tahun))}</p>
-    </div>
-    <div class="rg-meta">
-      <div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div>
-    </div>`;
+  return `<div class="rg-doc-title"><h4>Register Pengeluaran</h4><p>Tahun Anggaran ${escapeHtmlRegister(String(tahun))}</p></div>`;
+}
+
+function buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage) {
+  if (isFirstPage) {
+    return `${buildRegisterKopHtml()}${buildRegisterTitleBlock()}<div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
+  }
+  return `<div class="rg-meta rg-meta-cont"><div>Register Pengeluaran · Hal. ${pageNum} / ${totalPages}</div></div>`;
 }
 
 function buildRegisterSignatureHtml() {
@@ -6687,7 +6782,8 @@ function paginateRegisterRows(rows) {
   if (!rows.length) return [[]];
   const pageH = mmToPx(RG_A4_LANDSCAPE_H_MM - 16);
   const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-  const headerH = measureRegisterBlockHeight(buildRegisterHeaderBlock(tanggal, 1, 1));
+  const headerFirstH = measureRegisterBlockHeight(buildRegisterPageHeader(tanggal, 1, 1, true));
+  const headerContH = measureRegisterBlockHeight(buildRegisterPageHeader(tanggal, 2, 2, false));
   const ttdH = measureRegisterBlockHeight(buildRegisterSignatureHtml());
   const tfootHtml = buildRegisterTableFootHtml(rows);
   const theadOnlyH = measureRegisterTableHeight([], false, '');
@@ -6698,6 +6794,8 @@ function paginateRegisterRows(rows) {
   let i = 0;
 
   while (i < rows.length) {
+    const isFirstPage = chunks.length === 0;
+    const headerH = isFirstPage ? headerFirstH : headerContH;
     const left = rows.length - i;
     const remainingBodyH = measureRegisterTableHeight(rowHtmls.slice(i), true, tfootHtml);
     if (headerH + remainingBodyH + ttdH + buffer <= pageH) {
@@ -6737,13 +6835,14 @@ function buildRegisterPagesHtml(rows) {
 
   return chunks.map((chunk, idx) => {
     const pageNum = idx + 1;
+    const isFirstPage = pageNum === 1;
     const isLast = pageNum === totalPages;
     const tbody = buildRegisterTableBodyHtml(chunk);
     const tfoot = isLast ? `<tfoot>${tfootHtml}</tfoot>` : '';
     const signature = isLast ? buildRegisterSignatureHtml() : '';
     return `<div class="rg-page">
       <div class="rg-page-inner">
-        ${buildRegisterHeaderBlock(tanggal, pageNum, totalPages)}
+        ${buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage)}
         <table class="rg-table">${getRegisterTheadHtml()}<tbody>${tbody}</tbody>${tfoot}</table>
         ${signature}
       </div>
@@ -6772,7 +6871,7 @@ function fillRegisterPrint() {
   if (!el) return;
   el.innerHTML = rows.length ? buildRegisterPagesHtml(rows) : `
     <div class="rg-page"><div class="rg-page-inner">
-      ${buildRegisterHeaderBlock(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }), 1, 1)}
+      ${buildRegisterPageHeader(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }), 1, 1, true)}
       <table class="rg-table">${getRegisterTheadHtml()}<tbody>${buildRegisterTableBodyHtml([])}</tbody></table>
     </div></div>`;
 }
