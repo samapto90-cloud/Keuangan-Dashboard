@@ -59,7 +59,8 @@ func operatorMayModifyTransaction(sess *Session, t Transaction) bool {
 		return false
 	}
 	st := effectiveTrxStatus(t)
-	if st != trxStatusPending && st != trxStatusRejected {
+	// Operator hanya boleh ubah/hapus setelah admin menolak; pending = sudah diajukan (kunci).
+	if st != trxStatusRejected {
 		return false
 	}
 	if cb := strings.TrimSpace(t.CreatedBy); cb != "" && cb != sess.Username {
@@ -73,7 +74,14 @@ func mergeTransactionUpdate(sess *Session, existing, updated Transaction) (Trans
 		return Transaction{}, fmt.Errorf("unauthorized")
 	}
 	if sess.Role == "operator" && !operatorMayModifyTransaction(sess, existing) {
-		return Transaction{}, fmt.Errorf("Transaksi hanya dapat diubah saat status menunggu persetujuan")
+		st := effectiveTrxStatus(existing)
+		if st == trxStatusPending {
+			return Transaction{}, fmt.Errorf("Transaksi sudah diajukan dan tidak dapat diubah. Tunggu persetujuan atau penolakan Admin.")
+		}
+		if st == trxStatusApproved {
+			return Transaction{}, fmt.Errorf("Transaksi yang sudah disetujui tidak dapat diubah operator.")
+		}
+		return Transaction{}, fmt.Errorf("Transaksi tidak dapat diubah oleh operator.")
 	}
 
 	updated.ID = existing.ID

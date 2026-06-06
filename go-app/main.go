@@ -348,7 +348,12 @@ func deleteTransactionByID(w http.ResponseWriter, r *http.Request, mod *SipkeuMo
                 return
         }
         if !operatorMayModifyTransaction(sess, existing) && sess != nil && sess.Role != "admin" {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi yang sudah disetujui tidak dapat dihapus operator"})
+                st := effectiveTrxStatus(existing)
+                if st == trxStatusPending {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi sudah diajukan dan tidak dapat dihapus. Tunggu persetujuan atau penolakan Admin."})
+                        return
+                }
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi yang sudah disetujui tidak dapat dihapus operator."})
                 return
         }
         mod.mu.Lock()

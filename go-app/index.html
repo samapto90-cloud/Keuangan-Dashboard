@@ -3447,7 +3447,8 @@ function trxStatusBadge(t) {
 function operatorMayEditTrx(t) {
   if (isAdmin()) return true;
   const s = trxEffectiveStatus(t);
-  if (s !== 'pending' && s !== 'rejected') return false;
+  // Hanya transaksi ditolak admin yang boleh diedit/dihapus operator.
+  if (s !== 'rejected') return false;
   const by = String(t.created_by || '').trim().toLowerCase();
   const me = String(currentUser?.username || '').trim().toLowerCase();
   return !by || by === me;
@@ -3681,7 +3682,7 @@ function onNilaiBrutoInput() {
     <div class="form-card mb-4 ds-animate" id="trx-form-panel" style="--ds-delay:.05s">
       <h6><i class="bi bi-pencil-square me-2 text-primary"></i><span id="form-mode-label">Tambah Transaksi Baru</span></h6>
       <div class="alert alert-warning py-2 px-3 mb-3" id="trx-operator-hint" style="display:none;font-size:13px">
-        <i class="bi bi-info-circle me-1"></i>Transaksi yang Anda input akan <strong>menunggu persetujuan Admin</strong> sebelum masuk dashboard, register, dan laporan resmi.
+        <i class="bi bi-info-circle me-1"></i>Transaksi yang Anda input akan <strong>menunggu persetujuan Admin</strong> sebelum masuk dashboard, register, dan laporan resmi. Setelah diajukan, transaksi <strong>tidak dapat diedit atau dihapus</strong> kecuali Admin <strong>menolak</strong> terlebih dahulu.
       </div>
       <form id="trx-form">
         <input type="hidden" id="f-id" />
@@ -6771,8 +6772,9 @@ function renderTable() {
   const pageData = data.slice(start, start + trxPageSize);
   tbody.innerHTML = pageData.map((t, i) => {
     const checked = selectedTrxIds.has(t.id) ? 'checked' : '';
+    const canSelect = isAdmin() || operatorMayEditTrx(t);
     return `<tr class="trx-row-hoverable${checked ? ' table-active' : ''}">
-      <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
+      <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} ${canSelect ? '' : 'disabled title="Transaksi sudah diajukan — hanya bisa dihapus jika Admin menolak"'} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
       <td class="table-num">${start + i + 1}</td>
       <td>${trxStatusBadge(t)}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
@@ -6817,8 +6819,12 @@ function toggleSelectTrx(id, checked) {
 
 function toggleSelectAllTrx(checked) {
   const data = getFilteredTransactions();
-  data.forEach(t => { if (checked) selectedTrxIds.add(t.id); else selectedTrxIds.delete(t.id); });
+  data.forEach(t => {
+    if (!isAdmin() && !operatorMayEditTrx(t)) return;
+    if (checked) selectedTrxIds.add(t.id); else selectedTrxIds.delete(t.id);
+  });
   document.querySelectorAll('.trx-row-check').forEach(cb => {
+    if (cb.disabled) return;
     cb.checked = checked;
     cb.closest('tr')?.classList.toggle('table-active', checked);
   });
@@ -7001,7 +7007,14 @@ function editTrx(id) {
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
   if (!operatorMayEditTrx(t)) {
-    alert('Transaksi ini sudah disetujui dan tidak dapat diubah oleh operator.');
+    const s = trxEffectiveStatus(t);
+    if (s === 'pending') {
+      alert('Transaksi sudah diajukan dan tidak dapat diubah. Tunggu persetujuan atau penolakan Admin.');
+    } else if (s === 'approved') {
+      alert('Transaksi ini sudah disetujui dan tidak dapat diubah oleh operator.');
+    } else {
+      alert('Anda tidak dapat mengubah transaksi ini.');
+    }
     return;
   }
   editingId = id;
