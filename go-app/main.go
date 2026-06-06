@@ -853,6 +853,7 @@ func main() {
         mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
         mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
         mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))
+        mux.HandleFunc("/data/admin/rekapitulasi", cors(requireAuth(requireSettingsAdmin(handleAdminRekapitulasi))))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
         mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 

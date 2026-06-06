@@ -2113,6 +2113,9 @@
       box-shadow: 4px 0 32px rgba(0,0,0,.4);
       display: flex; flex-direction: column;
     }
+    @media (min-width: 992px) {
+      #settings-sidebar { position: relative; transform: none !important; height: auto; min-height: 100vh; }
+    }
     #settings-sidebar::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, #f59e0b, transparent);
@@ -2211,7 +2214,57 @@
     .btn-sao-outline { border-color: rgba(56,189,248,.45); color: #7dd3fc; }
     .btn-sao-outline:hover { background: rgba(56,189,248,.12); color: #bae6fd; }
     .btn-sao-danger { border-color: rgba(248,113,113,.45); color: #fca5a5; }
-    @media (max-width: 768px) { .settings-form-grid { grid-template-columns: 1fr; } .sao-layout { flex-direction: column; } #settings-sidebar { width: 100%; } }
+    @media (max-width: 991px) {
+      .settings-form-grid { grid-template-columns: 1fr; }
+      .sao-layout { flex-direction: column; }
+      #settings-sidebar {
+        position: fixed; top: 0; left: 0; height: 100vh; width: min(300px, 88vw); z-index: 1050;
+        transform: translateX(-105%);
+        transition: transform .28s cubic-bezier(.4,0,.2,1);
+        box-shadow: 8px 0 40px rgba(0,0,0,.55);
+      }
+      body.settings-sidebar-open #settings-sidebar { transform: translateX(0); }
+      body.settings-sidebar-open .settings-sidebar-backdrop { display: block; }
+      body.settings-sidebar-open { overflow: hidden; }
+      .settings-main { padding: 16px 14px 28px; width: 100%; margin-left: 0; }
+      .settings-mobile-topbar { display: flex !important; }
+      .sao-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .sao-portal-grid { grid-template-columns: 1fr; }
+      .sao-rekap-toolbar { flex-direction: column; align-items: stretch !important; }
+      .sao-rekap-toolbar .form-select, .sao-rekap-toolbar .form-control { width: 100% !important; min-width: 0 !important; }
+      .sao-rekap-charts { grid-template-columns: 1fr !important; }
+      .sao-rekap-portal-chips { justify-content: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .sao-stat-grid { grid-template-columns: 1fr; }
+      .sao-stat-value { font-size: 1.35rem; }
+    }
+    .settings-sidebar-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 1040; background: rgba(0,0,0,.55);
+    }
+    .settings-mobile-topbar {
+      display: none; align-items: center; gap: 12px; margin-bottom: 16px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(56,189,248,.15);
+    }
+    .settings-mobile-topbar h5 { margin: 0; color: #e0f2fe; font-size: 15px; font-weight: 700; flex: 1; }
+    .sao-rekap-toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 16px;
+    }
+    .sao-rekap-portal-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sao-rekap-portal-chips label {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid rgba(56,189,248,.3); background: rgba(15,23,42,.6); font-size: 12px; color: #cbd5e1; cursor: pointer;
+    }
+    .sao-rekap-portal-chips input { accent-color: #38bdf8; }
+    .sao-rekap-charts {
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-bottom: 16px;
+    }
+    .sao-rekap-chart-box {
+      background: rgba(15,23,42,.65); border: 1px solid rgba(56,189,248,.18); border-radius: 14px; padding: 14px;
+      min-height: 280px;
+    }
+    .sao-rekap-chart-box h6 { color: #bae6fd; font-size: 13px; margin-bottom: 10px; }
+    .sao-rekap-chart-canvas { position: relative; height: 240px; }
     .settings-page { display: none; }
     .settings-page.active { display: block; }
     #app-shell [data-perm] { display: none !important; }
@@ -4403,6 +4456,7 @@ function onNilaiBrutoInput() {
 
 <!-- ═══════════════ SAO COMMAND CENTER (Super Admin) ═══════════════ -->
 <div id="settings-app-shell">
+  <div class="settings-sidebar-backdrop" onclick="closeSettingsMobileSidebar()"></div>
   <div class="sao-layout">
     <aside id="settings-sidebar">
       <div class="sao-brand">
@@ -4419,6 +4473,8 @@ function onNilaiBrutoInput() {
         <a href="#" id="settings-nav-portals" onclick="showSettingsPage('portals',this);return false"><i class="bi bi-boxes"></i> Kendali Portal</a>
         <a href="#" id="settings-nav-profil" onclick="showSettingsPage('profil',this);return false"><i class="bi bi-person-vcard"></i> Kredensial &amp; Profil</a>
         <a href="#" id="settings-nav-akses" onclick="showSettingsPage('akses',this);return false"><i class="bi bi-shield-check"></i> Hak Akses Operator</a>
+        <div class="sao-nav-label">Laporan</div>
+        <a href="#" id="settings-nav-rekap" onclick="showSettingsPage('rekap',this);return false"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
         <div class="sao-nav-label">Keamanan</div>
         <a href="#" id="settings-nav-security" onclick="showSettingsPage('security',this);return false"><i class="bi bi-shield-lock"></i> Sesi &amp; Audit</a>
         <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Kembali ke Portal</a>
@@ -4432,6 +4488,10 @@ function onNilaiBrutoInput() {
       </div>
     </aside>
     <main class="settings-main">
+      <div class="settings-mobile-topbar">
+        <button type="button" class="mobile-nav-btn" onclick="toggleSettingsMobileSidebar()" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+        <h5 id="settings-mobile-title">Command Center</h5>
+      </div>
       <div id="settings-page-command" class="settings-page active">
         <div class="sao-page-head">
           <h4><img src="/assets/sao-icons/crystal.svg?v=1" alt="" style="width:28px;height:28px;vertical-align:-6px;margin-right:8px" />Command Center</h4>
@@ -4499,6 +4559,71 @@ function onNilaiBrutoInput() {
           <div id="sys-perm-checkboxes" class="settings-perm-grid"></div>
         </div>
         <button type="button" class="btn btn-sao px-4" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Hak Akses</button>
+      </div>
+      <div id="settings-page-rekap" class="settings-page">
+        <div class="sao-page-head">
+          <h4><i class="bi bi-bar-chart-line me-2"></i>Rekapitulasi Anggaran SIPKEU</h4>
+          <p>Gabungan pagu &amp; realisasi dari Sekretariat, PAUD, SD, dan SMP — filter periode dan unduh data</p>
+        </div>
+        <div class="settings-card">
+          <div class="sao-rekap-toolbar">
+            <div>
+              <label class="form-label text-light mb-1" style="font-size:11px">Portal SIPKEU</label>
+              <div class="sao-rekap-portal-chips" id="sao-rekap-portals">
+                <label><input type="checkbox" value="sekretariat" checked onchange="scheduleAdminRekapLoad()"> Sekretariat</label>
+                <label><input type="checkbox" value="paud" checked onchange="scheduleAdminRekapLoad()"> PAUD</label>
+                <label><input type="checkbox" value="sd" checked onchange="scheduleAdminRekapLoad()"> SD</label>
+                <label><input type="checkbox" value="smp" checked onchange="scheduleAdminRekapLoad()"> SMP</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label text-light mb-1" style="font-size:11px">Tampilan</label>
+              <select class="form-select form-select-sm" id="sao-rekap-mode" style="min-width:180px" onchange="scheduleAdminRekapLoad()">
+                <option value="portal">Per Portal</option>
+                <option value="kegiatan" selected>Per Kegiatan</option>
+                <option value="sub">Per Sub Kegiatan</option>
+                <option value="pekerjaan">Per Pekerjaan</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label text-light mb-1" style="font-size:11px">Dari Tanggal</label>
+              <input type="date" class="form-control form-control-sm" id="sao-rekap-from" style="min-width:160px" onchange="scheduleAdminRekapLoad()" />
+            </div>
+            <div>
+              <label class="form-label text-light mb-1" style="font-size:11px">Sampai Tanggal</label>
+              <input type="date" class="form-control form-control-sm" id="sao-rekap-to" style="min-width:160px" onchange="scheduleAdminRekapLoad()" />
+            </div>
+            <div class="sao-btn-group" style="margin-top:0">
+              <button type="button" class="btn btn-sm btn-sao-outline" onclick="resetAdminRekapPeriod()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Periode</button>
+              <button type="button" class="btn btn-sm btn-sao" onclick="loadAdminRekap(true)"><i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang</button>
+              <button type="button" class="btn btn-sm btn-sao-outline" onclick="downloadAdminRekapExcel()"><i class="bi bi-download me-1"></i>Unduh Excel</button>
+            </div>
+          </div>
+          <div class="sao-stat-grid mb-3" id="sao-rekap-summary">
+            <div class="sao-stat"><div class="sao-stat-label">Total Pagu</div><div class="sao-stat-value" id="sao-rekap-sum-anggaran">—</div></div>
+            <div class="sao-stat"><div class="sao-stat-label">Realisasi</div><div class="sao-stat-value" id="sao-rekap-sum-realisasi">—</div></div>
+            <div class="sao-stat"><div class="sao-stat-label">Sisa</div><div class="sao-stat-value" id="sao-rekap-sum-sisa">—</div></div>
+            <div class="sao-stat"><div class="sao-stat-label">% Realisasi</div><div class="sao-stat-value" id="sao-rekap-sum-pct">—</div></div>
+          </div>
+          <div class="sao-rekap-charts">
+            <div class="sao-rekap-chart-box">
+              <h6><i class="bi bi-bar-chart me-1"></i>Pagu vs Realisasi</h6>
+              <div class="sao-rekap-chart-canvas"><canvas id="sao-rekap-bar"></canvas></div>
+            </div>
+            <div class="sao-rekap-chart-box">
+              <h6><i class="bi bi-pie-chart me-1"></i>Komposisi Realisasi per Portal</h6>
+              <div class="sao-rekap-chart-canvas"><canvas id="sao-rekap-doughnut"></canvas></div>
+            </div>
+          </div>
+          <div class="sao-table-wrap">
+            <table class="sao-table" id="sao-rekap-table">
+              <thead id="sao-rekap-thead"></thead>
+              <tbody id="sao-rekap-tbody"><tr><td colspan="10" class="text-muted">Memuat data…</td></tr></tbody>
+              <tfoot id="sao-rekap-tfoot"></tfoot>
+            </table>
+          </div>
+          <div class="text-muted mt-2" style="font-size:11px" id="sao-rekap-meta"></div>
+        </div>
       </div>
       <div id="settings-page-security" class="settings-page">
         <div class="sao-page-head">
@@ -5833,7 +5958,29 @@ async function bootSettingsApp(fromRestore = true) {
   }
 }
 
+const SETTINGS_REKAP_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp'];
+const SETTINGS_PAGE_TITLES = {
+  command: 'Command Center',
+  portals: 'Kendali Portal',
+  profil: 'Kredensial & Profil',
+  akses: 'Hak Akses Operator',
+  rekap: 'Rekapitulasi',
+  security: 'Sesi & Audit',
+};
+let adminRekapCache = { rows: [], summary: {}, mode: 'kegiatan', from: '', to: '' };
+let chartSaoRekapBar = null;
+let chartSaoRekapDoughnut = null;
+let adminRekapLoadTimer = null;
+
+function toggleSettingsMobileSidebar() {
+  document.body.classList.toggle('settings-sidebar-open');
+}
+function closeSettingsMobileSidebar() {
+  document.body.classList.remove('settings-sidebar-open');
+}
+
 function showSettingsPage(page, navEl) {
+  closeSettingsMobileSidebar();
   document.querySelectorAll('.settings-page').forEach(p => {
     p.classList.remove('active');
     p.style.removeProperty('display');
@@ -5842,9 +5989,12 @@ function showSettingsPage(page, navEl) {
   if (pageEl) pageEl.classList.add('active');
   document.querySelectorAll('#settings-sidebar .settings-nav a').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
+  const mobTitle = document.getElementById('settings-mobile-title');
+  if (mobTitle) mobTitle.textContent = SETTINGS_PAGE_TITLES[page] || 'Command Center';
   if (page === 'command') loadCommandCenter();
   if (page === 'portals') renderPortalControlGrid();
   if (page === 'security') { loadAdminSessions(); loadAdminAudit(); }
+  if (page === 'rekap') initAdminRekapPage();
 }
 
 function fmtAuditTime(iso) {
@@ -5888,6 +6038,247 @@ function renderAuditPreview(entries) {
   if (!entries.length) { tb.innerHTML = '<tr><td colspan="5" class="text-muted">Belum ada log audit</td></tr>'; return; }
   tb.innerHTML = entries.slice(0, 10).map(e => `
     <tr><td>${fmtAuditTime(e.at)}</td><td>${escHtml(e.actor)}</td><td>${escHtml(e.action)}</td><td>${escHtml(e.module)}</td><td>${escHtml(e.detail)}</td></tr>`).join('');
+}
+
+function getSelectedAdminRekapPortals() {
+  const out = [];
+  document.querySelectorAll('#sao-rekap-portals input[type=checkbox]:checked').forEach(el => out.push(el.value));
+  return out.length ? out : [...SETTINGS_REKAP_PORTAL_IDS];
+}
+
+function initAdminRekapPage() {
+  const y = new Date().getFullYear();
+  const fromEl = document.getElementById('sao-rekap-from');
+  const toEl = document.getElementById('sao-rekap-to');
+  if (fromEl && !fromEl.value) fromEl.value = `${y}-01-01`;
+  if (toEl && !toEl.value) toEl.value = `${y}-12-31`;
+  loadAdminRekap(false);
+}
+
+function resetAdminRekapPeriod() {
+  const y = new Date().getFullYear();
+  const fromEl = document.getElementById('sao-rekap-from');
+  const toEl = document.getElementById('sao-rekap-to');
+  if (fromEl) fromEl.value = `${y}-01-01`;
+  if (toEl) toEl.value = `${y}-12-31`;
+  scheduleAdminRekapLoad();
+}
+
+function scheduleAdminRekapLoad() {
+  clearTimeout(adminRekapLoadTimer);
+  adminRekapLoadTimer = setTimeout(() => loadAdminRekap(false), 320);
+}
+
+function adminRekapRowLabel(r, mode) {
+  if (mode === 'portal') return r.portal_label || r.portal_id;
+  if (mode === 'sub') return (r.kegiatan || '—') + ' › ' + (r.sub_kegiatan || '—');
+  if (mode === 'pekerjaan') return (r.pekerjaan || '—').slice(0, 48);
+  return (r.kegiatan || '—').slice(0, 56);
+}
+
+function adminRekapChartLabel(r, mode) {
+  const portal = (r.portal_label || r.portal_id || '').replace('SIPKEU ', '');
+  if (mode === 'portal') return portal;
+  const item = adminRekapRowLabel(r, mode);
+  return portal + ': ' + (item.length > 28 ? item.slice(0, 28) + '…' : item);
+}
+
+async function loadAdminRekap(force) {
+  const tbody = document.getElementById('sao-rekap-tbody');
+  if (tbody && (force || !adminRekapCache.rows.length)) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-muted">Memuat data…</td></tr>';
+  }
+  const mode = document.getElementById('sao-rekap-mode')?.value || 'kegiatan';
+  const from = document.getElementById('sao-rekap-from')?.value || '';
+  const to = document.getElementById('sao-rekap-to')?.value || '';
+  const portals = getSelectedAdminRekapPortals().join(',');
+  try {
+    await ensureChartJS();
+    const qs = new URLSearchParams({ mode, from, to, portals });
+    const res = await apiFetch(API + '/admin/rekapitulasi?' + qs.toString());
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat rekapitulasi');
+    adminRekapCache = {
+      rows: data.rows || [],
+      summary: data.summary || {},
+      mode: data.mode || mode,
+      from: data.from || from,
+      to: data.to || to,
+      generated_at: data.generated_at,
+    };
+    renderAdminRekapSummary();
+    renderAdminRekapTable();
+    renderAdminRekapCharts();
+  } catch (e) {
+    console.warn('Admin rekap:', e);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="text-danger">${escHtml(e.message || 'Gagal memuat')}</td></tr>`;
+  }
+}
+
+function renderAdminRekapSummary() {
+  const s = adminRekapCache.summary || {};
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('sao-rekap-sum-anggaran', formatRupiah(s.anggaran || 0));
+  set('sao-rekap-sum-realisasi', formatRupiah(s.realisasi || 0));
+  set('sao-rekap-sum-sisa', formatRupiah(s.sisa ?? ((s.anggaran || 0) - (s.realisasi || 0))));
+  set('sao-rekap-sum-pct', ((s.pct || 0).toFixed ? (s.pct).toFixed(1) : parseFloat(s.pct || 0).toFixed(1)) + '%');
+  const meta = document.getElementById('sao-rekap-meta');
+  if (meta) {
+    meta.textContent = `Periode ${adminRekapCache.from || '—'} s/d ${adminRekapCache.to || '—'} · ${adminRekapCache.rows.length} baris · diperbarui ${adminRekapCache.generated_at ? fmtAuditTime(adminRekapCache.generated_at) : '—'}`;
+  }
+}
+
+function renderAdminRekapTable() {
+  const mode = adminRekapCache.mode || 'kegiatan';
+  const rows = adminRekapCache.rows || [];
+  const thead = document.getElementById('sao-rekap-thead');
+  const tbody = document.getElementById('sao-rekap-tbody');
+  const tfoot = document.getElementById('sao-rekap-tfoot');
+  if (!thead || !tbody) return;
+
+  let head = '<tr><th>No</th><th>Portal</th>';
+  if (mode === 'kegiatan') head += '<th>Kegiatan</th>';
+  else if (mode === 'sub') head += '<th>Kegiatan</th><th>Sub Kegiatan</th>';
+  else if (mode === 'pekerjaan') head += '<th>Kegiatan</th><th>Sub Kegiatan</th><th>Pekerjaan</th><th>Kode Rek.</th>';
+  head += '<th class="text-end">Pagu</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">Trx</th><th class="text-end">%</th></tr>';
+  thead.innerHTML = head;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="12" class="text-muted text-center py-4">Tidak ada data pada filter ini</td></tr>';
+    if (tfoot) tfoot.innerHTML = '';
+    return;
+  }
+
+  let totAng = 0, totReal = 0, totSisa = 0, totTrx = 0;
+  tbody.innerHTML = rows.map((r, i) => {
+    totAng += r.anggaran || 0;
+    totReal += r.realisasi || 0;
+    totSisa += r.sisa ?? ((r.anggaran || 0) - (r.realisasi || 0));
+    totTrx += r.count || 0;
+    let extra = '';
+    if (mode === 'kegiatan') extra = `<td>${escHtml(r.kegiatan || '—')}</td>`;
+    else if (mode === 'sub') extra = `<td>${escHtml(r.kegiatan || '—')}</td><td>${escHtml(r.sub_kegiatan || '—')}</td>`;
+    else if (mode === 'pekerjaan') extra = `<td>${escHtml(r.kegiatan || '—')}</td><td>${escHtml(r.sub_kegiatan || '—')}</td><td>${escHtml(r.pekerjaan || '—')}</td><td><code>${escHtml(r.kode_rekening || '—')}</code></td>`;
+    const pct = (r.pct != null ? Number(r.pct) : 0).toFixed(1);
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><span class="sao-badge sao-badge-live" style="font-size:9px">${escHtml((r.portal_label || r.portal_id || '').replace('SIPKEU ', ''))}</span></td>
+      ${extra}
+      <td class="text-end">${formatRupiah(r.anggaran || 0)}</td>
+      <td class="text-end">${formatRupiah(r.realisasi || 0)}</td>
+      <td class="text-end">${formatRupiah(r.sisa ?? ((r.anggaran || 0) - (r.realisasi || 0)))}</td>
+      <td class="text-end">${r.count || 0}</td>
+      <td class="text-end">${pct}%</td>
+    </tr>`;
+  }).join('');
+
+  const colSpan = mode === 'pekerjaan' ? 5 : mode === 'sub' ? 3 : mode === 'kegiatan' ? 2 : 1;
+  const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : '0.0';
+  if (tfoot) {
+    tfoot.innerHTML = `<tr>
+      <td colspan="${colSpan + 1}" class="text-end fw-bold">JUMLAH</td>
+      <td class="text-end fw-bold">${formatRupiah(totAng)}</td>
+      <td class="text-end fw-bold">${formatRupiah(totReal)}</td>
+      <td class="text-end fw-bold">${formatRupiah(totSisa)}</td>
+      <td class="text-end fw-bold">${totTrx}</td>
+      <td class="text-end fw-bold">${totPct}%</td>
+    </tr>`;
+  }
+}
+
+function renderAdminRekapCharts() {
+  const rows = adminRekapCache.rows || [];
+  const mode = adminRekapCache.mode || 'kegiatan';
+  if (typeof Chart === 'undefined') return;
+
+  const top = rows.slice(0, 12);
+  const labels = top.map(r => adminRekapChartLabel(r, mode));
+  const pagu = top.map(r => r.anggaran || 0);
+  const real = top.map(r => r.realisasi || 0);
+
+  if (chartSaoRekapBar) { chartSaoRekapBar.destroy(); chartSaoRekapBar = null; }
+  const barEl = document.getElementById('sao-rekap-bar');
+  if (barEl) {
+    chartSaoRekapBar = new Chart(barEl, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Pagu', data: pagu, backgroundColor: 'rgba(56,189,248,.55)', borderRadius: 4 },
+          { label: 'Realisasi', data: real, backgroundColor: 'rgba(129,140,248,.65)', borderRadius: 4 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 12 } } },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 45, autoSkip: true, maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,.04)' } },
+          y: { ticks: { color: '#64748b', callback: v => formatRupiah(v) }, grid: { color: 'rgba(255,255,255,.06)' } },
+        },
+      },
+    });
+  }
+
+  const byPortal = {};
+  rows.forEach(r => {
+    const k = r.portal_label || r.portal_id || 'Lainnya';
+    byPortal[k] = (byPortal[k] || 0) + (r.realisasi || 0);
+  });
+  const pLabels = Object.keys(byPortal);
+  const pVals = pLabels.map(k => byPortal[k]);
+  const palette = ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f472b6', '#fb7185'];
+
+  if (chartSaoRekapDoughnut) { chartSaoRekapDoughnut.destroy(); chartSaoRekapDoughnut = null; }
+  const dnEl = document.getElementById('sao-rekap-doughnut');
+  if (dnEl) {
+    chartSaoRekapDoughnut = new Chart(dnEl, {
+      type: 'doughnut',
+      data: {
+        labels: pLabels.map(l => l.replace('SIPKEU ', '')),
+        datasets: [{ data: pVals, backgroundColor: palette.slice(0, pLabels.length), borderWidth: 0 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, padding: 10 } },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatRupiah(ctx.raw || 0)}` } },
+        },
+      },
+    });
+  }
+}
+
+async function downloadAdminRekapExcel() {
+  const rows = adminRekapCache.rows || [];
+  if (!rows.length) { alert('Belum ada data rekapitulasi untuk diunduh.'); return; }
+  await ensureXlsx();
+  const mode = adminRekapCache.mode || 'kegiatan';
+  const modeLabel = { portal: 'Portal', kegiatan: 'Kegiatan', sub: 'Sub_Kegiatan', pekerjaan: 'Pekerjaan' }[mode] || mode;
+  let headers = ['No', 'Portal'];
+  if (mode === 'kegiatan') headers.push('Kegiatan');
+  else if (mode === 'sub') headers.push('Kegiatan', 'Sub Kegiatan');
+  else if (mode === 'pekerjaan') headers.push('Kegiatan', 'Sub Kegiatan', 'Pekerjaan', 'Kode Rekening');
+  headers.push('Pagu (Rp)', 'Realisasi (Rp)', 'Sisa (Rp)', 'Jumlah Trx', 'Pajak (Rp)', '% Realisasi');
+
+  const dataRows = rows.map((r, i) => {
+    const base = [i + 1, r.portal_label || r.portal_id];
+    if (mode === 'kegiatan') base.push(r.kegiatan || '');
+    else if (mode === 'sub') base.push(r.kegiatan || '', r.sub_kegiatan || '');
+    else if (mode === 'pekerjaan') base.push(r.kegiatan || '', r.sub_kegiatan || '', r.pekerjaan || '', r.kode_rekening || '');
+    base.push(r.anggaran || 0, r.realisasi || 0, r.sisa ?? ((r.anggaran || 0) - (r.realisasi || 0)), r.count || 0, r.pajak || 0, Number(r.pct || 0));
+    return base;
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet([
+    ['Rekapitulasi Anggaran SIPKEU — ' + modeLabel],
+    ['Periode', adminRekapCache.from || '—', 's/d', adminRekapCache.to || '—'],
+    [],
+    headers,
+    ...dataRows,
+  ]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
+  XLSX.writeFile(wb, `SAO_Rekapitulasi_${modeLabel}_${adminRekapCache.from || 'all'}_${adminRekapCache.to || 'all'}.xlsx`);
 }
 
 function renderPortalControlGrid() {
