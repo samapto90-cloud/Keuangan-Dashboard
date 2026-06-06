@@ -202,6 +202,11 @@ func rekapAggKey(mode string, a *rekapAgg) string {
 	}
 }
 
+func rekapPortalMeta(sourceModID, kegiatan string) (portalID, label string) {
+	portalID = rekapPortalForKegiatan(sourceModID, kegiatan)
+	return portalID, portalLabel(portalID)
+}
+
 func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
 	if mod == nil {
 		return
@@ -220,33 +225,36 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg,
 	case "kegiatan":
 		seen := map[string]bool{}
 		for k, v := range anggaranKeg {
-			if k == "" {
+			if k == "" || !moduleOwnsKegiatan(mod.ID, k) {
 				continue
 			}
 			seen[k] = true
-			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: v}
+			pid, plabel := rekapPortalMeta(mod.ID, k)
+			a := &rekapAgg{portalID: pid, portalLabel: plabel, kegiatan: k, anggaran: v}
 			aggs[rekapAggKey(mode, a)] = a
 		}
 		for _, r := range rak {
 			k := normRekap(r.Kegiatan)
-			if k == "" || seen[k] {
+			if k == "" || seen[k] || !moduleOwnsKegiatan(mod.ID, k) {
 				continue
 			}
 			seen[k] = true
-			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: sumRakKegiatan(rak, k)}
+			pid, plabel := rekapPortalMeta(mod.ID, k)
+			a := &rekapAgg{portalID: pid, portalLabel: plabel, kegiatan: k, anggaran: sumRakKegiatan(rak, k)}
 			aggs[rekapAggKey(mode, a)] = a
 		}
 	case "sub":
 		for _, r := range rak {
 			keg := normRekap(r.Kegiatan)
 			sub := normRekap(r.SubKegiatan)
-			if keg == "" || sub == "" {
+			if keg == "" || sub == "" || !moduleOwnsKegiatan(mod.ID, keg) {
 				continue
 			}
-			key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub})
+			pid, plabel := rekapPortalMeta(mod.ID, keg)
+			key := rekapAggKey(mode, &rekapAgg{portalID: pid, kegiatan: keg, sub: sub})
 			if aggs[key] == nil {
 				aggs[key] = &rekapAgg{
-					portalID: mod.ID, portalLabel: label,
+					portalID: pid, portalLabel: plabel,
 					kegiatan: keg, sub: sub,
 					anggaran: sumRakSub(rak, keg, sub),
 				}
@@ -257,16 +265,17 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg,
 			keg := normRekap(r.Kegiatan)
 			sub := normRekap(r.SubKegiatan)
 			pk := normRekap(r.Pekerjaan)
-			if keg == "" || sub == "" || pk == "" {
+			if keg == "" || sub == "" || pk == "" || !moduleOwnsKegiatan(mod.ID, keg) {
 				continue
 			}
+			pid, plabel := rekapPortalMeta(mod.ID, keg)
 			key := rekapAggKey(mode, &rekapAgg{
-				portalID: mod.ID, kegiatan: keg, sub: sub,
+				portalID: pid, kegiatan: keg, sub: sub,
 				kode: normRekap(r.KodeRekening), pekerjaan: pk,
 			})
 			if aggs[key] == nil {
 				aggs[key] = &rekapAgg{
-					portalID: mod.ID, portalLabel: label,
+					portalID: pid, portalLabel: plabel,
 					kegiatan: keg, sub: sub,
 					kode: normRekap(r.KodeRekening), pekerjaan: pk,
 					anggaran: r.Anggaran,
@@ -275,6 +284,10 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg,
 		}
 	case "pptk":
 		for _, r := range rak {
+			keg := normRekap(r.Kegiatan)
+			if keg != "" && !moduleOwnsKegiatan(mod.ID, keg) {
+				continue
+			}
 			pptk := normRekap(r.PPTK)
 			if pptk == "" {
 				continue
@@ -363,10 +376,11 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 		if keg == "" || sub == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub})
+		pid, plabel := rekapPortalMeta(mod.ID, keg)
+		key := rekapAggKey(mode, &rekapAgg{portalID: pid, kegiatan: keg, sub: sub})
 		if aggs[key] == nil {
 			aggs[key] = &rekapAgg{
-				portalID: mod.ID, portalLabel: label,
+				portalID: pid, portalLabel: plabel,
 				kegiatan: keg, sub: sub,
 				anggaran: sumRakSub(rak, keg, sub),
 			}
@@ -376,10 +390,11 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 		if keg == "" || sub == "" || pk == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub, kode: kode, pekerjaan: pk})
+		pid, plabel := rekapPortalMeta(mod.ID, keg)
+		key := rekapAggKey(mode, &rekapAgg{portalID: pid, kegiatan: keg, sub: sub, kode: kode, pekerjaan: pk})
 		if aggs[key] == nil {
 			aggs[key] = &rekapAgg{
-				portalID: mod.ID, portalLabel: label,
+				portalID: pid, portalLabel: plabel,
 				kegiatan: keg, sub: sub, kode: kode, pekerjaan: pk,
 				anggaran: anggaranPekerjaanForSnapshot(rak, keg, sub, kode, pk),
 			}
@@ -390,19 +405,25 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 		if pptk == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, pptk: pptk})
+		pid, plabel := mod.ID, label
+		if keg != "" {
+			pid = rekapPortalForKegiatan(mod.ID, keg)
+			plabel = portalLabel(pid)
+		}
+		key := rekapAggKey(mode, &rekapAgg{portalID: pid, pptk: pptk})
 		if aggs[key] == nil {
-			aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, pptk: pptk}
+			aggs[key] = &rekapAgg{portalID: pid, portalLabel: plabel, pptk: pptk}
 		}
 		a = aggs[key]
 	case "kegiatan":
 		if keg == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg})
+		pid, plabel := rekapPortalMeta(mod.ID, keg)
+		key := rekapAggKey(mode, &rekapAgg{portalID: pid, kegiatan: keg})
 		if aggs[key] == nil {
 			aggs[key] = &rekapAgg{
-				portalID: mod.ID, portalLabel: label, kegiatan: keg,
+				portalID: pid, portalLabel: plabel, kegiatan: keg,
 				anggaran: anggaranKegiatanForSnapshot(rak, anggaranKeg, keg, 0),
 			}
 		}
