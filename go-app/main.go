@@ -240,7 +240,7 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
         mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodGet:
-                result := moduleTransactionsCopy(mod)
+                result := cachedModuleTransactions(mod)
                 jsonResponse(w, http.StatusOK, result)
 
         case http.MethodPost:
@@ -657,19 +657,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
         mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodGet:
-                mod.mu.Lock()
-                copyAnggaran := cloneAnggaranMap(mod.settings.AnggaranKegiatan)
-                rakCopy := cloneRakRows(mod.settings.Rak)
-                pa, bend := effectivePejabatValues(mod.ID, mod.settings.PA, mod.settings.Bendahara, mod.defaultSettings.PA, mod.defaultSettings.Bendahara)
-                out := AppSettings{
-                        PA:               pa,
-                        Bendahara:        bend,
-                        AnggaranKegiatan: copyAnggaran,
-                        Rak:              rakCopy,
-                        RakMeta:          mod.settings.RakMeta,
-                }
-                mod.mu.Unlock()
-                jsonResponse(w, http.StatusOK, out)
+                jsonResponse(w, http.StatusOK, cachedModuleSettings(mod))
 
         case http.MethodPut:
                 if sess.Role != "admin" {
@@ -918,14 +906,14 @@ func main() {
 
         fmt.Printf("%s\n", storageInfo())
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        handler := withRecover(withBlockSuspiciousPaths(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux))))))
+        handler := withRecover(withBlockSuspiciousPaths(withIPShield(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux)))))))
         srv := &http.Server{
                 Addr:              ":" + port,
                 Handler:           handler,
-                ReadHeaderTimeout: 15 * time.Second,
-                ReadTimeout:       90 * time.Second,
-                WriteTimeout:      180 * time.Second,
-                IdleTimeout:       180 * time.Second,
+                ReadHeaderTimeout: 10 * time.Second,
+                ReadTimeout:       60 * time.Second,
+                WriteTimeout:      120 * time.Second,
+                IdleTimeout:       120 * time.Second,
                 MaxHeaderBytes:    1 << 20,
         }
         log.Fatal(srv.ListenAndServe())

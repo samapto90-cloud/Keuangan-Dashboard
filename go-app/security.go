@@ -23,6 +23,10 @@ const (
 	defaultAPIRateMax   = 1200
 	defaultAPIRateWin   = time.Minute
 	defaultLoginRateMax = 60
+	defaultIPRateMax    = 900
+	defaultAssetRateMax = 2000
+	defaultPortalRateMax = 120
+	defaultMaxConnPerIP = 48
 	loginRateWindow     = time.Minute
 	bcryptCost          = 10
 	maxBcryptConcurrent = 96
@@ -53,14 +57,30 @@ type loginRateGuard struct {
 	buckets map[string]*apiRateBucket
 }
 
+type ipRateGuard struct {
+	mu      sync.Mutex
+	buckets map[string]*apiRateBucket
+}
+
+type connGuard struct {
+	mu     sync.Mutex
+	active map[string]int
+}
+
 var (
 	loginLimiter     loginGuard
 	loginRateLimiter loginRateGuard
 	apiRateLimiter   apiRateGuard
+	ipRateLimiter    ipRateGuard
+	connLimiter      connGuard
 	trustProxy       bool
 	apiRateLimitMax  int
 	apiRateWindow    time.Duration
 	loginRateMax     int
+	ipRateLimitMax   int
+	assetRateLimitMax int
+	portalStatusRateMax int
+	maxConnPerIP     int
 	bcryptSem        = make(chan struct{}, maxBcryptConcurrent)
 )
 
@@ -68,6 +88,8 @@ func initSecurity() {
 	loginLimiter.attempts = map[string]*loginAttempt{}
 	loginRateLimiter.buckets = map[string]*apiRateBucket{}
 	apiRateLimiter.buckets = map[string]*apiRateBucket{}
+	ipRateLimiter.buckets = map[string]*apiRateBucket{}
+	connLimiter.active = map[string]int{}
 	trustProxy = strings.TrimSpace(os.Getenv("SIPKEU_TRUST_PROXY")) == "1"
 	apiRateLimitMax = securityEnvInt("SIPKEU_API_RATE_LIMIT", defaultAPIRateMax)
 	if apiRateLimitMax < 120 {
@@ -78,10 +100,27 @@ func initSecurity() {
 	if loginRateMax < 15 {
 		loginRateMax = 15
 	}
+	ipRateLimitMax = securityEnvInt("SIPKEU_IP_RATE_LIMIT", defaultIPRateMax)
+	if ipRateLimitMax < 120 {
+		ipRateLimitMax = 120
+	}
+	assetRateLimitMax = securityEnvInt("SIPKEU_ASSET_RATE_LIMIT", defaultAssetRateMax)
+	if assetRateLimitMax < 300 {
+		assetRateLimitMax = 300
+	}
+	portalStatusRateMax = securityEnvInt("SIPKEU_PORTAL_STATUS_RATE", defaultPortalRateMax)
+	if portalStatusRateMax < 30 {
+		portalStatusRateMax = 30
+	}
+	maxConnPerIP = securityEnvInt("SIPKEU_MAX_CONN_PER_IP", defaultMaxConnPerIP)
+	if maxConnPerIP < 8 {
+		maxConnPerIP = 8
+	}
 	go purgeExpiredSessionsLoop()
 	go purgeLoginAttemptsLoop()
 	go purgeAPIRateBucketsLoop()
 	go purgeLoginRateBucketsLoop()
+	go purgeIPRateBucketsLoop()
 	warnWeakProductionSecrets()
 }
 
@@ -269,10 +308,148 @@ func purgeAPIRateBucketsLoop() {
 	}
 }
 
+func (g *ipRateGuard) allow(key string, max int, window time.Duration) bool {
+	if max <= 0 {
+		return true
+	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	now := time.Now()
+	b := g.buckets[key]
+	if b == nil || now.Sub(b.windowStart) >= window {
+		g.buckets[key] = &apiRateBucket{count: 1, windowStart: now}
+		return true
+	}
+	if b.count >= max {
+		return false
+	}
+	b.count++
+	return true
+}
+
+func purgeIPRateBucketsLoop() {
+	ticker := time.NewTicker(10 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		ipRateLimiter.mu.Lock()
+		for k, b := range ipRateLimiter.buckets {
+			if now.Sub(b.windowStart) > 3*time.Minute {
+				delete(ipRateLimiter.buckets, k)
+			}
+		}
+		ipRateLimiter.mu.Unlock()
+	}
+}
+
+func (g *connGuard) acquire(ip string, max int) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if g.active[ip] >= max {
+		return false
+	}
+	g.active[ip]++
+	return true
+}
+
+func (g *connGuard) release(ip string) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if g.active[ip] > 0 {
+		g.active[ip]--
+		if g.active[ip] == 0 {
+			delete(g.active, ip)
+		}
+	}
+}
+
+func ipRateLimitForPath(path string) (max int, window time.Duration, skip bool) {
+	switch {
+	case path == "/health":
+		return 0, 0, true
+	case path == "/data/auth/login":
+		return 0, 0, true
+	case path == "/data/portals/status":
+		return portalStatusRateMax, time.Minute, false
+	case strings.HasPrefix(path, "/assets/"), path == "/favicon.ico":
+		return assetRateLimitMax, time.Minute, false
+	default:
+		return ipRateLimitMax, time.Minute, false
+	}
+}
+
+func suspiciousUserAgent(ua string) bool {
+	ua = strings.ToLower(strings.TrimSpace(ua))
+	if ua == "" {
+		return false
+	}
+	bad := []string{
+		"sqlmap", "nikto", "masscan", "nmap", "acunetix", "nessus", "dirbuster",
+		"gobuster", "wpscan", "havij", "zgrab",
+	}
+	for _, b := range bad {
+		if strings.Contains(ua, b) {
+			return true
+		}
+	}
+	return false
+}
+
+func withIPShield(next http.Handler) http.Handler {
+	const maxPathLen = 2048
+	const maxQueryLen = 4096
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		if len(path) > maxPathLen || len(r.URL.RawQuery) > maxQueryLen {
+			http.Error(w, "URI Too Long", http.StatusRequestURITooLong)
+			return
+		}
+
+		if strings.HasPrefix(path, "/data/") && suspiciousUserAgent(r.Header.Get("User-Agent")) {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		ip := clientIP(r)
+		if path != "/health" {
+			if !connLimiter.acquire(ip, maxConnPerIP) {
+				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Retry-After", "5")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.Write([]byte(`{"error":"Server sibuk. Coba lagi sebentar."}`))
+				return
+			}
+			defer connLimiter.release(ip)
+		}
+
+		max, window, skip := ipRateLimitForPath(path)
+		if !skip {
+			key := "ip:" + ip + ":" + path
+			if strings.HasPrefix(path, "/assets/") {
+				key = "ip:" + ip + ":assets"
+			} else if strings.HasPrefix(path, "/data/") {
+				key = "ip:" + ip + ":data"
+			}
+			if !ipRateLimiter.allow(key, max, window) {
+				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Retry-After", "30")
+				w.WriteHeader(http.StatusTooManyRequests)
+				w.Write([]byte(`{"error":"Terlalu banyak permintaan dari jaringan ini."}`))
+				return
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func withAPIRateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if path == "/health" || path == "/favicon.ico" || path == "/data/auth/login" || path == "/data/portals/status" {
+		if path == "/health" || path == "/favicon.ico" || path == "/data/auth/login" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if path == "/data/portals/status" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -326,6 +503,8 @@ func withBlockSuspiciousPaths(next http.Handler) http.Handler {
 	blocked := []string{
 		"/.env", "/.git", "/wp-admin", "/wp-login", "/phpmyadmin", "/admin.php",
 		"/cgi-bin", "/vendor/phpunit", "/.aws", "/config.php", "/shell",
+		"/xmlrpc.php", "/.well-known/security.txt", "/actuator", "/server-status",
+		"/telescope", "/debug", "/_profiler", "/solr", "/manager/html",
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := strings.ToLower(r.URL.Path)

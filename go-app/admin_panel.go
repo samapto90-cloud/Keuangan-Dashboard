@@ -103,6 +103,8 @@ func buildCommandCenterOverview() map[string]interface{} {
 		"portals":          portals,
 		"security": map[string]interface{}{
 			"rate_limit_per_min": apiRateLimitMax,
+			"ip_rate_limit_per_min": ipRateLimitMax,
+			"max_conn_per_ip":    maxConnPerIP,
 			"login_max_fails":    loginMaxFails,
 			"session_hours":      sessionLifetime().Hours(),
 			"trust_proxy":        trustProxy,
