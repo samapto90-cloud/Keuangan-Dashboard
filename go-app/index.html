@@ -5056,10 +5056,10 @@ let rekapMode = 'kegiatan';
 let allTransactions = [];
 const txFetchCache = { portal: '', data: null, ts: 0 };
 const settingsFetchCache = { portal: '', data: null, ts: 0 };
-const DATA_CACHE_MS = 35000;
-const API_FETCH_TIMEOUT_MS = 22000;
-const API_FETCH_MAX_RETRY = 1;
-const PORTAL_STATUS_CACHE_MS = 45000;
+const DATA_CACHE_MS = 55000;
+const API_FETCH_TIMEOUT_MS = 28000;
+const API_FETCH_MAX_RETRY = 2;
+const PORTAL_STATUS_CACHE_MS = 90000;
 const _inflightFetches = new Map();
 
 function invalidateTxCache() {
@@ -5121,14 +5121,133 @@ function clearAppDataCaches() {
   invalidateSettingsCache();
 }
 
+function resetImportAnggaranDraft() {
+  importAnggaranData = [];
+  const fileEl = document.getElementById('import-anggaran-file');
+  if (fileEl) fileEl.value = '';
+  const preview = document.getElementById('import-anggaran-preview');
+  if (preview) preview.style.display = 'none';
+  const btn = document.getElementById('btn-confirm-impor-anggaran');
+  if (btn) btn.style.display = 'none';
+  const alertEl = document.getElementById('import-anggaran-alert');
+  if (alertEl) alertEl.innerHTML = '';
+}
+
+function resetImportTrxDraft() {
+  importData = [];
+  const fileEl = document.getElementById('import-file');
+  if (fileEl) fileEl.value = '';
+  const preview = document.getElementById('import-preview');
+  if (preview) preview.style.display = 'none';
+  const btn = document.getElementById('btn-confirm-impor');
+  if (btn) btn.style.display = 'none';
+  const alertEl = document.getElementById('import-alert');
+  if (alertEl) alertEl.innerHTML = '';
+  const tbody = document.getElementById('import-tbody');
+  if (tbody) tbody.innerHTML = '';
+  const head = document.getElementById('import-thead');
+  if (head) head.innerHTML = '';
+}
+
+function resetKasPortalLocalState() {
+  kasReportCache = [];
+  kasRakImportData = [];
+  kasStateCache = { rak_rows: [], imported_at: '' };
+  const kasFile = document.getElementById('kas-rak-file');
+  if (kasFile) kasFile.value = '';
+  const kasPreview = document.getElementById('kas-rak-preview');
+  if (kasPreview) kasPreview.style.display = 'none';
+  const kasAlert = document.getElementById('kas-rak-alert');
+  if (kasAlert) kasAlert.innerHTML = '';
+  const kasPreviewBody = document.getElementById('kas-rak-preview-body');
+  if (kasPreviewBody) kasPreviewBody.innerHTML = '';
+  ['kas-realisasi-body', 'kas-realisasi-pen-body'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  const kasLock = document.getElementById('kas-realisasi-lock-badge');
+  if (kasLock) kasLock.style.display = 'none';
+  const kasSave = document.getElementById('btn-kas-simpan-realisasi');
+  if (kasSave) kasSave.disabled = false;
+  ['kas-stat-pagu', 'kas-stat-rak', 'kas-stat-anggaran', 'kas-stat-realisasi', 'kas-stat-sisa', 'kas-stat-persen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = id === 'kas-stat-rak' ? '0' : (id === 'kas-stat-persen' ? '0%' : 'Rp 0');
+  });
+}
+
+function resetPejabatSettingsDraft() {
+  const cfg = getPortalAppConfig();
+  const pa = cfg?.defaultPa || DB.pa || {};
+  const bend = cfg?.defaultBendahara || DB.bendahara || {};
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('set-pa-nama', pa.nama);
+  set('set-pa-nip', pa.nip);
+  set('set-bend-nama', bend.nama);
+  set('set-bend-nip', bend.nip);
+}
+
+function discardUnsavedTrxDraft() {
+  if (editingId != null) return;
+  if (!hasTrxFormInput()) return;
+  resetForm();
+}
+
+function resetTrxListFilters() {
+  const search = document.getElementById('search-input');
+  if (search) search.value = '';
+  const st = document.getElementById('trx-status-filter');
+  if (st) st.value = '';
+}
+
+function resetDashboardCharts() {
+  if (chartKegiatan) { chartKegiatan.destroy(); chartKegiatan = null; }
+  if (chartDoughnut) { chartDoughnut.destroy(); chartDoughnut = null; }
+  if (chartMonthly) { chartMonthly.destroy(); chartMonthly = null; }
+}
+
+/** Bersihkan semua input/upload draft — tiap portal SIPKEU/Kas berdiri sendiri. */
+function resetAllPortalDrafts() {
+  if (document.getElementById('trx-form')) {
+    if (typeof resetForm === 'function') resetForm();
+    else if (typeof editingId !== 'undefined') editingId = null;
+  }
+  resetImportTrxDraft();
+  resetImportAnggaranDraft();
+  resetKasPortalLocalState();
+  resetPejabatSettingsDraft();
+  resetTrxListFilters();
+  resetDashboardCharts();
+  deleteId = null;
+  kwitansiFilenameBase = '';
+  document.getElementById('login-form')?.reset();
+  ['modalImpor', 'modalImporAnggaran'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && typeof bootstrap !== 'undefined') bootstrap.Modal.getInstance(el)?.hide();
+  });
+}
+
+/** Buang semua input draft saat keluar/menutup portal (belum disimpan). */
+function exitPortalApp() {
+  endPortalSession();
+  resetPortalLocalState();
+  currentUser = null;
+  document.getElementById('login-form')?.reset();
+}
+
 function resetPortalLocalState() {
   clearAppDataCaches();
   appSettings = { pa: {}, bendahara: {}, anggaran_kegiatan: {}, rak: [], rak_meta: {} };
   DB.rak = [];
+  const prof = SIPKEU_PORTAL_PROFILE[selectedPortalApp];
+  if (prof) {
+    DB.pa = { ...prof.defaultPa };
+    DB.bendahara = { ...prof.defaultBendahara };
+  }
   importAnggaranData = [];
   editingId = null;
   trxPage = 1;
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
+  resetAllPortalDrafts();
 }
 let trxPage = 1;
 let trxPageSize = 10;
@@ -5347,11 +5466,9 @@ function showPortal() {
   resetAllShells();
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
-  endPortalSession();
-  resetPortalLocalState();
+  exitPortalApp();
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
-  currentUser = null;
   loadPortalStatus();
   schedulePortalFx();
 }
@@ -5432,11 +5549,11 @@ function applyPortalTheme(el, appKey) {
 function showLogin(appKey) {
   stopPortalFx();
   const nextApp = appKey || 'sekretariat';
-  if (selectedPortalApp !== nextApp) resetPortalLocalState();
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_in_app');
   selectedPortalApp = nextApp;
   sessionStorage.setItem('sipkeu_app', selectedPortalApp);
+  resetPortalLocalState();
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   document.getElementById('login-app-label').textContent = app.label;
   document.getElementById('login-app-desc').textContent = 'Dinas Pendidikan Kota Batam · Tahun Anggaran 2026';
@@ -5475,9 +5592,6 @@ function openPortalApp(appKey) {
 }
 
 function backToPortal() {
-  endPortalSession();
-  resetPortalLocalState();
-  currentUser = null;
   showPortal();
 }
 
@@ -6142,11 +6256,7 @@ async function doLogin(e) {
 
 async function doLogout() {
   try { await apiFetch(API + '/auth/logout', { method: 'POST' }); } catch (_) {}
-  endPortalSession();
-  resetPortalLocalState();
-  currentUser = null;
   showPortal();
-  document.getElementById('login-form')?.reset();
 }
 
 async function bootApp(fromRestore = true) {
@@ -6157,7 +6267,12 @@ async function bootApp(fromRestore = true) {
   applyPejabatUI();
   resetAppPageUI();
   try {
-    await loadSettings(true);
+    const prefetch = [];
+    prefetch.push(loadSettings(true));
+    if (canDo('view_dashboard') || canAccessTransaksi() || canDo('view_register')) {
+      prefetch.push(fetchAllTransactions(true).catch(() => {}));
+    }
+    await Promise.all(prefetch);
     initForm();
   } catch (e) {
     console.warn('bootApp partial load:', e);
@@ -6254,6 +6369,8 @@ function showPage(name, el) {
     if (canAccessTransaksi()) return showPage('transaksi', document.getElementById('nav-transaksi'));
     return false;
   }
+  const activePage = document.querySelector('#app-shell .page.active');
+  if (activePage?.id === 'page-transaksi' && name !== 'transaksi') discardUnsavedTrxDraft();
   playBreathSlash();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
@@ -6384,14 +6501,15 @@ function initForm() {
   document.getElementById('f-nobpk').value = '';
 }
 
-function refreshKegiatanDropdown() {
+function refreshKegiatanDropdown(preserveSelection = true) {
   const sel = document.getElementById('f-kegiatan');
   if (!sel) return;
-  const cur = sel.value;
+  const cur = preserveSelection ? sel.value : '';
   const list = dbKegiatan();
   sel.innerHTML = '<option value="">— Pilih Kegiatan —</option>';
   list.forEach(k => sel.add(new Option(k, k)));
-  if (cur && list.includes(cur)) sel.value = cur;
+  if (preserveSelection && cur && list.includes(cur)) sel.value = cur;
+  else sel.value = '';
   sel.disabled = false;
   const hint = document.getElementById('f-kegiatan-empty-hint');
   if (hint) hint.style.display = list.length ? 'none' : '';
@@ -7109,27 +7227,52 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
 
 function resetForm() {
   editingId = null;
-  document.getElementById('trx-form').reset();
+  const form = document.getElementById('trx-form');
+  if (!form) return;
+  form.reset();
   document.getElementById('f-id').value = '';
-  document.getElementById('f-pa').value = DB.pa.nama;
-  document.getElementById('f-bendahara').value = DB.bendahara.nama;
-  // Reset cascading
+  document.getElementById('f-penerima').value = '';
+  document.getElementById('f-nobast').value = '';
+  document.getElementById('f-nokontrak').value = '';
+  document.getElementById('f-uraian').value = '';
+  document.getElementById('f-nilai').value = '';
+  document.getElementById('f-no-rekening').value = '';
+  document.getElementById('f-npwp').value = '';
+  document.getElementById('f-nonp2d').value = '';
+  document.getElementById('f-pa').value = DB.pa?.nama || '';
+  document.getElementById('f-bendahara').value = DB.bendahara?.nama || '';
+  if (typeof setSelectWithFallback === 'function') setSelectWithFallback('f-bank', '');
+  else { const bank = document.getElementById('f-bank'); if (bank) bank.value = ''; }
   const subSel = document.getElementById('f-subkegiatan');
   const pkSel = document.getElementById('f-pekerjaan');
-  subSel.innerHTML = '<option value="">— Pilih Sub Kegiatan —</option>';
-  subSel.disabled = true;
-  pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
-  pkSel.disabled = true;
+  if (subSel) {
+    subSel.innerHTML = '<option value="">— Pilih Sub Kegiatan —</option>';
+    subSel.disabled = true;
+  }
+  if (pkSel) {
+    pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
+    pkSel.disabled = true;
+  }
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  if (typeof refreshKegiatanDropdown === 'function') refreshKegiatanDropdown(false);
   clearPotonganFormRows();
   document.getElementById('f-ntpn').value = '';
   document.getElementById('f-kbilling').value = '';
   document.getElementById('f-ntb').value = '';
-  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => document.getElementById(id).style.display = 'none');
-  document.getElementById('form-mode-label').textContent = 'Tambah Transaksi Baru';
-  document.getElementById('btn-submit').innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
+  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => {
+    const row = document.getElementById(id);
+    if (row) row.style.display = 'none';
+  });
+  const paguWrap = document.getElementById('f-pagu-info-wrap');
+  if (paguWrap) paguWrap.style.display = 'none';
+  const modeLbl = document.getElementById('form-mode-label');
+  if (modeLbl) modeLbl.textContent = 'Tambah Transaksi Baru';
+  const submitBtn = document.getElementById('btn-submit');
+  if (submitBtn) submitBtn.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
   document.getElementById('f-tanggal').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-nobpk').value = '';
+  if (typeof updatePotonganSummaryDisplay === 'function') updatePotonganSummaryDisplay();
   updateNoBPK();
   updatePaguRekeningUI();
 }
@@ -10835,6 +10978,7 @@ function applyKasBulanSelection(bulan) {
 
 async function bootKasApp(fromRestore = true) {
   if (!fromRestore) markInAppSession();
+  resetPortalLocalState();
   showKasApp();
   setDefaultKasBulan();
   initKasBulanPicker();
@@ -10848,6 +10992,19 @@ async function bootKasApp(fromRestore = true) {
 }
 
 function showKasPage(page, navEl) {
+  const activeKas = document.querySelector('#kas-app-shell .kas-page.active');
+  if (activeKas?.id === 'kas-page-realisasi' && page !== 'realisasi' && typeof renderKasRealisasiTable === 'function') {
+    renderKasRealisasiTable();
+  }
+  if (activeKas?.id === 'kas-page-import' && page !== 'import') {
+    kasRakImportData = [];
+    const kasFile = document.getElementById('kas-rak-file');
+    if (kasFile) kasFile.value = '';
+    const kasPreview = document.getElementById('kas-rak-preview');
+    if (kasPreview) kasPreview.style.display = 'none';
+    const kasAlert = document.getElementById('kas-rak-alert');
+    if (kasAlert) kasAlert.innerHTML = '';
+  }
   document.querySelectorAll('.kas-page').forEach(p => p.classList.remove('active'));
   document.getElementById('kas-page-' + page)?.classList.add('active');
   document.querySelectorAll('#kas-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
@@ -12155,6 +12312,25 @@ function sipkeuRecoverFromStuck() {
 
 window.addEventListener('error', () => sipkeuHideLoader());
 window.addEventListener('unhandledrejection', () => sipkeuHideLoader());
+
+window.addEventListener('pagehide', () => {
+  if (sessionStorage.getItem('sipkeu_in_app') === '1') {
+    resetPortalLocalState();
+  }
+});
+
+window.addEventListener('pageshow', (ev) => {
+  if (!ev.persisted) return;
+  resetPortalLocalState();
+  const token = sessionStorage.getItem('sipkeu_token');
+  const inApp = sessionStorage.getItem('sipkeu_in_app') === '1';
+  if (!token || !inApp) return;
+  const app = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
+  selectedPortalApp = app;
+  if (app === 'kas-belanja') bootKasApp(true);
+  else if (app === 'pengaturan') bootSettingsApp(true);
+  else bootApp(true);
+});
 
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();

@@ -20,16 +20,16 @@ const (
 	maxLoginBodyBytes   = 8 << 10  // 8 KiB
 	loginMaxFails       = 5
 	loginLockDuration   = 15 * time.Minute
-	defaultAPIRateMax   = 1200
-	defaultAPIRateWin   = time.Minute
-	defaultLoginRateMax = 60
-	defaultIPRateMax    = 900
-	defaultAssetRateMax = 2000
-	defaultPortalRateMax = 120
-	defaultMaxConnPerIP = 48
+	defaultAPIRateMax    = 2400
+	defaultAPIRateWin    = time.Minute
+	defaultLoginRateMax  = 120
+	defaultIPRateMax     = 1200
+	defaultAssetRateMax  = 3000
+	defaultPortalRateMax = 240
+	defaultMaxConnPerIP  = 64
 	loginRateWindow     = time.Minute
 	bcryptCost          = 10
-	maxBcryptConcurrent = 96
+	maxBcryptConcurrent = 160
 )
 
 type loginGuard struct {
@@ -42,11 +42,6 @@ type loginAttempt struct {
 	lockedUntil time.Time
 }
 
-type apiRateGuard struct {
-	mu      sync.Mutex
-	buckets map[string]*apiRateBucket
-}
-
 type apiRateBucket struct {
 	count       int
 	windowStart time.Time
@@ -57,22 +52,9 @@ type loginRateGuard struct {
 	buckets map[string]*apiRateBucket
 }
 
-type ipRateGuard struct {
-	mu      sync.Mutex
-	buckets map[string]*apiRateBucket
-}
-
-type connGuard struct {
-	mu     sync.Mutex
-	active map[string]int
-}
-
 var (
 	loginLimiter     loginGuard
 	loginRateLimiter loginRateGuard
-	apiRateLimiter   apiRateGuard
-	ipRateLimiter    ipRateGuard
-	connLimiter      connGuard
 	trustProxy       bool
 	apiRateLimitMax  int
 	apiRateWindow    time.Duration
@@ -87,9 +69,6 @@ var (
 func initSecurity() {
 	loginLimiter.attempts = map[string]*loginAttempt{}
 	loginRateLimiter.buckets = map[string]*apiRateBucket{}
-	apiRateLimiter.buckets = map[string]*apiRateBucket{}
-	ipRateLimiter.buckets = map[string]*apiRateBucket{}
-	connLimiter.active = map[string]int{}
 	trustProxy = strings.TrimSpace(os.Getenv("SIPKEU_TRUST_PROXY")) == "1"
 	apiRateLimitMax = securityEnvInt("SIPKEU_API_RATE_LIMIT", defaultAPIRateMax)
 	if apiRateLimitMax < 120 {
@@ -118,9 +97,9 @@ func initSecurity() {
 	}
 	go purgeExpiredSessionsLoop()
 	go purgeLoginAttemptsLoop()
-	go purgeAPIRateBucketsLoop()
 	go purgeLoginRateBucketsLoop()
-	go purgeIPRateBucketsLoop()
+	go purgeShardedRateGuardsLoop()
+	initGlobalConnLimit()
 	warnWeakProductionSecrets()
 }
 
@@ -278,90 +257,6 @@ func apiRateKey(r *http.Request) string {
 	return "ip:" + clientIP(r)
 }
 
-func (g *apiRateGuard) allow(key string) bool {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	now := time.Now()
-	b := g.buckets[key]
-	if b == nil || now.Sub(b.windowStart) >= apiRateWindow {
-		g.buckets[key] = &apiRateBucket{count: 1, windowStart: now}
-		return true
-	}
-	if b.count >= apiRateLimitMax {
-		return false
-	}
-	b.count++
-	return true
-}
-
-func purgeAPIRateBucketsLoop() {
-	ticker := time.NewTicker(10 * time.Minute)
-	for range ticker.C {
-		now := time.Now()
-		apiRateLimiter.mu.Lock()
-		for k, b := range apiRateLimiter.buckets {
-			if now.Sub(b.windowStart) > 2*apiRateWindow {
-				delete(apiRateLimiter.buckets, k)
-			}
-		}
-		apiRateLimiter.mu.Unlock()
-	}
-}
-
-func (g *ipRateGuard) allow(key string, max int, window time.Duration) bool {
-	if max <= 0 {
-		return true
-	}
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	now := time.Now()
-	b := g.buckets[key]
-	if b == nil || now.Sub(b.windowStart) >= window {
-		g.buckets[key] = &apiRateBucket{count: 1, windowStart: now}
-		return true
-	}
-	if b.count >= max {
-		return false
-	}
-	b.count++
-	return true
-}
-
-func purgeIPRateBucketsLoop() {
-	ticker := time.NewTicker(10 * time.Minute)
-	for range ticker.C {
-		now := time.Now()
-		ipRateLimiter.mu.Lock()
-		for k, b := range ipRateLimiter.buckets {
-			if now.Sub(b.windowStart) > 3*time.Minute {
-				delete(ipRateLimiter.buckets, k)
-			}
-		}
-		ipRateLimiter.mu.Unlock()
-	}
-}
-
-func (g *connGuard) acquire(ip string, max int) bool {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if g.active[ip] >= max {
-		return false
-	}
-	g.active[ip]++
-	return true
-}
-
-func (g *connGuard) release(ip string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if g.active[ip] > 0 {
-		g.active[ip]--
-		if g.active[ip] == 0 {
-			delete(g.active, ip)
-		}
-	}
-}
-
 func ipRateLimitForPath(path string) (max int, window time.Duration, skip bool) {
 	switch {
 	case path == "/health":
@@ -411,14 +306,22 @@ func withIPShield(next http.Handler) http.Handler {
 
 		ip := clientIP(r)
 		if path != "/health" {
-			if !connLimiter.acquire(ip, maxConnPerIP) {
+			if !acquireGlobalConn() {
+				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Retry-After", "3")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.Write([]byte(`{"error":"Server sedang penuh. Coba lagi sebentar."}`))
+				return
+			}
+			defer releaseGlobalConn()
+			if !shardedConnLimiter.acquire(ip, maxConnPerIP) {
 				w.Header().Set("Content-Type", "application/json")
 				w.Header().Set("Retry-After", "5")
 				w.WriteHeader(http.StatusServiceUnavailable)
 				w.Write([]byte(`{"error":"Server sibuk. Coba lagi sebentar."}`))
 				return
 			}
-			defer connLimiter.release(ip)
+			defer shardedConnLimiter.release(ip)
 		}
 
 		max, window, skip := ipRateLimitForPath(path)
@@ -429,7 +332,7 @@ func withIPShield(next http.Handler) http.Handler {
 			} else if strings.HasPrefix(path, "/data/") {
 				key = "ip:" + ip + ":data"
 			}
-			if !ipRateLimiter.allow(key, max, window) {
+			if !shardedIPRate.allow(key, max, window) {
 				w.Header().Set("Content-Type", "application/json")
 				w.Header().Set("Retry-After", "30")
 				w.WriteHeader(http.StatusTooManyRequests)
@@ -461,7 +364,7 @@ func withAPIRateLimit(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if !apiRateLimiter.allow(apiRateKey(r)) {
+		if !shardedAPIRate.allow(apiRateKey(r), apiRateLimitMax, apiRateWindow) {
 			w.Header().Set("Content-Type", "application/json")
 			w.Header().Set("Retry-After", "60")
 			w.WriteHeader(http.StatusTooManyRequests)
@@ -632,9 +535,16 @@ func (w *gzipResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
+var gzipWriterPool = sync.Pool{
+	New: func() any {
+		return gzip.NewWriter(nil)
+	},
+}
+
 func withGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+		path := r.URL.Path
+		if path == "/" || path == "/health" || strings.HasPrefix(path, "/assets/") {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -644,8 +554,12 @@ func withGzip(next http.Handler) http.Handler {
 		}
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Header().Set("Vary", "Accept-Encoding")
-		gw := gzip.NewWriter(w)
-		defer gw.Close()
+		gw := gzipWriterPool.Get().(*gzip.Writer)
+		gw.Reset(w)
+		defer func() {
+			_ = gw.Close()
+			gzipWriterPool.Put(gw)
+		}()
 		next.ServeHTTP(&gzipResponseWriter{ResponseWriter: w, gw: gw}, r)
 	})
 }

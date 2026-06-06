@@ -44,6 +44,12 @@ func initAuth() {
 		strings.ToLower(adminUser): {Password: adminPass, Role: "admin", Name: "Administrator SIPKEU"},
 		strings.ToLower(opUser):    {Password: opPass, Role: "operator", Name: "Operator SIPKEU"},
 	}
+	for k, u := range defaultUsers {
+		if hashed, err := hashPasswordStore(u.Password); err == nil && hashed != "" {
+			u.Password = hashed
+			defaultUsers[k] = u
+		}
+	}
 }
 
 func envOr(key, fallback string) string {
@@ -98,14 +104,14 @@ func getSession(r *http.Request) *Session {
 		return nil
 	}
 
-	if now.Sub(sess.LastSeen) > 2*time.Minute {
+	if now.Sub(sess.LastSeen) > 5*time.Minute {
 		sessionsMu.Lock()
 		if s, ok2 := sessions[token]; ok2 && now.Before(s.Expires) {
+			s.LastSeen = now
 			half := sessionLifetime() / 2
 			if now.After(s.Expires.Add(-half)) {
 				s.Expires = now.Add(sessionLifetime())
 			}
-			s.LastSeen = now
 			sessions[token] = s
 			sess = s
 		}
@@ -274,7 +280,7 @@ func activeSessionCount() int {
 }
 
 func maxActiveSessions() int {
-	n := securityEnvInt("SIPKEU_MAX_SESSIONS", 12000)
+	n := securityEnvInt("SIPKEU_MAX_SESSIONS", 25000)
 	if n < 500 {
 		return 500
 	}

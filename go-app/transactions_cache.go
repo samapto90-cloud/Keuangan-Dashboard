@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const transactionsCacheTTL = 25 * time.Second
+const transactionsCacheTTL = 45 * time.Second
 
 type transactionsCacheEntry struct {
 	data    []Transaction

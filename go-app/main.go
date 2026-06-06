@@ -223,15 +223,6 @@ func servePNG(data []byte) http.HandlerFunc {
         }
 }
 
-func jsonResponse(w http.ResponseWriter, status int, data interface{}) {
-        w.Header().Set("Content-Type", "application/json")
-        w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-        w.Header().Set("Pragma", "no-cache")
-        w.Header().Set("Expires", "0")
-        w.WriteHeader(status)
-        json.NewEncoder(w).Encode(data)
-}
-
 func handleTransactions(w http.ResponseWriter, r *http.Request) {
         if getSession(r) == nil {
                 jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
@@ -906,14 +897,14 @@ func main() {
 
         fmt.Printf("%s\n", storageInfo())
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        handler := withRecover(withBlockSuspiciousPaths(withIPShield(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux)))))))
+        handler := withRecover(withBlockSuspiciousPaths(withIPShield(withPortalSessionMatch(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux))))))))
         srv := &http.Server{
                 Addr:              ":" + port,
                 Handler:           handler,
-                ReadHeaderTimeout: 10 * time.Second,
-                ReadTimeout:       60 * time.Second,
-                WriteTimeout:      120 * time.Second,
-                IdleTimeout:       120 * time.Second,
+                ReadHeaderTimeout: 8 * time.Second,
+                ReadTimeout:       45 * time.Second,
+                WriteTimeout:      90 * time.Second,
+                IdleTimeout:       90 * time.Second,
                 MaxHeaderBytes:    1 << 20,
         }
         log.Fatal(srv.ListenAndServe())

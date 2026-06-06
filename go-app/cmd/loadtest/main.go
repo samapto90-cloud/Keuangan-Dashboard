@@ -26,7 +26,7 @@ func main() {
 	base := env("LOADTEST_URL", "http://127.0.0.1:3099")
 	desktop := envInt("LOADTEST_DESKTOP", 5000)
 	mobile := envInt("LOADTEST_MOBILE", 5000)
-	concurrency := envInt("LOADTEST_CONCURRENCY", 250)
+	concurrency := envInt("LOADTEST_CONCURRENCY", 400)
 	user := env("LOADTEST_USER", "admin")
 	pass := env("LOADTEST_PASS", "admin2026")
 	if len(os.Args) > 1 {

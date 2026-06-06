@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const dashboardCacheTTL = 45 * time.Second
+const dashboardCacheTTL = 60 * time.Second
 
 type dashboardCacheEntry struct {
 	stats   DashboardStats

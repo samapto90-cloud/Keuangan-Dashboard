@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const portalStatusCacheTTL = 15 * time.Second
+const portalStatusCacheTTL = 45 * time.Second
 
 var (
 	portalStatusCacheMu sync.RWMutex

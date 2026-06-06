@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const settingsCacheTTL = 30 * time.Second
+const settingsCacheTTL = 45 * time.Second
 
 type settingsCacheEntry struct {
 	data    AppSettings
