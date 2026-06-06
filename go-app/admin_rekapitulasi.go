@@ -17,6 +17,7 @@ type adminRekapRow struct {
 	SubKegiatan  string  `json:"sub_kegiatan,omitempty"`
 	Pekerjaan    string  `json:"pekerjaan,omitempty"`
 	KodeRekening string  `json:"kode_rekening,omitempty"`
+	PPTK         string  `json:"pptk,omitempty"`
 	Anggaran     float64 `json:"anggaran"`
 	Realisasi    float64 `json:"realisasi"`
 	Sisa         float64 `json:"sisa"`
@@ -28,8 +29,20 @@ type adminRekapRow struct {
 type rekapAgg struct {
 	portalID, portalLabel          string
 	kegiatan, sub, pekerjaan, kode string
+	pptk                           string
 	anggaran, realisasi, pajak     float64
 	count                          int
+}
+
+type adminRekapPPTKStat struct {
+	PortalID    string  `json:"portal_id"`
+	PortalLabel string  `json:"portal_label"`
+	PPTK        string  `json:"pptk"`
+	Anggaran    float64 `json:"anggaran"`
+	Realisasi   float64 `json:"realisasi"`
+	Sisa        float64 `json:"sisa"`
+	Count       int     `json:"count"`
+	Pct         float64 `json:"pct"`
 }
 
 func normRekap(s string) string {
@@ -93,6 +106,17 @@ func moduleSettingsSnapshot(mod *SipkeuModule) (rak []RakRow, anggaranKeg map[st
 	return rak, anggaranKeg
 }
 
+func sumRakKegiatan(rak []RakRow, kegiatan string) float64 {
+	kegiatan = normRekap(kegiatan)
+	var sum float64
+	for _, r := range rak {
+		if normRekap(r.Kegiatan) == kegiatan {
+			sum += r.Anggaran
+		}
+	}
+	return sum
+}
+
 func sumRakSub(rak []RakRow, kegiatan, sub string) float64 {
 	kegiatan = normRekap(kegiatan)
 	sub = normRekap(sub)
@@ -110,9 +134,12 @@ func anggaranKegiatanForSnapshot(rak []RakRow, anggaranKeg map[string]float64, k
 	if kegiatan == "" {
 		return 0
 	}
-	// Selaras dengan getAnggaranForKegiatan di portal SIPKEU
+	// Selaras dengan getAnggaranForKegiatan + pagu dari RAK jika belum di-set manual
 	if v := anggaranKeg[kegiatan]; v > 0 {
 		return v
+	}
+	if rakSum := sumRakKegiatan(rak, kegiatan); rakSum > 0 {
+		return rakSum
 	}
 	if realisasi > 0 {
 		padded := int(realisasi*1.25/1000000) + 1
@@ -168,6 +195,8 @@ func rekapAggKey(mode string, a *rekapAgg) string {
 		return a.portalID + "\x00" + normRekap(a.kegiatan) + "\x00" + normRekap(a.sub)
 	case "pekerjaan":
 		return a.portalID + "\x00" + normRekap(a.kegiatan) + "\x00" + normRekap(a.sub) + "\x00" + normRekap(a.kode) + "\x00" + normRekap(a.pekerjaan)
+	case "pptk":
+		return a.portalID + "\x00" + normRekap(a.pptk)
 	default:
 		return a.portalID + "\x00" + normRekap(a.kegiatan)
 	}
@@ -189,11 +218,22 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg,
 			}
 		}
 	case "kegiatan":
+		seen := map[string]bool{}
 		for k, v := range anggaranKeg {
 			if k == "" {
 				continue
 			}
+			seen[k] = true
 			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: v}
+			aggs[rekapAggKey(mode, a)] = a
+		}
+		for _, r := range rak {
+			k := normRekap(r.Kegiatan)
+			if k == "" || seen[k] {
+				continue
+			}
+			seen[k] = true
+			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: sumRakKegiatan(rak, k)}
 			aggs[rekapAggKey(mode, a)] = a
 		}
 	case "sub":
@@ -233,6 +273,65 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg,
 				}
 			}
 		}
+	case "pptk":
+		for _, r := range rak {
+			pptk := normRekap(r.PPTK)
+			if pptk == "" {
+				continue
+			}
+			key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, pptk: pptk})
+			if aggs[key] == nil {
+				aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, pptk: pptk}
+			}
+			aggs[key].anggaran += r.Anggaran
+		}
+	}
+}
+
+func sumRakPPTK(rak []RakRow, pptk string) float64 {
+	pptk = normRekap(pptk)
+	var sum float64
+	for _, r := range rak {
+		if normRekap(r.PPTK) == pptk {
+			sum += r.Anggaran
+		}
+	}
+	return sum
+}
+
+func pptkForTransaction(rak []RakRow, t Transaction) string {
+	if p := normRekap(t.PPTK); p != "" {
+		return p
+	}
+	keg := normRekap(t.Kegiatan)
+	sub := normRekap(t.SubKegiatan)
+	kode := normRekap(t.KodeRekening)
+	pk := normRekap(t.Pekerjaan)
+	for _, r := range rak {
+		if normRekap(r.Kegiatan) == keg &&
+			normRekap(r.SubKegiatan) == sub &&
+			normRekap(r.KodeRekening) == kode &&
+			normRekap(r.Pekerjaan) == pk {
+			return normRekap(r.PPTK)
+		}
+	}
+	return ""
+}
+
+func rekapRowVisible(mode string, a *rekapAgg) bool {
+	switch mode {
+	case "portal":
+		return a.portalID != ""
+	case "kegiatan":
+		return a.kegiatan != ""
+	case "sub":
+		return a.kegiatan != "" && a.sub != ""
+	case "pekerjaan":
+		return a.kegiatan != "" && a.sub != "" && a.pekerjaan != ""
+	case "pptk":
+		return a.pptk != ""
+	default:
+		return false
 	}
 }
 
@@ -286,7 +385,17 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 			}
 		}
 		a = aggs[key]
-	default:
+	case "pptk":
+		pptk := pptkForTransaction(rak, t)
+		if pptk == "" {
+			return
+		}
+		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, pptk: pptk})
+		if aggs[key] == nil {
+			aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, pptk: pptk}
+		}
+		a = aggs[key]
+	case "kegiatan":
 		if keg == "" {
 			return
 		}
@@ -298,6 +407,8 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 			}
 		}
 		a = aggs[key]
+	default:
+		return
 	}
 	a.realisasi += t.Nilai
 	a.pajak += t.Pajak
@@ -318,6 +429,8 @@ func finalizeRekapAnggaran(mod *SipkeuModule, mode string, aggs map[string]*reka
 			a.anggaran = anggaranPekerjaanForSnapshot(rak, a.kegiatan, a.sub, a.kode, a.pekerjaan)
 		case "portal":
 			a.anggaran = portalTotalAnggaranSnapshot(rak, anggaranKeg)
+		case "pptk":
+			a.anggaran = sumRakPPTK(rak, a.pptk)
 		}
 	}
 }
@@ -327,7 +440,6 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 	if mode == "" {
 		mode = "kegiatan"
 	}
-	hasPeriod := from != "" || to != ""
 	aggs := map[string]*rekapAgg{}
 
 	for _, portalID := range portals {
@@ -346,11 +458,7 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 
 	rows := make([]adminRekapRow, 0, len(aggs))
 	for _, a := range aggs {
-		if a.count == 0 && a.anggaran <= 0 {
-			continue
-		}
-		// Saat filter periode aktif: tampilkan baris dengan realisasi di periode ATAU pagu > 0 yang punya transaksi historis di portal
-		if hasPeriod && mode != "portal" && a.count == 0 {
+		if !rekapRowVisible(mode, a) {
 			continue
 		}
 		sisa := a.anggaran - a.realisasi
@@ -361,6 +469,7 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 			SubKegiatan:  a.sub,
 			Pekerjaan:    a.pekerjaan,
 			KodeRekening: a.kode,
+			PPTK:         a.pptk,
 			Anggaran:     a.anggaran,
 			Realisasi:    a.realisasi,
 			Sisa:         sisa,
@@ -374,28 +483,52 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 		if rows[i].PortalID != rows[j].PortalID {
 			return rows[i].PortalID < rows[j].PortalID
 		}
-		if (rows[i].Realisasi > 0) != (rows[j].Realisasi > 0) {
-			return rows[i].Realisasi > 0
+		if mode == "pptk" {
+			return rows[i].PPTK < rows[j].PPTK
+		}
+		if rows[i].Anggaran != rows[j].Anggaran {
+			return rows[i].Anggaran > rows[j].Anggaran
 		}
 		if rows[i].Realisasi != rows[j].Realisasi {
 			return rows[i].Realisasi > rows[j].Realisasi
 		}
-		return rows[i].Anggaran > rows[j].Anggaran
+		return rows[i].Kegiatan < rows[j].Kegiatan
 	})
 	return rows
+}
+
+func buildAdminRekapPPTKStats(portals []string, from, to string) []adminRekapPPTKStat {
+	rows := buildAdminRekap(portals, "pptk", from, to)
+	stats := make([]adminRekapPPTKStat, 0, len(rows))
+	for _, r := range rows {
+		stats = append(stats, adminRekapPPTKStat{
+			PortalID:    r.PortalID,
+			PortalLabel: r.PortalLabel,
+			PPTK:        r.PPTK,
+			Anggaran:    r.Anggaran,
+			Realisasi:   r.Realisasi,
+			Sisa:        r.Sisa,
+			Count:       r.Count,
+			Pct:         r.Pct,
+		})
+	}
+	sort.Slice(stats, func(i, j int) bool {
+		if stats[i].Realisasi != stats[j].Realisasi {
+			return stats[i].Realisasi > stats[j].Realisasi
+		}
+		return stats[i].Anggaran > stats[j].Anggaran
+	})
+	return stats
 }
 
 func adminRekapSummary(rows []adminRekapRow) map[string]interface{} {
 	var totAng, totReal, totPajak float64
 	var totTrx int
 	for _, row := range rows {
+		totAng += row.Anggaran
 		totReal += row.Realisasi
 		totPajak += row.Pajak
 		totTrx += row.Count
-		// Pagu dijumlahkan hanya untuk baris yang punya realisasi di periode — hindari double-count pagu kosong
-		if row.Count > 0 || row.Realisasi > 0 {
-			totAng += row.Anggaran
-		}
 	}
 	return map[string]interface{}{
 		"anggaran":  totAng,
@@ -416,7 +549,7 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 	if mode == "" {
 		mode = "kegiatan"
 	}
-	validModes := map[string]bool{"kegiatan": true, "sub": true, "pekerjaan": true, "portal": true}
+	validModes := map[string]bool{"kegiatan": true, "sub": true, "pekerjaan": true, "portal": true, "pptk": true}
 	if !validModes[mode] {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Mode rekap tidak valid"})
 		return
@@ -425,6 +558,7 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 	to := strings.TrimSpace(r.URL.Query().Get("to"))
 	portals := parseAdminRekapPortals(r.URL.Query().Get("portals"))
 	rows := buildAdminRekap(portals, mode, from, to)
+	pptkStats := buildAdminRekapPPTKStats(portals, from, to)
 
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"mode":         mode,
@@ -432,12 +566,13 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 		"to":           to,
 		"portals":      portals,
 		"rows":         rows,
+		"pptk_stats":   pptkStats,
 		"generated_at": time.Now().Format(time.RFC3339),
 		"summary":      adminRekapSummary(rows),
 		"labels": map[string]string{
 			"mode": fmt.Sprintf("Rekapitulasi %s", map[string]string{
 				"kegiatan": "Per Kegiatan", "sub": "Per Sub Kegiatan",
-				"pekerjaan": "Per Pekerjaan", "portal": "Per Portal",
+				"pekerjaan": "Per Pekerjaan", "portal": "Per Portal", "pptk": "Per PPTK",
 			}[mode]),
 		},
 	})
