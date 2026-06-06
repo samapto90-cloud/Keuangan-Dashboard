@@ -50,6 +50,9 @@ function upload(sftp, local, remote, mode) {
 }
 
 const conn = new Client();
+conn.on("keyboard-interactive", (_name, _instructions, _lang, prompts, finish) => {
+  finish(prompts.map(() => password));
+});
 conn
   .on("ready", async () => {
     try {
@@ -96,4 +99,4 @@ conn
     console.error("SSH error:", e.message);
     process.exit(1);
   })
-  .connect({ host, port, username, password, readyTimeout: 20000 });
+  .connect({ host, port, username, password, tryKeyboardInteractive: true, readyTimeout: 20000 });

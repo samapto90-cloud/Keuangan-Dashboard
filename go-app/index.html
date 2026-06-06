@@ -1004,6 +1004,10 @@
       background: rgba(15,23,42,.35);
     }
     .register-filter-bar .filter-item { min-width: 160px; flex: 1 1 160px; }
+    .register-filter-bar .filter-item.filter-period { min-width: 280px; flex: 1.4 1 280px; }
+    .register-period-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .register-period-range .form-control { flex: 1 1 120px; min-width: 120px; }
+    .register-period-sep { font-size: 11px; color: #94a3b8; white-space: nowrap; }
     .register-filter-bar label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .35px; margin-bottom: 4px; display: block; }
     #register-preview-wrap { max-height: 520px; overflow: auto; }
     #register-preview-wrap .rg-wrap { box-shadow: 0 2px 16px rgba(0,0,0,.12); margin: 16px; }
@@ -3349,9 +3353,13 @@ function onNilaiBrutoInput() {
         </div>
       </div>
       <div class="register-filter-bar">
-        <div class="filter-item">
-          <label>Bulan</label>
-          <input type="month" class="form-control form-control-sm" id="reg-filter-bulan" onchange="onRegisterFilterChange()" />
+        <div class="filter-item filter-period">
+          <label>Periode (Bulan)</label>
+          <div class="register-period-range">
+            <input type="month" class="form-control form-control-sm" id="reg-filter-dari" onchange="onRegisterFilterChange()" title="Dari bulan" />
+            <span class="register-period-sep">s/d</span>
+            <input type="month" class="form-control form-control-sm" id="reg-filter-sampai" onchange="onRegisterFilterChange()" title="Sampai bulan" />
+          </div>
         </div>
         <div class="filter-item">
           <label>Kegiatan</label>
@@ -6418,13 +6426,43 @@ function escapeHtmlRegister(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function registerMonthEnd(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-').map(Number);
+  if (!y || !m) return '';
+  const lastDay = new Date(y, m, 0).getDate();
+  return `${ym}-${String(lastDay).padStart(2, '0')}`;
+}
+
+function registerFormatMonthLabel(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-');
+  return (KAS_BULAN_NAMA[m] || m) + ' ' + y;
+}
+
+function normalizeRegisterMonthRange() {
+  const dariEl = document.getElementById('reg-filter-dari');
+  const sampaiEl = document.getElementById('reg-filter-sampai');
+  if (!dariEl || !sampaiEl) return;
+  if (dariEl.value && !sampaiEl.value) sampaiEl.value = dariEl.value;
+  if (dariEl.value && sampaiEl.value && dariEl.value > sampaiEl.value) {
+    sampaiEl.value = dariEl.value;
+  }
+}
+
 function getRegisterFilteredTransactions() {
-  const bulan = document.getElementById('reg-filter-bulan')?.value || '';
+  normalizeRegisterMonthRange();
+  const dari = document.getElementById('reg-filter-dari')?.value || '';
+  const sampai = document.getElementById('reg-filter-sampai')?.value || '';
+  const rangeStart = dari ? `${dari}-01` : '';
+  const rangeEnd = registerMonthEnd(sampai || dari);
   const kegiatan = document.getElementById('reg-filter-kegiatan')?.value || '';
   const sub = document.getElementById('reg-filter-sub')?.value || '';
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value || '';
   return (allTransactions || []).filter(t => {
-    if (bulan && !(t.tanggal || '').startsWith(bulan)) return false;
+    const tanggal = t.tanggal || '';
+    if (rangeStart && tanggal && tanggal < rangeStart) return false;
+    if (rangeEnd && tanggal && tanggal > rangeEnd) return false;
     if (kegiatan && t.kegiatan !== kegiatan) return false;
     if (sub && t.sub_kegiatan !== sub) return false;
     if (pekerjaan && t.pekerjaan !== pekerjaan) return false;
@@ -6434,13 +6472,18 @@ function getRegisterFilteredTransactions() {
 
 function buildRegisterFilterLabel() {
   const parts = [];
-  const bulan = document.getElementById('reg-filter-bulan')?.value;
+  const dari = document.getElementById('reg-filter-dari')?.value;
+  const sampai = document.getElementById('reg-filter-sampai')?.value;
   const kegiatan = document.getElementById('reg-filter-kegiatan')?.value;
   const sub = document.getElementById('reg-filter-sub')?.value;
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value;
-  if (bulan) {
-    const [y, m] = bulan.split('-');
-    parts.push('Bulan ' + (KAS_BULAN_NAMA[m] || m) + ' ' + y);
+  if (dari && sampai) {
+    if (dari === sampai) parts.push('Bulan ' + registerFormatMonthLabel(dari));
+    else parts.push('Periode ' + registerFormatMonthLabel(dari) + ' – ' + registerFormatMonthLabel(sampai));
+  } else if (dari) {
+    parts.push('Dari ' + registerFormatMonthLabel(dari));
+  } else if (sampai) {
+    parts.push('Sampai ' + registerFormatMonthLabel(sampai));
   }
   if (kegiatan) parts.push('Kegiatan: ' + kegiatan);
   if (sub) parts.push('Sub: ' + sub);
@@ -6493,7 +6536,8 @@ function onRegisterFilterChange() {
 }
 
 function resetRegisterFilters() {
-  document.getElementById('reg-filter-bulan').value = '';
+  document.getElementById('reg-filter-dari').value = '';
+  document.getElementById('reg-filter-sampai').value = '';
   document.getElementById('reg-filter-kegiatan').value = '';
   document.getElementById('reg-filter-sub').value = '';
   document.getElementById('reg-filter-pekerjaan').value = '';
