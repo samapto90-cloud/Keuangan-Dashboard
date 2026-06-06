@@ -1000,7 +1000,6 @@
       margin-right: -10mm;
       padding: 2mm 8mm 3mm;
       box-sizing: border-box;
-      border-bottom: 2.5px solid #1a1a1a;
       margin-bottom: 3mm;
     }
     .rg-kop.kw-kop img {
@@ -2540,7 +2539,6 @@
       margin-right: -10mm;
       padding: 2mm 8mm 3mm;
       box-sizing: border-box;
-      border-bottom: 2.5px solid #1a1a1a;
       margin-bottom: 3mm;
     }
     .kw-kop img {
@@ -4257,6 +4255,14 @@ let rekapRowsCache = [];
 let rekapTransactionsCache = [];
 let rekapMode = 'kegiatan';
 let allTransactions = [];
+let registerRowsCache = [];
+
+function clearAppDataCaches() {
+  allTransactions = [];
+  registerRowsCache = [];
+  rekapTransactionsCache = [];
+  rekapRowsCache = [];
+}
 let trxPage = 1;
 let trxPageSize = 10;
 let editingId = null;
@@ -4385,6 +4391,7 @@ function showPortal() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
+  clearAppDataCaches();
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
 }
@@ -4406,7 +4413,9 @@ function applyPortalTheme(el, appKey) {
 }
 
 function showLogin(appKey) {
-  selectedPortalApp = appKey || 'sekretariat';
+  const nextApp = appKey || 'sekretariat';
+  if (selectedPortalApp !== nextApp) clearAppDataCaches();
+  selectedPortalApp = nextApp;
   sessionStorage.setItem('sipkeu_app', selectedPortalApp);
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   document.getElementById('login-app-label').textContent = app.label;
@@ -4439,6 +4448,7 @@ function openPortalApp(appKey) {
 function backToPortal() {
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_app');
+  clearAppDataCaches();
   currentUser = null;
   showPortal();
 }
@@ -4548,6 +4558,7 @@ async function doLogin(e) {
     if (!res.ok) throw new Error(data.error || 'Login gagal');
     sessionStorage.setItem('sipkeu_token', data.token);
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
+    clearAppDataCaches();
     currentUser = data;
     if (selectedPortalApp === 'kas-belanja') await bootKasApp();
     else await bootApp();
@@ -6449,8 +6460,6 @@ function cetakRekapPDF() {
 }
 
 // ── Register Pengeluaran ─────────────────────────────────────────────────
-let registerRowsCache = [];
-
 function trxPotonganTotal(t) {
   return (t.pajak || 0) + (t.nilai_potongan || 0);
 }
@@ -6459,11 +6468,23 @@ function escapeHtmlRegister(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function normalizeTrxDateKey(s) {
+  if (!s) return '';
+  const raw = String(s).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const d = new Date(raw.includes('T') ? raw : raw + 'T12:00:00');
+  if (!isNaN(d.getTime())) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  return raw.slice(0, 10);
+}
+
 function normalizeRegisterDateRange() {
   const dariEl = document.getElementById('reg-filter-dari-tgl');
   const sampaiEl = document.getElementById('reg-filter-sampai-tgl');
   if (!dariEl || !sampaiEl) return;
   if (dariEl.value && !sampaiEl.value) sampaiEl.value = dariEl.value;
+  if (!dariEl.value && sampaiEl.value) dariEl.value = sampaiEl.value;
   if (dariEl.value && sampaiEl.value && dariEl.value > sampaiEl.value) {
     sampaiEl.value = dariEl.value;
   }
@@ -6475,6 +6496,20 @@ function getRegisterPeriodBounds() {
     start: document.getElementById('reg-filter-dari-tgl')?.value || '',
     end: document.getElementById('reg-filter-sampai-tgl')?.value || '',
   };
+}
+
+function trxMatchesRegisterPeriod(t, rangeStart, rangeEnd) {
+  const tanggal = normalizeTrxDateKey(t.tanggal);
+  if (!rangeStart && !rangeEnd) return true;
+  if (!tanggal) return false;
+  if (rangeStart && tanggal < rangeStart) return false;
+  if (rangeEnd && tanggal > rangeEnd) return false;
+  return true;
+}
+
+function getRegisterPeriodTransactions() {
+  const { start, end } = getRegisterPeriodBounds();
+  return (allTransactions || []).filter(t => trxMatchesRegisterPeriod(t, start, end));
 }
 
 function getRegisterDicetakDate() {
@@ -6490,14 +6525,12 @@ function getRegisterFilteredTransactions() {
   const sub = document.getElementById('reg-filter-sub')?.value || '';
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value || '';
   return (allTransactions || []).filter(t => {
-    const tanggal = t.tanggal || '';
-    if (rangeStart && tanggal && tanggal < rangeStart) return false;
-    if (rangeEnd && tanggal && tanggal > rangeEnd) return false;
+    if (!trxMatchesRegisterPeriod(t, rangeStart, rangeEnd)) return false;
     if (kegiatan && t.kegiatan !== kegiatan) return false;
     if (sub && t.sub_kegiatan !== sub) return false;
     if (pekerjaan && t.pekerjaan !== pekerjaan) return false;
     return true;
-  }).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || (a.id || 0) - (b.id || 0));
+  }).sort((a, b) => normalizeTrxDateKey(a.tanggal).localeCompare(normalizeTrxDateKey(b.tanggal)) || (a.id || 0) - (b.id || 0));
 }
 
 function buildRegisterFilterLabel() {
@@ -6526,11 +6559,11 @@ function fillRegisterSelect(sel, values, placeholder) {
   const cur = sel.value;
   sel.innerHTML = `<option value="">${placeholder}</option>` +
     values.map(v => `<option value="${escapeHtmlRegister(v)}">${escapeHtmlRegister(v)}</option>`).join('');
-  if (cur && values.includes(cur)) sel.value = cur;
+  sel.value = cur && values.includes(cur) ? cur : '';
 }
 
 function populateRegisterFilterOptions() {
-  const txs = allTransactions || [];
+  const txs = getRegisterPeriodTransactions();
   const kegiatanList = [...new Set(txs.map(t => t.kegiatan).filter(Boolean))].sort();
   fillRegisterSelect(document.getElementById('reg-filter-kegiatan'), kegiatanList, '— Semua Kegiatan —');
 
@@ -6561,6 +6594,7 @@ function onRegisterSubChange() {
 }
 
 function onRegisterFilterChange() {
+  populateRegisterFilterOptions();
   registerRowsCache = getRegisterFilteredTransactions();
   renderRegisterPreview();
 }
@@ -6827,10 +6861,8 @@ function renderRegisterPreview() {
 
 async function loadRegister() {
   await loadSettings();
-  if (!allTransactions.length) {
-    const res = await apiFetch(API + '/transactions');
-    allTransactions = await res.json() || [];
-  }
+  const res = await apiFetch(API + '/transactions');
+  allTransactions = await res.json() || [];
   populateRegisterFilterOptions();
   onRegisterFilterChange();
 }
