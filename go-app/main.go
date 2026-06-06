@@ -765,6 +765,7 @@ func main() {
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
         mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
         mux.HandleFunc("/data/transactions/delete-all", cors(requireAdmin(handleDeleteAllTransactions)))
+        mux.HandleFunc("/data/admin/backfill-np2d", cors(requireAdmin(handleBackfillNP2D)))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
         mux.HandleFunc("/data/settings", cors(handleSettings))
