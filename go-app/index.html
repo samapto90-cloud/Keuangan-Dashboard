@@ -4599,6 +4599,24 @@ function resetAppPageUI() {
   document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
 }
 
+function markInAppSession() {
+  sessionStorage.setItem('sipkeu_in_app', '1');
+}
+
+function endPortalSession() {
+  sessionStorage.removeItem('sipkeu_token');
+  sessionStorage.removeItem('sipkeu_app');
+  sessionStorage.removeItem('sipkeu_in_app');
+}
+
+function resolvePortalApp(serverModule) {
+  const stored = sessionStorage.getItem('sipkeu_app');
+  if (stored === 'kas-belanja' || (stored && PORTAL_APPS[stored]?.available)) return stored;
+  const valid = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja'];
+  if (serverModule && valid.includes(serverModule)) return serverModule;
+  return 'sekretariat';
+}
+
 function showPortal() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
@@ -4606,6 +4624,7 @@ function showPortal() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
+  endPortalSession();
   resetPortalLocalState();
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
@@ -4632,6 +4651,8 @@ function applyPortalTheme(el, appKey) {
 function showLogin(appKey) {
   const nextApp = appKey || 'sekretariat';
   if (selectedPortalApp !== nextApp) resetPortalLocalState();
+  sessionStorage.removeItem('sipkeu_token');
+  sessionStorage.removeItem('sipkeu_in_app');
   selectedPortalApp = nextApp;
   sessionStorage.setItem('sipkeu_app', selectedPortalApp);
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
@@ -4652,6 +4673,8 @@ function showLogin(appKey) {
 function openPortalApp(appKey) {
   const app = PORTAL_APPS[appKey];
   if (!app) return;
+  sessionStorage.removeItem('sipkeu_token');
+  sessionStorage.removeItem('sipkeu_in_app');
   sessionStorage.setItem('sipkeu_app', appKey);
   if (app.available) {
     showLogin(appKey);
@@ -4664,8 +4687,7 @@ function openPortalApp(appKey) {
 }
 
 function backToPortal() {
-  sessionStorage.removeItem('sipkeu_token');
-  sessionStorage.removeItem('sipkeu_app');
+  endPortalSession();
   resetPortalLocalState();
   currentUser = null;
   showPortal();
@@ -4688,8 +4710,8 @@ async function apiFetch(path, options = {}) {
   if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
   const res = await fetch(url, { cache: 'no-store', ...options, headers });
   if (res.status === 401 && !url.includes('/auth/login')) {
-    sessionStorage.removeItem('sipkeu_token');
-    showLogin(selectedPortalApp || 'sekretariat');
+    endPortalSession();
+    showPortal();
     throw new Error('Sesi berakhir, silakan login kembali');
   }
   return res;
@@ -4742,27 +4764,24 @@ function applyRoleUI() {
 
 async function tryRestoreSession() {
   const token = sessionStorage.getItem('sipkeu_token');
+  const inApp = sessionStorage.getItem('sipkeu_in_app') === '1';
+  if (!token || !inApp) {
+    if (token) sessionStorage.removeItem('sipkeu_token');
+    showPortal();
+    return;
+  }
   selectedPortalApp = sessionStorage.getItem('sipkeu_app') || 'sekretariat';
-  if (!token) { showPortal(); return; }
   try {
     const res = await apiFetch(API + '/auth/me');
     if (!res.ok) throw new Error();
     currentUser = await res.json();
-    const storedApp = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
-    if (currentUser?.app_module) {
-      if (storedApp === 'kas-belanja' && currentUser.app_module !== 'kas-belanja') {
-        selectedPortalApp = 'kas-belanja';
-      } else {
-        selectedPortalApp = currentUser.app_module;
-      }
-    }
+    selectedPortalApp = resolvePortalApp(currentUser?.app_module);
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
-    if (selectedPortalApp === 'kas-belanja') await bootKasApp();
-    else await bootApp();
+    if (selectedPortalApp === 'kas-belanja') await bootKasApp(true);
+    else await bootApp(true);
   } catch {
-    sessionStorage.removeItem('sipkeu_token');
-    sessionStorage.removeItem('sipkeu_app');
+    endPortalSession();
     showPortal();
   }
 }
@@ -4790,13 +4809,13 @@ async function doLogin(e) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login gagal');
     sessionStorage.setItem('sipkeu_token', data.token);
-    const intendedApp = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
-    selectedPortalApp = (intendedApp === 'kas-belanja') ? 'kas-belanja' : (data.app_module || intendedApp);
+    selectedPortalApp = resolvePortalApp(data.app_module);
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
+    markInAppSession();
     resetPortalLocalState();
     currentUser = data;
-    if (selectedPortalApp === 'kas-belanja') await bootKasApp();
-    else await bootApp();
+    if (selectedPortalApp === 'kas-belanja') await bootKasApp(false);
+    else await bootApp(false);
   } catch (err) {
     errEl.textContent = err.message || 'Login gagal';
     errEl.classList.add('show');
@@ -4808,28 +4827,29 @@ async function doLogin(e) {
 
 async function doLogout() {
   try { await apiFetch(API + '/auth/logout', { method: 'POST' }); } catch (_) {}
-  sessionStorage.removeItem('sipkeu_token');
-  sessionStorage.removeItem('sipkeu_app');
+  endPortalSession();
   resetPortalLocalState();
   currentUser = null;
   showPortal();
   document.getElementById('login-form')?.reset();
 }
 
-async function bootApp() {
+async function bootApp(fromRestore = true) {
+  if (!fromRestore) markInAppSession();
   resetPortalLocalState();
   showApp();
   applyPortalBranding();
-  await loadSettings();
-  syncPortalPejabat();
   applyPejabatUI();
-  initForm();
   resetAppPageUI();
   if (isAdmin()) {
     showPage('dashboard', document.getElementById('nav-dashboard'));
   } else {
     showPage('transaksi', document.getElementById('nav-transaksi'));
   }
+  await loadSettings();
+  syncPortalPejabat();
+  applyPejabatUI();
+  initForm();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -9255,18 +9275,18 @@ function applyKasBulanSelection(bulan) {
   document.querySelectorAll('.kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
 }
 
-async function bootKasApp() {
+async function bootKasApp(fromRestore = true) {
+  if (!fromRestore) markInAppSession();
   showKasApp();
   setDefaultKasBulan();
   initKasBulanPicker();
+  showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));
   await loadKasData();
-  // Otomatis pindah ke bulan yang berisi data bila bulan berjalan masih kosong.
   const best = pickBestKasBulan(kasStateCache);
   if (best && best !== getKasBulan()) {
     applyKasBulanSelection(best);
     await loadKasData();
   }
-  showKasPage('dashboard', document.getElementById('kas-nav-dashboard'));
 }
 
 function showKasPage(page, navEl) {
@@ -10550,9 +10570,11 @@ function exportKasExcel() {
 
 // ── Init ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  setTimeout(() => document.getElementById('ds-loader')?.classList.add('hidden'), 900);
   initPotonganFormListeners();
+  const hideLoader = () => document.getElementById('ds-loader')?.classList.add('hidden');
+  setTimeout(hideLoader, 300);
   await tryRestoreSession();
+  hideLoader();
 });
 </script>
 </body>
