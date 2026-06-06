@@ -4531,12 +4531,15 @@ function updateNoBPK() {
   updateNoNP2D();
 }
 
-const NP2D_UNIT = '1.01.06.01';
+const NP2D_DOC = 'NP2D-PPTK';
 
-function parseNp2dSeq(noNp2d) {
+function parseNp2dSeq(noNp2d, bpkCode) {
   if (!noNp2d) return 0;
-  const m = String(noNp2d).match(/^(\d+)\//);
-  return m ? parseInt(m[1], 10) : 0;
+  const s = String(noNp2d);
+  if (!s.includes('/' + bpkCode + '/')) return 0;
+  const m = s.match(/^(\d+)\/(?:NP2D-PPTK|LS\/NP2D-PPTK)\//i);
+  if (m) return parseInt(m[1], 10);
+  return s.match(/^(\d+)\//) ? parseInt(s.match(/^(\d+)\//)[1], 10) : 0;
 }
 
 function generateNoNP2D(tanggal) {
@@ -4546,10 +4549,10 @@ function generateNoNP2D(tanggal) {
   let maxSeq = 0;
   for (const t of allTransactions) {
     if (editingId != null && t.id === editingId) continue;
-    maxSeq = Math.max(maxSeq, parseNp2dSeq(t.no_np2d));
+    maxSeq = Math.max(maxSeq, parseNp2dSeq(t.no_np2d, cfg.bpkCode));
   }
-  const seq = String(maxSeq + 1).padStart(3, '0');
-  return `${seq}/LS/NP2D-PPTK/${cfg.bpkCode}/${NP2D_UNIT}/${month}/${year}`;
+  const seq = String(maxSeq + 1).padStart(4, '0');
+  return `${seq}/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
 }
 
 function updateNoNP2D(clear) {
@@ -6994,11 +6997,14 @@ async function doImpor() {
     const cfg = getPortalAppConfig();
     // Nomor BPK lanjut dari urutan tertinggi transaksi yang sudah ada (impor menambah, tidak menghapus).
     let maxSeq = 0;
+    let maxNp2dSeq = 0;
     for (const t of (allTransactions || [])) {
       maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
+      maxNp2dSeq = Math.max(maxNp2dSeq, parseNp2dSeq(t.no_np2d, cfg.bpkCode));
     }
     const payload = importData.map(t => {
       let noBpk = String(t.no_bpk || '').trim();
+      let noNp2d = String(t.no_np2d || '').trim();
       if (!noBpk && t.tanggal) {
         const [year, month] = String(t.tanggal).split('-');
         if (year && month) {
@@ -7006,7 +7012,14 @@ async function doImpor() {
           noBpk = `${String(maxSeq).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
         }
       }
-      const base = { ...t, no_bpk: noBpk };
+      if (!noNp2d && t.tanggal) {
+        const [year, month] = String(t.tanggal).split('-');
+        if (year && month) {
+          maxNp2dSeq += 1;
+          noNp2d = `${String(maxNp2dSeq).padStart(4, '0')}/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+        }
+      }
+      const base = { ...t, no_bpk: noBpk, no_np2d: noNp2d };
       const items = getPotonganItemsFromTransaction(base);
       if (!items.length) return base;
       const legacy = syncLegacyTaxFieldsFromItems(items);
