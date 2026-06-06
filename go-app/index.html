@@ -4748,10 +4748,15 @@ async function tryRestoreSession() {
     const res = await apiFetch(API + '/auth/me');
     if (!res.ok) throw new Error();
     currentUser = await res.json();
+    const storedApp = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
     if (currentUser?.app_module) {
-      selectedPortalApp = currentUser.app_module;
-      sessionStorage.setItem('sipkeu_app', selectedPortalApp);
+      if (storedApp === 'kas-belanja' && currentUser.app_module !== 'kas-belanja') {
+        selectedPortalApp = 'kas-belanja';
+      } else {
+        selectedPortalApp = currentUser.app_module;
+      }
     }
+    sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
     if (selectedPortalApp === 'kas-belanja') await bootKasApp();
     else await bootApp();
@@ -4771,7 +4776,7 @@ async function doLogin(e) {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses…';
   try {
     const loginHeaders = { 'Content-Type': 'application/json' };
-    if (selectedPortalApp && selectedPortalApp !== 'kas-belanja') {
+    if (selectedPortalApp) {
       loginHeaders['X-SIPKEU-App'] = selectedPortalApp;
     }
     const res = await fetch(API + '/auth/login', {
@@ -4785,9 +4790,8 @@ async function doLogin(e) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login gagal');
     sessionStorage.setItem('sipkeu_token', data.token);
-    if (data.app_module) {
-      selectedPortalApp = data.app_module;
-    }
+    const intendedApp = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
+    selectedPortalApp = (intendedApp === 'kas-belanja') ? 'kas-belanja' : (data.app_module || intendedApp);
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
     currentUser = data;

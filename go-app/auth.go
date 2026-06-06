@@ -50,6 +50,15 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 
+func isValidAppModule(id string) bool {
+	switch id {
+	case "sekretariat", "paud", "sd", "smp", "kas-belanja":
+		return true
+	default:
+		return false
+	}
+}
+
 func newSessionToken() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -138,10 +147,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	if appModule == "" {
 		appModule = "sekretariat"
 	}
-	sipkeuModulesMu.RLock()
-	_, moduleOK := sipkeuModules[appModule]
-	sipkeuModulesMu.RUnlock()
-	if !moduleOK {
+	if !isValidAppModule(appModule) {
 		appModule = "sekretariat"
 	}
 	sess := Session{
