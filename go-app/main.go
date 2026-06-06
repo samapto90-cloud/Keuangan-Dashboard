@@ -22,6 +22,9 @@ var kopDisdikPNG []byte
 //go:embed assets/sakubijak-logo.png
 var sakubijakLogoPNG []byte
 
+//go:embed assets/sakubijak-emblem.png
+var sakubijakEmblemPNG []byte
+
 //go:embed assets/portal-tanjiro.png
 var portalTanjiroPNG []byte
 
@@ -824,6 +827,7 @@ func main() {
 
         mux.HandleFunc("/favicon.ico", servePNG(sakubijakLogoPNG))
         mux.HandleFunc("/assets/sakubijak-logo.png", servePNG(sakubijakLogoPNG))
+        mux.HandleFunc("/assets/sakubijak-emblem.png", servePNG(sakubijakEmblemPNG))
         mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "image/png")
                 w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
