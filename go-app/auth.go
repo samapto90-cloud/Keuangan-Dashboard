@@ -133,11 +133,20 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	username := strings.TrimSpace(strings.ToLower(body.Username))
+	ip := clientIP(r)
+	if loginLimiter.check(ip) {
+		jsonResponse(w, http.StatusTooManyRequests, map[string]string{
+			"error": "Terlalu banyak percobaan login. Coba lagi dalam 15 menit.",
+		})
+		return
+	}
 	user, ok := defaultUsers[username]
-	if !ok || user.Password != body.Password {
+	if !ok || !passwordMatches(user.Password, body.Password) {
+		loginLimiter.recordFail(ip)
 		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Username atau password salah"})
 		return
 	}
+	loginLimiter.recordSuccess(ip)
 	token, err := newSessionToken()
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, map[string]string{"error": "Gagal membuat sesi"})
@@ -155,7 +164,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		Role:      user.Role,
 		Name:      user.Name,
 		AppModule: appModule,
-		Expires:   time.Now().Add(8 * time.Hour),
+		Expires:   time.Now().Add(sessionLifetime()),
 	}
 	sessionsMu.Lock()
 	sessions[token] = sess

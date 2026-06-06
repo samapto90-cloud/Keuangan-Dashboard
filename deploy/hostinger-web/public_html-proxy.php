@@ -1,10 +1,32 @@
 <?php
 /**
  * Proxy SIPKEU → Go backend di localhost:8888
- * Letakkan sebagai index.php di public_html sakubijak.com
  */
-$backend = 'http://127.0.0.1:8888';
 $uri = $_SERVER['REQUEST_URI'] ?? '/';
+if (preg_match('#\.\.|//|\x00#', $uri)) {
+    http_response_code(400);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Permintaan tidak valid']);
+    exit;
+}
+
+$maxBody = 12 * 1024 * 1024;
+$contentLength = (int)($_SERVER['CONTENT_LENGTH'] ?? 0);
+if ($contentLength > $maxBody) {
+    http_response_code(413);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Ukuran data terlalu besar']);
+    exit;
+}
+
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+$backend = 'http://127.0.0.1:8888';
 $url = $backend . $uri;
 
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -20,6 +42,11 @@ if (function_exists('getallheaders')) {
 }
 $headers[] = 'X-Forwarded-Proto: ' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
 $headers[] = 'X-Forwarded-Host: ' . ($_SERVER['HTTP_HOST'] ?? 'sakubijak.com');
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
+if ($clientIp !== '') {
+    $headers[] = 'X-Real-IP: ' . $clientIp;
+    $headers[] = 'X-Forwarded-For: ' . $clientIp;
+}
 
 $body = file_get_contents('php://input');
 $hasBody = in_array($method, ['POST', 'PUT', 'PATCH'], true) && $body !== false && $body !== '';

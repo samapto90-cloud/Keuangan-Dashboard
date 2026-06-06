@@ -1,5 +1,29 @@
 RewriteEngine On
 DirectoryIndex index.php
+Options -Indexes
+
+# Blok akses file tersembunyi
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# Kompresi & cache aset statis
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/png image/jpeg image/webp "access plus 7 days"
+  ExpiresByType text/css application/javascript "access plus 1 day"
+</IfModule>
+
+# Header keamanan di edge web
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+</IfModule>
 
 # Jika file/folder statis ada, serve langsung
 RewriteCond %{REQUEST_FILENAME} -f [OR]
