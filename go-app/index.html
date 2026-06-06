@@ -191,8 +191,9 @@
       pointer-events: none; z-index: 2; opacity: 0;
       background:
         radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,220,120,.75) 12%, rgba(255,100,0,.45) 28%, rgba(139,92,246,.28) 48%, transparent 68%);
-      animation: fxClashFlash 8s cubic-bezier(.22, 1, .36, 1) infinite;
     }
+    .fx-dom-battle .fx-clash-flash,
+    .fx-dom-battle .fx-clash-ring { display: none; }
     @keyframes fxClashFlash {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
       49% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.35); }
@@ -208,21 +209,9 @@
       pointer-events: none; z-index: 2; opacity: 0;
       box-shadow: 0 0 30px rgba(255, 180, 80, 0.65), inset 0 0 20px rgba(255, 120, 0, 0.25);
     }
-    .fx-clash-ring:nth-child(3) {
-      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
-      animation-delay: 0s;
-    }
-    .fx-clash-ring:nth-child(4) {
-      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
-      animation-delay: 0.12s;
-      border-color: rgba(167, 139, 250, 0.5);
-      box-shadow: 0 0 28px rgba(139, 92, 246, 0.55);
-    }
-    .fx-clash-ring:nth-child(5) {
-      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
-      animation-delay: 0.24s;
-      border-color: rgba(255, 140, 0, 0.4);
-    }
+    .fx-clash-ring:nth-child(3),
+    .fx-clash-ring:nth-child(4),
+    .fx-clash-ring:nth-child(5) { display: none; }
     @keyframes fxClashRing {
       0%, 47% { width: 0; height: 0; opacity: 0; transform: translate(-50%, -50%) scale(0.15); }
       50% { width: 72px; height: 72px; opacity: 0.92; transform: translate(-50%, -50%) scale(1); }
@@ -1083,8 +1072,11 @@
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
       .fx-fighter { width: min(30vw, 130px); top: 18%; }
-      .fx-clash-flash { top: 34%; width: min(60vw, 320px); height: min(60vw, 320px); }
-      .fx-clash-ring { top: 34%; }
+      .portal-battle-fx { height: clamp(220px, 36vh, 360px); }
+      .fx-proj { width: min(26vw, 100px); height: min(26vw, 100px); top: 30%; }
+      .portal-battle-fx .fx-clash-flash { width: min(70vw, 340px); height: min(70vw, 340px); top: 30%; }
+      .portal-battle-fx .fx-clash-ring,
+      .portal-battle-fx .fx-clash-sparks { top: 30%; }
       .fx-arena-floor { bottom: 28%; width: 88vw; height: 32px; }
       .sakubijak-brand { max-width: min(380px, 94vw); }
       .sakubijak-logo-full { max-width: min(240px, 62vw); }
@@ -1468,6 +1460,7 @@
       background: transparent;
     }
     #login-screen.hidden { display: none !important; pointer-events: none !important; }
+    #login-screen.hidden .portal-battle-fx { display: none !important; }
 
     /* ── Portal Aplikasi (Homepage) ── */
     #portal-screen {
@@ -1478,6 +1471,7 @@
       background: transparent;
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
+    #portal-screen.hidden .portal-battle-fx { display: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
     @keyframes sakubijakLogoBounce {
       0%, 100% { transform: translateY(0) scale(1); }
@@ -1495,6 +1489,136 @@
       justify-content: center;
       padding: clamp(20px, 4vh, 44px) 12px 12px;
       margin-bottom: 28px;
+      overflow: visible;
+    }
+    .portal-battle-fx {
+      position: fixed;
+      left: 0; right: 0;
+      top: clamp(24px, 5vh, 52px);
+      height: clamp(260px, 40vh, 420px);
+      z-index: 1;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .portal-battle-hero .sakubijak-brand,
+    .portal-battle-hero h1,
+    .portal-battle-hero .portal-tagline,
+    .portal-battle-hero .portal-ta {
+      position: relative;
+      z-index: 3;
+    }
+    .fx-proj {
+      position: absolute;
+      top: 34%;
+      width: min(20vw, 140px);
+      height: min(20vw, 140px);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      z-index: 2;
+      will-change: left, opacity, transform;
+    }
+    .fx-proj-rasengan {
+      background: radial-gradient(circle, #fff 0%, #bfdbfe 14%, #3b82f6 36%, #ff6b00 56%, transparent 74%);
+      box-shadow:
+        0 0 40px rgba(255, 107, 0, 0.95),
+        0 0 70px rgba(59, 130, 246, 0.75),
+        0 0 100px rgba(255, 80, 0, 0.45);
+      animation: fxRasenganFly 8s cubic-bezier(.22, .61, .36, 1) infinite;
+    }
+    .fx-proj-chidori {
+      background: radial-gradient(circle, #fff 0%, #e9d5ff 18%, #6366f1 42%, #4c1d95 58%, transparent 76%);
+      box-shadow:
+        0 0 40px rgba(99, 102, 241, 0.95),
+        0 0 70px rgba(167, 139, 250, 0.8),
+        0 0 90px rgba(139, 92, 246, 0.5);
+      animation: fxChidoriFly 8s cubic-bezier(.22, .61, .36, 1) infinite;
+    }
+    .fx-proj-rasengan::after,
+    .fx-proj-chidori::after {
+      content: '';
+      position: absolute;
+      inset: -30%;
+      border-radius: 50%;
+      opacity: 0.55;
+      animation: fxProjTrail 8s linear infinite;
+    }
+    .fx-proj-rasengan::after {
+      background: radial-gradient(circle, rgba(255, 180, 60, 0.5), transparent 70%);
+    }
+    .fx-proj-chidori::after {
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.55), transparent 70%);
+    }
+    @keyframes fxRasenganFly {
+      0%, 15% { left: 22%; opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
+      17% { left: 22%; opacity: 1; transform: translate(-50%, -50%) scale(0.95) rotate(90deg); }
+      44% { left: 47%; opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(720deg); }
+      47% { left: 49%; opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(900deg); }
+      100% { left: 49%; opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    }
+    @keyframes fxChidoriFly {
+      0%, 15% { left: 78%; opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+      17% { left: 78%; opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+      44% { left: 53%; opacity: 1; transform: translate(-50%, -50%) scale(1.18); filter: brightness(1.3); }
+      47% { left: 51%; opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+      100% { left: 51%; opacity: 0; }
+    }
+    @keyframes fxProjTrail {
+      0%, 15% { opacity: 0; transform: scale(0.5); }
+      20%, 44% { opacity: 0.7; transform: scale(1.1); }
+      47%, 100% { opacity: 0; transform: scale(0.3); }
+    }
+    .portal-battle-fx .fx-clash-flash {
+      position: absolute;
+      left: 50%; top: 34%;
+      width: min(55vw, 480px);
+      height: min(55vw, 480px);
+      z-index: 4;
+      filter: blur(1px);
+      background:
+        radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,235,150,.9) 10%, rgba(255,120,0,.65) 26%, rgba(139,92,246,.45) 44%, transparent 66%);
+    }
+    .portal-battle-fx .fx-clash-flash {
+      animation: fxClashFlash 8s cubic-bezier(.22, 1, .36, 1) infinite;
+    }
+    .portal-battle-fx .fx-clash-ring {
+      position: absolute;
+      left: 50%; top: 34%;
+      z-index: 3;
+    }
+    .portal-battle-fx .fx-clash-ring-a { animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite; }
+    .portal-battle-fx .fx-clash-ring-b {
+      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
+      animation-delay: 0.1s;
+      border-color: rgba(167, 139, 250, 0.65);
+      box-shadow: 0 0 36px rgba(139, 92, 246, 0.7);
+    }
+    .portal-battle-fx .fx-clash-ring-c {
+      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
+      animation-delay: 0.2s;
+      border-color: rgba(255, 160, 0, 0.55);
+    }
+    .portal-battle-fx .fx-clash-sparks {
+      position: absolute;
+      left: 50%; top: 34%;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow:
+        0 0 12px #fff, 0 0 24px #ff8800,
+        40px -20px 0 #ffcc00, -35px 15px 0 #a855f7,
+        25px 30px 0 #ff6600, -45px -25px 0 #6366f1,
+        55px 10px 0 #ffaa00, -50px 30px 0 #c084fc;
+      opacity: 0;
+      z-index: 5;
+      transform: translate(-50%, -50%) scale(0);
+      animation: fxClashSparks 8s ease-out infinite;
+    }
+    @keyframes fxClashSparks {
+      0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      48% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      62% { opacity: 0.6; transform: translate(-50%, -50%) scale(2.2); }
+      78%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
     }
     .sakubijak-logo-bounce {
       display: block;
@@ -3596,10 +3720,6 @@
   <canvas id="fx-canvas"></canvas>
   <div class="fx-dom-battle">
     <div class="fx-arena-floor"></div>
-    <div class="fx-clash-flash"></div>
-    <div class="fx-clash-ring"></div>
-    <div class="fx-clash-ring"></div>
-    <div class="fx-clash-ring"></div>
     <div class="fx-fighter fx-naruto-side">
       <div class="fx-kyubi-tails"></div>
       <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
@@ -3624,6 +3744,15 @@
 <div id="portal-screen">
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
+      <div class="portal-battle-fx" aria-hidden="true">
+        <div class="fx-proj fx-proj-rasengan"></div>
+        <div class="fx-proj fx-proj-chidori"></div>
+        <div class="fx-clash-flash"></div>
+        <div class="fx-clash-ring fx-clash-ring-a"></div>
+        <div class="fx-clash-ring fx-clash-ring-b"></div>
+        <div class="fx-clash-ring fx-clash-ring-c"></div>
+        <div class="fx-clash-sparks"></div>
+      </div>
       <div class="sakubijak-brand">
         <div class="sakubijak-logo-bounce">
           <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
@@ -3704,6 +3833,15 @@
 
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="login-screen" class="hidden">
+  <div class="portal-battle-fx" aria-hidden="true">
+    <div class="fx-proj fx-proj-rasengan"></div>
+    <div class="fx-proj fx-proj-chidori"></div>
+    <div class="fx-clash-flash"></div>
+    <div class="fx-clash-ring fx-clash-ring-a"></div>
+    <div class="fx-clash-ring fx-clash-ring-b"></div>
+    <div class="fx-clash-ring fx-clash-ring-c"></div>
+    <div class="fx-clash-sparks"></div>
+  </div>
   <div class="login-card ds-animate">
     <div class="login-brand">
       <div class="sakubijak-brand">
