@@ -36,8 +36,20 @@ var opRunnersFS embed.FS
 //go:embed assets/naruto-runners/*
 var narutoRunnersFS embed.FS
 
+//go:embed assets/doraemon-runners/*
+var doraemonRunnersFS embed.FS
+
+//go:embed assets/naruto-smp-runners/*
+var narutoSmpRunnersFS embed.FS
+
+//go:embed assets/frozen-runners/*
+var frozenRunnersFS embed.FS
+
 //go:embed assets/gundam-icons/*
 var gundamIconsFS embed.FS
+
+//go:embed assets/ds-kas-runners/*
+var dsKasRunnersFS embed.FS
 
 type PotonganItem struct {
 	Jenis     string  `json:"jenis"`
@@ -728,8 +740,20 @@ func main() {
         if nrSub, err := fs.Sub(narutoRunnersFS, "assets/naruto-runners"); err == nil {
                 mux.Handle("/assets/naruto-runners/", http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub))))
         }
+        if drSub, err := fs.Sub(doraemonRunnersFS, "assets/doraemon-runners"); err == nil {
+                mux.Handle("/assets/doraemon-runners/", http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub))))
+        }
+        if nsSub, err := fs.Sub(narutoSmpRunnersFS, "assets/naruto-smp-runners"); err == nil {
+                mux.Handle("/assets/naruto-smp-runners/", http.StripPrefix("/assets/naruto-smp-runners/", http.FileServer(http.FS(nsSub))))
+        }
+        if frSub, err := fs.Sub(frozenRunnersFS, "assets/frozen-runners"); err == nil {
+                mux.Handle("/assets/frozen-runners/", http.StripPrefix("/assets/frozen-runners/", http.FileServer(http.FS(frSub))))
+        }
         if gdSub, err := fs.Sub(gundamIconsFS, "assets/gundam-icons"); err == nil {
                 mux.Handle("/assets/gundam-icons/", http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub))))
+        }
+        if dsSub, err := fs.Sub(dsKasRunnersFS, "assets/ds-kas-runners"); err == nil {
+                mux.Handle("/assets/ds-kas-runners/", http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub))))
         }
 
         mux.HandleFunc("/data/auth/login", cors(handleLogin))

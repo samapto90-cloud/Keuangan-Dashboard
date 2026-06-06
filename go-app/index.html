@@ -328,29 +328,52 @@
       0% { background-position: 0% 50%; }
       100% { background-position: 220% 50%; }
     }
+    @keyframes dsWisteriaDrift {
+      0% { transform: translateX(0) translateY(0); opacity: .55; }
+      50% { opacity: .85; }
+      100% { transform: translateX(-36px) translateY(-8px); opacity: .55; }
+    }
+    @keyframes dsEmberSpark {
+      0% { opacity: .95; transform: scale(.45); box-shadow: 0 0 10px #f97316, 0 0 4px #a855f7; }
+      100% { opacity: 0; transform: scale(1.7) translateX(-14px); box-shadow: 0 0 2px transparent; }
+    }
+    @keyframes dsBreathPulse {
+      0%, 100% { box-shadow: 0 0 14px rgba(16,185,129,.55), inset 0 2px 0 rgba(255,255,255,.35); }
+      50% { box-shadow: 0 0 26px rgba(56,189,248,.75), inset 0 2px 0 rgba(255,255,255,.5); }
+    }
     .op-race-panel {
       position: relative; overflow: visible;
-      background: linear-gradient(165deg, #7dd3fc 0%, #38bdf8 22%, #0ea5e9 45%, #0284c7 70%, #0369a1 100%);
-      border: 3px solid #fde047;
+      background:
+        radial-gradient(ellipse 80% 60% at 85% 12%, rgba(167,139,250,.22) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 10% 88%, rgba(185,28,28,.18) 0%, transparent 50%),
+        linear-gradient(165deg, #1e1b4b 0%, #312e81 14%, #1a1020 38%, #0c0a0f 62%, #1a0508 100%);
+      border: 3px solid #9333ea;
       border-radius: 22px; padding: 22px 22px 20px;
-      box-shadow: 0 12px 40px rgba(14,165,233,.35), 0 0 48px rgba(251,191,36,.18), inset 0 2px 0 rgba(255,255,255,.35);
+      box-shadow:
+        0 14px 48px rgba(88,28,135,.45),
+        0 0 56px rgba(185,28,28,.18),
+        inset 0 2px 0 rgba(196,181,253,.18);
     }
     .op-race-panel::before {
-      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .25; border-radius: 20px;
-      background: repeating-linear-gradient(90deg, transparent, transparent 36px, rgba(255,255,255,.12) 36px, rgba(255,255,255,.12) 37px);
+      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35; border-radius: 20px;
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(167,139,250,.07) 44px, rgba(167,139,250,.07) 45px),
+        repeating-linear-gradient(0deg, transparent, transparent 44px, rgba(239,68,68,.04) 44px, rgba(239,68,68,.04) 45px);
     }
     .op-race-panel::after {
-      content: ''; position: absolute; top: 12px; right: 24px;
-      width: 72px; height: 72px; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, #fef9c3 0%, #fde047 35%, rgba(251,191,36,.2) 55%, transparent 72%);
-      animation: opSunGlow 3.5s ease-in-out infinite;
+      content: ''; position: absolute; top: 10px; right: 20px;
+      width: 80px; height: 80px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(196,181,253,.85) 0%, rgba(124,58,237,.35) 42%, transparent 72%);
+      animation: opSunGlow 4s ease-in-out infinite;
+      box-shadow: 0 0 40px rgba(167,139,250,.35);
     }
     .op-race-ocean {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 46%; border-radius: 0 0 18px 18px;
+      position: absolute; left: 0; right: 0; bottom: 0; height: 52%; border-radius: 0 0 18px 18px;
       background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0, rgba(255,255,255,.18) 14px, transparent 14px, transparent 32px),
-        linear-gradient(180deg, transparent, rgba(34,211,238,.35));
-      animation: opOceanDrift 6s linear infinite;
+        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(124,58,237,.28) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(16,185,129,.12) 0%, transparent 50%),
+        linear-gradient(180deg, transparent 0%, rgba(30,27,75,.35) 40%, rgba(15,10,20,.55) 100%);
+      animation: dsWisteriaDrift 8s ease-in-out infinite alternate;
       pointer-events: none;
     }
     .op-race-head {
@@ -360,17 +383,17 @@
     }
     .op-race-head h6 {
       font-family: 'Bangers', 'Zen Kaku Gothic New', sans-serif;
-      font-size: 1.5rem; letter-spacing: 1.5px; color: #fff; margin: 0;
-      text-shadow: 2px 2px 0 #0369a1, 0 0 24px rgba(255,255,255,.5);
+      font-size: 1.5rem; letter-spacing: 1.5px; color: #fafafa; margin: 0;
+      text-shadow: 2px 2px 0 #7f1d1d, 0 0 22px rgba(167,139,250,.55);
     }
-    .op-race-head small { display: block; color: #e0f2fe; margin-top: 4px; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+    .op-race-head small { display: block; color: #ddd6fe; margin-top: 4px; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
     .op-race-badge {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      border: 2px solid #fde047; color: #fff;
+      background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #991b1b 100%);
+      border: 2px solid #c4b5fd; color: #fef2f2;
       font-family: 'Bangers', sans-serif; font-size: 14px; letter-spacing: 1px;
       padding: 7px 16px; border-radius: 10px;
-      box-shadow: 0 4px 0 #991b1b, 0 0 20px rgba(239,68,68,.45);
-      animation: opFlagWave 2s ease-in-out infinite;
+      box-shadow: 0 4px 0 #450a0a, 0 0 22px rgba(239,68,68,.4), inset 0 1px 0 rgba(255,255,255,.15);
+      animation: opFlagWave 2.2s ease-in-out infinite;
     }
     .op-race-tracks { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 28px; overflow: visible; padding: 8px 0 24px; }
     .op-race-lane {
@@ -389,62 +412,62 @@
       position: relative; overflow: visible; min-height: 64px;
     }
     .op-race-label {
-      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 55%, #fde68a 100%);
-      border: 2px solid #d97706; border-radius: 8px; padding: 9px 11px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.8);
+      background: linear-gradient(180deg, #292524 0%, #1c1917 52%, #0c0a0a 100%);
+      border: 2px solid #7f1d1d; border-radius: 8px; padding: 9px 11px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(196,181,253,.12), 0 0 12px rgba(127,29,29,.25);
     }
     .op-race-label .op-wanted {
-      font-family: 'Bangers', sans-serif; font-size: 10px; color: #dc2626;
+      font-family: 'Bangers', sans-serif; font-size: 10px; color: #fca5a5;
       letter-spacing: 2px; line-height: 1;
     }
     .op-race-label strong {
-      display: block; font-size: 11px; color: #451a03; margin-top: 3px;
+      display: block; font-size: 11px; color: #f5f5f4; margin-top: 3px;
       line-height: 1.3; word-break: break-word;
     }
     .op-race-label small {
-      display: block; font-size: 10px; color: #92400e; margin-top: 4px;
+      display: block; font-size: 10px; color: #a8a29e; margin-top: 4px;
       line-height: 1.45; white-space: normal; word-break: break-word;
     }
     .op-race-track {
       position: relative; height: 56px;
-      background: linear-gradient(180deg, #d97706 0%, #b45309 48%, #92400e 100%);
-      border: 3px solid #78350f; border-radius: 999px;
+      background: linear-gradient(180deg, #44403c 0%, #292524 42%, #1c1917 72%, #0c0a0a 100%);
+      border: 3px solid #991b1b; border-radius: 999px;
       overflow: visible; z-index: 1;
       box-shadow:
-        inset 0 4px 10px rgba(0,0,0,.28),
-        inset 0 -2px 4px rgba(255,255,255,.12),
-        0 3px 12px rgba(0,0,0,.18);
+        inset 0 5px 14px rgba(0,0,0,.45),
+        inset 0 -2px 4px rgba(196,181,253,.08),
+        0 0 16px rgba(127,29,29,.35),
+        0 3px 12px rgba(0,0,0,.25);
     }
     .op-race-track::before {
       content: ''; position: absolute; inset: 5px; border-radius: 999px; z-index: 2;
       background: repeating-linear-gradient(
         90deg,
-        rgba(255,255,255,.08) 0 16px,
-        transparent 16px 32px
+        rgba(167,139,250,.06) 0 18px,
+        transparent 18px 36px
       );
-      animation: opShimmerTrack 2.4s linear infinite;
+      animation: opShimmerTrack 2.8s linear infinite;
       pointer-events: none;
     }
     .op-race-fill {
       position: absolute; left: 5px; top: 5px; bottom: 5px; width: 0; z-index: 4;
       border-radius: 999px; transition: width 1.4s cubic-bezier(.22,1,.36,1);
-      background: linear-gradient(90deg, #06b6d4 0%, #0284c7 28%, #2563eb 58%, #7c3aed 82%, #0891b2 100%);
+      background: linear-gradient(90deg, #059669 0%, #10b981 22%, #0891b2 48%, #6366f1 72%, #059669 100%);
       background-size: 220% 100%;
-      animation: opFillFlow 3s linear infinite;
-      border: 2px solid rgba(255,255,255,.55);
+      animation: opFillFlow 3s linear infinite, dsBreathPulse 2.4s ease-in-out infinite;
+      border: 2px solid rgba(196,181,253,.45);
       box-shadow:
-        0 0 18px rgba(37,99,235,.75),
-        0 0 6px rgba(34,211,238,.55),
-        inset 0 2px 0 rgba(255,255,255,.5),
-        inset 0 -3px 6px rgba(15,23,42,.22);
+        0 0 20px rgba(16,185,129,.65),
+        0 0 8px rgba(56,189,248,.45),
+        inset 0 2px 0 rgba(255,255,255,.35);
     }
     .op-race-fill::after {
       content: ''; position: absolute; right: 0; top: 50%;
-      width: 5px; height: calc(100% - 2px);
+      width: 6px; height: calc(100% - 2px);
       transform: translate(50%, -50%);
       border-radius: 3px;
-      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(186,230,253,.85));
-      box-shadow: 0 0 10px rgba(255,255,255,.85), 0 0 18px rgba(34,211,238,.65);
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(167,139,250,.75));
+      box-shadow: 0 0 12px rgba(196,181,253,.85), 0 0 20px rgba(16,185,129,.55);
       pointer-events: none;
     }
     .op-race-lane.is-loaded .op-race-fill { width: min(var(--progress, 0%), calc(100% - 10px)); }
@@ -455,22 +478,22 @@
       animation: opRunBounce .32s ease-in-out infinite;
       z-index: 20; cursor: pointer;
       background: transparent;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.4));
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(167,139,250,.25));
     }
     .op-runner-img {
-      width: 100%; height: 100%; object-fit: contain;
+      width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
       display: block; pointer-events: none;
       transform-origin: center bottom;
       background: transparent;
     }
     .op-runner-fallback {
       width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-      font-size: 2.4rem; color: #fde047;
+      font-size: 2.4rem; color: #c4b5fd;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,.45));
     }
     .op-race-runner:hover, .op-race-runner:focus-visible {
       animation: opRunBounce .32s ease-in-out infinite;
-      filter: drop-shadow(0 0 16px rgba(251,191,36,.95)) drop-shadow(0 8px 12px rgba(0,0,0,.35));
+      filter: drop-shadow(0 0 18px rgba(167,139,250,.85)) drop-shadow(0 0 10px rgba(16,185,129,.5)) drop-shadow(0 8px 12px rgba(0,0,0,.4));
       z-index: 30;
       transform: scale(1.08);
     }
@@ -480,41 +503,41 @@
       transform: translateX(-50%) translateY(6px);
       min-width: 280px; max-width: min(380px, calc(100vw - 48px));
       padding: 12px 14px;
-      background: linear-gradient(165deg, #ffffff 0%, #fffbeb 45%, #fef3c7 100%);
-      border: 2px solid #f59e0b; border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0,0,0,.28), 0 0 24px rgba(251,191,36,.35);
-      font-size: 12px; line-height: 1.5; color: #451a03;
+      background: linear-gradient(165deg, #1c1917 0%, #292524 45%, #1e1b4b 100%);
+      border: 2px solid #9333ea; border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.4), 0 0 24px rgba(124,58,237,.35);
+      font-size: 12px; line-height: 1.5; color: #e7e5e4;
       opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .22s, transform .22s, visibility .22s;
       white-space: normal; z-index: 10000;
     }
     .op-runner-hover-tip::after {
       content: ''; position: absolute; top: 100%; left: 50%; margin-left: -8px;
-      border: 8px solid transparent; border-top-color: #f59e0b;
+      border: 8px solid transparent; border-top-color: #9333ea;
     }
     .op-runner-hover-tip::before {
       content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px; margin-top: -2px;
-      border: 6px solid transparent; border-top-color: #fffbeb;
+      border: 6px solid transparent; border-top-color: #292524;
     }
     .op-runner-hover-tip .tip-title {
       font-family: 'Bangers', sans-serif; font-size: 13px; letter-spacing: .5px;
-      color: #dc2626; margin-bottom: 8px; white-space: normal; word-break: break-word;
-      line-height: 1.25; padding-bottom: 6px; border-bottom: 1px dashed rgba(217,119,6,.35);
+      color: #fca5a5; margin-bottom: 8px; white-space: normal; word-break: break-word;
+      line-height: 1.25; padding-bottom: 6px; border-bottom: 1px dashed rgba(167,139,250,.35);
     }
     .op-runner-hover-tip .tip-row {
       display: flex; justify-content: space-between; align-items: baseline;
       gap: 16px; padding: 3px 0;
     }
     .op-runner-hover-tip .tip-row span:first-child {
-      color: #78716c; font-weight: 600; flex-shrink: 0;
+      color: #a8a29e; font-weight: 600; flex-shrink: 0;
     }
     .op-runner-hover-tip .tip-row strong {
-      color: #b45309; font-weight: 800; font-size: 12px;
+      color: #6ee7b7; font-weight: 800; font-size: 12px;
       white-space: nowrap; text-align: right; flex: 1;
     }
     .op-runner-hover-tip .tip-pct {
-      margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(245,158,11,.35);
-      text-align: center; color: #0284c7; font-weight: 800; font-size: 12px;
+      margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(124,58,237,.35);
+      text-align: center; color: #c4b5fd; font-weight: 800; font-size: 12px;
     }
     .op-race-lane:has(.op-race-runner:hover) .op-runner-hover-tip,
     .op-race-lane:has(.op-race-runner:focus-visible) .op-runner-hover-tip {
@@ -522,20 +545,25 @@
     }
     .op-race-lane.is-loaded .op-race-runner { left: var(--progress, 0%); transition: left 1.4s cubic-bezier(.22,1,.36,1), transform .2s; }
     .op-race-dust {
-      position: absolute; bottom: 2px; width: 12px; height: 12px;
-      border-radius: 50%; background: rgba(251,191,36,.55);
-      animation: opDustPuff .45s ease-out infinite;
+      position: absolute; bottom: 2px; width: 14px; height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f97316 0%, #a855f7 45%, transparent 70%);
+      animation: dsEmberSpark .5s ease-out infinite;
     }
     .op-race-empty {
-      text-align: center; padding: 32px; color: #fff; font-size: 14px;
-      text-shadow: 0 1px 3px rgba(0,0,0,.2);
+      text-align: center; padding: 32px; color: #e9d5ff; font-size: 14px;
+      text-shadow: 0 1px 4px rgba(0,0,0,.45);
     }
     .op-race-legend {
       position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px;
-      margin-top: 16px; padding-top: 14px; border-top: 2px solid rgba(255,255,255,.25);
-      font-size: 11px; color: #e0f2fe;
+      margin-top: 16px; padding-top: 14px; border-top: 2px solid rgba(167,139,250,.28);
+      font-size: 11px; color: #ddd6fe;
     }
     .op-race-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .op-race-legend span img {
+      background: transparent !important;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
+    }
     .op-race-legend span.is-assigned { opacity: 1; }
     .op-race-legend span.is-free { opacity: .45; }
     @media (max-width: 576px) {
@@ -914,6 +942,8 @@
     .np-table th { background: #e8e8e8; text-align: center; font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .np-table .np-amt { text-align: right; white-space: nowrap; }
     .np-table .np-c { text-align: center; }
+    .np-tax-table { font-size: 9px; }
+    .np-tax-table th, .np-tax-table td { padding: 2px 3px; word-break: break-word; }
     .np-foot-lbl { text-align: right; font-weight: 700; }
     .np-table tfoot td { font-weight: 700; }
     .np-closing { margin: 8px 0; text-align: justify; }
@@ -1049,88 +1079,69 @@
       border-color: rgba(236,72,153,.45); box-shadow: 0 0 20px rgba(236,72,153,.2);
     }
     .portal-app-card.portal-theme-gundam .portal-app-icon {
-      border-color: rgba(59,130,246,.55); box-shadow: 0 0 24px rgba(37,99,235,.35), inset 0 0 16px rgba(220,38,38,.12);
+      border-color: rgba(167,139,250,.55); box-shadow: 0 0 24px rgba(147,51,234,.35), inset 0 0 16px rgba(220,38,38,.12);
     }
     .portal-app-card.portal-theme-gundam {
-      border-color: rgba(59,130,246,.35);
-      background: linear-gradient(145deg, rgba(30,58,138,.28) 0%, rgba(15,23,42,.92) 48%, rgba(127,29,29,.14) 100%);
+      border-color: rgba(167,139,250,.35);
+      background: linear-gradient(145deg, rgba(76,29,149,.28) 0%, rgba(15,23,42,.92) 48%, rgba(127,29,29,.18) 100%);
     }
     .portal-app-card.portal-theme-gundam:hover {
-      border-color: rgba(96,165,250,.55);
-      box-shadow: 0 12px 40px rgba(37,99,235,.28), 0 0 32px rgba(220,38,38,.15);
+      border-color: rgba(196,181,253,.55);
+      box-shadow: 0 12px 40px rgba(147,51,234,.28), 0 0 32px rgba(220,38,38,.18);
     }
-    .portal-app-card.portal-theme-gundam .portal-app-action { color: #60a5fa; }
+    .portal-app-card.portal-theme-gundam .portal-app-action { color: #c4b5fd; }
     .portal-app-card.portal-theme-gundam h3 {
-      font-family: 'Orbitron', 'Outfit', sans-serif;
-      letter-spacing: .5px;
-      text-shadow: 0 0 20px rgba(59,130,246,.35);
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: .3px;
+      text-shadow: 0 0 20px rgba(167,139,250,.35);
     }
-    .gundam-helmet-icon {
-      position: relative;
-      background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 38%, #64748b 100%);
-      display: block;
+    .portal-app-icon img.ds-kas-portal-icon {
+      width: 100%; height: 100%; object-fit: contain; border-radius: 14px;
+      filter: drop-shadow(0 4px 12px rgba(147,51,234,.35));
     }
-    .gundam-helmet-icon::before {
-      content: '';
-      position: absolute; top: 6%; left: 50%; transform: translateX(-50%);
-      width: 0; height: 0;
-      border-left: 9px solid transparent;
-      border-right: 9px solid transparent;
-      border-bottom: 16px solid #dc2626;
-      filter: drop-shadow(0 0 4px rgba(220,38,38,.6));
-    }
-    .gundam-helmet-icon::after {
-      content: '';
-      position: absolute; top: 44%; left: 20%; right: 20%; height: 26%;
-      background: linear-gradient(180deg, #1e3a8a, #2563eb 55%, #22d3ee);
-      border-radius: 3px;
-      box-shadow: 0 0 10px rgba(34,211,238,.75);
-    }
-    .portal-app-icon.gundam-helmet-icon { border-radius: 14px; }
-    .kas-sidebar-brand .brand-icon.gundam-helmet-icon { border-radius: 14px; }
 
-    /* ── Tema Gundam (Realisasi Kas Belanja) ── */
+    /* ── Tema Demon Slayer (Realisasi Kas Belanja) ── */
     body.theme-gundam {
-      --gundam-blue: #2563eb;
-      --gundam-blue-light: #60a5fa;
-      --gundam-red: #dc2626;
-      --gundam-white: #e2e8f0;
-      --gundam-hud: #22d3ee;
+      --ds-wisteria: #9333ea;
+      --ds-wisteria-light: #c4b5fd;
+      --ds-demon-red: #dc2626;
+      --ds-water: #22d3ee;
+      --ds-checkered: #22c55e;
     }
     body.theme-gundam .fx-vignette {
       background:
-        radial-gradient(ellipse at 50% 40%, rgba(37,99,235,.14) 0%, transparent 38%),
+        radial-gradient(ellipse at 50% 40%, rgba(147,51,234,.14) 0%, transparent 38%),
         radial-gradient(ellipse at 20% 55%, rgba(220,38,38,.12) 0%, transparent 42%),
         radial-gradient(ellipse at 80% 50%, rgba(34,211,238,.08) 0%, transparent 40%),
         radial-gradient(ellipse at center, transparent 22%, rgba(0,0,0,.65) 100%);
     }
     body.theme-gundam .login-card {
-      border-color: rgba(59,130,246,.28);
-      box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 0 40px rgba(37,99,235,.14);
+      border-color: rgba(167,139,250,.28);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 0 40px rgba(147,51,234,.14);
     }
     body.theme-gundam .login-brand h4 {
-      font-family: 'Orbitron', 'Outfit', sans-serif;
-      background: linear-gradient(135deg, #fff, #bfdbfe, #fca5a5);
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #fff, #e9d5ff, #fca5a5);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     body.theme-gundam .login-app-label {
-      background: rgba(37,99,235,.15); color: #93c5fd;
-      border-color: rgba(59,130,246,.35);
+      background: rgba(147,51,234,.15); color: #ddd6fe;
+      border-color: rgba(167,139,250,.35);
     }
-    body.theme-gundam .login-role-hint strong { color: #60a5fa; }
-    body.theme-gundam .login-back-portal:hover { color: #60a5fa; }
+    body.theme-gundam .login-role-hint strong { color: #c4b5fd; }
+    body.theme-gundam .login-back-portal:hover { color: #c4b5fd; }
     body.theme-gundam .btn-primary,
     body.theme-gundam #btn-login.btn-primary {
-      background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
-      box-shadow: 0 4px 20px rgba(37,99,235,.45) !important;
+      background: linear-gradient(135deg, #6d28d9, #9333ea) !important;
+      box-shadow: 0 4px 20px rgba(147,51,234,.45) !important;
     }
     body.theme-gundam #kas-app-shell {
-      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,.1) 0%, transparent 55%);
+      background: radial-gradient(ellipse at 50% 0%, rgba(147,51,234,.1) 0%, transparent 55%);
     }
-    body.theme-gundam .text-warning { color: #60a5fa !important; }
+    body.theme-gundam .text-warning { color: #c4b5fd !important; }
     body.theme-gundam .btn-warning {
-      background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
-      border-color: rgba(96,165,250,.45) !important;
+      background: linear-gradient(135deg, #6d28d9, #9333ea) !important;
+      border-color: rgba(196,181,253,.45) !important;
       color: #fff !important;
     }
 
@@ -1243,36 +1254,6 @@
       border-color: rgba(196,30,58,.35);
     }
     body.theme-inuyasha .login-role-hint strong { color: #f472b6; }
-    body.theme-inuyasha .op-race-panel {
-      background: linear-gradient(165deg, #fecaca 0%, #c41e3a 18%, #7c2d12 42%, #4c1d95 68%, #1e1b4b 100%);
-      border-color: #fbbf24;
-      box-shadow: 0 12px 40px rgba(196,30,58,.35), 0 0 48px rgba(147,51,234,.22), inset 0 2px 0 rgba(255,255,255,.2);
-    }
-    body.theme-inuyasha .op-race-panel::after {
-      background: radial-gradient(circle, rgba(251,191,36,.9) 0%, rgba(196,30,58,.35) 40%, transparent 70%);
-    }
-    body.theme-inuyasha .op-race-head h6 {
-      font-family: 'Shippori Mincho', 'Bangers', serif;
-      text-shadow: 2px 2px 0 #581c87, 0 0 24px rgba(251,191,36,.45);
-    }
-    body.theme-inuyasha .op-race-head small { color: #fce7f3; }
-    body.theme-inuyasha .op-race-badge {
-      background: linear-gradient(135deg, #9333ea, #c41e3a);
-      border-color: #fde68a;
-      box-shadow: 0 4px 0 #581c87, 0 0 20px rgba(147,51,234,.45);
-    }
-    body.theme-inuyasha .op-race-label {
-      background: linear-gradient(180deg, #fff7ed 0%, #fed7aa 55%, #fdba74 100%);
-      border-color: #9a3412;
-    }
-    body.theme-inuyasha .op-race-label .op-wanted { color: #7c2d12; }
-    body.theme-inuyasha .op-race-track {
-      background: linear-gradient(180deg, #9333ea 0%, #7c3aed 45%, #581c87 100%);
-      border-color: #4c1d95;
-    }
-    body.theme-inuyasha .op-race-fill {
-      background: linear-gradient(90deg, #fbbf24, #f472b6, #c41e3a, #fbbf24);
-    }
     body.theme-inuyasha .inuyasha-runner-avatar {
       display: inline-flex; align-items: center; justify-content: center;
       width: 44px; height: 44px; border-radius: 50%;
@@ -1292,6 +1273,290 @@
       background: var(--leg-bg, #c41e3a); border: 1px solid rgba(255,255,255,.25);
       vertical-align: middle; margin-right: 4px;
     }
+    /* ── Portal card: Doraemon (SD) ── */
+    .portal-app-card.portal-theme-doraemon {
+      border-color: rgba(0,160,233,.45);
+      background: linear-gradient(145deg, rgba(0,160,233,.20) 0%, rgba(10,18,32,.92) 48%, rgba(229,57,53,.14) 100%);
+    }
+    .portal-app-card.portal-theme-doraemon:hover {
+      border-color: rgba(0,160,233,.7);
+      box-shadow: 0 12px 40px rgba(0,160,233,.30), 0 0 28px rgba(255,255,255,.12);
+    }
+    .portal-app-card.portal-theme-doraemon .portal-app-icon {
+      border-color: rgba(0,160,233,.6);
+      box-shadow: 0 0 24px rgba(0,160,233,.4), inset 0 0 18px rgba(255,255,255,.15);
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), rgba(0,160,233,.55) 60%, rgba(229,57,53,.4));
+      display: grid; place-items: center; font-size: 32px;
+    }
+    .portal-app-card.portal-theme-doraemon .portal-app-action { color: #38bdf8; }
+
+    /* ── Portal card: Crayon Shinchan (SMP) ── */
+    .portal-app-card.portal-theme-shinchan {
+      border-color: rgba(245,158,11,.5);
+      background: linear-gradient(145deg, rgba(245,158,11,.20) 0%, rgba(20,16,8,.92) 46%, rgba(220,38,38,.16) 100%);
+    }
+    .portal-app-card.portal-theme-shinchan:hover {
+      border-color: rgba(245,158,11,.75);
+      box-shadow: 0 12px 40px rgba(245,158,11,.30), 0 0 28px rgba(220,38,38,.2);
+    }
+    .portal-app-card.portal-theme-shinchan .portal-app-icon {
+      border-color: rgba(245,158,11,.6);
+      box-shadow: 0 0 24px rgba(245,158,11,.4), inset 0 0 18px rgba(220,38,38,.15);
+      background: radial-gradient(circle at 35% 30%, rgba(254,243,199,.4), rgba(245,158,11,.55) 58%, rgba(220,38,38,.45));
+      display: grid; place-items: center; font-size: 30px;
+    }
+    .portal-app-card.portal-theme-shinchan .portal-app-action { color: #fbbf24; }
+
+    /* ── Tema Doraemon (SIPKEU SD) ── */
+    body.theme-doraemon {
+      --dora-blue: #00a0e9;
+      --dora-blue-deep: #0277bd;
+      --dora-red: #e53935;
+      --dora-yellow: #ffd54f;
+      --naruto: var(--dora-blue);
+      --naruto-hot: var(--dora-blue-deep);
+      --naruto-glow: rgba(0,160,233,.5);
+      --chakra: var(--dora-blue);
+      --chakra-deep: var(--dora-blue-deep);
+      --chakra-glow: rgba(0,160,233,.45);
+      --leaf: #ef5350;
+      --leaf-deep: #c62828;
+      --gold: var(--dora-yellow);
+      --glass-border: rgba(0,160,233,.28);
+      --primary: var(--dora-blue);
+      --primary-dark: var(--dora-blue-deep);
+      --sidebar-bg: linear-gradient(180deg, #061a2b 0%, #0b2740 45%, #08243a 100%);
+    }
+    body.theme-doraemon #sidebar::before {
+      background: linear-gradient(90deg, transparent, var(--dora-blue), var(--dora-red), transparent);
+    }
+    body.theme-doraemon #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, var(--dora-blue), #fff, var(--dora-red), var(--dora-yellow), var(--dora-blue));
+      border-color: rgba(0,160,233,.55);
+      box-shadow: 0 0 26px rgba(0,160,233,.5);
+    }
+    body.theme-doraemon #sidebar nav .nav-label { color: #38bdf8; }
+    body.theme-doraemon #sidebar nav a.active {
+      background: linear-gradient(135deg, rgba(0,160,233,.24), rgba(229,57,53,.16));
+      border-color: rgba(0,160,233,.4);
+    }
+    body.theme-doraemon .btn-primary,
+    body.theme-doraemon #btn-submit.btn-primary {
+      background: linear-gradient(135deg, var(--dora-blue-deep), var(--dora-blue)) !important;
+      box-shadow: 0 4px 20px rgba(0,160,233,.45) !important;
+    }
+    body.theme-doraemon .login-brand h4 {
+      background: linear-gradient(135deg, #fff, #bae6fd, #fecaca);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-doraemon .login-app-label {
+      background: rgba(0,160,233,.16); color: #7dd3fc; border-color: rgba(0,160,233,.35);
+    }
+
+    /* ── Tema Crayon Shinchan (SIPKEU SMP) ── */
+    body.theme-shinchan {
+      --sc-yellow: #f59e0b;
+      --sc-yellow-deep: #d97706;
+      --sc-red: #dc2626;
+      --sc-green: #16a34a;
+      --naruto: var(--sc-yellow);
+      --naruto-hot: var(--sc-yellow-deep);
+      --naruto-glow: rgba(245,158,11,.5);
+      --chakra: var(--sc-red);
+      --chakra-deep: #991b1b;
+      --chakra-glow: rgba(220,38,38,.45);
+      --leaf: var(--sc-green);
+      --leaf-deep: #15803d;
+      --gold: var(--sc-yellow);
+      --glass-border: rgba(245,158,11,.28);
+      --primary: var(--sc-yellow);
+      --primary-dark: var(--sc-yellow-deep);
+      --sidebar-bg: linear-gradient(180deg, #1f1605 0%, #2b2008 45%, #2a1207 100%);
+    }
+    body.theme-shinchan #sidebar::before {
+      background: linear-gradient(90deg, transparent, var(--sc-yellow), var(--sc-red), transparent);
+    }
+    body.theme-shinchan #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, var(--sc-yellow), var(--sc-red), #fff, var(--sc-green), var(--sc-yellow));
+      border-color: rgba(245,158,11,.55);
+      box-shadow: 0 0 26px rgba(245,158,11,.5);
+    }
+    body.theme-shinchan #sidebar nav .nav-label { color: #fbbf24; }
+    body.theme-shinchan #sidebar nav a.active {
+      background: linear-gradient(135deg, rgba(245,158,11,.24), rgba(220,38,38,.16));
+      border-color: rgba(245,158,11,.4);
+    }
+    body.theme-shinchan .btn-primary,
+    body.theme-shinchan #btn-submit.btn-primary {
+      background: linear-gradient(135deg, var(--sc-yellow-deep), var(--sc-yellow)) !important;
+      box-shadow: 0 4px 20px rgba(245,158,11,.45) !important;
+    }
+    body.theme-shinchan .login-brand h4 {
+      background: linear-gradient(135deg, #fff, #fde68a, #fecaca);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-shinchan .login-app-label {
+      background: rgba(245,158,11,.16); color: #fcd34d; border-color: rgba(245,158,11,.35);
+    }
+
+    .portal-app-card.portal-theme-onepiece {
+      border-color: rgba(14,165,233,.5);
+      background: linear-gradient(145deg, rgba(14,165,233,.22) 0%, rgba(10,18,32,.92) 46%, rgba(251,191,36,.16) 100%);
+    }
+    .portal-app-card.portal-theme-onepiece:hover {
+      border-color: rgba(251,191,36,.7);
+      box-shadow: 0 12px 40px rgba(14,165,233,.35), 0 0 28px rgba(251,191,36,.25);
+    }
+    .portal-app-card.portal-theme-onepiece .portal-app-icon {
+      border-color: rgba(251,191,36,.55);
+      box-shadow: 0 0 24px rgba(14,165,233,.4), inset 0 0 18px rgba(251,191,36,.15);
+      background: radial-gradient(circle at 35% 30%, rgba(254,243,199,.35), rgba(14,165,233,.5) 58%, rgba(2,132,199,.45));
+      overflow: hidden;
+    }
+    .portal-app-card.portal-theme-onepiece .portal-app-icon img {
+      width: 100%; height: 100%; object-fit: contain; display: block;
+    }
+    .portal-app-card.portal-theme-onepiece .portal-app-action { color: #fde047; }
+
+    .portal-app-card.portal-theme-frozen {
+      border-color: rgba(125,211,252,.55);
+      background: linear-gradient(145deg, rgba(186,230,253,.25) 0%, rgba(12,30,55,.92) 48%, rgba(147,197,253,.18) 100%);
+    }
+    .portal-app-card.portal-theme-frozen:hover {
+      border-color: rgba(186,230,253,.8);
+      box-shadow: 0 12px 40px rgba(56,189,248,.35), 0 0 32px rgba(224,242,254,.2);
+    }
+    .portal-app-card.portal-theme-frozen .portal-app-icon {
+      border-color: rgba(186,230,253,.6);
+      box-shadow: 0 0 24px rgba(56,189,248,.45), inset 0 0 20px rgba(255,255,255,.2);
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.45), rgba(125,211,252,.55) 58%, rgba(59,130,246,.4));
+      overflow: hidden;
+    }
+    .portal-app-card.portal-theme-frozen .portal-app-icon img {
+      width: 100%; height: 100%; object-fit: contain; display: block;
+    }
+    .portal-app-card.portal-theme-frozen .portal-app-action { color: #bae6fd; }
+    .portal-app-card.portal-theme-frozen h3 {
+      text-shadow: 0 0 20px rgba(125,211,252,.4);
+    }
+
+    /* ── Tema One Piece (SIPKEU Sekretariat) ── */
+    body.theme-onepiece {
+      --naruto: #f59e0b;
+      --naruto-hot: #d97706;
+      --naruto-glow: rgba(245,158,11,.5);
+      --chakra: #0ea5e9;
+      --chakra-deep: #0284c7;
+      --chakra-glow: rgba(14,165,233,.45);
+      --leaf: #22c55e;
+      --gold: #fde047;
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --sidebar-bg: linear-gradient(180deg, #0a1628 0%, #0c2340 45%, #071525 100%);
+    }
+    body.theme-onepiece #sidebar::before {
+      background: linear-gradient(90deg, transparent, #0ea5e9, #fde047, transparent);
+    }
+    body.theme-onepiece #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, #0ea5e9, #fde047, #ef4444, #22c55e, #0ea5e9);
+      border-color: rgba(251,191,36,.55);
+      box-shadow: 0 0 26px rgba(14,165,233,.5);
+    }
+    body.theme-onepiece #sidebar nav .nav-label { color: #fde047; }
+    body.theme-onepiece #sidebar nav a.active {
+      background: linear-gradient(135deg, rgba(14,165,233,.24), rgba(251,191,36,.14));
+      border-color: rgba(14,165,233,.4);
+    }
+    body.theme-onepiece .btn-primary,
+    body.theme-onepiece #btn-submit.btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9) !important;
+      box-shadow: 0 4px 20px rgba(14,165,233,.45) !important;
+    }
+    body.theme-onepiece .login-brand h4 {
+      background: linear-gradient(135deg, #fff, #bae6fd, #fde68a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-onepiece .login-app-label {
+      background: rgba(14,165,233,.16); color: #7dd3fc; border-color: rgba(251,191,36,.35);
+    }
+
+    /* ── Tema Frozen (SIPKEU PAUD) ── */
+    body.theme-frozen {
+      --frozen-ice: #7dd3fc;
+      --frozen-deep: #0284c7;
+      --frozen-glow: rgba(125,211,252,.55);
+      --frozen-purple: #a78bfa;
+      --naruto: var(--frozen-ice);
+      --naruto-hot: var(--frozen-deep);
+      --naruto-glow: var(--frozen-glow);
+      --chakra: var(--frozen-purple);
+      --chakra-deep: #6d28d9;
+      --chakra-glow: rgba(167,139,250,.45);
+      --leaf: #bae6fd;
+      --gold: #e0f2fe;
+      --primary: var(--frozen-ice);
+      --primary-dark: var(--frozen-deep);
+      --sidebar-bg: linear-gradient(180deg, #0c1a2e 0%, #122a45 42%, #0a1828 100%);
+    }
+    body.theme-frozen .fx-vignette {
+      background:
+        radial-gradient(ellipse at 50% 35%, rgba(186,230,253,.14) 0%, transparent 40%),
+        radial-gradient(ellipse at 20% 60%, rgba(147,197,253,.12) 0%, transparent 42%),
+        radial-gradient(ellipse at center, transparent 22%, rgba(0,0,0,.65) 100%);
+    }
+    body.theme-frozen #sidebar::before {
+      background: linear-gradient(90deg, transparent, var(--frozen-ice), var(--frozen-purple), transparent);
+    }
+    body.theme-frozen #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, var(--frozen-ice), #fff, var(--frozen-purple), #bae6fd, var(--frozen-ice));
+      border-color: rgba(186,230,253,.55);
+      box-shadow: 0 0 28px var(--frozen-glow);
+    }
+    body.theme-frozen #sidebar nav .nav-label { color: #bae6fd; }
+    body.theme-frozen #sidebar nav a.active {
+      background: linear-gradient(135deg, rgba(125,211,252,.22), rgba(167,139,250,.16));
+      border-color: rgba(125,211,252,.35);
+    }
+    body.theme-frozen .loader-ring {
+      border-top-color: var(--frozen-ice);
+      border-right-color: var(--frozen-purple);
+    }
+    body.theme-frozen .btn-primary,
+    body.theme-frozen #btn-submit.btn-primary {
+      background: linear-gradient(135deg, var(--frozen-deep), var(--frozen-ice)) !important;
+      box-shadow: 0 4px 20px var(--frozen-glow) !important;
+    }
+    body.theme-frozen .login-brand h4 {
+      background: linear-gradient(135deg, #fff, #e0f2fe, #ddd6fe);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    body.theme-frozen .login-app-label {
+      background: rgba(125,211,252,.16); color: #bae6fd; border-color: rgba(186,230,253,.35);
+    }
+
+    /* ── Tema Naruto (SIPKEU SMP) ── */
+    body.theme-naruto {
+      --naruto: #ff6b00;
+      --naruto-hot: #ea580c;
+      --naruto-glow: rgba(255,107,0,.5);
+      --chakra: #3b82f6;
+      --primary: var(--naruto);
+      --primary-dark: var(--naruto-hot);
+      --sidebar-bg: linear-gradient(180deg, #1a0f05 0%, #2a1808 45%, #1f1206 100%);
+    }
+    body.theme-naruto #sidebar::before {
+      background: linear-gradient(90deg, transparent, var(--naruto), var(--chakra), transparent);
+    }
+    body.theme-naruto #sidebar .brand-icon {
+      background: conic-gradient(from 0deg, var(--naruto), var(--chakra), #fde047, var(--naruto));
+      border-color: rgba(255,107,0,.55);
+    }
+    body.theme-naruto .btn-primary,
+    body.theme-naruto #btn-submit.btn-primary {
+      background: linear-gradient(135deg, var(--naruto-hot), var(--naruto)) !important;
+      box-shadow: 0 4px 20px var(--naruto-glow) !important;
+    }
+
     .portal-app-card h3 {
       font-size: 17px; font-weight: 800; margin: 0 0 8px; color: #fff; position: relative; z-index: 1; line-height: 1.35;
     }
@@ -1394,15 +1659,15 @@
     }
     .kas-sidebar-brand .brand-icon {
       width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; overflow: hidden;
-      border: 2px solid rgba(59,130,246,.5);
-      box-shadow: 0 0 24px rgba(59,130,246,.28);
+      border: 2px solid rgba(167,139,250,.5);
+      box-shadow: 0 0 24px rgba(147,51,234,.28);
     }
     .kas-sidebar-brand .brand-icon img {
-      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+      width: 100%; height: 100%; object-fit: contain; object-position: center bottom; display: block;
     }
     .kas-sidebar-brand h6 {
       margin: 0; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .3px; line-height: 1.3;
-      font-family: 'Orbitron', 'Outfit', sans-serif;
+      font-family: 'Outfit', sans-serif;
     }
     .kas-sidebar-brand small {
       display: block; margin-top: 3px; font-size: 10px; color: #60a5fa; letter-spacing: .4px; font-weight: 600;
@@ -1885,47 +2150,55 @@
     }
     .kas-flame-panel {
       position: relative; overflow: hidden;
-      background: linear-gradient(165deg, #0a0f1a 0%, #0f172a 35%, #111827 100%);
-      border: 2px solid rgba(59,130,246,.35);
+      background:
+        linear-gradient(165deg, #0c0a12 0%, #120f1a 28%, #1a1024 55%, #0f172a 100%);
+      border: 2px solid rgba(167,139,250,.4);
       border-radius: 20px; padding: 22px 22px 16px; margin-bottom: 20px;
-      box-shadow: 0 0 48px rgba(37,99,235,.14), inset 0 -40px 80px rgba(34,211,238,.04);
+      box-shadow: 0 0 56px rgba(147,51,234,.16), inset 0 -40px 80px rgba(34,211,238,.04);
     }
     .kas-flame-panel::before {
-      content: ''; position: absolute; bottom: -20px; left: 0; right: 0; height: 140px;
-      background: radial-gradient(ellipse at 50% 100%, rgba(37,99,235,.28) 0%, rgba(220,38,38,.1) 40%, transparent 72%);
-      pointer-events: none; animation: kasFlameFlicker 2.4s ease-in-out infinite alternate;
+      content: ''; position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(45deg, rgba(34,197,94,.04) 0 8px, rgba(0,0,0,0) 8px 16px),
+        repeating-linear-gradient(-45deg, rgba(34,197,94,.04) 0 8px, rgba(0,0,0,0) 8px 16px);
+      opacity: .35; pointer-events: none;
     }
     .kas-flame-panel::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, #dc2626, #3b82f6, #22d3ee, transparent);
-      opacity: .75;
+      background: linear-gradient(90deg, transparent, #dc2626, #9333ea, #22d3ee, #22c55e, transparent);
+      opacity: .85;
     }
     .kas-flame-head {
       display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
       gap: 12px; margin-bottom: 16px; position: relative; z-index: 1;
     }
     .kas-flame-head h6 {
-      margin: 0; font-weight: 800; font-size: 15px; color: #dbeafe;
-      text-shadow: 0 0 20px rgba(59, 130, 246, .45);
-      font-family: 'Orbitron', 'Outfit', sans-serif;
+      margin: 0; font-weight: 800; font-size: 15px; color: #ede9fe;
+      text-shadow: 0 0 20px rgba(167, 139, 250, .45);
+      font-family: 'Outfit', sans-serif;
     }
-    .kas-flame-head h6 i { color: #22d3ee; }
+    .kas-flame-head h6 i { color: #a78bfa; }
     .kas-flame-head small { display: block; color: #94a3b8; margin-top: 4px; font-size: 11px; }
     .kas-flame-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
-      background: linear-gradient(135deg, rgba(37,99,235,.35), rgba(220,38,38,.22));
-      border: 1px solid rgba(96, 165, 250, .35); color: #bfdbfe;
-      box-shadow: 0 0 16px rgba(37, 99, 235, .22);
-      font-family: 'Orbitron', 'Outfit', sans-serif;
+      background: linear-gradient(135deg, rgba(147,51,234,.35), rgba(220,38,38,.22));
+      border: 1px solid rgba(196, 181, 253, .35); color: #ddd6fe;
+      box-shadow: 0 0 16px rgba(147, 51, 234, .22);
+      font-family: 'Outfit', sans-serif;
     }
     .kas-flame-canvas-wrap {
-      position: relative; height: 440px; z-index: 1;
+      position: relative; height: 460px; z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(147,51,234,.06) 0%, transparent 35%),
+        repeating-linear-gradient(0deg, rgba(148,163,184,.06) 0 1px, transparent 1px 56px);
+      border-radius: 14px;
+      border: 1px solid rgba(167,139,250,.18);
     }
     .kas-flame-canvas-wrap::before {
       content: '';
       position: absolute; left: 0; right: 0; top: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(34,211,238,.6), transparent);
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,.55), transparent);
       animation: kasHudScan 4s linear infinite;
       pointer-events: none; z-index: 2;
     }
@@ -1933,8 +2206,8 @@
       position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
     .kas-flame-ember {
-      position: absolute; bottom: 8%; width: 3px; height: 3px; border-radius: 50%;
-      background: #22d3ee; box-shadow: 0 0 8px #3b82f6;
+      position: absolute; bottom: 8%; width: 4px; height: 4px; border-radius: 50%;
+      background: #c4b5fd; box-shadow: 0 0 10px #9333ea;
       animation: kasEmberFloat 2.5s ease-out infinite;
     }
     .kas-flame-legend {
@@ -1943,80 +2216,112 @@
     }
     .kas-flame-legend span { display: inline-flex; align-items: center; gap: 6px; }
     .kas-flame-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-    .kas-flame-legend .lg-ang { background: linear-gradient(180deg, #dbeafe, #3b82f6, #1e3a8a); }
-    .kas-flame-legend .lg-rea { background: linear-gradient(180deg, #fecaca, #dc2626); box-shadow: 0 0 8px rgba(220,38,38,.45); }
+    .kas-flame-legend .lg-ang {
+      background: linear-gradient(180deg, #ddd6fe, #7c3aed, #4c1d95);
+      box-shadow: 0 0 8px rgba(124,58,237,.35);
+    }
+    .kas-flame-legend .lg-rea {
+      background: linear-gradient(180deg, #fecaca, #ef4444, #991b1b);
+      box-shadow: 0 0 8px rgba(239,68,68,.45);
+    }
     .kas-gundam-chart {
-      position: relative; z-index: 1; height: 100%; min-height: 300px;
+      position: relative; z-index: 1; height: 100%; min-height: 320px;
       display: flex; align-items: flex-end; justify-content: space-around;
-      flex-wrap: nowrap; gap: clamp(8px, 1.6vw, 22px); padding: 22px 10px 46px;
+      flex-wrap: nowrap; gap: clamp(6px, 1.4vw, 20px); padding: 28px 12px 54px;
       overflow: visible;
     }
+    .kas-gundam-chart-grid {
+      position: absolute; left: 8px; right: 8px; top: 24px; bottom: 52px;
+      pointer-events: none; z-index: 0;
+      background:
+        repeating-linear-gradient(0deg, rgba(148,163,184,.08) 0 1px, transparent 1px 25%);
+    }
     .kas-gundam-chart-axis {
-      position: absolute; left: 0; right: 0; bottom: 40px; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(59,130,246,.35), transparent);
+      position: absolute; left: 8px; right: 8px; bottom: 48px; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,.45), rgba(34,211,238,.35), transparent);
+      box-shadow: 0 0 12px rgba(147,51,234,.25);
     }
     .kas-gundam-col {
-      flex: 1 1 0; min-width: 72px; max-width: 150px; height: 100%;
+      flex: 1 1 0; min-width: 68px; max-width: 148px; height: 100%;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-      position: relative;
+      position: relative; z-index: 1;
     }
     .kas-gundam-ang {
-      position: absolute; bottom: 0; width: 58%; min-width: 28px;
-      border-radius: 6px 6px 2px 2px;
-      background: linear-gradient(180deg, rgba(96,165,250,.55), rgba(37,99,235,.22));
-      border: 1px solid rgba(147,197,253,.35);
-      box-shadow: 0 0 12px rgba(37,99,235,.18);
+      position: absolute; bottom: 0; width: 62%; min-width: 30px;
+      border-radius: 8px 8px 3px 3px;
+      background: linear-gradient(180deg, rgba(196,181,253,.65) 0%, rgba(124,58,237,.35) 45%, rgba(76,29,149,.22) 100%);
+      border: 1px solid rgba(196,181,253,.45);
+      box-shadow: 0 0 16px rgba(124,58,237,.22), inset 0 1px 0 rgba(255,255,255,.12);
       transition: height .85s cubic-bezier(.22,1,.36,1);
       pointer-events: none;
     }
+    .kas-gundam-ang::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), transparent 40%);
+      pointer-events: none;
+    }
+    .kas-gundam-rea-bar {
+      position: absolute; bottom: 0; width: 38%; min-width: 14px; left: 50%; transform: translateX(-50%);
+      border-radius: 6px 6px 2px 2px;
+      background: linear-gradient(180deg, rgba(252,165,165,.85), rgba(220,38,38,.55) 55%, rgba(127,29,29,.35));
+      border: 1px solid rgba(252,165,165,.4);
+      box-shadow: 0 0 14px rgba(239,68,68,.28);
+      transition: height .85s cubic-bezier(.22,1,.36,1);
+      pointer-events: none; z-index: 1;
+    }
     .kas-gundam-ms {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 2;
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 3;
       display: flex; align-items: flex-end; justify-content: center;
-      transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1);
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(34,211,238,.25));
-      cursor: default; perspective: 900px;
+      transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1), bottom .85s cubic-bezier(.22,1,.36,1);
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)) drop-shadow(0 0 16px rgba(147,51,234,.28));
+      cursor: default;
     }
-    @keyframes kasGundamSpin {
-      0% { transform: rotateY(0deg); }
-      100% { transform: rotateY(360deg); }
-    }
-    @keyframes kasGundamFloat {
+    @keyframes kasDsFloat {
       0%, 100% { translate: 0 0; }
-      50% { translate: 0 -7px; }
+      50% { translate: 0 -5px; }
     }
     .kas-gundam-ms img {
       width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
       display: block; pointer-events: none;
-      transform-style: preserve-3d;
-      animation: kasGundamSpin var(--spin, 7s) linear infinite;
-      will-change: transform;
+      image-rendering: auto;
+      -webkit-font-smoothing: antialiased;
     }
-    .kas-gundam-ms { animation: kasGundamFloat 3.6s ease-in-out infinite; }
+    .kas-gundam-ms { animation: kasDsFloat 3.2s ease-in-out infinite; animation-delay: var(--float-delay, 0s); }
     .kas-gundam-ms:hover, .kas-gundam-ms:focus-visible {
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(34,211,238,.6));
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(167,139,250,.55));
       animation-play-state: paused;
     }
-    .kas-gundam-ms:hover img, .kas-gundam-ms:focus-visible img { animation-play-state: paused; }
     @media (prefers-reduced-motion: reduce) {
-      .kas-gundam-ms, .kas-gundam-ms img { animation: none !important; }
+      .kas-gundam-ms { animation: none !important; }
     }
+    .kas-gundam-pct {
+      position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+      white-space: nowrap; letter-spacing: .02em;
+      background: rgba(15,23,42,.88); border: 1px solid rgba(167,139,250,.35);
+      color: #e9d5ff; box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .kas-gundam-pct.kas-pct-over { color: #fecaca; border-color: rgba(248,113,113,.45); }
+    .kas-gundam-pct.kas-pct-warn { color: #fde68a; border-color: rgba(251,191,36,.4); }
+    .kas-gundam-pct.kas-pct-ok { color: #bbf7d0; border-color: rgba(74,222,128,.35); }
     .kas-gundam-label {
-      position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%);
-      width: 110%; font-size: 9px; font-weight: 700; color: #94a3b8;
+      position: absolute; bottom: -42px; left: 50%; transform: translateX(-50%);
+      width: 115%; font-size: 9px; font-weight: 700; color: #cbd5e1;
       text-align: center; line-height: 1.25;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .kas-gundam-tip {
-      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-      min-width: 160px; max-width: 220px; padding: 8px 10px; border-radius: 10px;
-      background: rgba(15,23,42,.96); border: 1px solid rgba(59,130,246,.35);
-      box-shadow: 0 8px 24px rgba(0,0,0,.45); font-size: 10px; color: #e2e8f0;
+      display: none; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+      min-width: 168px; max-width: 230px; padding: 10px 12px; border-radius: 12px;
+      background: rgba(12,10,18,.97); border: 1px solid rgba(167,139,250,.4);
+      box-shadow: 0 10px 28px rgba(0,0,0,.5), 0 0 20px rgba(147,51,234,.15);
+      font-size: 10px; color: #e2e8f0;
       z-index: 10; pointer-events: none; white-space: normal;
     }
-    .kas-gundam-col:hover .kas-gundam-tip, .kas-gundam-col:focus-within .kas-gundam-tip { display: block; }
-    .kas-gundam-tip strong { color: #93c5fd; display: block; margin-bottom: 4px; font-size: 10px; }
+    .kas-gundam-tip strong { color: #c4b5fd; display: block; margin-bottom: 4px; font-size: 10px; }
     .kas-gundam-tip .tip-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; }
-    .kas-gundam-tip .tip-pct { margin-top: 4px; color: #22d3ee; font-weight: 800; }
+    .kas-gundam-col:hover .kas-gundam-tip, .kas-gundam-col:focus-within .kas-gundam-tip { display: block; }
+    .kas-gundam-tip .tip-pct { margin-top: 4px; color: #a78bfa; font-weight: 800; }
     .kas-gundam-empty {
       position: absolute; inset: 0; display: grid; place-items: center;
       font-size: 12px; color: #64748b; text-align: center; padding: 20px;
@@ -2286,20 +2591,40 @@
     </header>
 
     <div class="portal-grid">
-      <div class="portal-app-card portal-theme-naruto portal-active" onclick="openPortalApp('sekretariat')">
-        <div class="portal-app-icon"><img src="/assets/portal-tanjiro.png" alt="Tanjiro — SIPKEU Sekretariat" /></div>
+      <div class="portal-app-card portal-theme-onepiece portal-active" onclick="openPortalApp('sekretariat')">
+        <div class="portal-app-icon"><img src="/assets/op-runners/luffy.png?v=6" alt="Luffy — SIPKEU Sekretariat" /></div>
         <h3>SIPKEU Sekretariat</h3>
-        <p>Penatausahaan keuangan Sekretariat Dinas Pendidikan — transaksi, kwitansi, rekap, dan dashboard pagu anggaran.</p>
+        <p>Penatausahaan keuangan Sekretariat Dinas Pendidikan — tema One Piece · Grand Line Race.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-inuyasha portal-active" onclick="openPortalApp('paud')">
-        <div class="portal-app-icon" aria-hidden="true">💎</div>
+      <div class="portal-app-card portal-theme-frozen portal-active" onclick="openPortalApp('paud')">
+        <div class="portal-app-icon"><img src="/assets/frozen-runners/elsa.png?v=3" alt="Elsa — SIPKEU PAUD" /></div>
         <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
-        <p>Penatausahaan keuangan bidang PAUD &amp; Kesetaraan — tema Feudal Japan · Shikon no Tama.</p>
+        <p>Penatausahaan keuangan bidang PAUD &amp; Kesetaraan — tema Frozen · Arendelle Quest.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+
+      <div class="portal-app-card portal-theme-doraemon portal-active" onclick="openPortalApp('sd')">
+        <div class="portal-app-icon"><img src="/assets/doraemon-runners/doraemon.png?v=1" alt="Doraemon — SIPKEU SD" /></div>
+        <h3>SIPKEU Sekolah Dasar</h3>
+        <p>Penatausahaan keuangan Bidang Pembinaan Sekolah Dasar — tema Doraemon · TA 2026.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+
+      <div class="portal-app-card portal-theme-naruto portal-active" onclick="openPortalApp('smp')">
+        <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=1" alt="Naruto — SIPKEU SMP" /></div>
+        <h3>SIPKEU Sekolah Menengah Pertama</h3>
+        <p>Penatausahaan keuangan Bidang Pembinaan SMP — tema Naruto · TA 2026.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
@@ -2307,9 +2632,9 @@
       </div>
 
       <div class="portal-app-card portal-theme-gundam portal-active" onclick="openPortalApp('kas-belanja')">
-        <div class="portal-app-icon gundam-helmet-icon" aria-hidden="true"></div>
+        <div class="portal-app-icon"><img class="ds-kas-portal-icon" src="/assets/ds-kas-runners/tanjiro.png?v=1" alt="Tanjiro — Realisasi Kas Belanja" /></div>
         <h3>Realisasi Anggaran Kas Belanja</h3>
-        <p>Monitoring dan laporan realisasi anggaran kas belanja — tema Mobile Suit Gundam · RX-78.</p>
+        <p>Monitoring dan laporan realisasi anggaran kas belanja — tema Demon Slayer · Hashira Trail.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
@@ -2621,10 +2946,10 @@ function onNilaiBrutoInput() {
           <div class="op-race-ocean"></div>
           <div class="op-race-head">
             <div>
-              <h6><i class="bi bi-trophy-fill me-1"></i> Grand Line Race — Belanja PPTK</h6>
-              <small>PPTK berlomba menggelarakan belanja — semakin jauh, semakin besar realisasinya</small>
+              <h6><i class="bi bi-lightning-charge-fill me-1"></i> Hashira Trail — Belanja PPTK</h6>
+              <small>PPTK melawan pagu di lintasan — semakin jauh, semakin besar realisasinya</small>
             </div>
-            <span class="op-race-badge">WANTED ☠ PPTK</span>
+            <span class="op-race-badge">⚔ Demon Slayer Corps</span>
           </div>
           <div class="op-race-tracks" id="op-pptk-race"></div>
           <div class="op-race-legend" id="op-pptk-legend"></div>
@@ -2794,28 +3119,45 @@ function onNilaiBrutoInput() {
             <div class="np2d-section-divider"><i class="bi bi-bank me-2"></i>Data Pemindahbukuan (NP2D)</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Nama Rekening Penerima</label>
-            <input type="text" class="form-control" id="f-nama-rekening" placeholder="Nama pemilik rekening (default = penerima)" />
-          </div>
-          <div class="col-md-4">
             <label class="form-label">No. Rekening Bank</label>
             <input type="text" class="form-control" id="f-no-rekening" placeholder="Nomor rekening tujuan" />
           </div>
           <div class="col-md-4">
             <label class="form-label">Bank</label>
-            <input type="text" class="form-control" id="f-bank" placeholder="mis. Riau Syariah / BRI / Mandiri" />
+            <select class="form-select" id="f-bank">
+              <option value="">— Pilih Bank —</option>
+              <optgroup label="Bank Daerah / Syariah">
+                <option value="Bank Riau Kepri Syariah">Bank Riau Kepri Syariah</option>
+                <option value="Bank Syariah Indonesia (BSI)">Bank Syariah Indonesia (BSI)</option>
+                <option value="Bank Muamalat">Bank Muamalat</option>
+                <option value="Bank BJB">Bank BJB</option>
+                <option value="Bank DKI">Bank DKI</option>
+              </optgroup>
+              <optgroup label="Bank BUMN / Himbara">
+                <option value="Bank Mandiri">Bank Mandiri</option>
+                <option value="Bank Rakyat Indonesia (BRI)">Bank Rakyat Indonesia (BRI)</option>
+                <option value="Bank Negara Indonesia (BNI)">Bank Negara Indonesia (BNI)</option>
+                <option value="Bank Tabungan Negara (BTN)">Bank Tabungan Negara (BTN)</option>
+              </optgroup>
+              <optgroup label="Bank Swasta Nasional">
+                <option value="Bank Central Asia (BCA)">Bank Central Asia (BCA)</option>
+                <option value="CIMB Niaga">CIMB Niaga</option>
+                <option value="Bank Danamon">Bank Danamon</option>
+                <option value="Bank Permata">Bank Permata</option>
+                <option value="Panin Bank">Panin Bank</option>
+                <option value="Bank Mega">Bank Mega</option>
+                <option value="OCBC NISP">OCBC NISP</option>
+                <option value="Maybank Indonesia">Maybank Indonesia</option>
+                <option value="Bank BTPN">Bank BTPN</option>
+                <option value="KB Bukopin">KB Bukopin</option>
+                <option value="Bank Sinarmas">Bank Sinarmas</option>
+              </optgroup>
+              <option value="Lainnya">Lainnya</option>
+            </select>
           </div>
           <div class="col-md-4">
             <label class="form-label">NPWP <small class="text-muted">(bagian pajak)</small></label>
             <input type="text" class="form-control" id="f-npwp" placeholder="NPWP wajib pajak (boleh kosong / -)" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Nama WP <small class="text-muted">(Wajib Pajak)</small></label>
-            <input type="text" class="form-control" id="f-nama-wp" placeholder="Nama wajib pajak (boleh kosong / -)" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Nama BPP / Bidang</label>
-            <input type="text" class="form-control" id="f-bpp" placeholder="mis. BPP Bid Pemb SMP Disdik" />
           </div>
           <div class="col-12">
             <label class="form-label">No. NP2D <span class="auto-badge">otomatis</span></label>
@@ -2963,7 +3305,7 @@ function onNilaiBrutoInput() {
   <div class="sidebar-backdrop" data-for="kas" onclick="closeMobileSidebar()"></div>
   <div id="kas-sidebar">
     <div class="kas-sidebar-brand">
-      <div class="brand-icon gundam-helmet-icon" aria-hidden="true"></div>
+      <div class="brand-icon"><img class="ds-kas-portal-icon" src="/assets/ds-kas-runners/tanjiro.png?v=1" alt="Kas Belanja" /></div>
       <div>
         <h6>Realisasi Kas Belanja</h6>
         <small id="kas-rak-version-label">TA 2026 · Federation</small>
@@ -3053,18 +3395,18 @@ function onNilaiBrutoInput() {
       <div class="kas-flame-panel" id="kas-flame-panel">
         <div class="kas-flame-head">
           <div>
-            <h6><i class="bi bi-crosshair me-2"></i>HUD Scanner Realisasi Kas</h6>
+            <h6><i class="bi bi-droplet-half me-2"></i>Hashira Trail · Realisasi Kas</h6>
             <small>Perbandingan Anggaran Kas vs Realisasi per jenis belanja — <strong id="kas-flame-bulan-label">—</strong></small>
           </div>
-          <span class="kas-flame-badge"><i class="bi bi-broadcast"></i> Mobile Suit Mode · RX-78</span>
+          <span class="kas-flame-badge"><i class="bi bi-stars"></i> Demon Slayer · 3D Hashira</span>
         </div>
         <div class="kas-flame-canvas-wrap">
           <div class="kas-flame-embers" id="kas-flame-embers"></div>
-          <div class="kas-gundam-chart" id="kas-gundam-chart" role="img" aria-label="Grafik realisasi anggaran kas dengan ikon Gundam"></div>
+          <div class="kas-gundam-chart" id="kas-gundam-chart" role="img" aria-label="Grafik realisasi anggaran kas dengan ikon Demon Slayer 3D"></div>
         </div>
         <div class="kas-flame-legend">
-          <span><i class="lg-ang"></i> Pilar biru = Anggaran Kas</span>
-          <span><i class="lg-rea"></i> Tinggi &amp; ukuran Gundam = Realisasi</span>
+          <span><i class="lg-ang"></i> Pilar wisteria = Anggaran Kas</span>
+          <span><i class="lg-rea"></i> Pilar merah + ukuran Hashira = Realisasi</span>
         </div>
       </div>
 
@@ -3073,7 +3415,7 @@ function onNilaiBrutoInput() {
         <small>
           <strong>1.</strong> Upload file <em>Kertas Kerja RAK APBD</em> (sheet RAK BELANJA).<br>
           <strong>2.</strong> Pilih bulan di kanan atas, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
-          <strong>3.</strong> Lihat armada Gundam di grafik — tinggi &amp; ukuran robot = realisasi per jenis belanja. Ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
+          <strong>3.</strong> Lihat Hashira Trail di grafik — pilar wisteria = anggaran, pilar merah &amp; ukuran tokoh = realisasi per jenis belanja. Ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
         </small>
       </div>
     </div>
@@ -3381,12 +3723,12 @@ function onNilaiBrutoInput() {
 
     <table class="np-meta">
       <tr><td>Dari</td><td>:</td><td><strong id="np-dari">—</strong>, selaku Pejabat Pelaksana Teknis Kegiatan (PPTK) Dinas Pendidikan Kota Batam</td></tr>
-      <tr><td>Kepada</td><td>:</td><td>Bendahara Pengeluaran Pembantu Dinas Pendidikan Kota Batam</td></tr>
+      <tr><td>Kepada</td><td>:</td><td id="np-kepada">Bendahara Pengeluaran Dinas Pendidikan Kota Batam</td></tr>
       <tr><td>Tahun Anggaran</td><td>:</td><td id="np-tahun">2026</td></tr>
       <tr><td>Kegiatan</td><td>:</td><td id="np-kegiatan">—</td></tr>
     </table>
 
-    <p class="np-para">Diminta untuk melakukan pemindahbukuan (overbooking) dana dari Rekening Giro Bendahara Pengeluaran Pembantu (BPP) <strong id="np-bpp">—</strong> sebesar :</p>
+    <p class="np-para">Diminta untuk melakukan pemindahbukuan (overbooking) dana dari Rekening Giro Bendahara Pengeluaran Pembantu (BPP) Dinas Pendidikan Kota Batam sebesar :</p>
     <p class="np-amount">Rp <span id="np-total-num">0,00</span> ( <span id="np-terbilang">—</span> Rupiah )</p>
     <p class="np-para">untuk keperluan pembayaran dengan rincian sebagai berikut:</p>
     <p class="np-keperluan" id="np-keperluan">—</p>
@@ -3411,14 +3753,19 @@ function onNilaiBrutoInput() {
         <tr><td>NPWP</td><td>:</td><td id="np-npwp">—</td></tr>
         <tr><td>Nama WP</td><td>:</td><td id="np-nama-wp">—</td></tr>
       </table>
-      <table class="np-table">
-        <thead><tr><th style="width:6%">No</th><th>Kode MAP</th><th style="width:14%">Masa</th><th style="width:12%">Tahun</th><th style="width:26%">ID Billing</th></tr></thead>
-        <tbody id="np-pajak-billing"></tbody>
-      </table>
-      <table class="np-table">
-        <thead><tr><th style="width:32%">Jenis Setoran</th><th>Uraian</th><th style="width:20%">Jumlah (Rp)</th></tr></thead>
-        <tbody id="np-pajak-setor"></tbody>
-        <tfoot><tr><td colspan="2" class="np-foot-lbl">Jumlah II</td><td class="np-amt" id="np-jumlah2">0,00</td></tr></tfoot>
+      <table class="np-table np-tax-table">
+        <thead><tr>
+          <th style="width:4%">No</th>
+          <th style="width:11%">Kode MAP</th>
+          <th style="width:8%">Masa</th>
+          <th style="width:7%">Tahun</th>
+          <th style="width:16%">ID Billing</th>
+          <th style="width:15%">Jenis Setoran</th>
+          <th>Uraian</th>
+          <th style="width:14%">Jumlah (Rp)</th>
+        </tr></thead>
+        <tbody id="np-pajak-rows"></tbody>
+        <tfoot><tr><td colspan="7" class="np-foot-lbl">Jumlah II</td><td class="np-amt" id="np-jumlah2">0,00</td></tr></tfoot>
       </table>
     </div>
 
@@ -3674,12 +4021,22 @@ let selectedPortalApp = 'sekretariat';
 const PORTAL_APPS = {
   sekretariat: {
     label: 'SIPKEU Sekretariat',
-    desc: 'Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · TA 2026',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · Tema One Piece · TA 2026',
     available: true,
   },
   paud: {
     label: 'SIPKEU PAUD & Kesetaraan',
-    desc: 'Sistem Informasi Penatausahaan Keuangan<br>PAUD & Pendidikan Kesetaraan · Tema Inuyasha · TA 2026',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>PAUD & Pendidikan Kesetaraan · Tema Frozen · TA 2026',
+    available: true,
+  },
+  sd: {
+    label: 'SIPKEU Sekolah Dasar',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>Bidang Pembinaan Sekolah Dasar · Tema Doraemon · TA 2026',
+    available: true,
+  },
+  smp: {
+    label: 'SIPKEU Sekolah Menengah Pertama',
+    desc: 'Sistem Informasi Penatausahaan Keuangan<br>Bidang Pembinaan SMP · Tema Naruto · TA 2026',
     available: true,
   },
   'kas-belanja': {
@@ -3696,6 +4053,8 @@ const SIPKEU_PORTAL_PROFILE = {
     bendaharaLabel: 'Bendahara Pengeluaran',
     defaultPa: { nama: 'HENDRI ARULAN, S.Pd', nip: 'NIP. 19670119 199103 1 009' },
     defaultBendahara: { nama: 'ELDINA SRIDHANTY, SE', nip: 'NIP. 19810610 201001 2 002' },
+    theme: 'onepiece',
+    bendaharaIsBpp: false,
   },
   paud: {
     bpkCode: 'B02',
@@ -3703,6 +4062,26 @@ const SIPKEU_PORTAL_PROFILE = {
     bendaharaLabel: 'Bendahara Pembantu Pengeluaran',
     defaultPa: { nama: 'Sularno, S.Pd., M.Si', nip: 'NIP. 19690408 199303 1 010' },
     defaultBendahara: { nama: 'LIONI ASMIRELDA', nip: 'NIP. 19981102 202203 2 002' },
+    theme: 'frozen',
+    bendaharaIsBpp: true,
+  },
+  sd: {
+    bpkCode: 'B03',
+    paLabel: 'Kuasa Pengguna Anggaran',
+    bendaharaLabel: 'Bendahara Pengeluaran Pembantu',
+    defaultPa: { nama: 'Yusal, S.Pd., M.M', nip: 'NIP. 19700809 199304 1 002' },
+    defaultBendahara: { nama: 'JULIA ARSIA NAFHASYA, S.Pd', nip: 'NIP. 19920716 201903 2 001' },
+    theme: 'doraemon',
+    bendaharaIsBpp: true,
+  },
+  smp: {
+    bpkCode: 'B04',
+    paLabel: 'Kuasa Pengguna Anggaran',
+    bendaharaLabel: 'Bendahara Pengeluaran',
+    defaultPa: { nama: 'Joni Satria Putra, S.Pd., M.Si', nip: 'NIP. 19730101 200502 1 006' },
+    defaultBendahara: { nama: 'SHINTA WIDYASTATI', nip: 'NIP. 19790303 200502 2 005' },
+    theme: 'naruto',
+    bendaharaIsBpp: false,
   },
 };
 
@@ -3756,10 +4135,26 @@ function showPortal() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
-  document.body.classList.remove('theme-inuyasha', 'theme-gundam');
-  document.getElementById('login-screen')?.classList.remove('theme-inuyasha', 'theme-gundam');
+  clearPortalThemes(document.body);
+  clearPortalThemes(document.getElementById('login-screen'));
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
+}
+
+const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto'];
+function clearPortalThemes(el) {
+  if (el) el.classList.remove(...PORTAL_THEME_CLASSES);
+}
+function portalThemeClass(appKey) {
+  const prof = SIPKEU_PORTAL_PROFILE[appKey];
+  const theme = prof?.theme || (appKey === 'kas-belanja' ? 'gundam' : '');
+  return theme ? 'theme-' + theme : '';
+}
+function applyPortalTheme(el, appKey) {
+  if (!el) return;
+  clearPortalThemes(el);
+  const cls = portalThemeClass(appKey);
+  if (cls) el.classList.add(cls);
 }
 
 function showLogin(appKey) {
@@ -3768,8 +4163,8 @@ function showLogin(appKey) {
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   document.getElementById('login-app-label').textContent = app.label;
   document.getElementById('login-app-desc').innerHTML = app.desc;
-  document.getElementById('login-screen')?.classList.toggle('theme-inuyasha', selectedPortalApp === 'paud');
-  document.getElementById('login-screen')?.classList.toggle('theme-gundam', selectedPortalApp === 'kas-belanja');
+  applyPortalTheme(document.getElementById('login-screen'), selectedPortalApp);
+  applyPortalTheme(document.body, selectedPortalApp);
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -3831,7 +4226,7 @@ function showApp() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
-  document.body.classList.remove('theme-gundam');
+  applyPortalTheme(document.body, selectedPortalApp);
   applyRoleUI();
 }
 
@@ -3840,8 +4235,8 @@ function showKasApp() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.add('visible');
+  clearPortalThemes(document.body);
   document.body.classList.add('theme-gundam');
-  document.body.classList.remove('theme-inuyasha');
   if (currentUser) {
     const parts = (currentUser.name || 'AD').split(/\s+/);
     const av = document.getElementById('kas-user-avatar');
@@ -4152,7 +4547,8 @@ function refreshKegiatanDropdown() {
 }
 
 function applyRakFromServer(rakRows) {
-  if (!rakRows || !rakRows.length) return;
+  // Selalu reset agar tiap portal berdiri sendiri (portal kosong tidak mewarisi RAK portal sebelumnya).
+  rakRows = Array.isArray(rakRows) ? rakRows : [];
   DB.rak = rakRows.map(r => [
     r.kegiatan || '',
     r.sub_kegiatan || '',
@@ -4295,26 +4691,73 @@ const NARUTO_RUNNER_CHARACTERS = [
   { label: 'Rock Lee', file: 'lee.png' },
   { label: 'Jiraiya', file: 'jiraiya.png' },
 ];
-const OP_RUNNER_ASSET_VER = '3';
-const NARUTO_RUNNER_ASSET_VER = '2';
+const DORAEMON_RUNNER_CHARACTERS = [
+  { label: 'Doraemon', file: 'doraemon.png' },
+  { label: 'Nobita', file: 'nobita.png' },
+  { label: 'Shizuka', file: 'shizuka.png' },
+  { label: 'Gian', file: 'gian.png' },
+  { label: 'Suneo', file: 'suneo.png' },
+  { label: 'Dorami', file: 'dorami.png' },
+  { label: 'Dekisugi', file: 'dekisugi.png' },
+  { label: 'Doraemon Baling', file: 'doraemon-fly.png' },
+  { label: 'Doraemon Dorayaki', file: 'doraemon-dorayaki.png' },
+];
+const NARUTO_SMP_RUNNER_CHARACTERS = [
+  { label: 'Naruto', file: 'naruto.png' },
+  { label: 'Sasuke', file: 'sasuke.png' },
+  { label: 'Sakura', file: 'sakura.png' },
+  { label: 'Kakashi', file: 'kakashi.png' },
+  { label: 'Gaara', file: 'gaara.png' },
+  { label: 'Rock Lee', file: 'lee.png' },
+  { label: 'Hinata', file: 'hinata.png' },
+  { label: 'Jiraiya', file: 'jiraiya.png' },
+];
+const FROZEN_RUNNER_CHARACTERS = [
+  { label: 'Elsa', file: 'elsa.png' },
+  { label: 'Anna', file: 'anna.png' },
+  { label: 'Olaf', file: 'olaf.png' },
+  { label: 'Kristoff', file: 'kristoff.png' },
+  { label: 'Sven', file: 'sven.png' },
+  { label: 'Bruni', file: 'bruni.png' },
+  { label: 'Marshmallow', file: 'marshmallow.png' },
+  { label: 'Snow Fairy', file: 'snow-fairy.png' },
+];
+const OP_RUNNER_ASSET_VER = '6';
+const NARUTO_RUNNER_ASSET_VER = '3';
+const DORAEMON_RUNNER_ASSET_VER = '3';
+const NARUTO_SMP_RUNNER_ASSET_VER = '3';
+const FROZEN_RUNNER_ASSET_VER = '3';
 
 function getPptkRunnerSet() {
   if (selectedPortalApp === 'paud') {
-    return { chars: NARUTO_RUNNER_CHARACTERS, base: '/assets/naruto-runners/', ver: NARUTO_RUNNER_ASSET_VER };
+    return { chars: FROZEN_RUNNER_CHARACTERS, base: '/assets/frozen-runners/', ver: FROZEN_RUNNER_ASSET_VER };
+  }
+  if (selectedPortalApp === 'sd') {
+    return { chars: DORAEMON_RUNNER_CHARACTERS, base: '/assets/doraemon-runners/', ver: DORAEMON_RUNNER_ASSET_VER };
+  }
+  if (selectedPortalApp === 'smp') {
+    return { chars: NARUTO_SMP_RUNNER_CHARACTERS, base: '/assets/naruto-smp-runners/', ver: NARUTO_SMP_RUNNER_ASSET_VER };
   }
   return { chars: OP_RUNNER_CHARACTERS, base: '/assets/op-runners/', ver: OP_RUNNER_ASSET_VER };
 }
 
+const RACE_THEME_BY_APP = {
+  paud: { title: '<i class="bi bi-snow2 me-1"></i> Wisteria Trail — Belanja PPTK', badge: '⚔ Demon Slayer Corps', wanted: '❄ ICE', empty: 'Belum ada data belanja PPTK — mulai petualangan di Hashira Trail!' },
+  sd: { title: '<i class="bi bi-bell-fill me-1"></i> Hashira Trail — Belanja PPTK', badge: '⚔ Demon Slayer Corps', wanted: '🔔 DING-DONG', empty: 'Belum ada data belanja PPTK — mulai petualangan di Hashira Trail!' },
+  smp: { title: '<i class="bi bi-fire me-1"></i> Hashira Trail — Belanja PPTK', badge: '⚔ Demon Slayer Corps', wanted: '🍥 NINJA', empty: 'Belum ada data belanja PPTK — mulai petualangan di Hashira Trail!' },
+  sekretariat: { title: '<i class="bi bi-lightning-charge-fill me-1"></i> Hashira Trail — Belanja PPTK', badge: '⚔ Demon Slayer Corps', wanted: '☠ WANTED', empty: 'Belum ada data belanja PPTK — mulai petualangan di Hashira Trail!' },
+  _default: { title: '<i class="bi bi-lightning-charge-fill me-1"></i> Hashira Trail — Belanja PPTK', badge: '⚔ Demon Slayer Corps', wanted: '⚔ SLAYER', empty: 'Belum ada data belanja PPTK — mulai petualangan di Hashira Trail!' },
+};
+function getRaceTheme() {
+  return RACE_THEME_BY_APP[selectedPortalApp] || RACE_THEME_BY_APP._default;
+}
+
 function applyPptkRaceTheme() {
-  const isPaud = selectedPortalApp === 'paud';
+  const theme = getRaceTheme();
   const head = document.querySelector('.op-race-panel .op-race-head h6');
-  if (head) {
-    head.innerHTML = isPaud
-      ? '<i class="bi bi-gem me-1"></i> Shikon Quest — Belanja PPTK'
-      : '<i class="bi bi-trophy-fill me-1"></i> Grand Line Race — Belanja PPTK';
-  }
+  if (head) head.innerHTML = theme.title;
   const badge = document.querySelector('.op-race-badge');
-  if (badge) badge.textContent = isPaud ? 'Sengoku' : 'Grand Line';
+  if (badge) badge.textContent = theme.badge;
 }
 
 function pptkRunnerHash(pptkName) {
@@ -4369,11 +4812,9 @@ function renderOpPptkRaceChart(pptkStats) {
   if (!wrap) return;
   applyPptkRaceTheme();
   const runnerSet = getPptkRunnerSet();
-  const isPaud = selectedPortalApp === 'paud';
-  const wantedLabel = isPaud ? '💎 SHIKON' : '☠ WANTED';
-  const emptyMsg = isPaud
-    ? 'Belum ada data belanja PPTK — tambah transaksi untuk memulai Shikon Quest!'
-    : 'Belum ada data belanja PPTK — tambah transaksi untuk memulai lomba Grand Line!';
+  const raceTheme = getRaceTheme();
+  const wantedLabel = raceTheme.wanted;
+  const emptyMsg = raceTheme.empty;
 
   const enriched = pptkStats.map(p => {
     const pagu = p.pagu || getPaguByPPTK(p.pptk);
@@ -4699,12 +5140,11 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     pptk: pptkFinal,
     pptk_nip: dbPPTKNip(pptkFinal),
     bendahara: DB.bendahara.nama,
-    nama_rekening: document.getElementById('f-nama-rekening').value.trim() || document.getElementById('f-penerima').value.trim(),
+    nama_rekening: document.getElementById('f-penerima').value.trim(),
     no_rekening: document.getElementById('f-no-rekening').value.trim(),
     bank: document.getElementById('f-bank').value.trim(),
     npwp: document.getElementById('f-npwp').value.trim(),
-    nama_wp: document.getElementById('f-nama-wp').value.trim(),
-    bpp: document.getElementById('f-bpp').value.trim(),
+    nama_wp: document.getElementById('f-penerima').value.trim(),
     no_np2d: document.getElementById('f-nonp2d').value.trim(),
   };
   const btn = document.getElementById('btn-submit');
@@ -4760,12 +5200,9 @@ function editTrx(id) {
   document.getElementById('f-bendahara').value = DB.bendahara.nama;
   document.getElementById('f-koderek').value = t.kode_rekening||'';
   document.getElementById('f-uraian').value = t.uraian||'';
-  document.getElementById('f-nama-rekening').value = t.nama_rekening||'';
   document.getElementById('f-no-rekening').value = t.no_rekening||'';
-  document.getElementById('f-bank').value = t.bank||'';
+  setSelectWithFallback('f-bank', t.bank||'');
   document.getElementById('f-npwp').value = t.npwp||'';
-  document.getElementById('f-nama-wp').value = t.nama_wp||'';
-  document.getElementById('f-bpp').value = t.bpp||'';
   document.getElementById('f-nonp2d').value = t.no_np2d||'';
   loadPotonganToForm(t);
   document.getElementById('f-ntpn').value = t.ntpn||'';
@@ -5176,7 +5613,7 @@ function cetakNP2D(id) {
   npSetTxt('np-dari', t.pptk);
   npSetTxt('np-tahun', tahun);
   npSetTxt('np-kegiatan', [t.kegiatan, t.sub_kegiatan].filter(Boolean).join(' , '));
-  npSetTxt('np-bpp', t.bpp);
+  npSetTxt('np-kepada', `${cfg.bendaharaLabel} ${DB.bendahara?.nama || ''}`.trim() + ' — Dinas Pendidikan Kota Batam');
   npSetTxt('np-total-num', formatKwitansiAmount(bruto));
   npSetTxt('np-terbilang', capitalizeTerbilang(terbilang(Math.round(bruto))));
   npSetTxt('np-keperluan', keperluan);
@@ -5195,12 +5632,20 @@ function cetakNP2D(id) {
     sec2.style.display = '';
     npSetTxt('np-npwp', t.npwp || '-');
     npSetTxt('np-nama-wp', t.nama_wp || t.penerima || '-');
-    document.getElementById('np-pajak-billing').innerHTML = pajakItems.map((it, i) =>
-      `<tr><td class="np-c">${i + 1}</td><td>${it.kode_map || '-'}</td><td class="np-c">${it.masa_pajak || '-'}</td><td class="np-c">${tahun}</td><td>${it.id_billing || '-'}</td></tr>`
-    ).join('');
-    document.getElementById('np-pajak-setor').innerHTML = pajakItems.map(it =>
-      `<tr><td>${it.jenis || '-'}</td><td>${keperluan}</td><td class="np-amt">${formatKwitansiAmount(it.nilai || 0)}</td></tr>`
-    ).join('');
+    document.getElementById('np-pajak-rows').innerHTML = pajakItems.map((it, i) => {
+      const artikel = taxArticleLabel(it);
+      const uraianPajak = artikel ? `${artikel} - ${keperluan}` : keperluan;
+      return `<tr>`
+        + `<td class="np-c">${i + 1}</td>`
+        + `<td class="np-c">${it.kode_map || '-'}</td>`
+        + `<td class="np-c">${it.masa_pajak || '-'}</td>`
+        + `<td class="np-c">${tahun}</td>`
+        + `<td>${it.id_billing || '-'}</td>`
+        + `<td>${it.jenis || '-'}</td>`
+        + `<td>${uraianPajak}</td>`
+        + `<td class="np-amt">${formatKwitansiAmount(it.nilai || 0)}</td>`
+        + `</tr>`;
+    }).join('');
     npSetTxt('np-jumlah2', formatKwitansiAmount(totalPajak));
   } else {
     sec2.style.display = 'none';
@@ -5351,14 +5796,18 @@ async function loadSettings() {
 function applyPortalBranding() {
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
   const cfg = getPortalAppConfig();
-  const isPaud = selectedPortalApp === 'paud';
-  document.body.classList.toggle('theme-inuyasha', isPaud);
-  document.getElementById('login-screen')?.classList.toggle('theme-inuyasha', isPaud);
+  applyPortalTheme(document.body, selectedPortalApp);
+  applyPortalTheme(document.getElementById('login-screen'), selectedPortalApp);
   const brandIcon = document.getElementById('sidebar-brand-icon');
   if (brandIcon) {
-    brandIcon.innerHTML = isPaud
-      ? '<i class="bi bi-gem"></i>'
-      : '<i class="bi bi-suit-spade-fill"></i>';
+    const brandIconByTheme = {
+      frozen: '<i class="bi bi-snow2"></i>',
+      onepiece: '<i class="bi bi-compass-fill"></i>',
+      doraemon: '<i class="bi bi-bell-fill"></i>',
+      naruto: '<i class="bi bi-fire"></i>',
+      shinchan: '<i class="bi bi-pencil-fill"></i>',
+    };
+    brandIcon.innerHTML = brandIconByTheme[cfg.theme] || '<i class="bi bi-suit-spade-fill"></i>';
   }
   const sidebarTitle = document.getElementById('sidebar-app-title');
   const topbarApp = document.getElementById('topbar-app-name');
@@ -5795,8 +6244,120 @@ const LEGACY_LABEL_TO_ID = {
 
 let potonganManualFlags = {};
 
+// Kode Akun Pajak (KAP) - Kode Jenis Setoran (KJS) per kelompok pajak (DJP)
+const KAP_KJS_BY_GROUP = {
+  'PPh Pasal 21': [
+    { value: '411121-100', label: '411121-100 · Masa PPh Pasal 21' },
+    { value: '411121-402', label: '411121-402 · PPh 21 Final (Honor PNS/APBN-APBD)' },
+  ],
+  'PPh Pasal 22': [
+    { value: '411122-900', label: '411122-900 · PPh 22 Pemungutan oleh Bendahara' },
+    { value: '411122-100', label: '411122-100 · Masa PPh Pasal 22' },
+  ],
+  'PPh Pasal 23': [
+    { value: '411124-104', label: '411124-104 · PPh 23 atas Jasa' },
+    { value: '411124-101', label: '411124-101 · PPh 23 atas Dividen' },
+    { value: '411124-102', label: '411124-102 · PPh 23 atas Bunga' },
+    { value: '411124-103', label: '411124-103 · PPh 23 atas Royalti' },
+    { value: '411124-100', label: '411124-100 · Masa PPh Pasal 23' },
+  ],
+  'PPh Pasal 26': [
+    { value: '411127-100', label: '411127-100 · Masa PPh Pasal 26' },
+  ],
+  'PPh Pasal 4 Ayat 2 (Final)': [
+    { value: '411128-403', label: '411128-403 · Persewaan Tanah/Bangunan' },
+    { value: '411128-409', label: '411128-409 · Jasa Konstruksi (Pelaksana)' },
+    { value: '411128-410', label: '411128-410 · Jasa Konstruksi (Perencana/Pengawas)' },
+    { value: '411128-420', label: '411128-420 · PPh Final UMKM (PP 23) 0,5%' },
+    { value: '411128-401', label: '411128-401 · Bunga Deposito/Tabungan' },
+    { value: '411128-402', label: '411128-402 · Bunga/Diskonto Obligasi' },
+    { value: '411128-405', label: '411128-405 · Pengalihan Hak Tanah/Bangunan' },
+    { value: '411128-419', label: '411128-419 · Dividen (Orang Pribadi)' },
+    { value: '411128-406', label: '411128-406 · Penjualan Saham di Bursa' },
+  ],
+  'PPh Pasal 15': [
+    { value: '411129-100', label: '411129-100 · Masa PPh Pasal 15' },
+  ],
+  'PPN': [
+    { value: '411211-900', label: '411211-900 · PPN Dipungut oleh Bendahara' },
+    { value: '411211-100', label: '411211-100 · PPN Dalam Negeri' },
+  ],
+};
+
+const KODE_MAP_DEFAULT_BY_ID = {
+  'pph21-5': '411121-100', 'pph21-25': '411121-100', 'pph21-15': '411121-100',
+  'pph22-15': '411122-900', 'pph22-3': '411122-900', 'pph22-05': '411122-900',
+  'pph23-2': '411124-104', 'pph23-4': '411124-104', 'pph23-15': '411124-101',
+  'pph26-20': '411127-100',
+  'pph42-10-sewa': '411128-403', 'pph42-25-sewa': '411128-403',
+  'pph42-10-bunga': '411128-401', 'pph42-25-konstruksi': '411128-409',
+  'pph42-4-konstruksi': '411128-410', 'pph42-2-reklame': '411128-409',
+  'pph42-05-umkm': '411128-420', 'pph42-10-dividen': '411128-419',
+  'pph42-01-saham': '411128-406',
+  'pph15-264': '411129-100',
+  'ppn-11': '411211-900', 'ppn-12': '411211-900',
+};
+
+const MASA_PAJAK_OPTIONS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
 function getCatalogItem(idOrLabel) {
   return CATALOG_BY_ID[idOrLabel] || CATALOG_BY_LABEL[idOrLabel] || null;
+}
+
+function kodeMapOptionsForCatalog(catalogId) {
+  const c = getCatalogItem(catalogId);
+  return c ? (KAP_KJS_BY_GROUP[c.group] || null) : null;
+}
+
+function taxArticleLabel(item) {
+  const id = resolveCatalogIdFromItem(item);
+  const c = getCatalogItem(id);
+  let g = c?.group || '';
+  if (!g || g === 'Input Manual' || g === 'Potongan Lainnya') {
+    g = String(item?.jenis || '').split('—')[0].trim();
+  }
+  return g.replace(/\s*\(Final\)\s*/i, '').trim();
+}
+
+function buildKodeMapControl(catalogId, presetVal) {
+  const opts = kodeMapOptionsForCatalog(catalogId);
+  if (!opts) {
+    return `<input type="text" class="form-control form-control-sm potongan-kodemap" placeholder="Kode MAP/KAP (manual)" value="${presetVal || ''}" />`;
+  }
+  const def = presetVal || KODE_MAP_DEFAULT_BY_ID[catalogId] || '';
+  let html = '<select class="form-select form-select-sm potongan-kodemap"><option value="">— Pilih Kode MAP —</option>';
+  if (def && !opts.some(o => o.value === def)) html += `<option value="${def}" selected>${def}</option>`;
+  opts.forEach(o => { html += `<option value="${o.value}"${o.value === def ? ' selected' : ''}>${o.label}</option>`; });
+  html += '</select>';
+  return html;
+}
+
+function currentMasaFromForm() {
+  const tgl = document.getElementById('f-tanggal')?.value;
+  if (!tgl) return '';
+  const mi = parseInt(tgl.split('-')[1], 10) - 1;
+  return MASA_PAJAK_OPTIONS[mi] || '';
+}
+
+function setSelectWithFallback(selectId, value) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  const v = value || '';
+  if (v && !Array.from(el.options).some(o => o.value === v)) {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    el.appendChild(opt);
+  }
+  el.value = v;
+}
+
+function buildMasaControl(presetVal) {
+  const def = presetVal || currentMasaFromForm();
+  let html = '<select class="form-select form-select-sm potongan-masa"><option value="">— Pilih Masa —</option>';
+  if (def && !MASA_PAJAK_OPTIONS.includes(def)) html += `<option value="${def}" selected>${def}</option>`;
+  MASA_PAJAK_OPTIONS.forEach(m => { html += `<option value="${m}"${m === def ? ' selected' : ''}>${m}</option>`; });
+  html += '</select>';
+  return html;
 }
 
 function buildPotonganSelectOptions(selectedId) {
@@ -5933,8 +6494,8 @@ function addPotonganFormRow(preset, idx) {
     </div>
     <div class="potongan-tax-detail" style="display:${(preset?.kategori || catalog?.kategori || 'pajak') === 'pajak' ? '' : 'none'}">
       <div class="ptd-grid">
-        <div><label class="form-label">Kode MAP / Akun Pajak</label><input type="text" class="form-control form-control-sm potongan-kodemap" placeholder="mis. 411128" value="${preset?.kode_map || ''}" /></div>
-        <div><label class="form-label">Masa Pajak</label><input type="text" class="form-control form-control-sm potongan-masa" placeholder="mis. 0505" value="${preset?.masa_pajak || ''}" /></div>
+        <div class="ptd-kodemap"><label class="form-label">Kode MAP / KAP</label>${buildKodeMapControl(catalogId, preset?.kode_map)}</div>
+        <div><label class="form-label">Masa Pajak</label>${buildMasaControl(preset?.masa_pajak)}</div>
         <div><label class="form-label">ID Billing</label><input type="text" class="form-control form-control-sm potongan-idbilling" placeholder="ID Billing pajak" value="${preset?.id_billing || ''}" /></div>
       </div>
     </div>`;
@@ -5980,6 +6541,8 @@ function onPotonganJenisChange(idx) {
   }
   const td = row.querySelector('.potongan-tax-detail');
   if (td) td.style.display = katEl.value === 'pajak' ? '' : 'none';
+  const kmCell = row.querySelector('.ptd-kodemap');
+  if (kmCell) kmCell.innerHTML = '<label class="form-label">Kode MAP / KAP</label>' + buildKodeMapControl(catalogId, '');
   recalcPotonganRow(idx, true);
   updatePotonganSummaryDisplay();
   syncTaxFieldVisibility();
@@ -6219,7 +6782,6 @@ const EXPORT_COLS = [
   {label:'Bank',         key:'bank'},
   {label:'NPWP',         key:'npwp'},
   {label:'Nama WP',      key:'nama_wp'},
-  {label:'BPP/Bidang',   key:'bpp'},
   {label:'No NP2D',      key:'no_np2d'},
 ];
 
@@ -7171,46 +7733,46 @@ let kasRakImportData = [];
 let kasStateCache = { rak_rows: [], imported_at: '' };
 let kasGundamChartReady = false;
 
-const GUNDAM_ICONS = [
-  { file: '01-rx78.png', name: 'RX-78-2' },
-  { file: '02-wing-zero.png', name: 'Wing Zero' },
-  { file: '03-exia.png', name: 'Exia' },
-  { file: '04-barbatos.png', name: 'Barbatos' },
-  { file: '05-sazabi.png', name: 'Sazabi' },
-  { file: '06-wing-custom.png', name: 'Wing Custom' },
-  { file: '07-unicorn.png', name: 'Unicorn' },
-  { file: '08-red-frame.png', name: 'Red Frame' },
-  { file: '09-full-armor.png', name: 'Full Armor' },
-  { file: '10-zz.png', name: 'ZZ Gundam' },
-  { file: '11-freedom.png', name: 'Freedom' },
-  { file: '12-banshee.png', name: 'Banshee' },
+const DS_KAS_ICONS = [
+  { file: 'tanjiro.png', name: 'Tanjiro' },
+  { file: 'nezuko.png', name: 'Nezuko' },
+  { file: 'zenitsu.png', name: 'Zenitsu' },
+  { file: 'inosuke.png', name: 'Inosuke' },
+  { file: 'giyu.png', name: 'Giyu' },
+  { file: 'shinobu.png', name: 'Shinobu' },
+  { file: 'rengoku.png', name: 'Rengoku' },
+  { file: 'tengen.png', name: 'Tengen' },
+  { file: 'sanemi.png', name: 'Sanemi' },
+  { file: 'mitsuri.png', name: 'Mitsuri' },
+  { file: 'muichiro.png', name: 'Muichiro' },
+  { file: 'gyomei.png', name: 'Gyomei' },
 ];
-const GUNDAM_ICON_BASE = '/assets/gundam-icons/';
-const GUNDAM_ICON_VER = '1';
+const DS_KAS_ICON_BASE = '/assets/ds-kas-runners/';
+const DS_KAS_ICON_VER = '1';
 
-function gundamIconUrl(file) {
-  return `${GUNDAM_ICON_BASE}${file}?v=${GUNDAM_ICON_VER}`;
+function dsKasIconUrl(file) {
+  return `${DS_KAS_ICON_BASE}${file}?v=${DS_KAS_ICON_VER}`;
 }
 
 function preloadGundamIcons() {
   if (kasGundamChartReady) return Promise.resolve();
-  return Promise.all(GUNDAM_ICONS.map(g => new Promise(resolve => {
+  return Promise.all(DS_KAS_ICONS.map(g => new Promise(resolve => {
     const img = new Image();
     img.onload = img.onerror = () => resolve();
-    img.src = gundamIconUrl(g.file);
+    img.src = dsKasIconUrl(g.file);
   }))).then(() => { kasGundamChartReady = true; });
 }
 
 function kasGundamIconSize(ratio, chartH) {
-  const minPx = 72;
-  const maxPx = chartH * 0.92;
+  const minPx = 78;
+  const maxPx = chartH * 0.88;
   const r = Math.max(0, Math.min(1, ratio));
   return minPx + r * (maxPx - minPx);
 }
 
-function kasGundamLiftHeight(realisasi, maxScale, chartH) {
+function kasGundamLiftHeight(value, maxScale, chartH) {
   if (maxScale <= 0) return 0;
-  return Math.max(8, (realisasi / maxScale) * chartH);
+  return Math.max(10, (value / maxScale) * chartH);
 }
 
 function renderKasGundamChart() {
@@ -7224,34 +7786,37 @@ function renderKasGundamChart() {
 
   const { fullLabels, anggaran, realisasi, persen } = buildKasFlameChartData();
   if (!fullLabels.length) {
-    box.innerHTML = '<div class="kas-gundam-empty"><i class="bi bi-robot me-1"></i> Upload RAK APBD dan isi realisasi untuk menampilkan armada Gundam.</div>';
+    box.innerHTML = '<div class="kas-gundam-empty"><i class="bi bi-person-walking me-1"></i> Upload RAK APBD dan isi realisasi untuk menampilkan Hashira Trail.</div>';
     return;
   }
 
   const wrap = box.closest('.kas-flame-canvas-wrap');
-  const chartH = Math.max(220, (wrap?.clientHeight || 440) - 68);
+  const chartH = Math.max(240, (wrap?.clientHeight || 460) - 72);
   const maxScale = Math.max(...anggaran, ...realisasi, 1);
 
-  box.innerHTML = '<div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + fullLabels.map((label, i) => {
+  box.innerHTML = '<div class="kas-gundam-chart-grid" aria-hidden="true"></div><div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + fullLabels.map((label, i) => {
     const ang = anggaran[i] || 0;
     const real = realisasi[i] || 0;
     const pct = persen[i] || 0;
-    // Rasio terhadap anggaran kas (0..1, 100% = penuh). Jika anggaran 0, pakai realisasi vs nilai terbesar.
     const ratio = ang > 0 ? real / ang : (maxScale > 0 ? real / maxScale : 0);
     const angH = kasGundamLiftHeight(ang, maxScale, chartH);
+    const reaH = kasGundamLiftHeight(real, maxScale, chartH);
     const icon = kasGundamIconSize(ratio, chartH);
-    const g = GUNDAM_ICONS[i % GUNDAM_ICONS.length];
+    const ds = DS_KAS_ICONS[i % DS_KAS_ICONS.length];
     const pctCls = pct >= 100 ? 'kas-pct-over' : pct >= 75 ? 'kas-pct-warn' : 'kas-pct-ok';
-    const spin = (6 + (i % 5)).toFixed(0);
+    const floatDelay = ((i % 6) * 0.35).toFixed(2);
+    const charBottom = Math.max(0, reaH - 4);
     return `<div class="kas-gundam-col" tabindex="0">
       <div class="kas-gundam-ang" style="height:${angH.toFixed(1)}px" title="Anggaran Kas"></div>
-      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:0;--spin:${spin}s" title="${label.replace(/"/g, '&quot;')}">
-        <img src="${gundamIconUrl(g.file)}" alt="${g.name}" loading="lazy" />
+      <div class="kas-gundam-rea-bar" style="height:${reaH.toFixed(1)}px" title="Realisasi"></div>
+      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:${charBottom.toFixed(1)}px;--float-delay:${floatDelay}s" title="${label.replace(/"/g, '&quot;')}">
+        <span class="kas-gundam-pct ${pctCls}">${pct.toFixed(1)}%</span>
+        <img src="${dsKasIconUrl(ds.file)}" alt="${ds.name}" loading="lazy" decoding="async" />
         <div class="kas-gundam-tip">
           <strong>${label}</strong>
           <div class="tip-row"><span>Anggaran Kas</span><span>Rp ${formatKasAmount(ang)}</span></div>
           <div class="tip-row"><span>Realisasi</span><span>Rp ${formatKasAmount(real)}</span></div>
-          <div class="tip-pct ${pctCls}">${pct.toFixed(2)}% realisasi</div>
+          <div class="tip-pct ${pctCls}">${pct.toFixed(2)}% realisasi · ${ds.name}</div>
         </div>
       </div>
       <div class="kas-gundam-label" title="${label.replace(/"/g, '&quot;')}">${label}</div>

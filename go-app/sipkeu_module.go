@@ -42,6 +42,26 @@ func initSipkeuModules() {
 				AnggaranKegiatan: map[string]float64{},
 			},
 		},
+		"sd": {
+			ID:      "sd",
+			BPKCode: "B03",
+			nextID:  1,
+			settings: AppSettings{
+				PA:               Pejabat{Nama: "Yusal, S.Pd., M.M", Nip: "NIP. 19700809 199304 1 002"},
+				Bendahara:        Pejabat{Nama: "JULIA ARSIA NAFHASYA, S.Pd", Nip: "NIP. 19920716 201903 2 001"},
+				AnggaranKegiatan: map[string]float64{},
+			},
+		},
+		"smp": {
+			ID:      "smp",
+			BPKCode: "B04",
+			nextID:  1,
+			settings: AppSettings{
+				PA:               Pejabat{Nama: "Joni Satria Putra, S.Pd., M.Si", Nip: "NIP. 19730101 200502 1 006"},
+				Bendahara:        Pejabat{Nama: "SHINTA WIDYASTATI", Nip: "NIP. 19790303 200502 2 005"},
+				AnggaranKegiatan: map[string]float64{},
+			},
+		},
 	}
 }
 
