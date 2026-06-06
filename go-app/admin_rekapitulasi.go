@@ -519,27 +519,10 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 }
 
 func buildAdminRekapPPTKStats(portals []string, from, to string) []adminRekapPPTKStat {
-	rows := buildAdminRekap(portals, "pptk", from, to)
-	stats := make([]adminRekapPPTKStat, 0, len(rows))
-	for _, r := range rows {
-		stats = append(stats, adminRekapPPTKStat{
-			PortalID:    r.PortalID,
-			PortalLabel: r.PortalLabel,
-			PPTK:        r.PPTK,
-			Anggaran:    r.Anggaran,
-			Realisasi:   r.Realisasi,
-			Sisa:        r.Sisa,
-			Count:       r.Count,
-			Pct:         r.Pct,
-		})
-	}
-	sort.Slice(stats, func(i, j int) bool {
-		if stats[i].Realisasi != stats[j].Realisasi {
-			return stats[i].Realisasi > stats[j].Realisasi
-		}
-		return stats[i].Anggaran > stats[j].Anggaran
+	rows := cachedAdminRekapRows(portals, "pptk", from, to, func() []adminRekapRow {
+		return buildAdminRekap(portals, "pptk", from, to)
 	})
-	return stats
+	return adminRekapRowsToPPTKStats(rows)
 }
 
 func adminRekapSummary(rows []adminRekapRow) map[string]interface{} {
@@ -578,8 +561,15 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 	from := strings.TrimSpace(r.URL.Query().Get("from"))
 	to := strings.TrimSpace(r.URL.Query().Get("to"))
 	portals := parseAdminRekapPortals(r.URL.Query().Get("portals"))
-	rows := buildAdminRekap(portals, mode, from, to)
-	pptkStats := buildAdminRekapPPTKStats(portals, from, to)
+	rows := cachedAdminRekapRows(portals, mode, from, to, func() []adminRekapRow {
+		return buildAdminRekap(portals, mode, from, to)
+	})
+	var pptkStats []adminRekapPPTKStat
+	if mode == "pptk" {
+		pptkStats = adminRekapRowsToPPTKStats(rows)
+	} else {
+		pptkStats = buildAdminRekapPPTKStats(portals, from, to)
+	}
 
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"mode":         mode,

@@ -118,6 +118,7 @@ func persistModule(mod *SipkeuModule) {
 	invalidateDashboardCache(mod.ID)
 	invalidateTransactionsCache(mod.ID)
 	invalidateSettingsCache(mod.ID)
+	invalidateAdminRekapCache()
 }
 
 func loadAllModulesFromDisk() {

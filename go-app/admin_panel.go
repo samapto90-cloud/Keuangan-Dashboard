@@ -117,7 +117,7 @@ func sessionListPublic() []map[string]interface{} {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 	now := time.Now()
-	out := []map[string]interface{}{}
+	out := make([]map[string]interface{}, 0, len(sessions))
 	for token, s := range sessions {
 		if now.After(s.Expires) {
 			continue
@@ -127,8 +127,8 @@ func sessionListPublic() []map[string]interface{} {
 			masked = masked[:8] + "…"
 		}
 		out = append(out, map[string]interface{}{
+			"session_id": sessionPublicID(token),
 			"token_id":   masked,
-			"token":      token,
 			"username":   s.Username,
 			"role":       s.Role,
 			"name":       s.Name,
@@ -206,15 +206,17 @@ func handleAdminCommandCenter(w http.ResponseWriter, r *http.Request) {
 func handleAdminSessions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+		list := sessionListPublic()
 		jsonResponse(w, http.StatusOK, map[string]interface{}{
-			"sessions": sessionListPublic(),
-			"total":    len(sessionListPublic()),
+			"sessions": list,
+			"total":    len(list),
 		})
 	case http.MethodPost:
 		var body struct {
-			Token    string `json:"token"`
-			ModuleID string `json:"module_id"`
-			All      bool   `json:"all"`
+			SessionID string `json:"session_id"`
+			Token     string `json:"token"`
+			ModuleID  string `json:"module_id"`
+			All       bool   `json:"all"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
@@ -228,13 +230,18 @@ func handleAdminSessions(w http.ResponseWriter, r *http.Request) {
 		} else if body.ModuleID != "" {
 			revoked = revokeSessionsForModule(strings.TrimSpace(body.ModuleID))
 			recordAudit(sess.Username, "revoke_module_sessions", body.ModuleID, "Sesi portal diakhiri", clientIP(r))
+		} else if body.SessionID != "" {
+			if revokeSessionByPublicID(strings.TrimSpace(body.SessionID)) {
+				revoked = 1
+			}
+			recordAudit(sess.Username, "revoke_session", "security", "Sesi tunggal diakhiri", clientIP(r))
 		} else if body.Token != "" {
 			if revokeSessionToken(strings.TrimSpace(body.Token)) {
 				revoked = 1
 			}
 			recordAudit(sess.Username, "revoke_session", "security", "Sesi tunggal diakhiri", clientIP(r))
 		} else {
-			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "token, module_id, atau all wajib diisi"})
+			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "session_id, module_id, atau all wajib diisi"})
 			return
 		}
 		jsonResponse(w, http.StatusOK, map[string]interface{}{

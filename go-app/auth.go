@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
@@ -270,6 +271,27 @@ func handleMe(w http.ResponseWriter, r *http.Request) {
 		"app_module":  sess.AppModule,
 		"permissions": permissionsForSession(sess),
 	})
+}
+
+func sessionPublicID(token string) string {
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:12])
+}
+
+func revokeSessionByPublicID(sessionID string) bool {
+	sessionID = strings.TrimSpace(sessionID)
+	if sessionID == "" {
+		return false
+	}
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
+	for tok := range sessions {
+		if sessionPublicID(tok) == sessionID {
+			delete(sessions, tok)
+			return true
+		}
+	}
+	return false
 }
 
 func activeSessionCount() int {

@@ -24,9 +24,9 @@ type stepResult struct {
 
 func main() {
 	base := env("LOADTEST_URL", "http://127.0.0.1:3099")
-	desktop := envInt("LOADTEST_DESKTOP", 5000)
-	mobile := envInt("LOADTEST_MOBILE", 5000)
-	concurrency := envInt("LOADTEST_CONCURRENCY", 400)
+	desktop := envInt("LOADTEST_DESKTOP", 10000)
+	mobile := envInt("LOADTEST_MOBILE", 10000)
+	concurrency := envInt("LOADTEST_CONCURRENCY", 500)
 	user := env("LOADTEST_USER", "admin")
 	pass := env("LOADTEST_PASS", "admin2026")
 	if len(os.Args) > 1 {
@@ -51,6 +51,10 @@ func main() {
 	client := &http.Client{
 		Timeout:   60 * time.Second,
 		Transport: transport,
+	}
+	if !probeHealth(client, base) {
+		fmt.Fprintf(os.Stderr, "Health check failed — pastikan server berjalan di %s\n", base)
+		os.Exit(1)
 	}
 
 	var okCount, failCount uint64
@@ -129,6 +133,9 @@ func main() {
 			return false
 		}
 
+		if !do("health", http.MethodGet, "/health", nil, "") {
+			return
+		}
 		if !do("index", http.MethodGet, "/", nil, "") {
 			return
 		}
@@ -205,7 +212,7 @@ func printReport(results []stepResult, elapsed time.Duration, ok, fail uint64) {
 			failCodes[r.step][r.code]++
 		}
 	}
-	steps := []string{"index", "portal_status", "login", "dashboard", "transactions", "favicon"}
+	steps := []string{"health", "index", "portal_status", "login", "dashboard", "transactions", "favicon"}
 	for _, step := range steps {
 		lats := byStep[step]
 		if len(lats) == 0 {
@@ -235,13 +242,8 @@ func pct(lats []time.Duration, p int) int {
 }
 
 func virtualIP(id int) string {
-	a := 10 + (id / 65025)
-	b := (id / 255) % 255
-	c := id % 255
-	if a > 250 {
-		a = 10 + a%240
-	}
-	return fmt.Sprintf("%d.%d.%d.%d", a, b, c, 1+(id%200))
+	id = id % 65536
+	return fmt.Sprintf("10.%d.%d.%d", (id/256)%256, id%256, 2+(id/65536)%253)
 }
 
 const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -261,4 +263,19 @@ func envInt(k string, def int) int {
 		}
 	}
 	return def
+}
+
+func probeHealth(client *http.Client, base string) bool {
+	for attempt := 0; attempt < 5; attempt++ {
+		res, err := client.Get(base + "/health")
+		if err == nil {
+			io.Copy(io.Discard, res.Body)
+			res.Body.Close()
+			if res.StatusCode == http.StatusOK {
+				return true
+			}
+		}
+		time.Sleep(time.Duration(attempt+1) * 200 * time.Millisecond)
+	}
+	return false
 }

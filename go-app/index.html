@@ -6494,10 +6494,10 @@ async function loadAdminSessions() {
       <tr>
         <td>${escHtml(s.name || s.username)}</td><td>${escHtml(s.role)}</td><td>${escHtml(s.app_module)}</td>
         <td><code>${escHtml(s.client_ip || '—')}</code></td><td>${fmtAuditTime(s.last_seen)}</td>
-        <td><button type="button" class="btn btn-sm btn-sao-danger sao-revoke-btn" data-token="${escHtml(s.token)}"><i class="bi bi-x"></i></button></td>
+        <td><button type="button" class="btn btn-sm btn-sao-danger sao-revoke-btn" data-session-id="${escHtml(s.session_id)}"><i class="bi bi-x"></i></button></td>
       </tr>`).join('');
     tb.querySelectorAll('.sao-revoke-btn').forEach(btn => {
-      btn.onclick = () => revokeOneSession(btn.dataset.token);
+      btn.onclick = () => revokeOneSession(btn.dataset.sessionId);
     });
   } catch (e) { console.warn('Sessions:', e); }
 }
@@ -6517,9 +6517,9 @@ async function loadAdminAudit() {
   } catch (e) { console.warn('Audit:', e); }
 }
 
-async function revokeOneSession(token) {
+async function revokeOneSession(sessionId) {
   if (!confirm('Akhiri sesi pengguna ini?')) return;
-  await apiFetch(API + '/admin/sessions', { method: 'POST', body: JSON.stringify({ token }) });
+  await apiFetch(API + '/admin/sessions', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) });
   loadAdminSessions();
 }
 
