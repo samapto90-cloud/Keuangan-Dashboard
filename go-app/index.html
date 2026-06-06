@@ -7816,26 +7816,31 @@ function preloadGundamIcons() {
   }))).then(() => { kasGundamChartReady = true; });
 }
 
+const KAS_HASHIRA_ICON_SCALE = 1.25;
+
 function kasHashiraIconSize(ratio, colW, chartH) {
   const capped = Math.min(Math.max(ratio, 0), 1.25);
   const eased = Math.pow(Math.min(capped, 1), 0.62) + (capped > 1 ? (capped - 1) * 0.08 : 0);
-  const maxByCol = Math.max(44, colW * 0.88);
-  const maxByChart = Math.max(52, chartH * 0.38);
+  const maxByCol = Math.max(55, colW * 0.88);
+  const maxByChart = Math.max(65, chartH * 0.475);
   const maxPx = Math.min(maxByCol, maxByChart);
-  const minPx = Math.min(48, maxPx * 0.58);
-  return minPx + Math.min(eased, 1.12) * (maxPx - minPx);
+  const minPx = Math.min(60, maxPx * 0.58);
+  const size = minPx + Math.min(eased, 1.12) * (maxPx - minPx);
+  return size * KAS_HASHIRA_ICON_SCALE;
 }
 
 function layoutHashiraColumns(items, chartW, chartH, gapPx) {
   const n = items.length;
   const pad = 24;
   const colW = Math.max(56, (chartW - pad - gapPx * Math.max(0, n - 1)) / n);
+  const maxIconInCol = colW * 0.98;
+  const minIconPx = 55;
   const layouts = items.map((item, i) => {
     const ratio = item.ratio;
-    let icon = kasHashiraIconSize(ratio, colW, chartH);
+    let icon = Math.min(kasHashiraIconSize(ratio, colW, chartH), maxIconInCol);
     const lift = Math.max(0, item.reaH - 2);
     const headroom = chartH - lift - 30;
-    if (icon > headroom) icon = Math.max(44, headroom);
+    if (icon > headroom) icon = Math.max(minIconPx, headroom);
     const aura = icon * (0.95 + Math.min(ratio, 1.4) * 0.35);
     return { ...item, i, colW, icon, lift, aura, ratio };
   });
