@@ -20,7 +20,7 @@ const (
 	maxLoginBodyBytes   = 8 << 10  // 8 KiB
 	loginMaxFails       = 5
 	loginLockDuration   = 15 * time.Minute
-	apiRateLimitMax     = 240
+	apiRateLimitMax     = 360
 	apiRateWindow       = time.Minute
 	bcryptCost          = 10
 )
@@ -201,7 +201,7 @@ func purgeAPIRateBucketsLoop() {
 
 func withAPIRateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/health" {
+		if r.URL.Path == "/health" || r.URL.Path == "/data/auth/login" {
 			next.ServeHTTP(w, r)
 			return
 		}

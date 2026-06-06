@@ -40,12 +40,18 @@ type OperatorPermissionSet struct {
 	CetakNp2d       bool `json:"cetak_np2d"`
 }
 
+type PortalStatusConfig struct {
+	Enabled bool   `json:"enabled"`
+	Note    string `json:"note,omitempty"`
+}
+
 type SystemSettings struct {
 	SettingsPortalUsername string                           `json:"settings_portal_username"`
 	SettingsPortalPassword string                           `json:"settings_portal_password"`
 	SettingsPortalName     string                           `json:"settings_portal_name"`
 	Portals                map[string]PortalAuthConfig      `json:"portals"`
 	OperatorPerms          map[string]OperatorPermissionSet `json:"operator_perms"`
+	PortalStatus           map[string]PortalStatusConfig    `json:"portal_status"`
 }
 
 var (
@@ -99,6 +105,7 @@ func sanitizeKasBelanjaSettings(s *SystemSettings) {
 func defaultSystemSettings() SystemSettings {
 	portals := map[string]PortalAuthConfig{}
 	perms := map[string]OperatorPermissionSet{}
+	status := map[string]PortalStatusConfig{}
 	auth := defaultPortalAuth()
 	for _, id := range sipkeuPortalIDs {
 		p := auth
@@ -106,6 +113,7 @@ func defaultSystemSettings() SystemSettings {
 			clearOperatorAuth(&p)
 		}
 		portals[id] = p
+		status[id] = PortalStatusConfig{Enabled: true}
 		if id != "kas-belanja" {
 			perms[id] = defaultOperatorPerms()
 		}
@@ -116,6 +124,7 @@ func defaultSystemSettings() SystemSettings {
 		SettingsPortalName:     "Administrator Sistem SIPKEU",
 		Portals:                portals,
 		OperatorPerms:          perms,
+		PortalStatus:           status,
 	}
 }
 
@@ -166,9 +175,15 @@ func mergeSystemSettings(s *SystemSettings) {
 	if s.OperatorPerms == nil {
 		s.OperatorPerms = map[string]OperatorPermissionSet{}
 	}
+	if s.PortalStatus == nil {
+		s.PortalStatus = map[string]PortalStatusConfig{}
+	}
 	for _, id := range sipkeuPortalIDs {
 		if _, ok := s.Portals[id]; !ok {
 			s.Portals[id] = def.Portals[id]
+		}
+		if _, ok := s.PortalStatus[id]; !ok {
+			s.PortalStatus[id] = PortalStatusConfig{Enabled: true}
 		}
 		if id != "kas-belanja" {
 			if _, ok := s.OperatorPerms[id]; !ok {
@@ -407,6 +422,7 @@ func systemSettingsPublicResponse() map[string]interface{} {
 		"settings_portal_name":     sys.SettingsPortalName,
 		"portals":                  portals,
 		"operator_perms":           sys.OperatorPerms,
+		"portal_status":            sys.PortalStatus,
 	}
 }
 
@@ -424,7 +440,8 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusOK, systemSettingsPublicResponse())
 
 	case http.MethodPut:
-		if sess := getSession(r); sess == nil || sess.Role != "settings-admin" {
+		putSess := getSession(r)
+		if putSess == nil || putSess.Role != "settings-admin" {
 			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Portal Pengaturan Sistem"})
 			return
 		}
@@ -444,6 +461,7 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 		if strings.TrimSpace(incoming.SettingsPortalName) != "" {
 			cur.SettingsPortalName = strings.TrimSpace(incoming.SettingsPortalName)
 		}
+		recordAudit(putSess.Username, "update_settings", "pengaturan", "Pengaturan sistem diperbarui", clientIP(r))
 
 		if incoming.Portals != nil {
 			for id, p := range incoming.Portals {
@@ -477,6 +495,14 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 			for id, p := range incoming.OperatorPerms {
 				if containsPortalID(id) && id != "kas-belanja" {
 					cur.OperatorPerms[id] = p
+				}
+			}
+		}
+
+		if incoming.PortalStatus != nil {
+			for id, st := range incoming.PortalStatus {
+				if containsPortalID(id) {
+					cur.PortalStatus[id] = st
 				}
 			}
 		}

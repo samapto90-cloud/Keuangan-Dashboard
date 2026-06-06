@@ -52,6 +52,9 @@ var gundamIconsFS embed.FS
 //go:embed assets/ds-kas-runners/*
 var dsKasRunnersFS embed.FS
 
+//go:embed assets/sao-icons/*
+var saoIconsFS embed.FS
+
 type PotonganItem struct {
 	Jenis     string  `json:"jenis"`
 	Tarif     float64 `json:"tarif"`
@@ -806,11 +809,17 @@ func main() {
         if dsSub, err := fs.Sub(dsKasRunnersFS, "assets/ds-kas-runners"); err == nil {
                 mux.Handle("/assets/ds-kas-runners/", withStaticCache(http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub)))))
         }
+        if saoSub, err := fs.Sub(saoIconsFS, "assets/sao-icons"); err == nil {
+                mux.Handle("/assets/sao-icons/", withStaticCache(http.StripPrefix("/assets/sao-icons/", http.FileServer(http.FS(saoSub)))))
+        }
 
         loginHandler := http.HandlerFunc(cors(handleLogin))
         mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
 
         mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
+        mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
+        mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
+        mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
         mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 

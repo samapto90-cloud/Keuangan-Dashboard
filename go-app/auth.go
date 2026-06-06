@@ -22,6 +22,9 @@ type Session struct {
 	Role      string
 	Name      string
 	AppModule string
+	CreatedAt time.Time
+	LastSeen  time.Time
+	ClientIP  string
 	Expires   time.Time
 }
 
@@ -80,22 +83,35 @@ func getSession(r *http.Request) *Session {
 	if token == "" {
 		return nil
 	}
-	sessionsMu.Lock()
-	defer sessionsMu.Unlock()
+	now := time.Now()
+
+	sessionsMu.RLock()
 	sess, ok := sessions[token]
+	sessionsMu.RUnlock()
 	if !ok {
 		return nil
 	}
-	now := time.Now()
 	if now.After(sess.Expires) {
+		sessionsMu.Lock()
 		delete(sessions, token)
+		sessionsMu.Unlock()
 		return nil
 	}
-	half := sessionLifetime() / 2
-	if now.After(sess.Expires.Add(-half)) {
-		sess.Expires = now.Add(sessionLifetime())
-		sessions[token] = sess
+
+	if now.Sub(sess.LastSeen) > 2*time.Minute {
+		sessionsMu.Lock()
+		if s, ok2 := sessions[token]; ok2 && now.Before(s.Expires) {
+			half := sessionLifetime() / 2
+			if now.After(s.Expires.Add(-half)) {
+				s.Expires = now.Add(sessionLifetime())
+			}
+			s.LastSeen = now
+			sessions[token] = s
+			sess = s
+		}
+		sessionsMu.Unlock()
 	}
+
 	out := sess
 	return &out
 }
@@ -162,6 +178,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	if !isValidAppModule(appModule) {
 		appModule = "sekretariat"
 	}
+	if appModule != "pengaturan" && !isPortalEnabled(appModule) {
+		jsonResponse(w, http.StatusForbidden, map[string]string{
+			"error": "Portal sedang dinonaktifkan oleh Super Admin. Hubungi administrator sistem.",
+		})
+		return
+	}
 	user, ok := authenticatePortalUser(username, password, appModule)
 	if !ok {
 		loginLimiter.recordFail(ip)
@@ -174,16 +196,21 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusInternalServerError, map[string]string{"error": "Gagal membuat sesi"})
 		return
 	}
+	now := time.Now()
 	sess := Session{
 		Username:  username,
 		Role:      user.Role,
 		Name:      user.Name,
 		AppModule: appModule,
-		Expires:   time.Now().Add(sessionLifetime()),
+		CreatedAt: now,
+		LastSeen:  now,
+		ClientIP:  ip,
+		Expires:   now.Add(sessionLifetime()),
 	}
 	sessionsMu.Lock()
 	sessions[token] = sess
 	sessionsMu.Unlock()
+	recordAudit(username, "login", appModule, "Login berhasil", ip)
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"token":       token,
 		"username":    username,
