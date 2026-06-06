@@ -838,9 +838,9 @@
       body.kwitansi-printing * { visibility: hidden; }
       body.kwitansi-printing #kwitansi-print,
       body.kwitansi-printing #kwitansi-print * { visibility: visible; }
-      body:not(.kwitansi-printing):not(.np2d-printing) #rekap-print,
-      body:not(.kwitansi-printing):not(.np2d-printing) #rekap-print * { visibility: visible; }
-      #kwitansi-print, #rekap-print, #np2d-print { display: none !important; }
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #rekap-print,
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #rekap-print * { visibility: visible; }
+      #kwitansi-print, #rekap-print, #np2d-print, #register-print { display: none !important; }
       body.np2d-printing,
       html:has(body.np2d-printing) {
         height: 297mm !important; max-height: 297mm !important;
@@ -924,7 +924,7 @@
         width: 100%; z-index: 99999; background: #fff; color: #000;
       }
     }
-    #kwitansi-print, #rekap-print { display: none; }
+    #kwitansi-print, #rekap-print, #register-print { display: none; }
     #np2d-print { display: none; }
     .np-wrap { color: #000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.45; }
     .np-title { text-align: center; font-weight: 800; font-size: 13px; text-transform: uppercase; margin: 6px 0 2px; line-height: 1.3; }
@@ -967,6 +967,39 @@
     .rk-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; font-size: 10px; }
     .rk-ttd-box { text-align: center; }
     .rk-ttd-space { height: 55px; border-bottom: 1px solid #333; margin: 8px 20px; }
+
+    /* ── Register Pengeluaran ── */
+    .rg-wrap { font-family: Arial, sans-serif; max-width: 100%; padding: 12px 16px; font-size: 9px; color: #111; background: #fff; }
+    .rg-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 10px; }
+    .rg-header h4 { margin: 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .rg-header p { margin: 3px 0 0; font-size: 9px; color: #444; }
+    .rg-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 8.5px; margin-bottom: 8px; }
+    .rg-table { width: 100%; border-collapse: collapse; font-size: 8px; table-layout: fixed; }
+    .rg-table th, .rg-table td { border: 1px solid #333; padding: 3px 4px; vertical-align: top; word-wrap: break-word; overflow-wrap: anywhere; }
+    .rg-table th { background: #ececec; font-weight: 700; text-align: center; font-size: 7.5px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rg-table tfoot td { font-weight: 700; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rg-table .rg-num { text-align: right; white-space: nowrap; }
+    .rg-table .rg-c { text-align: center; }
+    .rg-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-top: 22px; font-size: 9px; }
+    .rg-ttd-box { text-align: center; }
+    .rg-ttd-space { height: 52px; margin: 6px 16px 0; }
+    .register-filter-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+      padding: 14px 16px; border-bottom: 1px solid rgba(148,163,184,.15);
+      background: rgba(15,23,42,.35);
+    }
+    .register-filter-bar .filter-item { min-width: 160px; flex: 1 1 160px; }
+    .register-filter-bar label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .35px; margin-bottom: 4px; display: block; }
+    #register-preview-wrap { max-height: 520px; overflow: auto; }
+    #register-preview-wrap .rg-wrap { box-shadow: 0 2px 16px rgba(0,0,0,.12); margin: 16px; }
+    #register-print { display: none; }
+    body.register-printing * { visibility: hidden; }
+    body.register-printing #register-print,
+    body.register-printing #register-print * { visibility: visible; }
+    body.register-printing #register-print {
+      display: block !important; position: fixed; top: 0; left: 0; right: 0;
+      z-index: 99999; background: #fff; color: #000;
+    }
     .anggaran-readonly {
       display: inline-block; font-size: 12px; font-weight: 700; color: #94a3b8;
       padding: 4px 0; cursor: default; user-select: none;
@@ -2899,6 +2932,7 @@ function onNilaiBrutoInput() {
     <div class="nav-label">Menu Utama</div>
     <a href="#" class="nav-admin-only active" id="nav-dashboard" onclick="showPage('dashboard',this)"><i class="bi bi-grid-1x2"></i> Dashboard</a>
     <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi</a>
+    <a href="#" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
     <div class="nav-label mt-2 nav-label-admin">Laporan</div>
     <a href="#" class="nav-admin-only" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
     <div class="nav-label mt-2 nav-label-admin">Pengaturan</div>
@@ -3231,7 +3265,6 @@ function onNilaiBrutoInput() {
         <h6><i class="bi bi-table me-2 text-primary"></i>Daftar Transaksi</h6>
         <div class="d-flex gap-2 align-items-center trx-admin-tools">
           <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
-          <button class="btn btn-sm btn-outline-success" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-file-earmark-excel me-1"></i>Ekspor</button>
           <button class="btn btn-sm btn-outline-primary" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
           <button class="btn btn-sm btn-danger" id="btn-hapus-terpilih" onclick="confirmHapusTerpilih()" title="Hapus transaksi yang dicentang" disabled><i class="bi bi-trash me-1"></i>Hapus Terpilih (<span id="trx-selected-count">0</span>)</button>
           <button class="btn btn-sm btn-outline-danger" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
@@ -3273,6 +3306,93 @@ function onNilaiBrutoInput() {
           <strong>Total Nilai:</strong> <span id="table-total-nilai" class="text-success fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp;
           <strong>Total Pajak:</strong> <span id="table-total-pajak" class="text-warning fw-bold ms-1">Rp 0</span> &nbsp;|&nbsp;
           <strong>Total Potongan:</strong> <span id="table-total-potongan" class="text-secondary fw-bold ms-1">Rp 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ REGISTER ══ -->
+  <div id="page-register" class="page">
+    <div class="table-card ds-animate" style="--ds-delay:.05s">
+      <div class="card-head">
+        <h6><i class="bi bi-journal-text me-2 text-primary"></i>Register Pengeluaran</h6>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-success" onclick="exportRegisterExcel()"><i class="bi bi-file-earmark-excel me-1"></i>Simpan Excel</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="saveRegisterPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Simpan PDF</button>
+          <button class="btn btn-sm btn-primary" onclick="cetakRegisterPDF()"><i class="bi bi-printer me-1"></i>Cetak</button>
+        </div>
+      </div>
+      <div class="register-filter-bar">
+        <div class="filter-item">
+          <label>Bulan</label>
+          <input type="month" class="form-control form-control-sm" id="reg-filter-bulan" onchange="onRegisterFilterChange()" />
+        </div>
+        <div class="filter-item">
+          <label>Kegiatan</label>
+          <select class="form-select form-select-sm" id="reg-filter-kegiatan" onchange="onRegisterKegiatanChange()">
+            <option value="">— Semua Kegiatan —</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>Sub Kegiatan</label>
+          <select class="form-select form-select-sm" id="reg-filter-sub" onchange="onRegisterSubChange()">
+            <option value="">— Semua Sub Kegiatan —</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>Pekerjaan</label>
+          <select class="form-select form-select-sm" id="reg-filter-pekerjaan" onchange="onRegisterFilterChange()">
+            <option value="">— Semua Pekerjaan —</option>
+          </select>
+        </div>
+        <div class="filter-item" style="flex:0 0 auto">
+          <label>&nbsp;</label>
+          <button class="btn btn-sm btn-outline-secondary w-100" onclick="resetRegisterFilters()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+        </div>
+      </div>
+      <div id="register-info" class="px-3 py-2 text-muted" style="font-size:12px">—</div>
+      <div id="register-preview-wrap">
+        <div class="rg-wrap" id="register-preview">
+          <div class="rg-header">
+            <h4 id="reg-preview-title">Register Pengeluaran</h4>
+            <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="reg-preview-tahun">2026</span></p>
+          </div>
+          <div class="rg-meta">
+            <div id="reg-preview-filter">Filter: Semua data</div>
+            <div>Dicetak: <span id="reg-preview-date">—</span></div>
+          </div>
+          <table class="rg-table">
+            <thead>
+              <tr>
+                <th style="width:9%">No BPK</th>
+                <th style="width:5%">Tgl</th>
+                <th style="width:11%">Kegiatan</th>
+                <th style="width:11%">Sub Kegiatan</th>
+                <th style="width:7%">Kode Rek.</th>
+                <th style="width:9%">Pekerjaan</th>
+                <th style="width:14%">Uraian Pekerjaan</th>
+                <th style="width:9%">Penerima</th>
+                <th style="width:8%">Nilai Bruto</th>
+                <th style="width:7%">Potongan</th>
+              </tr>
+            </thead>
+            <tbody id="reg-preview-tbody"><tr><td colspan="10" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
+            <tfoot id="reg-preview-tfoot"></tfoot>
+          </table>
+          <div class="rg-ttd">
+            <div class="rg-ttd-box">
+              <div id="reg-preview-pa-jab">Pengguna Anggaran,</div>
+              <div class="rg-ttd-space"></div>
+              <div><strong id="reg-preview-pa-nama">—</strong></div>
+              <div id="reg-preview-pa-nip" style="font-size:8px">—</div>
+            </div>
+            <div class="rg-ttd-box">
+              <div id="reg-preview-bend-jab">Bendahara Pengeluaran,</div>
+              <div class="rg-ttd-space"></div>
+              <div><strong id="reg-preview-bend-nama">—</strong></div>
+              <div id="reg-preview-bend-nip" style="font-size:8px">—</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3580,6 +3700,52 @@ function onNilaiBrutoInput() {
 </div><!-- /kas-app-shell -->
 
 <div id="kas-print"></div>
+
+<!-- ══ REGISTER PRINT (PDF / Cetak) ══ -->
+<div id="register-print">
+  <div class="rg-wrap">
+    <div class="rg-header">
+      <h4 id="rg-print-title">Register Pengeluaran</h4>
+      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rg-tahun">2026</span></p>
+    </div>
+    <div class="rg-meta">
+      <div id="rg-filter-label">Filter: Semua data</div>
+      <div>Dicetak: <span id="rg-tanggal">—</span></div>
+    </div>
+    <table class="rg-table">
+      <thead>
+        <tr>
+          <th style="width:9%">No BPK</th>
+          <th style="width:5%">Tgl</th>
+          <th style="width:11%">Kegiatan</th>
+          <th style="width:11%">Sub Kegiatan</th>
+          <th style="width:7%">Kode Rek.</th>
+          <th style="width:9%">Pekerjaan</th>
+          <th style="width:14%">Uraian Pekerjaan</th>
+          <th style="width:9%">Penerima</th>
+          <th style="width:8%">Nilai Bruto</th>
+          <th style="width:7%">Potongan</th>
+        </tr>
+      </thead>
+      <tbody id="rg-print-tbody"></tbody>
+      <tfoot id="rg-print-tfoot"></tfoot>
+    </table>
+    <div class="rg-ttd">
+      <div class="rg-ttd-box">
+        <div id="rg-pa-jabatan">Pengguna Anggaran,</div>
+        <div class="rg-ttd-space"></div>
+        <div><strong id="rg-pa-nama">—</strong></div>
+        <div id="rg-pa-nip" style="font-size:8px">—</div>
+      </div>
+      <div class="rg-ttd-box">
+        <div id="rg-bend-jabatan">Bendahara Pengeluaran,</div>
+        <div class="rg-ttd-space"></div>
+        <div><strong id="rg-bend-nama">—</strong></div>
+        <div id="rg-bend-nip" style="font-size:8px">—</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ REKAP PRINT (PDF) ══ -->
 <div id="rekap-print">
@@ -4461,7 +4627,7 @@ function toggleMobileSidebar(which) {
 }
 
 function showPage(name, el) {
-  if (!isAdmin() && name !== 'transaksi') {
+  if (!isAdmin() && name !== 'transaksi' && name !== 'register') {
     return showPage('transaksi', document.getElementById('nav-transaksi'));
   }
   playBreathSlash();
@@ -4473,11 +4639,12 @@ function showPage(name, el) {
   void pageEl.offsetWidth;
   pageEl.style.animation = '';
   if (el) el.classList.add('active');
-  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', rekap:'Rekapitulasi', pengaturan:'Pejabat Keuangan' };
+  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', rekap:'Rekapitulasi', pengaturan:'Pejabat Keuangan' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
   document.getElementById('topbar-crumb').textContent = titles[name] || name;
   if (name === 'dashboard') loadDashboard();
   if (name === 'transaksi') loadTransaksi();
+  if (name === 'register') loadRegister();
   if (name === 'rekap') loadRekap();
   if (name === 'pengaturan') { loadSettings(); fillSettingsForm(); }
   closeMobileSidebar();
@@ -5902,6 +6069,14 @@ function applyPejabatUI() {
   const rkBendJab = document.getElementById('rk-bend-jabatan');
   if (rkPaJab) rkPaJab.textContent = cfg.paLabel + ',';
   if (rkBendJab) rkBendJab.textContent = cfg.bendaharaLabel + ',';
+  const regPaJab = document.getElementById('reg-preview-pa-jab');
+  const regBendJab = document.getElementById('reg-preview-bend-jab');
+  const rgPaJab = document.getElementById('rg-pa-jabatan');
+  const rgBendJab = document.getElementById('rg-bend-jabatan');
+  if (regPaJab) regPaJab.textContent = cfg.paLabel + ',';
+  if (regBendJab) regBendJab.textContent = cfg.bendaharaLabel + ',';
+  if (rgPaJab) rgPaJab.textContent = cfg.paLabel + ',';
+  if (rgBendJab) rgBendJab.textContent = cfg.bendaharaLabel + ',';
 }
 
 function fillSettingsForm() {
@@ -6242,6 +6417,264 @@ function cetakRekapPDF() {
   if (!rekapRowsCache.length) { alert('Belum ada data rekapitulasi.'); return; }
   fillRekapPrint();
   window.print();
+}
+
+// ── Register Pengeluaran ─────────────────────────────────────────────────
+let registerRowsCache = [];
+
+function trxPotonganTotal(t) {
+  return (t.pajak || 0) + (t.nilai_potongan || 0);
+}
+
+function escapeHtmlRegister(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getRegisterFilteredTransactions() {
+  const bulan = document.getElementById('reg-filter-bulan')?.value || '';
+  const kegiatan = document.getElementById('reg-filter-kegiatan')?.value || '';
+  const sub = document.getElementById('reg-filter-sub')?.value || '';
+  const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value || '';
+  return (allTransactions || []).filter(t => {
+    if (bulan && !(t.tanggal || '').startsWith(bulan)) return false;
+    if (kegiatan && t.kegiatan !== kegiatan) return false;
+    if (sub && t.sub_kegiatan !== sub) return false;
+    if (pekerjaan && t.pekerjaan !== pekerjaan) return false;
+    return true;
+  }).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || (a.id || 0) - (b.id || 0));
+}
+
+function buildRegisterFilterLabel() {
+  const parts = [];
+  const bulan = document.getElementById('reg-filter-bulan')?.value;
+  const kegiatan = document.getElementById('reg-filter-kegiatan')?.value;
+  const sub = document.getElementById('reg-filter-sub')?.value;
+  const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value;
+  if (bulan) {
+    const [y, m] = bulan.split('-');
+    parts.push('Bulan ' + (KAS_BULAN_NAMA[m] || m) + ' ' + y);
+  }
+  if (kegiatan) parts.push('Kegiatan: ' + kegiatan);
+  if (sub) parts.push('Sub: ' + sub);
+  if (pekerjaan) parts.push('Pekerjaan: ' + pekerjaan);
+  return parts.length ? parts.join(' · ') : 'Semua data';
+}
+
+function fillRegisterSelect(sel, values, placeholder) {
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${placeholder}</option>` +
+    values.map(v => `<option value="${escapeHtmlRegister(v)}">${escapeHtmlRegister(v)}</option>`).join('');
+  if (cur && values.includes(cur)) sel.value = cur;
+}
+
+function populateRegisterFilterOptions() {
+  const txs = allTransactions || [];
+  const kegiatanList = [...new Set(txs.map(t => t.kegiatan).filter(Boolean))].sort();
+  fillRegisterSelect(document.getElementById('reg-filter-kegiatan'), kegiatanList, '— Semua Kegiatan —');
+
+  const keg = document.getElementById('reg-filter-kegiatan')?.value || '';
+  const subList = [...new Set(txs.filter(t => !keg || t.kegiatan === keg).map(t => t.sub_kegiatan).filter(Boolean))].sort();
+  fillRegisterSelect(document.getElementById('reg-filter-sub'), subList, '— Semua Sub Kegiatan —');
+
+  const sub = document.getElementById('reg-filter-sub')?.value || '';
+  const pekList = [...new Set(txs.filter(t => {
+    if (keg && t.kegiatan !== keg) return false;
+    if (sub && t.sub_kegiatan !== sub) return false;
+    return true;
+  }).map(t => t.pekerjaan).filter(Boolean))].sort();
+  fillRegisterSelect(document.getElementById('reg-filter-pekerjaan'), pekList, '— Semua Pekerjaan —');
+}
+
+function onRegisterKegiatanChange() {
+  document.getElementById('reg-filter-sub').value = '';
+  document.getElementById('reg-filter-pekerjaan').value = '';
+  populateRegisterFilterOptions();
+  onRegisterFilterChange();
+}
+
+function onRegisterSubChange() {
+  document.getElementById('reg-filter-pekerjaan').value = '';
+  populateRegisterFilterOptions();
+  onRegisterFilterChange();
+}
+
+function onRegisterFilterChange() {
+  registerRowsCache = getRegisterFilteredTransactions();
+  renderRegisterPreview();
+}
+
+function resetRegisterFilters() {
+  document.getElementById('reg-filter-bulan').value = '';
+  document.getElementById('reg-filter-kegiatan').value = '';
+  document.getElementById('reg-filter-sub').value = '';
+  document.getElementById('reg-filter-pekerjaan').value = '';
+  populateRegisterFilterOptions();
+  onRegisterFilterChange();
+}
+
+function buildRegisterRowHtml(t) {
+  const pot = trxPotonganTotal(t);
+  return `<tr>
+    <td>${escapeHtmlRegister(t.no_bpk || '—')}</td>
+    <td class="rg-c">${escapeHtmlRegister(formatTanggalShort(t.tanggal))}</td>
+    <td>${escapeHtmlRegister(t.kegiatan || '—')}</td>
+    <td>${escapeHtmlRegister(t.sub_kegiatan || '—')}</td>
+    <td class="rg-c">${escapeHtmlRegister(t.kode_rekening || '—')}</td>
+    <td>${escapeHtmlRegister(t.pekerjaan || '—')}</td>
+    <td>${escapeHtmlRegister(t.uraian || '—')}</td>
+    <td>${escapeHtmlRegister(t.penerima || '—')}</td>
+    <td class="rg-num">${formatRupiah(t.nilai || 0)}</td>
+    <td class="rg-num">${formatRupiah(pot)}</td>
+  </tr>`;
+}
+
+function buildRegisterTableBodyHtml(rows) {
+  if (!rows.length) {
+    return '<tr><td colspan="10" style="text-align:center;padding:12px">Tidak ada transaksi untuk filter ini.</td></tr>';
+  }
+  return rows.map(buildRegisterRowHtml).join('');
+}
+
+function buildRegisterTableFootHtml(rows) {
+  if (!rows.length) return '';
+  let totBruto = 0, totPot = 0;
+  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
+  return `<tr>
+    <td colspan="8" style="text-align:right"><strong>JUMLAH</strong></td>
+    <td class="rg-num"><strong>${formatRupiah(totBruto)}</strong></td>
+    <td class="rg-num"><strong>${formatRupiah(totPot)}</strong></td>
+  </tr>`;
+}
+
+function fillRegisterPejabatPreview() {
+  const cfg = getPortalAppConfig();
+  const now = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const filterLabel = 'Filter: ' + buildRegisterFilterLabel();
+  document.getElementById('reg-preview-tahun').textContent = DB.tahun || 2026;
+  document.getElementById('reg-preview-date').textContent = now;
+  document.getElementById('reg-preview-filter').textContent = filterLabel;
+  document.getElementById('reg-preview-pa-nama').textContent = DB.pa?.nama || '—';
+  document.getElementById('reg-preview-pa-nip').textContent = DB.pa?.nip || '—';
+  document.getElementById('reg-preview-bend-nama').textContent = DB.bendahara?.nama || '—';
+  document.getElementById('reg-preview-bend-nip').textContent = DB.bendahara?.nip || '—';
+  document.getElementById('reg-preview-pa-jab').textContent = cfg.paLabel + ',';
+  document.getElementById('reg-preview-bend-jab').textContent = cfg.bendaharaLabel + ',';
+}
+
+function fillRegisterPrint() {
+  const cfg = getPortalAppConfig();
+  const now = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
+  document.getElementById('rg-print-title').textContent = 'Register Pengeluaran';
+  document.getElementById('rg-tahun').textContent = DB.tahun || 2026;
+  document.getElementById('rg-tanggal').textContent = now;
+  document.getElementById('rg-filter-label').textContent = 'Filter: ' + buildRegisterFilterLabel();
+  document.getElementById('rg-pa-jabatan').textContent = cfg.paLabel + ',';
+  document.getElementById('rg-bend-jabatan').textContent = cfg.bendaharaLabel + ',';
+  document.getElementById('rg-pa-nama').textContent = DB.pa?.nama || '—';
+  document.getElementById('rg-pa-nip').textContent = DB.pa?.nip || '—';
+  document.getElementById('rg-bend-nama').textContent = DB.bendahara?.nama || '—';
+  document.getElementById('rg-bend-nip').textContent = DB.bendahara?.nip || '—';
+  document.getElementById('rg-print-tbody').innerHTML = buildRegisterTableBodyHtml(rows);
+  document.getElementById('rg-print-tfoot').innerHTML = buildRegisterTableFootHtml(rows);
+}
+
+function renderRegisterPreview() {
+  const rows = registerRowsCache;
+  fillRegisterPejabatPreview();
+  document.getElementById('reg-preview-tbody').innerHTML = buildRegisterTableBodyHtml(rows);
+  document.getElementById('reg-preview-tfoot').innerHTML = buildRegisterTableFootHtml(rows);
+  let totBruto = 0, totPot = 0;
+  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
+  document.getElementById('register-info').textContent =
+    `${rows.length} transaksi · Total bruto ${formatRupiah(totBruto)} · Total potongan ${formatRupiah(totPot)}`;
+}
+
+async function loadRegister() {
+  await loadSettings();
+  if (!allTransactions.length) {
+    const res = await apiFetch(API + '/transactions');
+    allTransactions = await res.json() || [];
+  }
+  populateRegisterFilterOptions();
+  onRegisterFilterChange();
+}
+
+function exportRegisterExcel() {
+  const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
+  if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
+  const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Nilai Bruto', 'Potongan'];
+  const dataRows = rows.map(t => [
+    t.no_bpk || '',
+    formatTanggalShort(t.tanggal),
+    t.kegiatan || '',
+    t.sub_kegiatan || '',
+    t.kode_rekening || '',
+    t.pekerjaan || '',
+    t.uraian || '',
+    t.penerima || '',
+    t.nilai || 0,
+    trxPotonganTotal(t),
+  ]);
+  let totBruto = 0, totPot = 0;
+  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
+  dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', totBruto, totPot]);
+  const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+  ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 16 }, { wch: 14 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Register');
+  const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
+  XLSX.writeFile(wb, `SIPKEU_Register_${slug}_${DB.tahun || 2026}.xlsx`);
+}
+
+async function renderRegisterCanvas() {
+  fillRegisterPrint();
+  const source = document.querySelector('#register-print .rg-wrap');
+  if (!source) throw new Error('Template register tidak ditemukan.');
+  const h2c = window.html2canvas;
+  if (typeof h2c !== 'function') throw new Error('Library html2canvas belum dimuat. Tekan Ctrl+F5.');
+  const canvas = await h2c(source, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+  if (!canvas?.width) throw new Error('Render register gagal.');
+  return canvas;
+}
+
+async function saveRegisterPDF() {
+  const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
+  if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
+  try {
+    const canvas = await renderRegisterCanvas();
+    const JsPDF = window.jspdf?.jsPDF;
+    if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+    const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const img = canvas.toDataURL('image/jpeg', 0.92);
+    const ratio = Math.min((pw - 10) / canvas.width, (ph - 10) / canvas.height);
+    const w = canvas.width * ratio;
+    const h = canvas.height * ratio;
+    pdf.addImage(img, 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
+    const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
+    pdf.save(`SIPKEU_Register_${slug}_${DB.tahun || 2026}.pdf`);
+  } catch (err) {
+    alert('Gagal menyimpan PDF register: ' + (err.message || err));
+  }
+}
+
+function cetakRegisterPDF() {
+  const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
+  if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
+  fillRegisterPrint();
+  let styleEl = document.getElementById('register-print-page-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'register-print-page-style';
+    styleEl.textContent = '@media print { @page { size: A4 landscape; margin: 8mm; } }';
+    document.head.appendChild(styleEl);
+  }
+  document.body.classList.add('register-printing');
+  window.print();
+  setTimeout(() => document.body.classList.remove('register-printing'), 600);
 }
 
 // ── Rekap ────────────────────────────────────────────────────────────────
