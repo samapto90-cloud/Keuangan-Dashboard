@@ -993,6 +993,10 @@
     #register-preview-wrap { max-height: 520px; overflow: auto; }
     #register-preview-wrap .rg-wrap { box-shadow: 0 2px 16px rgba(0,0,0,.12); margin: 16px; }
     #register-print { display: none; }
+    #rg-capture-host {
+      position: fixed; left: -14000px; top: 0; z-index: -9999;
+      width: 297mm; background: #fff; overflow: visible;
+    }
     body.register-printing * { visibility: hidden; }
     body.register-printing #register-print,
     body.register-printing #register-print * { visibility: visible; }
@@ -3373,10 +3377,11 @@ function onNilaiBrutoInput() {
                 <th style="width:14%">Uraian Pekerjaan</th>
                 <th style="width:9%">Penerima</th>
                 <th style="width:8%">Nilai Bruto</th>
+                <th style="width:10%">Jenis Potongan</th>
                 <th style="width:7%">Potongan</th>
               </tr>
             </thead>
-            <tbody id="reg-preview-tbody"><tr><td colspan="10" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
+            <tbody id="reg-preview-tbody"><tr><td colspan="11" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
             <tfoot id="reg-preview-tfoot"></tfoot>
           </table>
           <div class="rg-ttd">
@@ -3724,6 +3729,7 @@ function onNilaiBrutoInput() {
           <th style="width:14%">Uraian Pekerjaan</th>
           <th style="width:9%">Penerima</th>
           <th style="width:8%">Nilai Bruto</th>
+          <th style="width:10%">Jenis Potongan</th>
           <th style="width:7%">Potongan</th>
         </tr>
       </thead>
@@ -3903,6 +3909,7 @@ function onNilaiBrutoInput() {
 </div>
 
 <div id="kw-capture-host" aria-hidden="true"></div>
+<div id="rg-capture-host" aria-hidden="true"></div>
 
 <!-- Modal Preview Kwitansi -->
 <div class="modal fade" id="modalKwitansi" tabindex="-1">
@@ -6513,6 +6520,17 @@ function resetRegisterFilters() {
   onRegisterFilterChange();
 }
 
+function trxJenisPotonganLabel(t) {
+  const pajakLbl = formatPotonganSummary(t, 'pajak');
+  const potLbl = formatPotonganSummary(t, 'potongan');
+  const parts = [];
+  if (pajakLbl && pajakLbl !== '—') parts.push(pajakLbl);
+  if (potLbl && potLbl !== '—') parts.push(potLbl);
+  if (parts.length) return parts.join(' · ');
+  const legacy = [t.jenis_pajak, t.jenis_potongan].filter(Boolean).map(s => String(s).trim()).filter(Boolean);
+  return legacy.length ? legacy.join(' · ') : '—';
+}
+
 function buildRegisterRowHtml(t) {
   const pot = trxPotonganTotal(t);
   return `<tr>
@@ -6525,13 +6543,14 @@ function buildRegisterRowHtml(t) {
     <td>${escapeHtmlRegister(t.uraian || '—')}</td>
     <td>${escapeHtmlRegister(t.penerima || '—')}</td>
     <td class="rg-num">${formatRupiah(t.nilai || 0)}</td>
+    <td>${escapeHtmlRegister(trxJenisPotonganLabel(t))}</td>
     <td class="rg-num">${formatRupiah(pot)}</td>
   </tr>`;
 }
 
 function buildRegisterTableBodyHtml(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="10" style="text-align:center;padding:12px">Tidak ada transaksi untuk filter ini.</td></tr>';
+    return '<tr><td colspan="11" style="text-align:center;padding:12px">Tidak ada transaksi untuk filter ini.</td></tr>';
   }
   return rows.map(buildRegisterRowHtml).join('');
 }
@@ -6541,8 +6560,9 @@ function buildRegisterTableFootHtml(rows) {
   let totBruto = 0, totPot = 0;
   rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
   return `<tr>
-    <td colspan="8" style="text-align:right"><strong>JUMLAH</strong></td>
+    <td colspan="9" style="text-align:right"><strong>JUMLAH</strong></td>
     <td class="rg-num"><strong>${formatRupiah(totBruto)}</strong></td>
+    <td></td>
     <td class="rg-num"><strong>${formatRupiah(totPot)}</strong></td>
   </tr>`;
 }
@@ -6604,7 +6624,7 @@ async function loadRegister() {
 function exportRegisterExcel() {
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
   if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
-  const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Nilai Bruto', 'Potongan'];
+  const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Nilai Bruto', 'Jenis Potongan', 'Potongan'];
   const dataRows = rows.map(t => [
     t.no_bpk || '',
     formatTanggalShort(t.tanggal),
@@ -6615,49 +6635,131 @@ function exportRegisterExcel() {
     t.uraian || '',
     t.penerima || '',
     t.nilai || 0,
+    trxJenisPotonganLabel(t),
     trxPotonganTotal(t),
   ]);
   let totBruto = 0, totPot = 0;
   rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
-  dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', totBruto, totPot]);
+  dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', totBruto, '', totPot]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
-  ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 16 }, { wch: 14 }];
+  ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 16 }, { wch: 28 }, { wch: 14 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Register');
   const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
   XLSX.writeFile(wb, `SIPKEU_Register_${slug}_${DB.tahun || 2026}.xlsx`);
 }
 
-async function renderRegisterCanvas() {
+const RG_A4_LANDSCAPE_W_MM = 297;
+const RG_A4_LANDSCAPE_H_MM = 210;
+
+async function buildRegisterCaptureNode() {
   fillRegisterPrint();
   const source = document.querySelector('#register-print .rg-wrap');
   if (!source) throw new Error('Template register tidak ditemukan.');
+  const host = document.getElementById('rg-capture-host');
+  if (!host) throw new Error('Capture host register tidak ditemukan.');
+  host.innerHTML = '';
+  const clone = source.cloneNode(true);
+  clone.style.display = 'block';
+  clone.style.visibility = 'visible';
+  clone.style.background = '#fff';
+  clone.style.color = '#111';
+  clone.style.width = RG_A4_LANDSCAPE_W_MM + 'mm';
+  clone.style.boxShadow = 'none';
+  host.appendChild(clone);
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  return clone;
+}
+
+function clearRegisterCaptureNode() {
+  const host = document.getElementById('rg-capture-host');
+  if (host) host.innerHTML = '';
+}
+
+function registerPdfFilename() {
+  const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
+  return `SIPKEU_Register_${slug}_${DB.tahun || 2026}.pdf`;
+}
+
+async function renderRegisterCanvas() {
   const h2c = window.html2canvas;
   if (typeof h2c !== 'function') throw new Error('Library html2canvas belum dimuat. Tekan Ctrl+F5.');
-  const canvas = await h2c(source, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
-  if (!canvas?.width) throw new Error('Render register gagal.');
-  return canvas;
+  let node;
+  try {
+    node = await buildRegisterCaptureNode();
+    const w = Math.max(node.scrollWidth, Math.round(mmToPx(RG_A4_LANDSCAPE_W_MM)));
+    const h = Math.max(node.scrollHeight, Math.round(mmToPx(RG_A4_LANDSCAPE_H_MM)));
+    const canvas = await h2c(node, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: w,
+      height: h,
+      windowWidth: w,
+      windowHeight: h,
+      scrollX: 0,
+      scrollY: 0,
+      logging: false,
+      onclone(doc) {
+        doc.querySelectorAll('.rg-wrap, .rg-wrap *').forEach(el => {
+          el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
+        });
+      },
+    });
+    if (!canvas?.width) throw new Error('Render register gagal (canvas kosong).');
+    return canvas;
+  } finally {
+    clearRegisterCaptureNode();
+  }
+}
+
+async function saveRegisterPdfFromCanvas(canvas, filename) {
+  const margin = 6;
+  const pageWmm = RG_A4_LANDSCAPE_W_MM;
+  const pageHmm = RG_A4_LANDSCAPE_H_MM;
+  const contentWmm = pageWmm - margin * 2;
+  const contentHmm = pageHmm - margin * 2;
+  const slicePxH = Math.max(1, Math.floor(canvas.width * (contentHmm / contentWmm)));
+
+  const JsPDF = window.jspdf?.jsPDF;
+  if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+  const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+
+  let offsetY = 0;
+  let pageIdx = 0;
+  while (offsetY < canvas.height) {
+    if (pageIdx > 0) pdf.addPage('a4', 'landscape');
+    const sliceH = Math.min(slicePxH, canvas.height - offsetY);
+    const slice = document.createElement('canvas');
+    slice.width = canvas.width;
+    slice.height = sliceH;
+    const ctx = slice.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+    const imgHmm = (sliceH / canvas.width) * contentWmm;
+    pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentWmm, imgHmm);
+    offsetY += sliceH;
+    pageIdx++;
+  }
+  pdf.save(filename);
 }
 
 async function saveRegisterPDF() {
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
   if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
+  const btn = document.querySelector('#page-register .btn-outline-danger');
+  const orig = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan…'; }
   try {
     const canvas = await renderRegisterCanvas();
-    const JsPDF = window.jspdf?.jsPDF;
-    if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
-    const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-    const pw = pdf.internal.pageSize.getWidth();
-    const ph = pdf.internal.pageSize.getHeight();
-    const img = canvas.toDataURL('image/jpeg', 0.92);
-    const ratio = Math.min((pw - 10) / canvas.width, (ph - 10) / canvas.height);
-    const w = canvas.width * ratio;
-    const h = canvas.height * ratio;
-    pdf.addImage(img, 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
-    const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
-    pdf.save(`SIPKEU_Register_${slug}_${DB.tahun || 2026}.pdf`);
+    await saveRegisterPdfFromCanvas(canvas, registerPdfFilename());
   } catch (err) {
+    console.error('Simpan register PDF gagal:', err);
     alert('Gagal menyimpan PDF register: ' + (err.message || err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
   }
 }
 
