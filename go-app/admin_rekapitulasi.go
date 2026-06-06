@@ -32,6 +32,10 @@ type rekapAgg struct {
 	count                          int
 }
 
+func normRekap(s string) string {
+	return strings.TrimSpace(s)
+}
+
 func parseAdminRekapPortals(raw string) []string {
 	raw = strings.TrimSpace(raw)
 	if raw == "" || raw == "all" {
@@ -75,25 +79,40 @@ func rekapPct(realisasi, anggaran float64) float64 {
 	return (realisasi / anggaran) * 100
 }
 
-func anggaranKegiatanFor(mod *SipkeuModule, kegiatan string, realisasi float64) float64 {
-	if mod == nil || kegiatan == "" {
-		return 0
+func moduleSettingsSnapshot(mod *SipkeuModule) (rak []RakRow, anggaranKeg map[string]float64) {
+	if mod == nil {
+		return nil, map[string]float64{}
 	}
 	mod.mu.Lock()
 	defer mod.mu.Unlock()
-	if mod.settings.AnggaranKegiatan != nil {
-		if v := mod.settings.AnggaranKegiatan[kegiatan]; v > 0 {
-			return v
-		}
+	rak = append([]RakRow(nil), mod.settings.Rak...)
+	anggaranKeg = map[string]float64{}
+	for k, v := range mod.settings.AnggaranKegiatan {
+		anggaranKeg[normRekap(k)] = v
 	}
+	return rak, anggaranKeg
+}
+
+func sumRakSub(rak []RakRow, kegiatan, sub string) float64 {
+	kegiatan = normRekap(kegiatan)
+	sub = normRekap(sub)
 	var sum float64
-	for _, r := range mod.settings.Rak {
-		if r.Kegiatan == kegiatan {
+	for _, r := range rak {
+		if normRekap(r.Kegiatan) == kegiatan && normRekap(r.SubKegiatan) == sub {
 			sum += r.Anggaran
 		}
 	}
-	if sum > 0 {
-		return sum
+	return sum
+}
+
+func anggaranKegiatanForSnapshot(rak []RakRow, anggaranKeg map[string]float64, kegiatan string, realisasi float64) float64 {
+	kegiatan = normRekap(kegiatan)
+	if kegiatan == "" {
+		return 0
+	}
+	// Selaras dengan getAnggaranForKegiatan di portal SIPKEU
+	if v := anggaranKeg[kegiatan]; v > 0 {
+		return v
 	}
 	if realisasi > 0 {
 		padded := int(realisasi*1.25/1000000) + 1
@@ -105,50 +124,35 @@ func anggaranKegiatanFor(mod *SipkeuModule, kegiatan string, realisasi float64) 
 	return 0
 }
 
-func anggaranSubFor(mod *SipkeuModule, kegiatan, sub string) float64 {
-	if mod == nil || kegiatan == "" || sub == "" {
-		return 0
-	}
-	mod.mu.Lock()
-	defer mod.mu.Unlock()
-	var sum float64
-	for _, r := range mod.settings.Rak {
-		if r.Kegiatan == kegiatan && r.SubKegiatan == sub {
-			sum += r.Anggaran
-		}
-	}
-	return sum
+func anggaranSubForSnapshot(rak []RakRow, kegiatan, sub string) float64 {
+	return sumRakSub(rak, kegiatan, sub)
 }
 
-func anggaranPekerjaanFor(mod *SipkeuModule, kegiatan, sub, kode, pekerjaan string) float64 {
-	if mod == nil {
-		return 0
-	}
-	mod.mu.Lock()
-	defer mod.mu.Unlock()
-	for _, r := range mod.settings.Rak {
-		if r.Kegiatan == kegiatan && r.SubKegiatan == sub &&
-			r.KodeRekening == kode && r.Pekerjaan == pekerjaan {
+func anggaranPekerjaanForSnapshot(rak []RakRow, kegiatan, sub, kode, pekerjaan string) float64 {
+	kegiatan = normRekap(kegiatan)
+	sub = normRekap(sub)
+	kode = normRekap(kode)
+	pekerjaan = normRekap(pekerjaan)
+	for _, r := range rak {
+		if normRekap(r.Kegiatan) == kegiatan &&
+			normRekap(r.SubKegiatan) == sub &&
+			normRekap(r.KodeRekening) == kode &&
+			normRekap(r.Pekerjaan) == pekerjaan {
 			return r.Anggaran
 		}
 	}
 	return 0
 }
 
-func portalTotalAnggaran(mod *SipkeuModule) float64 {
-	if mod == nil {
-		return 0
-	}
-	mod.mu.Lock()
-	defer mod.mu.Unlock()
+func portalTotalAnggaranSnapshot(rak []RakRow, anggaranKeg map[string]float64) float64 {
 	var total float64
-	for _, r := range mod.settings.Rak {
+	for _, r := range rak {
 		total += r.Anggaran
 	}
 	if total > 0 {
 		return total
 	}
-	for _, v := range mod.settings.AnggaranKegiatan {
+	for _, v := range anggaranKeg {
 		if v > 0 {
 			total += v
 		}
@@ -161,80 +165,70 @@ func rekapAggKey(mode string, a *rekapAgg) string {
 	case "portal":
 		return a.portalID
 	case "sub":
-		return a.portalID + "\x00" + a.kegiatan + "\x00" + a.sub
+		return a.portalID + "\x00" + normRekap(a.kegiatan) + "\x00" + normRekap(a.sub)
 	case "pekerjaan":
-		return a.portalID + "\x00" + a.kegiatan + "\x00" + a.sub + "\x00" + a.kode + "\x00" + a.pekerjaan
+		return a.portalID + "\x00" + normRekap(a.kegiatan) + "\x00" + normRekap(a.sub) + "\x00" + normRekap(a.kode) + "\x00" + normRekap(a.pekerjaan)
 	default:
-		return a.portalID + "\x00" + a.kegiatan
+		return a.portalID + "\x00" + normRekap(a.kegiatan)
 	}
 }
 
-func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg) {
+func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
 	if mod == nil {
 		return
 	}
 	label := portalLabel(mod.ID)
-	mod.mu.Lock()
-	rak := append([]RakRow(nil), mod.settings.Rak...)
-	anggaranKeg := map[string]float64{}
-	for k, v := range mod.settings.AnggaranKegiatan {
-		anggaranKeg[k] = v
-	}
-	mod.mu.Unlock()
 
 	switch mode {
 	case "portal":
 		key := mod.ID
 		if aggs[key] == nil {
-			aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, anggaran: portalTotalAnggaran(mod)}
+			aggs[key] = &rekapAgg{
+				portalID: mod.ID, portalLabel: label,
+				anggaran: portalTotalAnggaranSnapshot(rak, anggaranKeg),
+			}
 		}
 	case "kegiatan":
-		seen := map[string]bool{}
-		for k := range anggaranKeg {
-			seen[k] = true
-			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: anggaranKeg[k]}
+		for k, v := range anggaranKeg {
+			if k == "" {
+				continue
+			}
+			a := &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: k, anggaran: v}
 			aggs[rekapAggKey(mode, a)] = a
-		}
-		for _, r := range rak {
-			if r.Kegiatan == "" {
-				continue
-			}
-			key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: r.Kegiatan})
-			if aggs[key] != nil {
-				continue
-			}
-			if !seen[r.Kegiatan] {
-				seen[r.Kegiatan] = true
-				aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: r.Kegiatan}
-			}
 		}
 	case "sub":
 		for _, r := range rak {
-			if r.Kegiatan == "" || r.SubKegiatan == "" {
+			keg := normRekap(r.Kegiatan)
+			sub := normRekap(r.SubKegiatan)
+			if keg == "" || sub == "" {
 				continue
 			}
-			key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: r.Kegiatan, sub: r.SubKegiatan})
+			key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub})
 			if aggs[key] == nil {
 				aggs[key] = &rekapAgg{
 					portalID: mod.ID, portalLabel: label,
-					kegiatan: r.Kegiatan, sub: r.SubKegiatan,
+					kegiatan: keg, sub: sub,
+					anggaran: sumRakSub(rak, keg, sub),
 				}
 			}
 		}
 	case "pekerjaan":
 		for _, r := range rak {
-			if r.Kegiatan == "" || r.SubKegiatan == "" || r.Pekerjaan == "" {
+			keg := normRekap(r.Kegiatan)
+			sub := normRekap(r.SubKegiatan)
+			pk := normRekap(r.Pekerjaan)
+			if keg == "" || sub == "" || pk == "" {
 				continue
 			}
 			key := rekapAggKey(mode, &rekapAgg{
-				portalID: mod.ID, kegiatan: r.Kegiatan, sub: r.SubKegiatan,
-				kode: r.KodeRekening, pekerjaan: r.Pekerjaan,
+				portalID: mod.ID, kegiatan: keg, sub: sub,
+				kode: normRekap(r.KodeRekening), pekerjaan: pk,
 			})
 			if aggs[key] == nil {
 				aggs[key] = &rekapAgg{
 					portalID: mod.ID, portalLabel: label,
-					kegiatan: r.Kegiatan, sub: r.SubKegiatan,
-					kode: r.KodeRekening, pekerjaan: r.Pekerjaan,
+					kegiatan: keg, sub: sub,
+					kode: normRekap(r.KodeRekening), pekerjaan: pk,
 					anggaran: r.Anggaran,
 				}
 			}
@@ -242,7 +236,7 @@ func seedRekapFromRak(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg)
 	}
 }
 
-func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transaction, aggs map[string]*rekapAgg) {
+func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transaction, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
 	if mod == nil || !trxIsApproved(t) || !transactionBelongsToModule(mod, t) {
 		return
 	}
@@ -250,49 +244,58 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 		return
 	}
 	label := portalLabel(mod.ID)
+	keg := normRekap(t.Kegiatan)
+	sub := normRekap(t.SubKegiatan)
+	pk := normRekap(t.Pekerjaan)
+	kode := normRekap(t.KodeRekening)
+
 	var a *rekapAgg
 	switch mode {
 	case "portal":
 		key := mod.ID
 		if aggs[key] == nil {
-			aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, anggaran: portalTotalAnggaran(mod)}
+			aggs[key] = &rekapAgg{
+				portalID: mod.ID, portalLabel: label,
+				anggaran: portalTotalAnggaranSnapshot(rak, anggaranKeg),
+			}
 		}
 		a = aggs[key]
 	case "sub":
-		if t.Kegiatan == "" || t.SubKegiatan == "" {
+		if keg == "" || sub == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: t.Kegiatan, sub: t.SubKegiatan})
+		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub})
 		if aggs[key] == nil {
 			aggs[key] = &rekapAgg{
 				portalID: mod.ID, portalLabel: label,
-				kegiatan: t.Kegiatan, sub: t.SubKegiatan,
+				kegiatan: keg, sub: sub,
+				anggaran: sumRakSub(rak, keg, sub),
 			}
 		}
 		a = aggs[key]
 	case "pekerjaan":
-		if t.Kegiatan == "" || t.SubKegiatan == "" || t.Pekerjaan == "" {
+		if keg == "" || sub == "" || pk == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{
-			portalID: mod.ID, kegiatan: t.Kegiatan, sub: t.SubKegiatan,
-			kode: t.KodeRekening, pekerjaan: t.Pekerjaan,
-		})
+		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg, sub: sub, kode: kode, pekerjaan: pk})
 		if aggs[key] == nil {
 			aggs[key] = &rekapAgg{
 				portalID: mod.ID, portalLabel: label,
-				kegiatan: t.Kegiatan, sub: t.SubKegiatan,
-				kode: t.KodeRekening, pekerjaan: t.Pekerjaan,
+				kegiatan: keg, sub: sub, kode: kode, pekerjaan: pk,
+				anggaran: anggaranPekerjaanForSnapshot(rak, keg, sub, kode, pk),
 			}
 		}
 		a = aggs[key]
 	default:
-		if t.Kegiatan == "" {
+		if keg == "" {
 			return
 		}
-		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: t.Kegiatan})
+		key := rekapAggKey(mode, &rekapAgg{portalID: mod.ID, kegiatan: keg})
 		if aggs[key] == nil {
-			aggs[key] = &rekapAgg{portalID: mod.ID, portalLabel: label, kegiatan: t.Kegiatan}
+			aggs[key] = &rekapAgg{
+				portalID: mod.ID, portalLabel: label, kegiatan: keg,
+				anggaran: anggaranKegiatanForSnapshot(rak, anggaranKeg, keg, 0),
+			}
 		}
 		a = aggs[key]
 	}
@@ -301,28 +304,20 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 	a.count++
 }
 
-func finalizeRekapAnggaran(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg) {
+func finalizeRekapAnggaran(mod *SipkeuModule, mode string, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
 	for _, a := range aggs {
 		if a.portalID != mod.ID {
 			continue
 		}
 		switch mode {
 		case "kegiatan":
-			if a.anggaran <= 0 {
-				a.anggaran = anggaranKegiatanFor(mod, a.kegiatan, a.realisasi)
-			}
+			a.anggaran = anggaranKegiatanForSnapshot(rak, anggaranKeg, a.kegiatan, a.realisasi)
 		case "sub":
-			if a.anggaran <= 0 {
-				a.anggaran = anggaranSubFor(mod, a.kegiatan, a.sub)
-			}
+			a.anggaran = anggaranSubForSnapshot(rak, a.kegiatan, a.sub)
 		case "pekerjaan":
-			if a.anggaran <= 0 {
-				a.anggaran = anggaranPekerjaanFor(mod, a.kegiatan, a.sub, a.kode, a.pekerjaan)
-			}
+			a.anggaran = anggaranPekerjaanForSnapshot(rak, a.kegiatan, a.sub, a.kode, a.pekerjaan)
 		case "portal":
-			if a.anggaran <= 0 {
-				a.anggaran = portalTotalAnggaran(mod)
-			}
+			a.anggaran = portalTotalAnggaranSnapshot(rak, anggaranKeg)
 		}
 	}
 }
@@ -332,6 +327,7 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 	if mode == "" {
 		mode = "kegiatan"
 	}
+	hasPeriod := from != "" || to != ""
 	aggs := map[string]*rekapAgg{}
 
 	for _, portalID := range portals {
@@ -339,17 +335,22 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 		if mod == nil {
 			continue
 		}
-		seedRekapFromRak(mod, mode, aggs)
+		rak, anggaranKeg := moduleSettingsSnapshot(mod)
+		seedRekapFromRak(mod, mode, aggs, rak, anggaranKeg)
 		txs := moduleTransactionsCopy(mod)
 		for i := range txs {
-			applyRekapTransaction(mod, mode, from, to, txs[i], aggs)
+			applyRekapTransaction(mod, mode, from, to, txs[i], aggs, rak, anggaranKeg)
 		}
-		finalizeRekapAnggaran(mod, mode, aggs)
+		finalizeRekapAnggaran(mod, mode, aggs, rak, anggaranKeg)
 	}
 
 	rows := make([]adminRekapRow, 0, len(aggs))
 	for _, a := range aggs {
-		if a.count == 0 && a.anggaran <= 0 && mode != "portal" {
+		if a.count == 0 && a.anggaran <= 0 {
+			continue
+		}
+		// Saat filter periode aktif: tampilkan baris dengan realisasi di periode ATAU pagu > 0 yang punya transaksi historis di portal
+		if hasPeriod && mode != "portal" && a.count == 0 {
 			continue
 		}
 		sisa := a.anggaran - a.realisasi
@@ -373,12 +374,37 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 		if rows[i].PortalID != rows[j].PortalID {
 			return rows[i].PortalID < rows[j].PortalID
 		}
-		if rows[i].Anggaran != rows[j].Anggaran {
-			return rows[i].Anggaran > rows[j].Anggaran
+		if (rows[i].Realisasi > 0) != (rows[j].Realisasi > 0) {
+			return rows[i].Realisasi > 0
 		}
-		return rows[i].Realisasi > rows[j].Realisasi
+		if rows[i].Realisasi != rows[j].Realisasi {
+			return rows[i].Realisasi > rows[j].Realisasi
+		}
+		return rows[i].Anggaran > rows[j].Anggaran
 	})
 	return rows
+}
+
+func adminRekapSummary(rows []adminRekapRow) map[string]interface{} {
+	var totAng, totReal, totPajak float64
+	var totTrx int
+	for _, row := range rows {
+		totReal += row.Realisasi
+		totPajak += row.Pajak
+		totTrx += row.Count
+		// Pagu dijumlahkan hanya untuk baris yang punya realisasi di periode — hindari double-count pagu kosong
+		if row.Count > 0 || row.Realisasi > 0 {
+			totAng += row.Anggaran
+		}
+	}
+	return map[string]interface{}{
+		"anggaran":  totAng,
+		"realisasi": totReal,
+		"sisa":      totAng - totReal,
+		"pajak":     totPajak,
+		"count":     totTrx,
+		"pct":       rekapPct(totReal, totAng),
+	}
 }
 
 func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
@@ -400,15 +426,6 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 	portals := parseAdminRekapPortals(r.URL.Query().Get("portals"))
 	rows := buildAdminRekap(portals, mode, from, to)
 
-	var totAng, totReal, totPajak float64
-	var totTrx int
-	for _, row := range rows {
-		totAng += row.Anggaran
-		totReal += row.Realisasi
-		totPajak += row.Pajak
-		totTrx += row.Count
-	}
-
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"mode":         mode,
 		"from":         from,
@@ -416,14 +433,7 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 		"portals":      portals,
 		"rows":         rows,
 		"generated_at": time.Now().Format(time.RFC3339),
-		"summary": map[string]interface{}{
-			"anggaran":  totAng,
-			"realisasi": totReal,
-			"sisa":      totAng - totReal,
-			"pajak":     totPajak,
-			"count":     totTrx,
-			"pct":       rekapPct(totReal, totAng),
-		},
+		"summary":      adminRekapSummary(rows),
 		"labels": map[string]string{
 			"mode": fmt.Sprintf("Rekapitulasi %s", map[string]string{
 				"kegiatan": "Per Kegiatan", "sub": "Per Sub Kegiatan",
