@@ -868,7 +868,7 @@
       body.np2d-printing #np2d-print .kw-wrap {
         box-shadow: none !important; border: none !important;
         font-family: Arial, sans-serif !important;
-        padding: 6mm 10mm 5mm !important;
+        padding: 5mm 6mm 4mm !important;
       }
       body.np2d-printing #np2d-print .kw-wrap * { font-family: Arial, sans-serif !important; }
       body.np2d-printing .kw-kop {
@@ -923,9 +923,34 @@
         display: block !important; position: fixed; top: 0; left: 0;
         width: 100%; z-index: 99999; background: #fff; color: #000;
       }
+      body.register-printing,
+      html:has(body.register-printing) {
+        height: auto !important; max-height: none !important; overflow: visible !important;
+      }
+      body.register-printing * { visibility: hidden; }
+      body.register-printing #register-print,
+      body.register-printing #register-print * { visibility: visible; }
+      body.register-printing #register-print {
+        display: block !important; position: relative !important;
+        width: 100% !important; margin: 0 !important; padding: 0 !important;
+        z-index: 99999; background: #fff; color: #000;
+        overflow: visible !important;
+      }
+      body.register-printing #register-print .rg-page {
+        page-break-after: always; break-after: page;
+        width: 297mm !important; min-height: 210mm !important;
+        margin: 0 auto !important; padding: 5mm 8mm !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        max-height: none !important;
+      }
+      body.register-printing #register-print .rg-page:last-child {
+        page-break-after: auto; break-after: auto;
+      }
     }
     #kwitansi-print, #rekap-print, #register-print { display: none; }
     #np2d-print { display: none; }
+    #np2d-print .kw-wrap { padding: 5mm 6mm 4mm; }
     .np-wrap { color: #000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.45; }
     .np-title { text-align: center; font-weight: 800; font-size: 13px; text-transform: uppercase; margin: 8px 0 6px; line-height: 1.35; }
     .np-nomor { text-align: center; font-size: 11px; margin: 0 0 18px; padding-bottom: 2px; }
@@ -1710,7 +1735,25 @@
       font-size: 12px; font-weight: 700; color: var(--naruto); display: flex; align-items: center; gap: 4px;
     }
     .portal-app-card.portal-soon .portal-app-action { color: var(--text-muted); }
-    .portal-footer { text-align: center; font-size: 11px; color: var(--text-muted); }
+    .portal-footer { text-align: center; font-size: 11px; }
+    .fire-glow-text {
+      font-weight: 700;
+      animation: fire-text-flicker 2.2s ease-in-out infinite;
+    }
+    @keyframes fire-text-flicker {
+      0%, 100% {
+        color: #ffd089;
+        text-shadow: 0 0 4px #ff6a00, 0 0 10px #ff4500, 0 0 18px #ff8c00;
+      }
+      33% {
+        color: #fff0c8;
+        text-shadow: 0 0 6px #ff9500, 0 0 14px #ff5500, 0 0 22px #ffb000;
+      }
+      66% {
+        color: #ffaa55;
+        text-shadow: 0 0 5px #ff7700, 0 0 12px #ff3300, 0 0 20px #ff9900;
+      }
+    }
     .login-app-label {
       display: inline-block; margin-bottom: 8px; padding: 3px 10px; border-radius: 8px;
       font-size: 11px; font-weight: 700; background: rgba(255,107,0,.12); color: var(--naruto);
@@ -1904,7 +1947,48 @@
       background: rgba(248,113,113,.2); color: #fff; border-color: rgba(248,113,113,.4);
     }
     .kas-sidebar-footer .kas-dev-credit {
-      margin-top: 10px; text-align: center; font-size: 10px; color: #64748b;
+      margin-top: 10px; text-align: center; font-size: 10px;
+    }
+    #trx-list-section .table tbody tr.trx-row-hoverable { cursor: default; transition: background .2s ease; }
+    #trx-list-section .table tbody tr.trx-row-hoverable:hover {
+      background: rgba(255, 100, 0, .1) !important;
+    }
+    #trx-list-section .table tbody tr.trx-row-hoverable:hover td {
+      animation: fire-text-flicker 1.6s ease-in-out infinite;
+      color: #ffd89a !important;
+    }
+    #trx-list-section .table tbody tr.trx-row-hoverable:hover .badge,
+    #trx-list-section .table tbody tr.trx-row-hoverable:hover .badge-rupiah,
+    #trx-list-section .table tbody tr.trx-row-hoverable:hover .badge-pajak {
+      filter: brightness(1.12);
+      box-shadow: 0 0 8px rgba(255, 120, 0, .35);
+    }
+    @media screen {
+      body.kwitansi-printing #kwitansi-print,
+      body.np2d-printing #np2d-print,
+      body.register-printing #register-print {
+        display: flex !important;
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 16px 0 !important;
+        z-index: 2147483646 !important;
+        background: #eceff1 !important;
+        overflow: auto !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+      }
+      body.kwitansi-printing #kwitansi-print .kw-a4-sheet,
+      body.np2d-printing #np2d-print .kw-a4-sheet {
+        box-shadow: 0 4px 28px rgba(0,0,0,.22);
+        flex-shrink: 0;
+      }
+      body.register-printing #register-print .rg-page {
+        box-shadow: 0 4px 28px rgba(0,0,0,.22);
+        margin-bottom: 16px !important;
+      }
     }
     #kas-main {
       margin-left: var(--kas-sidebar-width); min-height: 100vh;
@@ -2563,7 +2647,7 @@
     }
     .kw-scale-box {
       width: 210mm; height: 297mm; overflow: hidden;
-      display: flex; justify-content: center; align-items: flex-start;
+      display: flex; justify-content: flex-start; align-items: flex-start;
     }
     .kw-wrap {
       font-family: Arial, sans-serif !important;
@@ -2826,7 +2910,7 @@
       </div>
     </div>
 
-    <div class="portal-footer">Developer by Mangatas Surbakti</div>
+    <div class="portal-footer fire-glow-text">Developer by Shinta Widyastati</div>
   </div>
 </div>
 
@@ -3044,7 +3128,7 @@ function onNilaiBrutoInput() {
     <div style="color:var(--naruto);font-weight:600;margin-bottom:3px">TA 2026 — Dinas Pendidikan</div>
     <div id="sidebar-user-role" style="font-size:11px;margin-bottom:6px">—</div>
     <button type="button" class="btn-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left me-1"></i>Logout</button>
-    <div class="mt-2">Developer by Mangatas Surbakti</div>
+    <div class="mt-2 fire-glow-text">Developer by Shinta Widyastati</div>
   </div>
 </div>
 
@@ -3371,7 +3455,7 @@ function onNilaiBrutoInput() {
       </div>
       <div class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke kiri/kanan untuk melihat semua kolom</div>
       <div class="table-wrapper">
-        <table class="table table-hover">
+        <table class="table table-hover trx-table-fire">
           <thead>
             <tr>
               <th class="text-center" style="width:34px"><input type="checkbox" id="trx-check-all" class="form-check-input" title="Pilih semua" onchange="toggleSelectAllTrx(this.checked)" /></th>
@@ -3631,7 +3715,7 @@ function onNilaiBrutoInput() {
         </div>
       </div>
       <button type="button" class="btn-kas-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Keluar Aplikasi</button>
-      <div class="kas-dev-credit">Developer by Mangatas Surbakti</div>
+      <div class="kas-dev-credit fire-glow-text">Developer by Shinta Widyastati</div>
     </div>
   </div>
 
@@ -5284,7 +5368,7 @@ function renderTable() {
   const pageData = data.slice(start, start + trxPageSize);
   tbody.innerHTML = pageData.map((t, i) => {
     const checked = selectedTrxIds.has(t.id) ? 'checked' : '';
-    return `<tr${checked ? ' class="table-active"' : ''}>
+    return `<tr class="trx-row-hoverable${checked ? ' table-active' : ''}">
       <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
       <td class="table-num">${start + i + 1}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
@@ -5734,7 +5818,7 @@ function fitNp2dSheet(sheet) {
   let scale = Math.min(1, maxH / contentH, maxW / contentW);
   scale = Math.max(minScale, Math.floor(scale * 1000) / 1000);
   scaleBox.style.height = contentH + 'px';
-  scaleBox.style.transformOrigin = 'top center';
+  scaleBox.style.transformOrigin = 'top left';
   if (scale < 0.999) {
     scaleBox.style.transform = 'scale(' + scale + ')';
   }
@@ -5878,6 +5962,61 @@ function cropCanvasToA4(source) {
   return out;
 }
 
+function getCanvasContentBounds(canvas, step) {
+  step = step || 4;
+  const ctx = canvas.getContext('2d');
+  const { width, height } = canvas;
+  const data = ctx.getImageData(0, 0, width, height).data;
+  let minX = width, minY = height, maxX = 0, maxY = 0;
+  let found = false;
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      const i = (y * width + x) * 4;
+      const a = data[i + 3];
+      if (a < 8) continue;
+      if (data[i] < 248 || data[i + 1] < 248 || data[i + 2] < 248) {
+        found = true;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+  if (!found) return null;
+  return { minX, minY, maxX, maxY };
+}
+
+function normalizeCanvasForPdf(canvas, padPx) {
+  padPx = padPx == null ? 10 : padPx;
+  const bounds = getCanvasContentBounds(canvas);
+  if (!bounds) return canvas;
+  const minX = Math.max(0, bounds.minX - padPx);
+  const minY = Math.max(0, bounds.minY - padPx);
+  const maxX = Math.min(canvas.width - 1, bounds.maxX + padPx);
+  const maxY = Math.min(canvas.height - 1, bounds.maxY + padPx);
+  const cropW = maxX - minX + 1;
+  const cropH = maxY - minY + 1;
+  const out = document.createElement('canvas');
+  out.width = cropW;
+  out.height = cropH;
+  out.getContext('2d').drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+  return cropCanvasToA4(out);
+}
+
+function openPrintPreview(printClass, prepareFn) {
+  if (typeof prepareFn === 'function') prepareFn();
+  document.body.classList.add(printClass);
+  const cleanup = () => document.body.classList.remove(printClass);
+  window.addEventListener('afterprint', cleanup, { once: true });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.print();
+      setTimeout(cleanup, 1500);
+    });
+  });
+}
+
 function dataUrlToBytes(dataUrl) {
   const b64 = dataUrl.split(',')[1];
   const bin = atob(b64);
@@ -5957,12 +6096,8 @@ async function doSimpanDanCetak() {
 
 function doCetak() {
   fitKwitansiSheet(getKwitansiPrintElement());
-  document.body.classList.add('kwitansi-printing');
-  bootstrap.Modal.getInstance(document.getElementById('modalKwitansi')).hide();
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => document.body.classList.remove('kwitansi-printing'), 600);
-  }, 350);
+  bootstrap.Modal.getInstance(document.getElementById('modalKwitansi'))?.hide();
+  openPrintPreview('kwitansi-printing', () => fitKwitansiSheet(getKwitansiPrintElement()));
 }
 
 // ── NP2D (Nota Permintaan Pemindahbukuan Dana) ───────────────────────────
@@ -6091,13 +6226,52 @@ async function renderNp2dCanvas() {
         doc.querySelectorAll('.np-wrap, .np-wrap *').forEach(node => {
           node.style.setProperty('font-family', 'Arial, sans-serif', 'important');
         });
+        doc.querySelectorAll('.kw-scale-box').forEach(el => {
+          el.style.setProperty('transform-origin', 'top left', 'important');
+          el.style.setProperty('justify-content', 'flex-start', 'important');
+        });
+        doc.querySelectorAll('#np2d-print .kw-wrap, .np-wrap').forEach(el => {
+          el.style.setProperty('padding', '5mm 6mm 4mm', 'important');
+        });
       },
     });
     if (!raw || !raw.width) throw new Error('Render NP2D gagal (canvas kosong).');
-    return cropCanvasToA4(raw);
+    return normalizeCanvasForPdf(raw, 8);
   } finally {
     clearKwitansiCaptureNode();
   }
+}
+
+async function saveNp2dPdfFromCanvas(canvas, filename) {
+  const pageW = 595.28;
+  const pageH = 841.89;
+  const marginX = 8;
+  const marginY = 6;
+  const availW = pageW - marginX * 2;
+  const availH = pageH - marginY * 2;
+  const scale = Math.min(availW / canvas.width, availH / canvas.height);
+  const drawW = canvas.width * scale;
+  const drawH = canvas.height * scale;
+  const x = marginX + (availW - drawW) / 2;
+  const y = pageH - marginY - drawH;
+
+  if (window.PDFLib?.PDFDocument) {
+    try {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const page = pdfDoc.addPage([pageW, pageH]);
+      let img;
+      try { img = await pdfDoc.embedJpg(dataUrlToBytes(canvas.toDataURL('image/jpeg', 0.92))); }
+      catch { img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png'))); }
+      page.drawImage(img, { x, y, width: drawW, height: drawH });
+      downloadPdfBlob(await pdfDoc.save(), filename);
+      return;
+    } catch (e) { console.warn('PDFLib NP2D gagal, fallback jsPDF:', e); }
+  }
+  const JsPDF = window.jspdf?.jsPDF;
+  if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+  const pdf = new JsPDF({ orientation: 'p', unit: 'pt', format: 'a4', compress: true });
+  pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, y, drawW, drawH);
+  pdf.save(filename);
 }
 
 async function savePdfFromCanvasGeneric(canvas, filename) {
@@ -6133,7 +6307,7 @@ async function doSimpanNP2D() {
   if (btn2) btn2.disabled = true;
   try {
     const canvas = await renderNp2dCanvas();
-    await savePdfFromCanvasGeneric(canvas, (np2dFilenameBase || 'NP2D_SIPKEU').slice(0, 100) + '.pdf');
+    await saveNp2dPdfFromCanvas(canvas, (np2dFilenameBase || 'NP2D_SIPKEU').slice(0, 100) + '.pdf');
   } catch (err) {
     console.error('Simpan NP2D gagal:', err);
     alert('Gagal menyimpan NP2D PDF: ' + (err.message || err));
@@ -6145,12 +6319,8 @@ async function doSimpanNP2D() {
 
 function doCetakNP2D() {
   fitNp2dSheet(getNp2dPrintElement());
-  document.body.classList.add('np2d-printing');
   bootstrap.Modal.getInstance(document.getElementById('modalNP2D'))?.hide();
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => document.body.classList.remove('np2d-printing'), 600);
-  }, 350);
+  openPrintPreview('np2d-printing', () => fitNp2dSheet(getNp2dPrintElement()));
 }
 
 async function doSimpanDanCetakNP2D() {
@@ -7156,12 +7326,10 @@ function cetakRegisterPDF() {
   if (!styleEl) {
     styleEl = document.createElement('style');
     styleEl.id = 'register-print-page-style';
-    styleEl.textContent = '@media print { @page { size: A4 landscape; margin: 8mm; } }';
+    styleEl.textContent = '@media print { @page { size: A4 landscape; margin: 5mm; } }';
     document.head.appendChild(styleEl);
   }
-  document.body.classList.add('register-printing');
-  window.print();
-  setTimeout(() => document.body.classList.remove('register-printing'), 600);
+  openPrintPreview('register-printing', fillRegisterPrint);
 }
 
 // ── Rekap ────────────────────────────────────────────────────────────────
