@@ -75,13 +75,40 @@ func defaultPortalAuth() PortalAuthConfig {
 	}
 }
 
+func clearOperatorAuth(cfg *PortalAuthConfig) {
+	cfg.OperatorUsername = ""
+	cfg.OperatorPassword = ""
+	cfg.OperatorName = ""
+}
+
+func sanitizeKasBelanjaSettings(s *SystemSettings) {
+	if s == nil {
+		return
+	}
+	if s.OperatorPerms != nil {
+		delete(s.OperatorPerms, "kas-belanja")
+	}
+	if s.Portals != nil {
+		if cfg, ok := s.Portals["kas-belanja"]; ok {
+			clearOperatorAuth(&cfg)
+			s.Portals["kas-belanja"] = cfg
+		}
+	}
+}
+
 func defaultSystemSettings() SystemSettings {
 	portals := map[string]PortalAuthConfig{}
 	perms := map[string]OperatorPermissionSet{}
 	auth := defaultPortalAuth()
 	for _, id := range sipkeuPortalIDs {
-		portals[id] = auth
-		perms[id] = defaultOperatorPerms()
+		p := auth
+		if id == "kas-belanja" {
+			clearOperatorAuth(&p)
+		}
+		portals[id] = p
+		if id != "kas-belanja" {
+			perms[id] = defaultOperatorPerms()
+		}
 	}
 	return SystemSettings{
 		SettingsPortalUsername: "199010132019031001",
@@ -136,10 +163,13 @@ func mergeSystemSettings(s *SystemSettings) {
 		if _, ok := s.Portals[id]; !ok {
 			s.Portals[id] = def.Portals[id]
 		}
-		if _, ok := s.OperatorPerms[id]; !ok {
-			s.OperatorPerms[id] = def.OperatorPerms[id]
+		if id != "kas-belanja" {
+			if _, ok := s.OperatorPerms[id]; !ok {
+				s.OperatorPerms[id] = def.OperatorPerms[id]
+			}
 		}
 	}
+	sanitizeKasBelanjaSettings(s)
 }
 
 func persistSystemSettings() {
@@ -190,7 +220,8 @@ func authenticatePortalUser(username, password, appModule string) (UserAccount, 
 			Name:     firstNonEmpty(cfg.AdminName, "Administrator"),
 		}, true
 	}
-	if username == strings.ToLower(strings.TrimSpace(cfg.OperatorUsername)) &&
+	if appModule != "kas-belanja" &&
+		username == strings.ToLower(strings.TrimSpace(cfg.OperatorUsername)) &&
 		passwordMatches(cfg.OperatorPassword, password) {
 		return UserAccount{
 			Password: cfg.OperatorPassword,
@@ -306,14 +337,21 @@ func requireSettingsAdmin(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func maskPortalAuth(cfg PortalAuthConfig) map[string]interface{} {
-	return map[string]interface{}{
-		"admin_username":    cfg.AdminUsername,
-		"admin_password":    passwordMask,
-		"admin_name":        cfg.AdminName,
-		"operator_username": cfg.OperatorUsername,
-		"operator_password": passwordMask,
-		"operator_name":     cfg.OperatorName,
+	out := map[string]interface{}{
+		"admin_username": cfg.AdminUsername,
+		"admin_password": passwordMask,
+		"admin_name":     cfg.AdminName,
 	}
+	if strings.TrimSpace(cfg.OperatorUsername) != "" {
+		out["operator_username"] = cfg.OperatorUsername
+		out["operator_password"] = passwordMask
+		out["operator_name"] = cfg.OperatorName
+	} else {
+		out["operator_username"] = ""
+		out["operator_password"] = ""
+		out["operator_name"] = ""
+	}
+	return out
 }
 
 func systemSettingsPublicResponse() map[string]interface{} {
@@ -383,12 +421,16 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 				if strings.TrimSpace(p.AdminName) != "" {
 					existing.AdminName = strings.TrimSpace(p.AdminName)
 				}
-				if strings.TrimSpace(p.OperatorUsername) != "" {
-					existing.OperatorUsername = strings.TrimSpace(p.OperatorUsername)
-				}
-				existing.OperatorPassword = applyPasswordIfProvided(existing.OperatorPassword, p.OperatorPassword)
-				if strings.TrimSpace(p.OperatorName) != "" {
-					existing.OperatorName = strings.TrimSpace(p.OperatorName)
+				if id == "kas-belanja" {
+					clearOperatorAuth(&existing)
+				} else {
+					if strings.TrimSpace(p.OperatorUsername) != "" {
+						existing.OperatorUsername = strings.TrimSpace(p.OperatorUsername)
+					}
+					existing.OperatorPassword = applyPasswordIfProvided(existing.OperatorPassword, p.OperatorPassword)
+					if strings.TrimSpace(p.OperatorName) != "" {
+						existing.OperatorName = strings.TrimSpace(p.OperatorName)
+					}
 				}
 				cur.Portals[id] = existing
 			}
@@ -396,11 +438,13 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 
 		if incoming.OperatorPerms != nil {
 			for id, p := range incoming.OperatorPerms {
-				if containsPortalID(id) {
+				if containsPortalID(id) && id != "kas-belanja" {
 					cur.OperatorPerms[id] = p
 				}
 			}
 		}
+
+		sanitizeKasBelanjaSettings(&cur)
 
 		systemSettings = cur
 		systemSettingsMu.Unlock()
