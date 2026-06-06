@@ -9,7 +9,9 @@ func TestKegiatanOwnerPortal(t *testing.T) {
 	}{
 		{"Administrasi Keuangan Perangkat Daerah", "sekretariat"},
 		{"Administrasi Umum Perangkat Daerah", "sekretariat"},
+		{"Pemerataan Kuantitas dan Kualitas Pendidik dan Tenaga Kependidikan bagi Satuan Pendidikan Dasar, PAUD, dan Pendidikan Nonformal/Kesetaraan", "sekretariat"},
 		{"Pengelolaan Pendidikan Anak Usia Dini (PAUD)", "paud"},
+		{"Pengelolaan Pendidikan Nonformal/Kesetaraan", "paud"},
 		{"Pengelolaan Pendidikan Sekolah Dasar", "sd"},
 		{"Pengelolaan Pendidikan Sekolah Menengah Pertama", "smp"},
 	}

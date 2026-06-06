@@ -10,11 +10,17 @@ func kegiatanOwnerPortal(kegiatan string) string {
 		return ""
 	}
 
-	// PAUD — cek dulu (lebih spesifik dari kata "pendidikan" umum)
-	if strings.Contains(k, "paud") ||
-		strings.Contains(k, "anak usia dini") ||
-		strings.Contains(k, "nonformal") ||
-		strings.Contains(k, "kesetaraan") {
+	// Sekretariat — kegiatan lintas jenjang / SDM (judul bisa menyebut PAUD tanpa berarti milik portal PAUD)
+	if strings.Contains(k, "pemerataan") &&
+		(strings.Contains(k, "pendidik") || strings.Contains(k, "tenaga kependidikan")) {
+		return "sekretariat"
+	}
+
+	// PAUD — kegiatan operasional PAUD/Nonformal (bukan sekadar kata PAUD di judul panjang)
+	if strings.Contains(k, "pengelolaan pendidikan anak usia dini") ||
+		strings.Contains(k, "pengelolaan pendidikan nonformal") ||
+		strings.Contains(k, "penetapan kurikulum muatan lokal pendidikan anak usia dini") ||
+		strings.Contains(k, "penerbitan izin paud") {
 		return "paud"
 	}
 

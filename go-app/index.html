@@ -579,6 +579,27 @@
       background: radial-gradient(circle, #f97316 0%, #a855f7 45%, transparent 70%);
       animation: dsEmberSpark .5s ease-out infinite;
     }
+    .op-race-runner.is-naruto .op-race-dust {
+      width: 24px; height: 24px; left: -10px !important; bottom: 6px;
+      background: radial-gradient(circle, #fff 0%, #bfdbfe 18%, #3b82f6 38%, #ff6b00 58%, transparent 72%);
+      box-shadow: 0 0 18px rgba(255,107,0,.75), 0 0 28px rgba(59,130,246,.55);
+      animation: rasenganTrail .35s linear infinite;
+    }
+    .op-race-runner.is-sasuke .op-race-dust {
+      width: 22px; height: 22px; left: -8px !important; bottom: 4px;
+      background: radial-gradient(circle, #fff 0%, #c4b5fd 30%, #6366f1 55%, transparent 72%);
+      box-shadow: 0 0 16px rgba(99,102,241,.85), 0 0 24px rgba(167,139,250,.6);
+      animation: chidoriTrail .22s ease-in-out infinite;
+    }
+    @keyframes rasenganTrail {
+      0% { transform: scale(0.85) rotate(0deg); opacity: 0.75; }
+      50% { transform: scale(1.15) rotate(180deg); opacity: 1; }
+      100% { transform: scale(0.85) rotate(360deg); opacity: 0.75; }
+    }
+    @keyframes chidoriTrail {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; filter: brightness(1); }
+      50% { transform: scale(1.2); opacity: 1; filter: brightness(1.35); }
+    }
     .op-race-empty {
       text-align: center; padding: 32px; color: #e9d5ff; font-size: 14px;
       text-shadow: 0 1px 4px rgba(0,0,0,.45);
@@ -4643,10 +4664,10 @@ function onNilaiBrutoInput() {
           <div class="op-race-panel sao-rekap-pptk-race">
             <div class="op-race-head">
               <div>
-                <h6><i class="bi bi-person-walking me-1"></i> Lintasan PPTK — Pagu vs Realisasi (Semua Portal)</h6>
-                <small>Satu pelari per PPTK · gabungan Sekretariat, PAUD, SD, SMP</small>
+                <h6><i class="bi bi-fire me-1"></i> Hashira Trail — Belanja PPTK (Semua Portal)</h6>
+                <small>Naruto &amp; Sasuke memimpin lintasan · Rasengan vs Chidori · gabungan Sekretariat, PAUD, SD, SMP</small>
               </div>
-              <span class="op-race-badge">⚔ SAO Command Center</span>
+              <span class="op-race-badge">🍥 RASENGAN · ⚡ CHIDORI</span>
             </div>
             <div class="op-race-tracks" id="sao-rekap-pptk-race"></div>
             <div class="op-race-legend" id="sao-rekap-pptk-legend"></div>
@@ -7363,10 +7384,11 @@ function getAdminRekapRunnerSet() {
   const push = (list, base, ver) => {
     (list || []).forEach(c => chars.push({ label: c.label, file: c.file, base, ver }));
   };
+  // Naruto/Sasuke di depan agar selalu tampil di lintasan rekap Command Center
+  if (typeof NARUTO_SMP_RUNNER_CHARACTERS !== 'undefined') push(NARUTO_SMP_RUNNER_CHARACTERS, '/assets/naruto-smp-runners/', NARUTO_SMP_RUNNER_ASSET_VER || '3');
   if (typeof OP_RUNNER_CHARACTERS !== 'undefined') push(OP_RUNNER_CHARACTERS, '/assets/op-runners/', OP_RUNNER_ASSET_VER || '6');
   if (typeof FROZEN_RUNNER_CHARACTERS !== 'undefined') push(FROZEN_RUNNER_CHARACTERS, '/assets/frozen-runners/', FROZEN_RUNNER_ASSET_VER || '3');
   if (typeof DORAEMON_RUNNER_CHARACTERS !== 'undefined') push(DORAEMON_RUNNER_CHARACTERS, '/assets/doraemon-runners/', DORAEMON_RUNNER_ASSET_VER || '3');
-  if (typeof NARUTO_SMP_RUNNER_CHARACTERS !== 'undefined') push(NARUTO_SMP_RUNNER_CHARACTERS, '/assets/naruto-smp-runners/', NARUTO_SMP_RUNNER_ASSET_VER || '3');
   push([
     { label: 'Kirito', file: 'avatar-kirito.svg' },
     { label: 'Asuna', file: 'avatar-asuna.svg' },
@@ -7384,7 +7406,7 @@ function adminRekapRunnerImg(charMeta) {
   return `<img class="op-runner-img" src="${charMeta.base}${charMeta.file}?v=${charMeta.ver}" alt="${escHtml(charMeta.label)}" draggable="false" />`;
 }
 
-function buildAdminRekapRunnerAssignments(pptkNames) {
+function buildAdminRekapRunnerAssignments(pptkNames, sortedByRealisasi) {
   const names = [...new Set(pptkNames.filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'id', { sensitivity: 'base' })
   );
@@ -7392,7 +7414,19 @@ function buildAdminRekapRunnerAssignments(pptkNames) {
   const n = chars.length;
   const taken = new Set();
   const map = new Map();
+  const narutoIdx = chars.findIndex(c => c.label === 'Naruto');
+  const sasukeIdx = chars.findIndex(c => c.label === 'Sasuke');
+  const priority = (sortedByRealisasi || []).map(p => p.pptk).filter(Boolean);
+  if (priority[0] && narutoIdx >= 0) {
+    map.set(priority[0], narutoIdx);
+    taken.add(narutoIdx);
+  }
+  if (priority[1] && sasukeIdx >= 0 && priority[1] !== priority[0]) {
+    map.set(priority[1], sasukeIdx);
+    taken.add(sasukeIdx);
+  }
   for (const name of names) {
+    if (map.has(name)) continue;
     let idx = pptkRunnerHash(name) % n;
     let attempts = 0;
     while (taken.has(idx) && attempts < n) {
@@ -7407,6 +7441,13 @@ function buildAdminRekapRunnerAssignments(pptkNames) {
     }
   }
   return map;
+}
+
+function adminRekapRunnerClass(charMeta) {
+  if (!charMeta) return '';
+  if (charMeta.label === 'Naruto') return ' is-naruto';
+  if (charMeta.label === 'Sasuke') return ' is-sasuke';
+  return '';
 }
 
 function renderAdminRekapPptkRace() {
@@ -7432,11 +7473,14 @@ function renderAdminRekapPptkRace() {
     return;
   }
 
-  const assignmentMap = buildAdminRekapRunnerAssignments(sorted.map(p => p.pptk));
+  const assignmentMap = buildAdminRekapRunnerAssignments(sorted.map(p => p.pptk), sorted);
   const ownerByChar = new Map();
   assignmentMap.forEach((idx, pptk) => {
     if (idx >= 0) ownerByChar.set(idx, pptk);
   });
+  const narutoBlockLen = typeof NARUTO_SMP_RUNNER_CHARACTERS !== 'undefined'
+    ? NARUTO_SMP_RUNNER_CHARACTERS.length
+    : 8;
 
   wrap.innerHTML = sorted.map((p, i) => {
     const pct = p.pagu > 0
@@ -7464,7 +7508,7 @@ function renderAdminRekapPptkRace() {
         </div>
         <div class="op-race-track">
           <div class="op-race-fill"></div>
-          <div class="op-race-runner" tabindex="0" role="button" aria-label="Detail pagu ${escHtml(p.pptk)}">
+          <div class="op-race-runner${adminRekapRunnerClass(runnerMeta)}" tabindex="0" role="button" aria-label="Detail pagu ${escHtml(p.pptk)}">
             ${adminRekapRunnerImg(runnerMeta)}<span class="op-race-dust" style="left:-6px;animation-delay:${i * 0.08}s"></span>
           </div>
         </div>
@@ -7473,13 +7517,15 @@ function renderAdminRekapPptkRace() {
   }).join('');
 
   if (legend) {
-    legend.innerHTML = runnerChars.slice(0, 16).map((c, i) => {
+    const legendChars = runnerChars.slice(0, narutoBlockLen);
+    legend.innerHTML = legendChars.map((c, i) => {
       const owner = ownerByChar.get(i);
       const shortOwner = owner && owner.length > 18 ? owner.slice(0, 16) + '…' : owner;
       const cls = owner ? 'is-assigned' : 'is-free';
       const title = owner ? `Dipakai: ${escHtml(owner)}` : 'Belum dipakai';
-      return `<span class="${cls}" title="${title}"><img src="${c.base}${c.file}?v=${c.ver}" alt="${escHtml(c.label)}" style="width:26px;height:26px;object-fit:contain;vertical-align:middle" /> ${escHtml(c.label)}${owner ? ` · ${escHtml(shortOwner)}` : ''}</span>`;
-    }).join('') + `<span style="margin-left:auto;opacity:.85">${sorted.length} PPTK · arahkan kursor ke pelari untuk detail</span>`;
+      const fx = c.label === 'Naruto' ? ' 🍥' : c.label === 'Sasuke' ? ' ⚡' : '';
+      return `<span class="${cls}" title="${title}"><img src="${c.base}${c.file}?v=${c.ver}" alt="${escHtml(c.label)}" style="width:26px;height:26px;object-fit:contain;vertical-align:middle" /> ${escHtml(c.label)}${fx}${owner ? ` · ${escHtml(shortOwner)}` : ''}</span>`;
+    }).join('') + `<span style="margin-left:auto;opacity:.85">${sorted.length} PPTK · Naruto &amp; Sasuke = realisasi tertinggi · arahkan kursor ke pelari</span>`;
   }
 
   requestAnimationFrame(() => {
