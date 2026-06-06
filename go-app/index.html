@@ -1041,22 +1041,31 @@
     .np-wrap.np-density-2 .kw-kop img { max-height: 22mm; }
     .np-lembar { margin-top: 10px; font-size: 9.5px; color: #333; }
     #np2d-preview {
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      padding: 16px 20px 24px;
+      display: block;
       overflow: auto;
       min-height: 260px;
-      max-height: min(78vh, 920px);
+      max-height: min(82vh, 940px);
+      -webkit-overflow-scrolling: touch;
     }
     #np2d-preview .np2d-preview-frame {
       transform-origin: top center;
-      flex-shrink: 0;
       margin: 0 auto;
     }
     #np2d-preview .kw-a4-sheet {
       box-shadow: 0 2px 16px rgba(0,0,0,.15);
-      overflow: hidden;
+      overflow: visible;
+      height: auto;
+      max-height: none;
+    }
+    #np2d-preview .kw-scale-box {
+      overflow: visible;
+      height: auto;
+      max-height: none;
+      align-items: stretch;
+    }
+    #np2d-preview .kw-wrap.np-wrap {
+      padding-bottom: 8mm;
     }
 
     /* ── Rekap Print ── */
@@ -5987,6 +5996,7 @@ function fitNp2dSheet(sheet) {
   scaleBox.style.zoom = '1';
   scaleBox.style.transformOrigin = 'top center';
   scaleBox.style.justifyContent = 'center';
+  scaleBox.style.overflow = 'hidden';
   sheet.style.width = KW_A4_W_MM + 'mm';
   sheet.style.height = KW_A4_H_MM + 'mm';
   sheet.style.maxHeight = KW_A4_H_MM + 'mm';
@@ -5995,11 +6005,10 @@ function fitNp2dSheet(sheet) {
   scaleBox.style.width = KW_A4_W_MM + 'mm';
   scaleBox.style.height = KW_A4_H_MM + 'mm';
   scaleBox.style.maxHeight = KW_A4_H_MM + 'mm';
-  scaleBox.style.overflow = 'hidden';
   void wrap.offsetHeight;
   const maxH = mmToPx(KW_A4_H_MM);
   const maxW = mmToPx(KW_A4_W_MM);
-  const minScale = 0.32;
+  const minScale = 0.28;
   const contentH = wrap.scrollHeight;
   const contentW = wrap.scrollWidth;
   let scale = Math.min(1, maxH / contentH, maxW / contentW);
@@ -6012,30 +6021,50 @@ function fitNp2dSheet(sheet) {
   return scale;
 }
 
+function resetNp2dSheetForPreview(sheet) {
+  applyNp2dDensity(sheet);
+  const scaleBox = sheet.querySelector('.kw-scale-box');
+  const wrap = sheet.querySelector('.kw-wrap');
+  if (!scaleBox || !wrap) return;
+  wrap.style.transform = 'none';
+  wrap.style.zoom = '1';
+  scaleBox.style.transform = 'none';
+  scaleBox.style.zoom = '1';
+  scaleBox.style.transformOrigin = 'top center';
+  scaleBox.style.width = KW_A4_W_MM + 'mm';
+  scaleBox.style.height = 'auto';
+  scaleBox.style.maxHeight = 'none';
+  scaleBox.style.overflow = 'visible';
+  sheet.style.width = KW_A4_W_MM + 'mm';
+  sheet.style.height = 'auto';
+  sheet.style.minHeight = KW_A4_H_MM + 'mm';
+  sheet.style.maxHeight = 'none';
+  sheet.style.overflow = 'visible';
+  wrap.style.width = KW_A4_W_MM + 'mm';
+}
+
 function fitNp2dPreviewView() {
   const host = document.getElementById('np2d-preview');
   const frame = host?.querySelector('.np2d-preview-frame');
   const sheet = frame?.querySelector('.kw-a4-sheet');
   if (!host || !frame || !sheet) return;
-  fitNp2dSheet(sheet);
+  resetNp2dSheetForPreview(sheet);
   frame.style.transform = 'none';
   frame.style.width = '';
   frame.style.height = '';
-  void sheet.offsetWidth;
-  const rect = sheet.getBoundingClientRect();
-  const sheetW = rect.width || sheet.offsetWidth;
-  const sheetH = rect.height || sheet.offsetHeight;
-  if (!sheetW || !sheetH) return;
-  const availW = Math.max(280, host.clientWidth - 40);
-  const availH = Math.max(320, host.clientHeight - 24);
-  const viewScale = Math.min(1, availW / sheetW, availH / sheetH);
-  frame.style.width = sheetW + 'px';
+  void sheet.offsetHeight;
+  const naturalW = sheet.offsetWidth || mmToPx(KW_A4_W_MM);
+  const naturalH = sheet.scrollHeight || sheet.offsetHeight;
+  if (!naturalW || !naturalH) return;
+  const availW = Math.max(280, host.clientWidth - 48);
+  const viewScale = Math.min(1, availW / naturalW);
+  frame.style.width = naturalW + 'px';
   if (viewScale < 0.999) {
     frame.style.transform = 'scale(' + viewScale + ')';
     frame.style.transformOrigin = 'top center';
-    frame.style.height = Math.ceil(sheetH * viewScale) + 'px';
+    frame.style.height = Math.ceil(naturalH * viewScale) + 'px';
   } else {
-    frame.style.height = sheetH + 'px';
+    frame.style.height = naturalH + 'px';
   }
 }
 
@@ -6359,9 +6388,9 @@ function cetakNP2D(id) {
   np2dFilenameBase = `NP2D_${slug}_${penerimaSlug}`;
 
   const sheet = document.querySelector('#np2d-print .kw-a4-sheet');
-  fitNp2dSheet(sheet);
   document.getElementById('np2d-preview').innerHTML = `<div class="np2d-preview-frame">${sheet.outerHTML}</div>`;
   fitNp2dPreviewView();
+  fitNp2dSheet(sheet);
   const modalEl = document.getElementById('modalNP2D');
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
   modalEl.addEventListener('shown.bs.modal', fitNp2dPreviewView, { once: true });
