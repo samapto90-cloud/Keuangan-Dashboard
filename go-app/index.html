@@ -1112,8 +1112,25 @@
     .register-period-range .form-control { flex: 1 1 120px; min-width: 120px; }
     .register-period-sep { font-size: 11px; color: #94a3b8; white-space: nowrap; }
     .register-filter-bar label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .35px; margin-bottom: 4px; display: block; }
-    #register-preview-wrap { max-height: 520px; overflow: auto; }
-    #register-preview-wrap .rg-wrap { box-shadow: 0 2px 16px rgba(0,0,0,.12); margin: 16px; }
+    #register-preview-wrap {
+      max-height: min(72vh, 680px);
+      overflow: auto;
+      padding: 10px 6px;
+      background: linear-gradient(180deg, #e8edf2 0%, #dfe6ed 100%);
+    }
+    #register-preview-wrap .rg-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      padding: 10px 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.1);
+      box-sizing: border-box;
+    }
+    #register-preview-wrap .rg-table { font-size: 7.5px; }
+    #register-preview-wrap .rg-table th { font-size: 7px; padding: 2px 3px; }
+    #register-preview-wrap .rg-table td { padding: 2px 3px; }
+    #register-preview-wrap .rg-meta { font-size: 7.5px; }
+    #register-preview-wrap #reg-preview-filter { display: none; }
     #register-print { display: none; }
     #rg-capture-host {
       position: fixed; left: -14000px; top: 0; z-index: -9999;
@@ -4492,6 +4509,50 @@ function getPortalAppConfig() {
   return SIPKEU_PORTAL_PROFILE[selectedPortalApp] || SIPKEU_PORTAL_PROFILE.sekretariat;
 }
 
+function pejabatNameMatches(a, b) {
+  const na = (a || '').toUpperCase().replace(/\s+/g, ' ').trim();
+  const nb = (b || '').toUpperCase().replace(/\s+/g, ' ').trim();
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const tok = s => s.split(/[\s,.]+/).filter(t => t.length >= 4);
+  const ta = tok(na);
+  const tb = tok(nb);
+  return ta.some(x => tb.includes(x));
+}
+
+function pejabatBelongsToPortal(pejabat, portalKey, role) {
+  const nama = pejabat?.nama || '';
+  if (!nama) return false;
+  for (const [key, prof] of Object.entries(SIPKEU_PORTAL_PROFILE)) {
+    if (key === portalKey) continue;
+    const other = role === 'pa' ? prof.defaultPa : prof.defaultBendahara;
+    if (pejabatNameMatches(nama, other.nama)) return false;
+  }
+  return true;
+}
+
+function syncPortalPejabat() {
+  const cfg = getPortalAppConfig();
+  let pa = appSettings.pa?.nama ? { ...appSettings.pa } : { ...cfg.defaultPa };
+  let bend = appSettings.bendahara?.nama ? { ...appSettings.bendahara } : { ...cfg.defaultBendahara };
+  if (!pejabatBelongsToPortal(pa, selectedPortalApp, 'pa')) pa = { ...cfg.defaultPa };
+  if (!pejabatBelongsToPortal(bend, selectedPortalApp, 'bend')) bend = { ...cfg.defaultBendahara };
+  DB.pa = pa;
+  DB.bendahara = bend;
+  return { pa, bendahara: bend };
+}
+
+function trxBelongsToPortal(t) {
+  const code = getPortalAppConfig().bpkCode;
+  const bpk = (t?.no_bpk || '').trim();
+  if (!bpk) return true;
+  return bpk.includes('/' + code + '/');
+}
+
+function filterPortalTransactions(list) {
+  return (list || []).filter(trxBelongsToPortal);
+}
+
 function rakVersionLabel(key) {
   return RAK_VERSION_LABELS[key] || (key ? String(key).toUpperCase() : 'APBD (Murni)');
 }
@@ -4533,6 +4594,11 @@ function updateRakMetaUI() {
   }
 }
 
+function resetAppPageUI() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
+}
+
 function showPortal() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
@@ -4541,6 +4607,7 @@ function showPortal() {
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
   resetPortalLocalState();
+  resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
@@ -4576,6 +4643,7 @@ function showLogin(appKey) {
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  resetAppPageUI();
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
   document.getElementById('login-error')?.classList.remove('show');
@@ -4749,15 +4817,13 @@ async function bootApp() {
   showApp();
   applyPortalBranding();
   await loadSettings();
+  syncPortalPejabat();
+  applyPejabatUI();
   initForm();
+  resetAppPageUI();
   if (isAdmin()) {
-    document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
-    document.getElementById('nav-dashboard')?.classList.add('active');
-    loadDashboard();
+    showPage('dashboard', document.getElementById('nav-dashboard'));
   } else {
-    document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
-    document.getElementById('nav-transaksi')?.classList.add('active');
-    await loadTransaksi();
     showPage('transaksi', document.getElementById('nav-transaksi'));
   }
 }
@@ -5318,7 +5384,7 @@ function renderOpPptkRaceChart(pptkStats) {
 // ── Transaksi ────────────────────────────────────────────────────────────
 async function loadTransaksi() {
   const res = await apiFetch(API + '/transactions');
-  allTransactions = await res.json() || [];
+  allTransactions = filterPortalTransactions(await res.json() || []);
   trxPage = 1;
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
   renderTable();
@@ -5743,6 +5809,7 @@ document.getElementById('btn-confirm-hapus-semua')?.addEventListener('click', as
 
 // ── Kwitansi ──────────────────────────────────────────────────────────────
 function cetakKwitansi(id) {
+  syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
 
@@ -6152,6 +6219,7 @@ function npSetTxt(id, val) {
 }
 
 function cetakNP2D(id) {
+  syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
   const cfg = getPortalAppConfig();
@@ -6384,6 +6452,7 @@ async function loadSettings() {
     else DB.pa = { ...getPortalAppConfig().defaultPa };
     if (appSettings.bendahara?.nama) DB.bendahara = appSettings.bendahara;
     else DB.bendahara = { ...getPortalAppConfig().defaultBendahara };
+    syncPortalPejabat();
     applyRakFromServer(appSettings.rak);
     updateRakMetaUI();
     applyPejabatUI();
@@ -6698,6 +6767,7 @@ function onRekapModeChange() {
 }
 
 function fillRekapPrint() {
+  syncPortalPejabat();
   document.getElementById('rk-print-title').textContent = `Rekapitulasi Anggaran ${rekapModeLabel()}`;
   document.getElementById('rk-tahun').textContent = DB.tahun || 2026;
   document.getElementById('rk-tanggal').textContent = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -6856,6 +6926,7 @@ function getRegisterFilteredTransactions() {
   const sub = document.getElementById('reg-filter-sub')?.value || '';
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value || '';
   return (allTransactions || []).filter(t => {
+    if (!trxBelongsToPortal(t)) return false;
     if (!trxMatchesRegisterPeriod(t, rangeStart, rangeEnd)) return false;
     if (kegiatan && t.kegiatan !== kegiatan) return false;
     if (sub && t.sub_kegiatan !== sub) return false;
@@ -7049,6 +7120,7 @@ function buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage) {
 }
 
 function buildRegisterSignatureHtml() {
+  syncPortalPejabat();
   const cfg = getPortalAppConfig();
   return `
     <div class="rg-ttd">
@@ -7165,6 +7237,7 @@ function buildRegisterPagesHtml(rows) {
 }
 
 function fillRegisterPejabatPreview() {
+  syncPortalPejabat();
   const cfg = getPortalAppConfig();
   const filterLabel = 'Filter: ' + buildRegisterFilterLabel();
   document.getElementById('reg-preview-tahun').textContent = DB.tahun || 2026;
@@ -7204,7 +7277,7 @@ function renderRegisterPreview() {
 async function loadRegister() {
   await loadSettings();
   const res = await apiFetch(API + '/transactions');
-  allTransactions = await res.json() || [];
+  allTransactions = filterPortalTransactions(await res.json() || []);
   populateRegisterFilterOptions();
   onRegisterFilterChange();
 }
@@ -7381,7 +7454,7 @@ async function loadRekap() {
   await loadSettings();
   rekapMode = document.getElementById('rekap-mode')?.value || rekapMode;
   const res = await apiFetch(API + '/transactions');
-  rekapTransactionsCache = await res.json() || [];
+  rekapTransactionsCache = filterPortalTransactions(await res.json() || []);
   rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
   renderRekapTable();
 }

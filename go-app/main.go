@@ -230,10 +230,7 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
         mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodGet:
-                mod.mu.Lock()
-                result := make([]Transaction, len(mod.txs))
-                copy(result, mod.txs)
-                mod.mu.Unlock()
+                result := moduleTransactionsCopy(mod)
                 jsonResponse(w, http.StatusOK, result)
 
         case http.MethodPost:
@@ -448,10 +445,7 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         }
 
         mod := moduleFromRequest(r)
-        mod.mu.Lock()
-        data := make([]Transaction, len(mod.txs))
-        copy(data, mod.txs)
-        mod.mu.Unlock()
+        data := moduleTransactionsCopy(mod)
 
         stats := DashboardStats{}
         stats.TotalTransaksi = len(data)
@@ -551,9 +545,10 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
                 mod.mu.Lock()
                 copyAnggaran := cloneAnggaranMap(mod.settings.AnggaranKegiatan)
                 rakCopy := cloneRakRows(mod.settings.Rak)
+                pa, bend := effectivePejabatValues(mod.ID, mod.settings.PA, mod.settings.Bendahara, mod.defaultSettings.PA, mod.defaultSettings.Bendahara)
                 out := AppSettings{
-                        PA:               mod.settings.PA,
-                        Bendahara:        mod.settings.Bendahara,
+                        PA:               pa,
+                        Bendahara:        bend,
                         AnggaranKegiatan: copyAnggaran,
                         Rak:              rakCopy,
                         RakMeta:          mod.settings.RakMeta,
@@ -778,6 +773,7 @@ func main() {
         initSipkeuModules()
         initStorage()
         loadAllModulesFromDisk()
+        repairAllModulesIsolation()
         loadKasFromDisk()
 
         sek := sipkeuModules["sekretariat"]
