@@ -994,26 +994,29 @@
     }
     .rg-page:last-child { page-break-after: auto; break-after: auto; }
     .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
-    .rg-kop.kw-kop {
+    .rg-kop {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 100%;
-      max-width: 100%;
-      margin: 0 auto 2mm;
+      margin: 0 auto 2.5mm;
       padding: 0;
       box-sizing: border-box;
-      text-align: center;
     }
-    .rg-kop.kw-kop img {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      max-height: 20mm;
+    .rg-kop img {
       display: block;
+      width: 94%;
+      max-width: 262mm;
+      height: auto;
+      max-height: 18mm;
       margin: 0 auto;
+      aspect-ratio: 788 / 160;
       object-fit: contain;
       object-position: center center;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
+    #register-preview-wrap .rg-kop img { max-width: 100%; }
     .rg-doc-title { text-align: center; margin-bottom: 3px; }
     .rg-doc-title h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
     .rg-doc-title .rg-doc-period { margin: 3px 0 0; font-size: 9px; font-weight: 600; color: #222; }
@@ -1055,11 +1058,15 @@
     body.register-printing #register-print .rg-page:last-child {
       page-break-after: auto; break-after: auto;
     }
-    body.register-printing #register-print .rg-kop.kw-kop img {
-      width: 100% !important;
+    body.register-printing #register-print .rg-kop img {
+      width: 94% !important;
+      max-width: 262mm !important;
       height: auto !important;
-      max-height: none !important;
-      object-fit: contain;
+      max-height: 18mm !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      object-fit: contain !important;
+      object-position: center center !important;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .anggaran-readonly {
@@ -3419,7 +3426,7 @@ function onNilaiBrutoInput() {
       <div id="register-info" class="px-3 py-2 text-muted" style="font-size:12px">—</div>
       <div id="register-preview-wrap">
         <div class="rg-wrap" id="register-preview">
-          <div class="rg-kop kw-kop">
+          <div class="rg-kop">
             <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
           </div>
           <div class="rg-doc-title">
@@ -6706,7 +6713,7 @@ function buildRegisterPeriodDisplayLabel() {
 }
 
 function buildRegisterKopHtml() {
-  return `<div class="rg-kop kw-kop"><img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" /></div>`;
+  return `<div class="rg-kop"><img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" /></div>`;
 }
 
 function buildRegisterTitleBlock() {
