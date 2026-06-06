@@ -4582,6 +4582,57 @@ let rekapRowsCache = [];
 let rekapTransactionsCache = [];
 let rekapMode = 'kegiatan';
 let allTransactions = [];
+const txFetchCache = { portal: '', data: null, ts: 0 };
+const settingsFetchCache = { portal: '', data: null, ts: 0 };
+const DATA_CACHE_MS = 20000;
+
+function invalidateTxCache() {
+  txFetchCache.portal = '';
+  txFetchCache.data = null;
+  txFetchCache.ts = 0;
+}
+
+function invalidateSettingsCache() {
+  settingsFetchCache.portal = '';
+  settingsFetchCache.data = null;
+  settingsFetchCache.ts = 0;
+}
+
+async function fetchAllTransactions(force = false) {
+  const portal = selectedPortalApp;
+  const now = Date.now();
+  if (!force && txFetchCache.portal === portal && txFetchCache.data && now - txFetchCache.ts < DATA_CACHE_MS) {
+    return txFetchCache.data;
+  }
+  const res = await apiFetch(API + '/transactions');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || ('HTTP ' + res.status));
+  }
+  const data = filterPortalTransactions(await res.json() || []);
+  txFetchCache.portal = portal;
+  txFetchCache.data = data;
+  txFetchCache.ts = now;
+  return data;
+}
+
+function applySettingsData(data) {
+  appSettings = {
+    pa: data.pa || {},
+    bendahara: data.bendahara || {},
+    anggaran_kegiatan: data.anggaran_kegiatan || {},
+    rak: Array.isArray(data.rak) ? data.rak : [],
+    rak_meta: data.rak_meta || {},
+  };
+  if (appSettings.pa?.nama) DB.pa = appSettings.pa;
+  else DB.pa = { ...getPortalAppConfig().defaultPa };
+  if (appSettings.bendahara?.nama) DB.bendahara = appSettings.bendahara;
+  else DB.bendahara = { ...getPortalAppConfig().defaultBendahara };
+  syncPortalPejabat();
+  applyRakFromServer(appSettings.rak);
+  updateRakMetaUI();
+  applyPejabatUI();
+}
 let registerRowsCache = [];
 
 function clearAppDataCaches() {
@@ -4589,6 +4640,8 @@ function clearAppDataCaches() {
   registerRowsCache = [];
   rekapTransactionsCache = [];
   rekapRowsCache = [];
+  invalidateTxCache();
+  invalidateSettingsCache();
 }
 
 function resetPortalLocalState() {
@@ -4783,6 +4836,8 @@ function endPortalSession() {
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_app');
   sessionStorage.removeItem('sipkeu_in_app');
+  invalidateTxCache();
+  invalidateSettingsCache();
 }
 
 function resolvePortalApp(serverModule) {
@@ -5924,9 +5979,8 @@ function renderOpPptkRaceChart(pptkStats) {
 }
 
 // ── Transaksi ────────────────────────────────────────────────────────────
-async function loadTransaksi() {
-  const res = await apiFetch(API + '/transactions');
-  allTransactions = filterPortalTransactions(await res.json() || []);
+async function loadTransaksi(force = false) {
+  allTransactions = await fetchAllTransactions(force);
   trxPage = 1;
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
   renderTable();
@@ -6111,7 +6165,8 @@ async function doHapusTerpilih(ids) {
     const result = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(result.error || ('Gagal hapus (HTTP ' + res.status + ')'));
     selectedTrxIds.clear();
-    await loadTransaksi();
+    invalidateTxCache();
+    await loadTransaksi(true);
     alert(result.message || `${ids.length} transaksi berhasil dihapus.`);
   } catch (e) {
     alert(e.message || 'Gagal menghapus transaksi terpilih.');
@@ -6193,7 +6248,8 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
   const wasEdit = editingId != null;
   await apiFetch(url, { method, body: JSON.stringify(payload) });
   btn.disabled = false; resetForm();
-  await loadTransaksi();
+  invalidateTxCache();
+  await loadTransaksi(true);
   alert(wasEdit ? 'Transaksi berhasil diperbarui.' : 'Transaksi berhasil disimpan.');
 });
 
@@ -6305,7 +6361,8 @@ document.getElementById('btn-confirm-hapus').addEventListener('click', async () 
     await apiDeleteTransaction(id);
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapus')).hide();
     deleteId = null;
-    await loadTransaksi();
+    invalidateTxCache();
+    await loadTransaksi(true);
   } catch (e) {
     alert(e.message || 'Gagal menghapus transaksi.');
   } finally {
@@ -6341,7 +6398,8 @@ document.getElementById('btn-confirm-hapus-semua')?.addEventListener('click', as
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Gagal hapus semua');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalHapusSemua')).hide();
-    await loadTransaksi();
+    invalidateTxCache();
+    await loadTransaksi(true);
     alert(result.message || 'Semua transaksi berhasil dihapus.');
   } catch (e) {
     alert(e.message || 'Gagal menghapus semua transaksi.');
@@ -6996,29 +7054,24 @@ async function doSimpanDanCetakNP2D() {
 }
 
 // ── Settings / Pejabat ───────────────────────────────────────────────────
-async function loadSettings() {
+async function loadSettings(force = false) {
   try {
+    const portal = selectedPortalApp;
+    const now = Date.now();
+    if (!force && settingsFetchCache.portal === portal && settingsFetchCache.data && now - settingsFetchCache.ts < DATA_CACHE_MS) {
+      applySettingsData(settingsFetchCache.data);
+      return;
+    }
     const res = await apiFetch(API + '/settings');
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || ('HTTP ' + res.status));
     }
     const data = await res.json() || {};
-    appSettings = {
-      pa: data.pa || {},
-      bendahara: data.bendahara || {},
-      anggaran_kegiatan: data.anggaran_kegiatan || {},
-      rak: Array.isArray(data.rak) ? data.rak : [],
-      rak_meta: data.rak_meta || {},
-    };
-    if (appSettings.pa?.nama) DB.pa = appSettings.pa;
-    else DB.pa = { ...getPortalAppConfig().defaultPa };
-    if (appSettings.bendahara?.nama) DB.bendahara = appSettings.bendahara;
-    else DB.bendahara = { ...getPortalAppConfig().defaultBendahara };
-    syncPortalPejabat();
-    applyRakFromServer(appSettings.rak);
-    updateRakMetaUI();
-    applyPejabatUI();
+    settingsFetchCache.portal = portal;
+    settingsFetchCache.data = data;
+    settingsFetchCache.ts = now;
+    applySettingsData(data);
   } catch (e) { console.warn('Gagal memuat pengaturan:', e); }
 }
 
@@ -7106,7 +7159,8 @@ async function saveSettings() {
     },
   };
   await apiFetch(API + '/settings', { method: 'PUT', body: JSON.stringify(payload) });
-  await loadSettings();
+  invalidateSettingsCache();
+  await loadSettings(true);
   fillSettingsForm();
   btn.disabled = false;
   alert('Pengaturan pejabat berhasil disimpan.');
@@ -7130,6 +7184,7 @@ async function saveAnggaranKegiatan(kegiatan, value) {
     method: 'PUT',
     body: JSON.stringify({ anggaran_kegiatan: { [kegiatan]: value } }),
   });
+  invalidateSettingsCache();
 }
 
 function formatBulanLabel(yyyyMm) {
@@ -7840,8 +7895,7 @@ function renderRegisterPreview() {
 
 async function loadRegister() {
   await loadSettings();
-  const res = await apiFetch(API + '/transactions');
-  allTransactions = filterPortalTransactions(await res.json() || []);
+  allTransactions = await fetchAllTransactions();
   populateRegisterFilterOptions();
   onRegisterFilterChange();
 }
@@ -8019,8 +8073,7 @@ function cetakRegisterPDF() {
 async function loadRekap() {
   await loadSettings();
   rekapMode = document.getElementById('rekap-mode')?.value || rekapMode;
-  const res = await apiFetch(API + '/transactions');
-  rekapTransactionsCache = filterPortalTransactions(await res.json() || []);
+  rekapTransactionsCache = await fetchAllTransactions();
   rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
   renderRekapTable();
 }
@@ -8862,7 +8915,8 @@ async function doImpor() {
     });
     const result = await res.json();
     bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
-    await loadTransaksi();
+    invalidateTxCache();
+    await loadTransaksi(true);
     alert(result.message || `${payload.length} transaksi ditambahkan (transaksi lama tetap tersimpan).`);
   } catch(err) {
     alert('Gagal mengimpor: ' + err.message);

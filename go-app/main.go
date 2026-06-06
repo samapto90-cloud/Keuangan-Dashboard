@@ -10,6 +10,7 @@ import (
         "os"
         "strconv"
         "strings"
+        "time"
 )
 
 //go:embed index.html
@@ -193,8 +194,6 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
                         }
                         w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
                         w.Header().Set("Vary", "Origin")
-                } else if origin != "" {
-                        w.Header().Set("Access-Control-Allow-Origin", origin)
                 }
                 w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
@@ -497,6 +496,13 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         }
 
         mod := moduleFromRequest(r)
+        stats := cachedDashboardStats(mod.ID, func() DashboardStats {
+                return computeDashboardStats(mod)
+        })
+        jsonResponse(w, http.StatusOK, stats)
+}
+
+func computeDashboardStats(mod *SipkeuModule) DashboardStats {
         data := moduleTransactionsCopy(mod)
 
         stats := DashboardStats{}
@@ -582,7 +588,7 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
         }
         stats.RecentTransaksi = recent
 
-        jsonResponse(w, http.StatusOK, stats)
+        return stats
 }
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
@@ -757,6 +763,7 @@ func main() {
         allowedOrigin = strings.TrimSpace(os.Getenv("ALLOWED_ORIGIN"))
         initAuth()
         initSecurity()
+        initIndexCache()
 
         mux := http.NewServeMux()
 
@@ -767,12 +774,7 @@ func main() {
                 w.Write([]byte(`{"status":"ok"}`))
         })
 
-        mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-                w.Header().Set("Content-Type", "text/html; charset=utf-8")
-                w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-                w.WriteHeader(http.StatusOK)
-                w.Write(indexHTML)
-        })
+        mux.HandleFunc("/", serveIndexHTML)
 
         mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "image/png")
@@ -784,30 +786,31 @@ func main() {
         mux.HandleFunc("/assets/portal-zenitsu.png", servePNG(portalZenitsuPNG))
         mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
         if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
-                mux.Handle("/assets/op-runners/", http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub))))
+                mux.Handle("/assets/op-runners/", withStaticCache(http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub)))))
         }
         if nrSub, err := fs.Sub(narutoRunnersFS, "assets/naruto-runners"); err == nil {
-                mux.Handle("/assets/naruto-runners/", http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub))))
+                mux.Handle("/assets/naruto-runners/", withStaticCache(http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub)))))
         }
         if drSub, err := fs.Sub(doraemonRunnersFS, "assets/doraemon-runners"); err == nil {
-                mux.Handle("/assets/doraemon-runners/", http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub))))
+                mux.Handle("/assets/doraemon-runners/", withStaticCache(http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub)))))
         }
         if nsSub, err := fs.Sub(narutoSmpRunnersFS, "assets/naruto-smp-runners"); err == nil {
-                mux.Handle("/assets/naruto-smp-runners/", http.StripPrefix("/assets/naruto-smp-runners/", http.FileServer(http.FS(nsSub))))
+                mux.Handle("/assets/naruto-smp-runners/", withStaticCache(http.StripPrefix("/assets/naruto-smp-runners/", http.FileServer(http.FS(nsSub)))))
         }
         if frSub, err := fs.Sub(frozenRunnersFS, "assets/frozen-runners"); err == nil {
-                mux.Handle("/assets/frozen-runners/", http.StripPrefix("/assets/frozen-runners/", http.FileServer(http.FS(frSub))))
+                mux.Handle("/assets/frozen-runners/", withStaticCache(http.StripPrefix("/assets/frozen-runners/", http.FileServer(http.FS(frSub)))))
         }
         if gdSub, err := fs.Sub(gundamIconsFS, "assets/gundam-icons"); err == nil {
-                mux.Handle("/assets/gundam-icons/", http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub))))
+                mux.Handle("/assets/gundam-icons/", withStaticCache(http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub)))))
         }
         if dsSub, err := fs.Sub(dsKasRunnersFS, "assets/ds-kas-runners"); err == nil {
-                mux.Handle("/assets/ds-kas-runners/", http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub))))
+                mux.Handle("/assets/ds-kas-runners/", withStaticCache(http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub)))))
         }
 
-        mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
+        loginHandler := http.HandlerFunc(cors(handleLogin))
+        mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
 
-        mux.HandleFunc("/data/auth/login", cors(handleLogin))
+        mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
         mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 
@@ -822,9 +825,9 @@ func main() {
         mux.HandleFunc("/data/settings", cors(handleSettings))
         mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
         mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
-        mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(handleKasImportRAK)))
-        mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(handleKasSaveRealisasi)))
-        mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(handleKasUnlockRealisasi)))
+        mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
+        mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))
+        mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(requireAdmin(handleKasUnlockRealisasi))))
 
         initSipkeuModules()
         initStorage()
@@ -851,6 +854,15 @@ func main() {
 
         fmt.Printf("%s\n", storageInfo())
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        handler := withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux)))
-        log.Fatal(http.ListenAndServe(":"+port, handler))
+        handler := withRecover(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux)))))
+        srv := &http.Server{
+                Addr:              ":" + port,
+                Handler:           handler,
+                ReadHeaderTimeout: 10 * time.Second,
+                ReadTimeout:       60 * time.Second,
+                WriteTimeout:      120 * time.Second,
+                IdleTimeout:       120 * time.Second,
+                MaxHeaderBytes:    1 << 20,
+        }
+        log.Fatal(srv.ListenAndServe())
 }

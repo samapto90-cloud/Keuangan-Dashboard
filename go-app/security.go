@@ -17,8 +17,12 @@ import (
 
 const (
 	maxRequestBodyBytes = 12 << 20 // 12 MiB (impor Excel)
+	maxLoginBodyBytes   = 8 << 10  // 8 KiB
 	loginMaxFails       = 5
 	loginLockDuration   = 15 * time.Minute
+	apiRateLimitMax     = 240
+	apiRateWindow       = time.Minute
+	bcryptCost          = 12
 )
 
 type loginGuard struct {
@@ -31,23 +35,71 @@ type loginAttempt struct {
 	lockedUntil time.Time
 }
 
-var loginLimiter loginGuard
+type apiRateGuard struct {
+	mu      sync.Mutex
+	buckets map[string]*apiRateBucket
+}
+
+type apiRateBucket struct {
+	count       int
+	windowStart time.Time
+}
+
+var (
+	loginLimiter  loginGuard
+	apiRateLimiter apiRateGuard
+	trustProxy    bool
+)
 
 func initSecurity() {
 	loginLimiter.attempts = map[string]*loginAttempt{}
+	apiRateLimiter.buckets = map[string]*apiRateBucket{}
+	trustProxy = strings.TrimSpace(os.Getenv("SIPKEU_TRUST_PROXY")) == "1"
 	go purgeExpiredSessionsLoop()
+	go purgeLoginAttemptsLoop()
+	go purgeAPIRateBucketsLoop()
 	warnWeakProductionSecrets()
 }
 
-func clientIP(r *http.Request) string {
-	if xff := strings.TrimSpace(r.Header.Get("X-Forwarded-For")); xff != "" {
-		parts := strings.Split(xff, ",")
-		if ip := strings.TrimSpace(parts[0]); ip != "" {
-			return ip
-		}
+func hashPasswordStore(plain string) (string, error) {
+	plain = strings.TrimSpace(plain)
+	if plain == "" {
+		return "", nil
 	}
-	if xrip := strings.TrimSpace(r.Header.Get("X-Real-IP")); xrip != "" {
-		return xrip
+	if strings.HasPrefix(plain, "$2a$") || strings.HasPrefix(plain, "$2b$") || strings.HasPrefix(plain, "$2y$") {
+		return plain, nil
+	}
+	h, err := bcrypt.GenerateFromPassword([]byte(plain), bcryptCost)
+	if err != nil {
+		return "", err
+	}
+	return string(h), nil
+}
+
+func storePasswordIfProvided(current, incoming string) string {
+	in := strings.TrimSpace(incoming)
+	if in == "" || in == passwordMask {
+		return current
+	}
+	hashed, err := hashPasswordStore(in)
+	if err != nil {
+		log.Printf("Peringatan: gagal hash password: %v", err)
+		return in
+	}
+	return hashed
+}
+
+func clientIP(r *http.Request) string {
+	if trustProxy {
+		if xff := strings.TrimSpace(r.Header.Get("X-Forwarded-For")); xff != "" {
+			parts := strings.Split(xff, ",")
+			if ip := strings.TrimSpace(parts[0]); ip != "" {
+				return ip
+			}
+		}
+		if xrip := strings.TrimSpace(r.Header.Get("X-Real-IP")); xrip != "" {
+			return xrip
+		}
 	}
 	host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
 	if err == nil && host != "" {
@@ -90,6 +142,100 @@ func (g *loginGuard) recordSuccess(ip string) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	delete(g.attempts, ip)
+}
+
+func purgeLoginAttemptsLoop() {
+	ticker := time.NewTicker(30 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		loginLimiter.mu.Lock()
+		for ip, a := range loginLimiter.attempts {
+			if now.After(a.lockedUntil) && a.fails == 0 {
+				delete(loginLimiter.attempts, ip)
+			}
+		}
+		loginLimiter.mu.Unlock()
+	}
+}
+
+func apiRateKey(r *http.Request) string {
+	if tok := bearerToken(r); tok != "" {
+		n := len(tok)
+		if n > 16 {
+			n = 16
+		}
+		return "t:" + tok[:n]
+	}
+	return "ip:" + clientIP(r)
+}
+
+func (g *apiRateGuard) allow(key string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	now := time.Now()
+	b := g.buckets[key]
+	if b == nil || now.Sub(b.windowStart) >= apiRateWindow {
+		g.buckets[key] = &apiRateBucket{count: 1, windowStart: now}
+		return true
+	}
+	if b.count >= apiRateLimitMax {
+		return false
+	}
+	b.count++
+	return true
+}
+
+func purgeAPIRateBucketsLoop() {
+	ticker := time.NewTicker(10 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		apiRateLimiter.mu.Lock()
+		for k, b := range apiRateLimiter.buckets {
+			if now.Sub(b.windowStart) > 2*apiRateWindow {
+				delete(apiRateLimiter.buckets, k)
+			}
+		}
+		apiRateLimiter.mu.Unlock()
+	}
+}
+
+func withAPIRateLimit(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/health" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if r.URL.Path == "/" && r.Method == http.MethodGet {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if !apiRateLimiter.allow(apiRateKey(r)) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Retry-After", "60")
+			w.WriteHeader(http.StatusTooManyRequests)
+			w.Write([]byte(`{"error":"Terlalu banyak permintaan. Coba lagi sebentar."}`))
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func withRecover(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				log.Printf("PANIC [%s %s]: %v", r.Method, r.URL.Path, rec)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(`{"error":"Kesalahan internal server"}`))
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
 }
 
 func passwordMatches(stored, input string) bool {
@@ -209,6 +355,10 @@ func (w *gzipResponseWriter) WriteHeader(statusCode int) {
 
 func withGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			next.ServeHTTP(w, r)
+			return
+		}
 		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			next.ServeHTTP(w, r)
 			return

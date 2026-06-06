@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sync"
+	"strings"
 )
 
 type moduleSnapshot struct {
@@ -15,10 +15,7 @@ type moduleSnapshot struct {
 	Settings AppSettings   `json:"settings"`
 }
 
-var (
-	dataDir   string
-	storageMu sync.Mutex
-)
+var dataDir string
 
 func initStorage() {
 	dataDir = os.Getenv("DATA_DIR")
@@ -39,16 +36,15 @@ func kasDataPath() string {
 }
 
 func writeJSONAtomic(path string, v any) error {
-	storageMu.Lock()
-	defer storageMu.Unlock()
-
 	tmp := path + ".tmp"
 	f, err := os.Create(tmp)
 	if err != nil {
 		return err
 	}
 	enc := json.NewEncoder(f)
-	enc.SetIndent("", "  ")
+	if !jsonCompactEnabled() {
+		enc.SetIndent("", "  ")
+	}
 	if err := enc.Encode(v); err != nil {
 		f.Close()
 		os.Remove(tmp)
@@ -59,6 +55,10 @@ func writeJSONAtomic(path string, v any) error {
 		return err
 	}
 	return os.Rename(tmp, path)
+}
+
+func jsonCompactEnabled() bool {
+	return strings.TrimSpace(os.Getenv("SIPKEU_COMPACT_JSON")) == "1"
 }
 
 func loadModuleFromDisk(mod *SipkeuModule) bool {
@@ -113,7 +113,9 @@ func persistModule(mod *SipkeuModule) {
 	}
 	if err := writeJSONAtomic(moduleDataPath(mod.ID), snap); err != nil {
 		log.Printf("Gagal simpan modul %s: %v", mod.ID, err)
+		return
 	}
+	invalidateDashboardCache(mod.ID)
 }
 
 func loadAllModulesFromDisk() {

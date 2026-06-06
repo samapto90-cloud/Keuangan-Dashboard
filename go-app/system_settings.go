@@ -125,6 +125,7 @@ func systemSettingsPath() string {
 
 func initSystemSettings() {
 	systemSettings = defaultSystemSettings()
+	hashPasswordsInSettings(&systemSettings)
 	raw, err := os.ReadFile(systemSettingsPath())
 	if err != nil {
 		persistSystemSettings()
@@ -138,7 +139,13 @@ func initSystemSettings() {
 		return
 	}
 	mergeSystemSettings(&loaded)
-	systemSettings = loaded
+	if hashPasswordsInSettings(&loaded) {
+		systemSettings = loaded
+		persistSystemSettings()
+		log.Printf("Password pengaturan sistem di-hash (migrasi keamanan)")
+	} else {
+		systemSettings = loaded
+	}
 	log.Printf("Pengaturan sistem dimuat dari %s", systemSettingsPath())
 }
 
@@ -170,6 +177,40 @@ func mergeSystemSettings(s *SystemSettings) {
 		}
 	}
 	sanitizeKasBelanjaSettings(s)
+}
+
+func isBcryptHash(s string) bool {
+	s = strings.TrimSpace(s)
+	return strings.HasPrefix(s, "$2a$") || strings.HasPrefix(s, "$2b$") || strings.HasPrefix(s, "$2y$")
+}
+
+func hashPasswordsInSettings(s *SystemSettings) bool {
+	if s == nil {
+		return false
+	}
+	changed := false
+	if !isBcryptHash(s.SettingsPortalPassword) && strings.TrimSpace(s.SettingsPortalPassword) != "" {
+		if h, err := hashPasswordStore(s.SettingsPortalPassword); err == nil && h != "" {
+			s.SettingsPortalPassword = h
+			changed = true
+		}
+	}
+	for id, cfg := range s.Portals {
+		if !isBcryptHash(cfg.AdminPassword) && strings.TrimSpace(cfg.AdminPassword) != "" {
+			if h, err := hashPasswordStore(cfg.AdminPassword); err == nil && h != "" {
+				cfg.AdminPassword = h
+				changed = true
+			}
+		}
+		if strings.TrimSpace(cfg.OperatorUsername) != "" && !isBcryptHash(cfg.OperatorPassword) && strings.TrimSpace(cfg.OperatorPassword) != "" {
+			if h, err := hashPasswordStore(cfg.OperatorPassword); err == nil && h != "" {
+				cfg.OperatorPassword = h
+				changed = true
+			}
+		}
+		s.Portals[id] = cfg
+	}
+	return changed
 }
 
 func persistSystemSettings() {
@@ -370,11 +411,7 @@ func systemSettingsPublicResponse() map[string]interface{} {
 }
 
 func applyPasswordIfProvided(current, incoming string) string {
-	in := strings.TrimSpace(incoming)
-	if in == "" || in == passwordMask {
-		return current
-	}
-	return in
+	return storePasswordIfProvided(current, incoming)
 }
 
 func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
@@ -445,6 +482,7 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		sanitizeKasBelanjaSettings(&cur)
+		hashPasswordsInSettings(&cur)
 
 		systemSettings = cur
 		systemSettingsMu.Unlock()

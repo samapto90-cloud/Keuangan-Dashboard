@@ -80,18 +80,24 @@ func getSession(r *http.Request) *Session {
 	if token == "" {
 		return nil
 	}
-	sessionsMu.RLock()
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
 	sess, ok := sessions[token]
-	sessionsMu.RUnlock()
-	if !ok || time.Now().After(sess.Expires) {
-		if ok {
-			sessionsMu.Lock()
-			delete(sessions, token)
-			sessionsMu.Unlock()
-		}
+	if !ok {
 		return nil
 	}
-	return &sess
+	now := time.Now()
+	if now.After(sess.Expires) {
+		delete(sessions, token)
+		return nil
+	}
+	half := sessionLifetime() / 2
+	if now.After(sess.Expires.Add(-half)) {
+		sess.Expires = now.Add(sessionLifetime())
+		sessions[token] = sess
+	}
+	out := sess
+	return &out
 }
 
 func requireAuth(next http.HandlerFunc) http.HandlerFunc {
@@ -133,6 +139,15 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	username := strings.TrimSpace(strings.ToLower(body.Username))
+	password := body.Password
+	if username == "" || password == "" {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Username dan password wajib diisi"})
+		return
+	}
+	if len(username) > 64 || len(password) > 128 {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Username atau password tidak valid"})
+		return
+	}
 	ip := clientIP(r)
 	if loginLimiter.check(ip) {
 		jsonResponse(w, http.StatusTooManyRequests, map[string]string{
@@ -147,7 +162,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	if !isValidAppModule(appModule) {
 		appModule = "sekretariat"
 	}
-	user, ok := authenticatePortalUser(body.Username, body.Password, appModule)
+	user, ok := authenticatePortalUser(username, password, appModule)
 	if !ok {
 		loginLimiter.recordFail(ip)
 		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Username atau password salah"})
