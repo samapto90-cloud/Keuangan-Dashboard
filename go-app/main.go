@@ -641,7 +641,7 @@ func computeDashboardStats(mod *SipkeuModule) DashboardStats {
 
         recent := data
         if len(recent) > 5 {
-                recent = recent[len(recent)-5:]
+                recent = recent[:5]
         }
         stats.RecentTransaksi = recent
 

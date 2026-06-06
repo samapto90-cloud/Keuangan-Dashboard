@@ -3440,6 +3440,14 @@ function trxStatusBadge(t) {
   const s = trxEffectiveStatus(t);
   return `<span class="trx-status-badge trx-status-${s}">${trxStatusLabel(t)}</span>`;
 }
+function compareTrxNewestFirst(a, b) {
+  const idDiff = (b.id || 0) - (a.id || 0);
+  if (idDiff !== 0) return idDiff;
+  return normalizeTrxDateKey(b.tanggal).localeCompare(normalizeTrxDateKey(a.tanggal));
+}
+function sortTransactionsNewestFirst(list) {
+  return [...(list || [])].sort(compareTrxNewestFirst);
+}
 function operatorMayEditTrx(t) {
   if (isAdmin()) return true;
   const s = trxEffectiveStatus(t);
@@ -5015,7 +5023,7 @@ async function fetchAllTransactions(force = false) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || ('HTTP ' + res.status));
   }
-  const data = filterPortalTransactions(await res.json() || []);
+  const data = sortTransactionsNewestFirst(filterPortalTransactions(await res.json() || []));
   txFetchCache.portal = portal;
   txFetchCache.data = data;
   txFetchCache.ts = now;
@@ -6358,7 +6366,7 @@ async function loadDashboard() {
   if (!data.recent_transaksi || !data.recent_transaksi.length) {
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada transaksi</p></div></td></tr>`;
   } else {
-    tbody.innerHTML = [...data.recent_transaksi].reverse().map(t => `
+    tbody.innerHTML = data.recent_transaksi.map(t => `
       <tr><td>${formatTanggal(t.tanggal)}</td>
       <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan}">${t.kegiatan||'-'}</td>
       <td>${t.penerima||'-'}</td>
@@ -6616,7 +6624,9 @@ async function loadTransaksi(force = false) {
 }
 
 function getPendingTransactions() {
-  return (allTransactions || []).filter(t => trxEffectiveStatus(t) === 'pending');
+  return sortTransactionsNewestFirst(
+    (allTransactions || []).filter(t => trxEffectiveStatus(t) === 'pending')
+  );
 }
 
 function updatePendingNavBadge() {
@@ -6681,7 +6691,7 @@ async function reviewTransaction(id, action) {
 function getFilteredTransactions() {
   const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
   const statusFilter = (document.getElementById('trx-status-filter')?.value || '').trim();
-  return (allTransactions || []).filter(t => {
+  return sortTransactionsNewestFirst((allTransactions || []).filter(t => {
     if (statusFilter && trxEffectiveStatus(t) !== statusFilter) return false;
     if (!q) return true;
     return (t.kegiatan||'').toLowerCase().includes(q) ||

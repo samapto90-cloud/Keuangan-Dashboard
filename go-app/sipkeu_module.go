@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -80,7 +81,17 @@ func moduleTransactionsCopy(mod *SipkeuModule) []Transaction {
 			out = append(out, t)
 		}
 	}
+	sortTransactionsNewestFirst(out)
 	return out
+}
+
+func sortTransactionsNewestFirst(txs []Transaction) {
+	sort.Slice(txs, func(i, j int) bool {
+		if txs[i].ID != txs[j].ID {
+			return txs[i].ID > txs[j].ID
+		}
+		return txs[i].Tanggal > txs[j].Tanggal
+	})
 }
 
 func repairModuleIsolation(mod *SipkeuModule) bool {
