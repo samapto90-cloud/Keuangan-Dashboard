@@ -68,8 +68,10 @@
       position: fixed; inset: 0; z-index: 9999; pointer-events: none;
       width: 100%; height: 100%; opacity: 0.96;
     }
-    #portal-screen .portal-fx-vignette {
-      position: fixed; inset: 0; z-index: 10000; pointer-events: none;
+    #portal-screen .portal-fx-vignette,
+    .portal-fx-vignette {
+      position: fixed; inset: 0; z-index: 10000; pointer-events: none !important;
+      display: none;
     }
     #global-fx-vignette {
       position: fixed; inset: 0; z-index: 1; pointer-events: none;
@@ -676,7 +678,9 @@
       font-size: 13px; background: rgba(7,11,20,.6); color: #e2e8f0;
       border: 1px solid rgba(56,189,248,.15); border-radius: 10px; padding: 10px 14px;
       transition: border-color .2s, box-shadow .2s;
+      pointer-events: auto; position: relative; z-index: 2;
     }
+    .form-select:disabled { opacity: .55; cursor: not-allowed; }
     .form-control:focus, .form-select:focus {
       background: rgba(7,11,20,.8); color: #fff;
       border-color: var(--water); box-shadow: 0 0 0 3px rgba(56,189,248,.15), 0 0 20px rgba(56,189,248,.1);
@@ -3416,17 +3420,33 @@ const DB = {
   rak: [] // dimuat dari server via Anggaran.xlsx
 };
 
-// Helper: get unique kegiatan list
+// Helper: get unique kegiatan list (RAK → anggaran → transaksi existing)
 function dbKegiatan() {
-  return [...new Set(DB.rak.map(r => r[0]))];
+  const set = new Set();
+  (DB.rak || []).forEach(r => { if (r && r[0]) set.add(String(r[0]).trim()); });
+  (appSettings.rak || []).forEach(r => { if (r?.kegiatan) set.add(String(r.kegiatan).trim()); });
+  Object.keys(appSettings.anggaran_kegiatan || {}).forEach(k => { if (k) set.add(String(k).trim()); });
+  (allTransactions || []).forEach(t => { if (t?.kegiatan) set.add(String(t.kegiatan).trim()); });
+  return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id'));
 }
 // Helper: get sub kegiatan for given kegiatan
 function dbSubKegiatan(keg) {
-  return [...new Set(DB.rak.filter(r => r[0] === keg).map(r => r[1]))];
+  if (!keg) return [];
+  const set = new Set();
+  (DB.rak || []).filter(r => r[0] === keg).forEach(r => { if (r[1]) set.add(String(r[1]).trim()); });
+  (appSettings.rak || []).filter(r => r.kegiatan === keg).forEach(r => { if (r.sub_kegiatan) set.add(String(r.sub_kegiatan).trim()); });
+  (allTransactions || []).filter(t => t.kegiatan === keg).forEach(t => { if (t.sub_kegiatan) set.add(String(t.sub_kegiatan).trim()); });
+  return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id'));
 }
 // Helper: get pekerjaan rows for given kegiatan + sub kegiatan
 function dbPekerjaan(keg, sub) {
-  return DB.rak.filter(r => r[0] === keg && r[1] === sub).map(r => ({ kode: r[2], pekerjaan: r[3], pptk: r[4] }));
+  if (!keg || !sub) return [];
+  const fromRak = (DB.rak || []).filter(r => r[0] === keg && r[1] === sub)
+    .map(r => ({ kode: r[2], pekerjaan: r[3], pptk: r[4] }));
+  if (fromRak.length) return fromRak;
+  return (appSettings.rak || [])
+    .filter(r => r.kegiatan === keg && r.sub_kegiatan === sub)
+    .map(r => ({ kode: r.kode_rekening || '', pekerjaan: r.pekerjaan || '', pptk: r.pptk || '' }));
 }
 // Helper: get PPTK for given row
 function dbPPTKNip(nama) { return DB.nip[nama] || ''; }
@@ -3757,6 +3777,9 @@ function onNilaiBrutoInput() {
             <select class="form-select" id="f-kegiatan" onchange="onKegiatanChange()" required>
               <option value="">— Pilih Kegiatan —</option>
             </select>
+            <div id="f-kegiatan-empty-hint" class="form-text text-warning mt-1" style="display:none">
+              <i class="bi bi-exclamation-triangle me-1"></i>Data RAK belum tersedia. Admin dapat impor <strong>Anggaran.xlsx</strong> di menu Pejabat Keuangan.
+            </div>
           </div>
 
           <!-- Baris 4: Sub Kegiatan (cascading level 2) -->
@@ -5085,6 +5108,7 @@ function applySettingsData(data) {
   applyRakFromServer(appSettings.rak);
   updateRakMetaUI();
   applyPejabatUI();
+  if (document.getElementById('f-kegiatan')) refreshKegiatanDropdown();
 }
 let registerRowsCache = [];
 
@@ -5542,6 +5566,8 @@ function applyPermissionUI() {
 
 function showApp() {
   stopPortalFx();
+  document.getElementById('fx-canvas')?.style.setProperty('display', 'none', 'important');
+  document.querySelector('.portal-fx-vignette')?.style.setProperty('display', 'none', 'important');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
@@ -6130,6 +6156,16 @@ async function bootApp(fromRestore = true) {
   applyPortalBranding();
   applyPejabatUI();
   resetAppPageUI();
+  try {
+    await loadSettings(true);
+    initForm();
+  } catch (e) {
+    console.warn('bootApp partial load:', e);
+    initForm();
+  }
+  syncPortalPejabat();
+  applyPejabatUI();
+  applyPermissionUI();
   if (canDo('view_dashboard')) {
     showPage('dashboard', document.getElementById('nav-dashboard'));
   } else if (canAccessTransaksi()) {
@@ -6139,15 +6175,6 @@ async function bootApp(fromRestore = true) {
   } else {
     showPage('transaksi', document.getElementById('nav-transaksi'));
   }
-  try {
-    await loadSettings();
-    initForm();
-  } catch (e) {
-    console.warn('bootApp partial load:', e);
-  }
-  syncPortalPejabat();
-  applyPejabatUI();
-  applyPermissionUI();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -6361,9 +6388,13 @@ function refreshKegiatanDropdown() {
   const sel = document.getElementById('f-kegiatan');
   if (!sel) return;
   const cur = sel.value;
+  const list = dbKegiatan();
   sel.innerHTML = '<option value="">— Pilih Kegiatan —</option>';
-  dbKegiatan().forEach(k => sel.add(new Option(k, k)));
-  if (cur && dbKegiatan().includes(cur)) sel.value = cur;
+  list.forEach(k => sel.add(new Option(k, k)));
+  if (cur && list.includes(cur)) sel.value = cur;
+  sel.disabled = false;
+  const hint = document.getElementById('f-kegiatan-empty-hint');
+  if (hint) hint.style.display = list.length ? 'none' : '';
 }
 
 function applyRakFromServer(rakRows) {
@@ -6701,6 +6732,12 @@ function renderOpPptkRaceChart(pptkStats) {
 
 // ── Transaksi ────────────────────────────────────────────────────────────
 async function loadTransaksi(force = false) {
+  try {
+    await loadSettings(force);
+  } catch (e) {
+    console.warn('loadTransaksi settings:', e);
+  }
+  refreshKegiatanDropdown();
   allTransactions = await fetchAllTransactions(force);
   trxPage = 1;
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
