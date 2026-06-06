@@ -998,6 +998,25 @@
     .np-wrap.np-density-2 .np-lembar { margin-top: 4px; font-size: 8.5px; }
     .np-wrap.np-density-2 .kw-kop { margin-bottom: 2mm; padding-bottom: 1.5mm; }
     .np-wrap.np-density-2 .kw-kop img { max-height: 22mm; }
+    .np-lembar { margin-top: 10px; font-size: 9.5px; color: #333; }
+    #np2d-preview {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: auto;
+      min-height: 260px;
+      max-height: min(78vh, 920px);
+    }
+    #np2d-preview .np2d-preview-frame {
+      transform-origin: top center;
+      flex-shrink: 0;
+      margin: 0 auto;
+    }
+    #np2d-preview .kw-a4-sheet {
+      box-shadow: 0 2px 16px rgba(0,0,0,.15);
+      overflow: hidden;
+    }
 
     /* ── Rekap Print ── */
     .rk-wrap { font-family: Arial, sans-serif; max-width: 100%; padding: 16px 20px; font-size: 11px; color: #111; }
@@ -1039,39 +1058,6 @@
     }
     .rg-page:last-child { page-break-after: auto; break-after: auto; }
     .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
-    .rg-first-head {
-      display: flex;
-      align-items: center;
-      gap: 4mm;
-      margin-bottom: 2mm;
-    }
-    .rg-kop {
-      flex: 0 0 auto;
-      width: auto;
-      margin: 0;
-      padding: 0;
-      text-align: left;
-    }
-    .rg-kop img {
-      display: block;
-      width: 46mm;
-      max-width: 46mm;
-      height: auto;
-      max-height: 10mm;
-      margin: 0;
-      object-fit: contain;
-      object-position: left center;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .rg-first-head .rg-doc-title {
-      flex: 1 1 auto;
-      text-align: center;
-      margin-bottom: 0;
-    }
-    .rg-wrap .rg-first-head,
-    #register-preview-wrap .rg-first-head { gap: 12px; }
-    #register-preview-wrap .rg-kop img { width: 140px; max-width: 140px; max-height: 28px; }
     .rg-doc-title { text-align: center; margin-bottom: 3px; }
     .rg-doc-title h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
     .rg-doc-title .rg-doc-period { margin: 3px 0 0; font-size: 9px; font-weight: 600; color: #222; }
@@ -1112,16 +1098,6 @@
     }
     body.register-printing #register-print .rg-page:last-child {
       page-break-after: auto; break-after: auto;
-    }
-    body.register-printing #register-print .rg-kop img {
-      width: 46mm !important;
-      max-width: 46mm !important;
-      height: auto !important;
-      max-height: 10mm !important;
-      margin: 0 !important;
-      object-fit: contain !important;
-      object-position: left center !important;
-      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .anggaran-readonly {
       display: inline-block; font-size: 12px; font-weight: 700; color: #94a3b8;
@@ -3480,15 +3456,10 @@ function onNilaiBrutoInput() {
       <div id="register-info" class="px-3 py-2 text-muted" style="font-size:12px">—</div>
       <div id="register-preview-wrap">
         <div class="rg-wrap" id="register-preview">
-          <div class="rg-first-head">
-            <div class="rg-kop">
-              <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
-            </div>
-            <div class="rg-doc-title">
-              <h4 id="reg-preview-title">Register Pengeluaran</h4>
-              <p class="rg-doc-period" id="reg-preview-period">Semua Periode</p>
-              <p class="rg-doc-tahun">Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
-            </div>
+          <div class="rg-doc-title">
+            <h4 id="reg-preview-title">Register Pengeluaran</h4>
+            <p class="rg-doc-period" id="reg-preview-period">Semua Periode</p>
+            <p class="rg-doc-tahun">Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
           </div>
           <div class="rg-meta">
             <div id="reg-preview-filter">Filter: Semua data</div>
@@ -4122,7 +4093,7 @@ function onNilaiBrutoInput() {
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0" style="background:#e9ecef">
-        <div id="np2d-preview" style="padding:20px;display:flex;justify-content:center"></div>
+        <div id="np2d-preview"></div>
       </div>
       <div class="modal-footer flex-wrap gap-2 justify-content-between">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -5741,45 +5712,64 @@ function applyNp2dDensity(sheet) {
 }
 
 function fitNp2dSheet(sheet) {
-  if (!sheet) return;
+  if (!sheet) return 1;
   applyNp2dDensity(sheet);
   const scaleBox = sheet.querySelector('.kw-scale-box');
   const wrap = sheet.querySelector('.kw-wrap');
-  if (!wrap || !scaleBox) return;
+  if (!wrap || !scaleBox) return 1;
   wrap.style.transform = 'none';
   wrap.style.zoom = '1';
-  scaleBox.style.zoom = '1';
   scaleBox.style.transform = 'none';
+  scaleBox.style.zoom = '1';
   sheet.style.width = KW_A4_W_MM + 'mm';
-  sheet.style.height = KW_A4_H_MM + 'mm';
-  sheet.style.maxHeight = KW_A4_H_MM + 'mm';
   sheet.style.overflow = 'hidden';
   scaleBox.style.width = KW_A4_W_MM + 'mm';
-  scaleBox.style.height = KW_A4_H_MM + 'mm';
-  scaleBox.style.maxHeight = KW_A4_H_MM + 'mm';
   scaleBox.style.overflow = 'hidden';
   void wrap.offsetHeight;
   const maxH = mmToPx(KW_A4_H_MM);
   const maxW = mmToPx(KW_A4_W_MM);
-  const minScale = 0.38;
-  let contentH = wrap.scrollHeight;
-  let contentW = wrap.scrollWidth;
+  const minScale = 0.32;
+  const contentH = wrap.scrollHeight;
+  const contentW = wrap.scrollWidth;
   let scale = Math.min(1, maxH / contentH, maxW / contentW);
   scale = Math.max(minScale, Math.floor(scale * 1000) / 1000);
+  scaleBox.style.height = contentH + 'px';
+  scaleBox.style.transformOrigin = 'top center';
   if (scale < 0.999) {
-    wrap.style.zoom = String(scale);
-    void wrap.offsetHeight;
-    const scaledH = wrap.getBoundingClientRect().height;
-    const scaledW = wrap.getBoundingClientRect().width;
-    if (scaledH > maxH * 1.01 || scaledW > maxW * 1.01) {
-      const fix = Math.min(maxH / scaledH, maxW / scaledW, 1);
-      wrap.style.zoom = String(Math.max(minScale, Math.floor(scale * fix * 1000) / 1000));
-    }
-    if (wrap.scrollHeight > maxH * 1.02) {
-      wrap.style.zoom = '1';
-      scaleBox.style.transform = 'scale(' + scale + ')';
-      scaleBox.style.transformOrigin = 'top center';
-    }
+    scaleBox.style.transform = 'scale(' + scale + ')';
+  }
+  sheet.style.height = KW_A4_H_MM + 'mm';
+  sheet.style.maxHeight = KW_A4_H_MM + 'mm';
+  sheet.style.minHeight = KW_A4_H_MM + 'mm';
+  scaleBox.style.maxHeight = contentH + 'px';
+  sheet.dataset.np2dFitScale = String(scale);
+  return scale;
+}
+
+function fitNp2dPreviewView() {
+  const host = document.getElementById('np2d-preview');
+  const frame = host?.querySelector('.np2d-preview-frame');
+  const sheet = frame?.querySelector('.kw-a4-sheet');
+  if (!host || !frame || !sheet) return;
+  fitNp2dSheet(sheet);
+  frame.style.transform = 'none';
+  frame.style.width = '';
+  frame.style.height = '';
+  void sheet.offsetWidth;
+  const rect = sheet.getBoundingClientRect();
+  const sheetW = rect.width || sheet.offsetWidth;
+  const sheetH = rect.height || sheet.offsetHeight;
+  if (!sheetW || !sheetH) return;
+  const availW = Math.max(280, host.clientWidth - 40);
+  const availH = Math.max(320, host.clientHeight - 24);
+  const viewScale = Math.min(1, availW / sheetW, availH / sheetH);
+  frame.style.width = sheetW + 'px';
+  if (viewScale < 0.999) {
+    frame.style.transform = 'scale(' + viewScale + ')';
+    frame.style.transformOrigin = 'top center';
+    frame.style.height = Math.ceil(sheetH * viewScale) + 'px';
+  } else {
+    frame.style.height = sheetH + 'px';
   }
 }
 
@@ -6054,9 +6044,12 @@ function cetakNP2D(id) {
 
   const sheet = document.querySelector('#np2d-print .kw-a4-sheet');
   fitNp2dSheet(sheet);
-  document.getElementById('np2d-preview').innerHTML = sheet.outerHTML;
-  fitNp2dSheet(document.querySelector('#np2d-preview .kw-a4-sheet'));
-  new bootstrap.Modal(document.getElementById('modalNP2D')).show();
+  document.getElementById('np2d-preview').innerHTML = `<div class="np2d-preview-frame">${sheet.outerHTML}</div>`;
+  fitNp2dPreviewView();
+  const modalEl = document.getElementById('modalNP2D');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modalEl.addEventListener('shown.bs.modal', fitNp2dPreviewView, { once: true });
+  modal.show();
 }
 
 function getNp2dPrintElement() {
@@ -6827,10 +6820,6 @@ function buildRegisterPeriodDisplayLabel() {
   return 'Semua Periode';
 }
 
-function buildRegisterKopHtml() {
-  return `<div class="rg-kop"><img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" /></div>`;
-}
-
 function buildRegisterTitleBlock() {
   const tahun = DB.tahun || 2026;
   const periode = buildRegisterPeriodDisplayLabel();
@@ -6839,7 +6828,7 @@ function buildRegisterTitleBlock() {
 
 function buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage) {
   if (isFirstPage) {
-    return `<div class="rg-first-head">${buildRegisterKopHtml()}${buildRegisterTitleBlock()}</div><div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
+    return `${buildRegisterTitleBlock()}<div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
   }
   const periode = buildRegisterPeriodDisplayLabel();
   return `<div class="rg-meta rg-meta-cont"><div>Register Pengeluaran · ${escapeHtmlRegister(periode)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
@@ -7100,15 +7089,6 @@ async function renderRegisterPageCanvas(pageEl) {
     onclone(doc) {
       doc.querySelectorAll('.rg-page, .rg-page *').forEach(el => {
         el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
-      });
-      doc.querySelectorAll('.rg-kop img').forEach(el => {
-        el.style.setProperty('width', '46mm', 'important');
-        el.style.setProperty('max-width', '46mm', 'important');
-        el.style.setProperty('height', 'auto', 'important');
-        el.style.setProperty('max-height', '10mm', 'important');
-        el.style.setProperty('margin', '0', 'important');
-        el.style.setProperty('object-fit', 'contain', 'important');
-        el.style.setProperty('object-position', 'left center', 'important');
       });
     },
   });
