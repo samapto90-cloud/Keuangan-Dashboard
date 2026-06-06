@@ -196,10 +196,11 @@
     .fx-dom-battle .fx-clash-ring { display: none; }
     @keyframes fxClashFlash {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-      49% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.35); }
-      54% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
-      68% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.45); }
-      82%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+      48% { opacity: 1; transform: translate(-50%, -50%) scale(0.55); }
+      52% { opacity: 0.92; transform: translate(-50%, -50%) scale(1.35); }
+      62% { opacity: 0.55; transform: translate(-50%, -50%) scale(2.1); }
+      78% { opacity: 0.15; transform: translate(-50%, -50%) scale(2.85); }
+      92%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.4); }
     }
     .fx-clash-ring {
       position: absolute;
@@ -214,9 +215,9 @@
     .fx-clash-ring:nth-child(5) { display: none; }
     @keyframes fxClashRing {
       0%, 47% { width: 0; height: 0; opacity: 0; transform: translate(-50%, -50%) scale(0.15); }
-      50% { width: 72px; height: 72px; opacity: 0.92; transform: translate(-50%, -50%) scale(1); }
-      72% { width: min(68vw, 540px); height: min(68vw, 540px); opacity: 0; transform: translate(-50%, -50%) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.05); }
+      50% { width: 100px; height: 100px; opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+      78% { width: min(115vw, 980px); height: min(115vw, 980px); opacity: 0; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
     }
     .fx-static-battle {
       position: absolute; inset: 0; z-index: 1;
@@ -1074,7 +1075,7 @@
       .fx-fighter { width: min(30vw, 130px); top: 18%; }
       .portal-battle-fx { height: clamp(220px, 36vh, 360px); }
       .fx-proj { width: min(26vw, 100px); height: min(26vw, 100px); top: 30%; }
-      .portal-battle-fx .fx-clash-flash { width: min(70vw, 340px); height: min(70vw, 340px); top: 30%; }
+      .portal-battle-fx .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
       .portal-battle-fx .fx-clash-ring,
       .portal-battle-fx .fx-clash-sparks { top: 30%; }
       .fx-arena-floor { bottom: 28%; width: 88vw; height: 32px; }
@@ -1500,6 +1501,43 @@
       pointer-events: none;
       overflow: visible;
     }
+    .fx-burst-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .fx-burst-shower {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .fx-burst-shower i {
+      position: absolute;
+      left: 50%;
+      top: 34%;
+      width: var(--sz, 7px);
+      height: var(--sz, 7px);
+      border-radius: 50%;
+      background: var(--c, #ff8800);
+      box-shadow: 0 0 10px var(--c, #ff8800), 0 0 18px rgba(255, 200, 80, 0.6);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--a, 0deg)) translateX(0) scale(0);
+      animation: fxParticleBurst 8s cubic-bezier(.15, .85, .25, 1) infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes fxParticleBurst {
+      0%, 46% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(0) scale(0); }
+      48% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateX(24px) scale(1.4); }
+      58% { opacity: 0.95; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 0.45)) scale(1.1); }
+      72% { opacity: 0.55; transform: translate(-50%, -50%) rotate(var(--a)) translateX(var(--d)) scale(0.65); }
+      88% { opacity: 0.12; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.15)) scale(0.25); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.3)) scale(0); }
+    }
     .portal-battle-hero .sakubijak-brand,
     .portal-battle-hero h1,
     .portal-battle-hero .portal-tagline,
@@ -1571,12 +1609,12 @@
     .portal-battle-fx .fx-clash-flash {
       position: absolute;
       left: 50%; top: 34%;
-      width: min(55vw, 480px);
-      height: min(55vw, 480px);
+      width: min(85vw, 720px);
+      height: min(85vw, 720px);
       z-index: 4;
-      filter: blur(1px);
+      filter: blur(2px);
       background:
-        radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,235,150,.9) 10%, rgba(255,120,0,.65) 26%, rgba(139,92,246,.45) 44%, transparent 66%);
+        radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,245,200,.95) 8%, rgba(255,160,0,.8) 20%, rgba(255,80,0,.55) 34%, rgba(139,92,246,.4) 50%, transparent 72%);
     }
     .portal-battle-fx .fx-clash-flash {
       animation: fxClashFlash 8s cubic-bezier(.22, 1, .36, 1) infinite;
@@ -1598,17 +1636,30 @@
       animation-delay: 0.2s;
       border-color: rgba(255, 160, 0, 0.55);
     }
+    .portal-battle-fx .fx-clash-ring-d {
+      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
+      animation-delay: 0.32s;
+      border-width: 3px;
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+    .portal-battle-fx .fx-clash-ring-e {
+      animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
+      animation-delay: 0.44s;
+      border-color: rgba(255, 60, 0, 0.35);
+    }
     .portal-battle-fx .fx-clash-sparks {
       position: absolute;
       left: 50%; top: 34%;
-      width: 4px; height: 4px;
+      width: 8px; height: 8px;
       border-radius: 50%;
       background: #fff;
       box-shadow:
-        0 0 12px #fff, 0 0 24px #ff8800,
-        40px -20px 0 #ffcc00, -35px 15px 0 #a855f7,
-        25px 30px 0 #ff6600, -45px -25px 0 #6366f1,
-        55px 10px 0 #ffaa00, -50px 30px 0 #c084fc;
+        0 0 16px #fff, 0 0 32px #ff8800,
+        80px -40px 0 6px #ffcc00, -70px 35px 0 5px #a855f7,
+        55px 65px 0 7px #ff6600, -90px -55px 0 6px #6366f1,
+        110px 25px 0 5px #ffaa00, -100px 60px 0 6px #c084fc,
+        40px -90px 0 5px #ff4400, -120px -20px 0 6px #818cf8,
+        130px -30px 0 5px #fbbf24, -130px 40px 0 6px #e879f9;
       opacity: 0;
       z-index: 5;
       transform: translate(-50%, -50%) scale(0);
@@ -1616,9 +1667,10 @@
     }
     @keyframes fxClashSparks {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-      48% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      62% { opacity: 0.6; transform: translate(-50%, -50%) scale(2.2); }
-      78%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+      48% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+      58% { opacity: 0.85; transform: translate(-50%, -50%) scale(3.5); }
+      75% { opacity: 0.35; transform: translate(-50%, -50%) scale(6); }
+      90%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(9); }
     }
     .sakubijak-logo-bounce {
       display: block;
@@ -3745,12 +3797,16 @@
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
       <div class="portal-battle-fx" aria-hidden="true">
+        <canvas class="fx-burst-canvas"></canvas>
+        <div class="fx-burst-shower"></div>
         <div class="fx-proj fx-proj-rasengan"></div>
         <div class="fx-proj fx-proj-chidori"></div>
         <div class="fx-clash-flash"></div>
         <div class="fx-clash-ring fx-clash-ring-a"></div>
         <div class="fx-clash-ring fx-clash-ring-b"></div>
         <div class="fx-clash-ring fx-clash-ring-c"></div>
+        <div class="fx-clash-ring fx-clash-ring-d"></div>
+        <div class="fx-clash-ring fx-clash-ring-e"></div>
         <div class="fx-clash-sparks"></div>
       </div>
       <div class="sakubijak-brand">
@@ -3834,12 +3890,16 @@
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="login-screen" class="hidden">
   <div class="portal-battle-fx" aria-hidden="true">
+    <canvas class="fx-burst-canvas"></canvas>
+    <div class="fx-burst-shower"></div>
     <div class="fx-proj fx-proj-rasengan"></div>
     <div class="fx-proj fx-proj-chidori"></div>
     <div class="fx-clash-flash"></div>
     <div class="fx-clash-ring fx-clash-ring-a"></div>
     <div class="fx-clash-ring fx-clash-ring-b"></div>
     <div class="fx-clash-ring fx-clash-ring-c"></div>
+    <div class="fx-clash-ring fx-clash-ring-d"></div>
+    <div class="fx-clash-ring fx-clash-ring-e"></div>
     <div class="fx-clash-sparks"></div>
   </div>
   <div class="login-card ds-animate">
@@ -6071,18 +6131,25 @@ function showPortal() {
 
 function schedulePortalFx() {
   const host = currentFxHost();
+  initBurstShowers();
   if (!host) {
     stopPortalFx();
+    stopPortalBurstFx();
     return;
   }
   setFxLayerActive(true);
   clearFxCanvasHide();
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.getElementById('sipkeu-fx-layer')?.classList.remove('is-canvas-live');
+    stopPortalBurstFx();
     return;
   }
   stopPortalFx();
-  requestAnimationFrame(() => requestAnimationFrame(() => startPortalFx()));
+  stopPortalBurstFx();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    startPortalFx();
+    startPortalBurstFx();
+  }));
 }
 
 let portalStatusCache = {};
@@ -11315,6 +11382,199 @@ async function doImporAnggaran() {
   }
 }
 
+// ── Portal burst particles (ledakan besar Rasengan vs Chidori) ──
+let portalBurstRaf = 0;
+const BURST_CYCLE = 8;
+
+function initBurstShowers() {
+  document.querySelectorAll('.fx-burst-shower').forEach(shower => {
+    if (shower.dataset.ready === '1') return;
+    shower.dataset.ready = '1';
+    const count = 52;
+    const span = Math.max(window.innerWidth, window.innerHeight);
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('i');
+      const angle = (360 / count) * i + (Math.random() - 0.5) * 10;
+      const dist = 200 + Math.random() * span * 0.48;
+      const colors = ['#ff8800', '#ffcc00', '#ff4400', '#a855f7', '#6366f1', '#fff176', '#ff6600', '#e879f9'];
+      p.style.setProperty('--a', angle + 'deg');
+      p.style.setProperty('--d', dist + 'px');
+      p.style.setProperty('--sz', (5 + Math.random() * 10) + 'px');
+      p.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
+      p.style.setProperty('--delay', (Math.random() * 0.08) + 's');
+      shower.appendChild(p);
+    }
+  });
+}
+
+function burstFxVisible() {
+  const portal = document.getElementById('portal-screen');
+  const login = document.getElementById('login-screen');
+  return (portal && !portal.classList.contains('hidden'))
+    || (login && !login.classList.contains('hidden'));
+}
+
+function stopPortalBurstFx() {
+  if (portalBurstRaf) cancelAnimationFrame(portalBurstRaf);
+  portalBurstRaf = 0;
+  document.querySelectorAll('.fx-burst-canvas').forEach(c => {
+    c.style.display = 'none';
+    const ctx = c.getContext('2d');
+    if (ctx && c.width) ctx.clearRect(0, 0, c.width, c.height);
+  });
+}
+
+function startPortalBurstFx() {
+  initBurstShowers();
+  if (!burstFxVisible() || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    stopPortalBurstFx();
+    return;
+  }
+  const canvas = document.querySelector('.fx-burst-canvas');
+  if (!canvas) return;
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, t = 0;
+  const particles = [];
+  const rings = [];
+  let lastBurstCycle = -1;
+
+  function burstEase(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  if (!canvas._burstResizeHandler) {
+    canvas._burstResizeHandler = resize;
+    window.addEventListener('resize', resize);
+  }
+
+  function spawnMegaBurst(cx, cy) {
+    const cycleIdx = Math.floor(t / BURST_CYCLE);
+    if (cycleIdx === lastBurstCycle) return;
+    lastBurstCycle = cycleIdx;
+    const maxSpd = Math.max(W, H) * 0.022;
+    for (let i = 0; i < 360; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 4 + Math.random() * maxSpd;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 30,
+        y: cy + (Math.random() - 0.5) * 30,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - Math.random() * 3,
+        life: 1,
+        decay: 0.005 + Math.random() * 0.007,
+        size: 2 + Math.random() * 11,
+        hue: Math.random() > 0.4 ? 16 + Math.random() * 32 : 248 + Math.random() * 45,
+        glow: Math.random() > 0.45,
+      });
+    }
+    for (let i = 0; i < 12; i++) {
+      rings.push({
+        x: cx, y: cy,
+        r: 16 + i * 10,
+        maxR: Math.max(W, H) * (0.5 + i * 0.07),
+        life: 1,
+        speed: 7 + i * 1.8,
+        alpha: 0.92 - i * 0.05,
+      });
+    }
+  }
+
+  function drawBurstExplosion(cx, cy, intensity) {
+    if (intensity <= 0.01) return;
+    const peak = Math.sin(intensity * Math.PI);
+    const r = Math.max(W, H) * (0.22 + intensity * 0.42);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, `rgba(255,255,255,${peak * 0.98})`);
+    g.addColorStop(0.07, `rgba(255,245,180,${peak * 0.88})`);
+    g.addColorStop(0.2, `rgba(255,130,0,${peak * 0.7})`);
+    g.addColorStop(0.38, `rgba(255,60,0,${peak * 0.48})`);
+    g.addColorStop(0.55, `rgba(167,139,250,${peak * 0.32})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    if (peak > 0.2) {
+      ctx.save();
+      ctx.globalAlpha = peak * 0.25;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+  }
+
+  function burstFrame() {
+    if (!burstFxVisible()) {
+      stopPortalBurstFx();
+      return;
+    }
+    t += 0.016;
+    const phase = (t % BURST_CYCLE) / BURST_CYCLE;
+    const cx = W * 0.5;
+    const cy = H * 0.34;
+
+    ctx.clearRect(0, 0, W, H);
+
+    let explodeT = 0;
+    if (phase >= 0.47 && phase < 0.9) {
+      explodeT = (phase - 0.47) / 0.43;
+      if (phase < 0.49) spawnMegaBurst(cx, cy);
+    }
+
+    if (explodeT > 0) drawBurstExplosion(cx, cy, burstEase(Math.min(explodeT * 1.1, 1)));
+
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const ring = rings[i];
+      ring.r += ring.speed;
+      ring.life -= 0.011;
+      const prog = ring.r / ring.maxR;
+      const alpha = ring.alpha * (1 - prog) * ring.life;
+      if (alpha <= 0.01 || ring.life <= 0) { rings.splice(i, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255, 235, 190, ${alpha})`;
+      ctx.lineWidth = 5 * (1 - prog * 0.75);
+      ctx.shadowBlur = 28;
+      ctx.shadowColor = `rgba(255, 140, 40, ${alpha * 0.85})`;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.035;
+      p.vx *= 0.993;
+      p.life -= p.decay;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 100%, ${p.glow ? 74 : 56}%, ${p.life * 0.92})`;
+      if (p.glow) {
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 58%, ${p.life * 0.75})`;
+      }
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    if (phase < 0.02) {
+      particles.length = 0;
+      rings.length = 0;
+    }
+
+    portalBurstRaf = requestAnimationFrame(burstFrame);
+  }
+
+  if (portalBurstRaf) cancelAnimationFrame(portalBurstRaf);
+  portalBurstRaf = requestAnimationFrame(burstFrame);
+}
+
 // ── FX: Kyubi Naruto vs Curse Mark Sasuke (3D-style) ──
 let portalFxRaf = 0;
 let portalFxActive = false;
@@ -13628,6 +13888,7 @@ window.addEventListener('pageshow', (ev) => {
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   initSettingsNav();
+  initBurstShowers();
   resetAllShells();
   setFxLayerActive(true);
   const bootWatchdog = setTimeout(sipkeuRecoverFromStuck, 14000);
