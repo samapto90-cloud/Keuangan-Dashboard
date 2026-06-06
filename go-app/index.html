@@ -65,12 +65,12 @@
 
     /* ── FX Layer (fullscreen di belakang portal) ── */
     #fx-canvas {
-      position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
       width: 100%; height: 100%; opacity: 0.96;
     }
     #portal-screen .portal-fx-vignette,
     .portal-fx-vignette {
-      position: fixed; inset: 0; z-index: 10000; pointer-events: none !important;
+      position: fixed; inset: 0; z-index: 9999; pointer-events: none !important;
       display: none;
     }
     #global-fx-vignette {
@@ -1277,6 +1277,7 @@
       position: fixed; inset: 0; z-index: 10000;
       display: flex; align-items: center; justify-content: center;
       padding: 24px;
+      background: transparent;
     }
     #login-screen.hidden { display: none !important; pointer-events: none !important; }
 
@@ -1286,6 +1287,7 @@
       display: flex; align-items: flex-start; justify-content: center;
       padding: 32px 20px 48px; overflow-y: auto;
       pointer-events: auto;
+      background: transparent;
     }
     @media (prefers-reduced-motion: reduce) {
       .sakubijak-logo-full,
@@ -2087,7 +2089,7 @@
       margin-bottom: 14px;
     }
     .login-error.show { display: block; }
-    #app-shell { display: none; }
+    #app-shell { display: none; position: relative; z-index: 10002; }
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
@@ -2097,9 +2099,9 @@
       position: relative; z-index: 10002; isolation: isolate;
       color: #e2e8f0;
       background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.18), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(129,140,248,.12), transparent),
-        linear-gradient(165deg, #020617 0%, #0c1222 35%, #111827 70%, #0f172a 100%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.14), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(129,140,248,.1), transparent),
+        linear-gradient(165deg, rgba(2,6,23,.88) 0%, rgba(12,18,34,.9) 35%, rgba(17,24,39,.92) 70%, rgba(15,23,42,.9) 100%);
     }
     #settings-app-shell::before {
       content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .35;
@@ -5655,6 +5657,23 @@ function resetAllShells() {
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
 }
 
+function clearFxCanvasHide() {
+  document.getElementById('fx-canvas')?.style.removeProperty('display');
+  document.querySelector('.portal-fx-vignette')?.style.removeProperty('display');
+}
+
+function currentFxHost() {
+  const portal = document.getElementById('portal-screen');
+  const login = document.getElementById('login-screen');
+  const app = document.getElementById('app-shell');
+  const settings = document.getElementById('settings-app-shell');
+  if (portal && !portal.classList.contains('hidden')) return { opacity: 0.96, vignette: true };
+  if (login && !login.classList.contains('hidden')) return { opacity: 0.9, vignette: true };
+  if (app?.classList.contains('visible')) return { opacity: 0.34, vignette: true };
+  if (settings?.classList.contains('visible')) return { opacity: 0.28, vignette: true };
+  return null;
+}
+
 function showPortal() {
   resetAllShells();
   clearPortalThemes(document.body);
@@ -5663,6 +5682,7 @@ function showPortal() {
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   loadPortalStatus();
+  clearFxCanvasHide();
   schedulePortalFx();
 }
 
@@ -5740,7 +5760,6 @@ function applyPortalTheme(el, appKey) {
 }
 
 function showLogin(appKey) {
-  stopPortalFx();
   const nextApp = appKey || 'sekretariat';
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_in_app');
@@ -5762,6 +5781,8 @@ function showLogin(appKey) {
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
   document.getElementById('login-error')?.classList.remove('show');
+  clearFxCanvasHide();
+  schedulePortalFx();
 }
 
 function openPortalApp(appKey) {
@@ -5872,14 +5893,13 @@ function applyPermissionUI() {
 }
 
 function showApp() {
-  stopPortalFx();
-  document.getElementById('fx-canvas')?.style.setProperty('display', 'none', 'important');
-  document.querySelector('.portal-fx-vignette')?.style.setProperty('display', 'none', 'important');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
+  clearFxCanvasHide();
+  schedulePortalFx();
   applyPortalTheme(document.body, selectedPortalApp);
   applyRoleUI();
 }
@@ -5903,7 +5923,6 @@ function showKasApp() {
 }
 
 function showSettingsApp() {
-  stopPortalFx();
   closeSettingsMobileSidebar();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
@@ -5911,7 +5930,8 @@ function showSettingsApp() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.add('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
-  document.getElementById('fx-canvas')?.style.setProperty('display', 'none', 'important');
+  clearFxCanvasHide();
+  schedulePortalFx();
   clearPortalThemes(document.body);
   document.body.classList.add('theme-sao');
   const el = document.getElementById('settings-user-label');
@@ -6055,6 +6075,7 @@ function closeSettingsMobileSidebar() {
 
 function showSettingsPage(page, navEl) {
   closeSettingsMobileSidebar();
+  playBreathSlash();
   document.querySelectorAll('.settings-page').forEach(p => {
     p.classList.remove('active');
     p.style.removeProperty('display');
@@ -10916,14 +10937,16 @@ function startPortalFx() {
   if (portalFxActive) return;
   const canvas = document.getElementById('fx-canvas');
   if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const portal = document.getElementById('portal-screen');
-  if (!portal || portal.classList.contains('hidden')) {
+  const host = currentFxHost();
+  if (!host) {
     canvas.style.display = 'none';
     return;
   }
+  canvas.style.removeProperty('display');
   canvas.style.display = 'block';
+  canvas.style.opacity = String(host.opacity);
   const vignette = document.querySelector('.portal-fx-vignette');
-  if (vignette) vignette.style.display = 'block';
+  if (vignette) vignette.style.display = host.vignette ? 'block' : 'none';
   portalFxActive = true;
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, t = 0;
@@ -11337,9 +11360,13 @@ function startPortalFx() {
 
     if (phase < 0.04) { sparks.length = 0; bolts.length = 0; embers.length = 0; }
 
-    if (document.getElementById('portal-screen')?.classList.contains('hidden')) {
+    if (!currentFxHost()) {
       stopPortalFx();
       return;
+    }
+    const liveHost = currentFxHost();
+    if (liveHost && canvas.style.opacity !== String(liveHost.opacity)) {
+      canvas.style.opacity = String(liveHost.opacity);
     }
     portalFxRaf = requestAnimationFrame(frame);
   }
