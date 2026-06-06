@@ -1027,11 +1027,8 @@
       background: rgba(15,23,42,.35);
     }
     .register-filter-bar .filter-item { min-width: 160px; flex: 1 1 160px; }
-    .register-filter-bar .filter-item.filter-period { min-width: 320px; flex: 1.6 1 320px; }
-    .register-period-grid { display: flex; flex-direction: column; gap: 6px; }
-    .register-period-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .register-period-lbl { font-size: 10px; color: #64748b; min-width: 46px; font-weight: 600; flex-shrink: 0; }
-    .register-period-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
+    .register-filter-bar .filter-item.filter-period { min-width: 280px; flex: 1.4 1 280px; }
+    .register-period-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .register-period-range .form-control { flex: 1 1 120px; min-width: 120px; }
     .register-period-sep { font-size: 11px; color: #94a3b8; white-space: nowrap; }
     .register-filter-bar label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .35px; margin-bottom: 4px; display: block; }
@@ -3388,23 +3385,10 @@ function onNilaiBrutoInput() {
       <div class="register-filter-bar">
         <div class="filter-item filter-period">
           <label>Periode</label>
-          <div class="register-period-grid">
-            <div class="register-period-row">
-              <span class="register-period-lbl">Bulan</span>
-              <div class="register-period-range">
-                <input type="month" class="form-control form-control-sm" id="reg-filter-dari" onchange="onRegisterMonthChange()" title="Dari bulan" />
-                <span class="register-period-sep">s/d</span>
-                <input type="month" class="form-control form-control-sm" id="reg-filter-sampai" onchange="onRegisterMonthChange()" title="Sampai bulan" />
-              </div>
-            </div>
-            <div class="register-period-row">
-              <span class="register-period-lbl">Tanggal</span>
-              <div class="register-period-range">
-                <input type="date" class="form-control form-control-sm" id="reg-filter-dari-tgl" onchange="onRegisterFilterChange()" title="Dari tanggal" />
-                <span class="register-period-sep">s/d</span>
-                <input type="date" class="form-control form-control-sm" id="reg-filter-sampai-tgl" onchange="onRegisterFilterChange()" title="Sampai tanggal" />
-              </div>
-            </div>
+          <div class="register-period-range">
+            <input type="date" class="form-control form-control-sm" id="reg-filter-dari-tgl" onchange="onRegisterFilterChange()" title="Dari tanggal" />
+            <span class="register-period-sep">s/d</span>
+            <input type="date" class="form-control form-control-sm" id="reg-filter-sampai-tgl" onchange="onRegisterFilterChange()" title="Sampai tanggal" />
           </div>
         </div>
         <div class="filter-item">
@@ -6475,30 +6459,6 @@ function escapeHtmlRegister(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function registerMonthEnd(ym) {
-  if (!ym) return '';
-  const [y, m] = ym.split('-').map(Number);
-  if (!y || !m) return '';
-  const lastDay = new Date(y, m, 0).getDate();
-  return `${ym}-${String(lastDay).padStart(2, '0')}`;
-}
-
-function registerFormatMonthLabel(ym) {
-  if (!ym) return '';
-  const [y, m] = ym.split('-');
-  return (KAS_BULAN_NAMA[m] || m) + ' ' + y;
-}
-
-function normalizeRegisterMonthRange() {
-  const dariEl = document.getElementById('reg-filter-dari');
-  const sampaiEl = document.getElementById('reg-filter-sampai');
-  if (!dariEl || !sampaiEl) return;
-  if (dariEl.value && !sampaiEl.value) sampaiEl.value = dariEl.value;
-  if (dariEl.value && sampaiEl.value && dariEl.value > sampaiEl.value) {
-    sampaiEl.value = dariEl.value;
-  }
-}
-
 function normalizeRegisterDateRange() {
   const dariEl = document.getElementById('reg-filter-dari-tgl');
   const sampaiEl = document.getElementById('reg-filter-sampai-tgl');
@@ -6511,27 +6471,17 @@ function normalizeRegisterDateRange() {
 
 function getRegisterPeriodBounds() {
   normalizeRegisterDateRange();
-  let start = document.getElementById('reg-filter-dari-tgl')?.value || '';
-  let end = document.getElementById('reg-filter-sampai-tgl')?.value || '';
-  if (!start && !end) {
-    normalizeRegisterMonthRange();
-    const dari = document.getElementById('reg-filter-dari')?.value || '';
-    const sampai = document.getElementById('reg-filter-sampai')?.value || '';
-    if (dari) start = `${dari}-01`;
-    if (sampai || dari) end = registerMonthEnd(sampai || dari);
-  }
-  return { start, end };
+  return {
+    start: document.getElementById('reg-filter-dari-tgl')?.value || '',
+    end: document.getElementById('reg-filter-sampai-tgl')?.value || '',
+  };
 }
 
-function onRegisterMonthChange() {
-  normalizeRegisterMonthRange();
-  const dari = document.getElementById('reg-filter-dari')?.value || '';
-  const sampai = document.getElementById('reg-filter-sampai')?.value || '';
-  const dariTglEl = document.getElementById('reg-filter-dari-tgl');
-  const sampaiTglEl = document.getElementById('reg-filter-sampai-tgl');
-  if (dari && dariTglEl) dariTglEl.value = `${dari}-01`;
-  if ((sampai || dari) && sampaiTglEl) sampaiTglEl.value = registerMonthEnd(sampai || dari);
-  onRegisterFilterChange();
+function getRegisterDicetakDate() {
+  normalizeRegisterDateRange();
+  const end = document.getElementById('reg-filter-sampai-tgl')?.value || '';
+  if (end) return formatTanggal(end);
+  return new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 function getRegisterFilteredTransactions() {
@@ -6554,8 +6504,6 @@ function buildRegisterFilterLabel() {
   const parts = [];
   const dariTgl = document.getElementById('reg-filter-dari-tgl')?.value;
   const sampaiTgl = document.getElementById('reg-filter-sampai-tgl')?.value;
-  const dari = document.getElementById('reg-filter-dari')?.value;
-  const sampai = document.getElementById('reg-filter-sampai')?.value;
   const kegiatan = document.getElementById('reg-filter-kegiatan')?.value;
   const sub = document.getElementById('reg-filter-sub')?.value;
   const pekerjaan = document.getElementById('reg-filter-pekerjaan')?.value;
@@ -6566,13 +6514,6 @@ function buildRegisterFilterLabel() {
     parts.push('Dari ' + formatTanggalShort(dariTgl));
   } else if (sampaiTgl) {
     parts.push('Sampai ' + formatTanggalShort(sampaiTgl));
-  } else if (dari && sampai) {
-    if (dari === sampai) parts.push('Bulan ' + registerFormatMonthLabel(dari));
-    else parts.push('Periode ' + registerFormatMonthLabel(dari) + ' – ' + registerFormatMonthLabel(sampai));
-  } else if (dari) {
-    parts.push('Dari ' + registerFormatMonthLabel(dari));
-  } else if (sampai) {
-    parts.push('Sampai ' + registerFormatMonthLabel(sampai));
   }
   if (kegiatan) parts.push('Kegiatan: ' + kegiatan);
   if (sub) parts.push('Sub: ' + sub);
@@ -6625,8 +6566,6 @@ function onRegisterFilterChange() {
 }
 
 function resetRegisterFilters() {
-  document.getElementById('reg-filter-dari').value = '';
-  document.getElementById('reg-filter-sampai').value = '';
   document.getElementById('reg-filter-dari-tgl').value = '';
   document.getElementById('reg-filter-sampai-tgl').value = '';
   document.getElementById('reg-filter-kegiatan').value = '';
@@ -6781,7 +6720,7 @@ function measureRegisterTableHeight(rowHtmlList, includeTfoot, tfootHtml) {
 function paginateRegisterRows(rows) {
   if (!rows.length) return [[]];
   const pageH = mmToPx(RG_A4_LANDSCAPE_H_MM - 16);
-  const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const tanggal = getRegisterDicetakDate();
   const headerFirstH = measureRegisterBlockHeight(buildRegisterPageHeader(tanggal, 1, 1, true));
   const headerContH = measureRegisterBlockHeight(buildRegisterPageHeader(tanggal, 2, 2, false));
   const ttdH = measureRegisterBlockHeight(buildRegisterSignatureHtml());
@@ -6828,7 +6767,7 @@ function paginateRegisterRows(rows) {
 }
 
 function buildRegisterPagesHtml(rows) {
-  const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const tanggal = getRegisterDicetakDate();
   const chunks = paginateRegisterRows(rows);
   const totalPages = chunks.length;
   const tfootHtml = buildRegisterTableFootHtml(rows);
@@ -6852,10 +6791,9 @@ function buildRegisterPagesHtml(rows) {
 
 function fillRegisterPejabatPreview() {
   const cfg = getPortalAppConfig();
-  const now = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   const filterLabel = 'Filter: ' + buildRegisterFilterLabel();
   document.getElementById('reg-preview-tahun').textContent = DB.tahun || 2026;
-  document.getElementById('reg-preview-date').textContent = now;
+  document.getElementById('reg-preview-date').textContent = getRegisterDicetakDate();
   document.getElementById('reg-preview-filter').textContent = filterLabel;
   document.getElementById('reg-preview-pa-nama').textContent = DB.pa?.nama || '—';
   document.getElementById('reg-preview-pa-nip').textContent = DB.pa?.nip || '—';
@@ -6871,7 +6809,7 @@ function fillRegisterPrint() {
   if (!el) return;
   el.innerHTML = rows.length ? buildRegisterPagesHtml(rows) : `
     <div class="rg-page"><div class="rg-page-inner">
-      ${buildRegisterPageHeader(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }), 1, 1, true)}
+      ${buildRegisterPageHeader(getRegisterDicetakDate(), 1, 1, true)}
       <table class="rg-table">${getRegisterTheadHtml()}<tbody>${buildRegisterTableBodyHtml([])}</tbody></table>
     </div></div>`;
 }
@@ -6900,6 +6838,15 @@ async function loadRegister() {
 function exportRegisterExcel() {
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
   if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
+  const dicetak = getRegisterDicetakDate();
+  const filterLbl = buildRegisterFilterLabel();
+  const metaRows = [
+    ['REGISTER PENGELUARAN'],
+    ['Tahun Anggaran', DB.tahun || 2026],
+    ['Dicetak', dicetak],
+    ['Filter', filterLbl],
+    [],
+  ];
   const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Jenis Potongan', 'Nilai Bruto', 'Potongan', 'Nilai Netto'];
   const dataRows = rows.map(t => [
     t.no_bpk || '',
@@ -6917,7 +6864,7 @@ function exportRegisterExcel() {
   ]);
   const { totBruto, totPot, totNetto } = computeRegisterTotals(rows);
   dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', '', totBruto, totPot, totNetto]);
-  const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+  const ws = XLSX.utils.aoa_to_sheet([...metaRows, header, ...dataRows]);
   ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 16 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Register');
