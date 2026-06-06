@@ -965,7 +965,39 @@
     .np-sign-space { height: 48px; }
     .np-sign-name { font-weight: 700; text-decoration: underline; }
     .np-sign-nip { font-size: 10.5px; }
-    .np-lembar { margin-top: 10px; font-size: 9.5px; color: #333; }
+    .np-wrap.np-density-1 { font-size: 10px; line-height: 1.38; }
+    .np-wrap.np-density-1 .np-title { font-size: 11.5px; margin: 5px 0 4px; }
+    .np-wrap.np-density-1 .np-nomor { margin-bottom: 12px; }
+    .np-wrap.np-density-1 .np-body-block { margin: 6px 0 8px; }
+    .np-wrap.np-density-1 .np-amount-box { padding: 7px 10px 8px; margin-bottom: 10px; }
+    .np-wrap.np-density-1 .np-sign-space { height: 36px; }
+    .np-wrap.np-density-1 .np-tax-table { font-size: 8px; }
+    .np-wrap.np-density-1 .np-tax-table th,
+    .np-wrap.np-density-1 .np-tax-table td { padding: 1.5px 2px; }
+    .np-wrap.np-density-2 { font-size: 9px; line-height: 1.32; }
+    .np-wrap.np-density-2 .np-title { font-size: 10.5px; margin: 3px 0 2px; line-height: 1.25; }
+    .np-wrap.np-density-2 .np-nomor { margin-bottom: 8px; font-size: 10px; }
+    .np-wrap.np-density-2 .np-meta td,
+    .np-wrap.np-density-2 .np-rek td { padding: 1px 4px 1px 0; font-size: 9.5px; }
+    .np-wrap.np-density-2 .np-body-block { margin: 4px 0 6px; }
+    .np-wrap.np-density-2 .np-para-lead { margin-bottom: 6px; }
+    .np-wrap.np-density-2 .np-amount-box { padding: 5px 8px 6px; margin-bottom: 6px; }
+    .np-wrap.np-density-2 .np-amount { font-size: 11px; margin-bottom: 2px; }
+    .np-wrap.np-density-2 .np-amount-words { font-size: 10px; }
+    .np-wrap.np-density-2 .np-sec-title { margin: 4px 0 2px; }
+    .np-wrap.np-density-2 .np-table { font-size: 9px; margin: 1px 0 2px; }
+    .np-wrap.np-density-2 .np-table th,
+    .np-wrap.np-density-2 .np-table td { padding: 2px 3px; }
+    .np-wrap.np-density-2 .np-tax-table { font-size: 7px; }
+    .np-wrap.np-density-2 .np-tax-table th,
+    .np-wrap.np-density-2 .np-tax-table td { padding: 1px 2px; line-height: 1.25; }
+    .np-wrap.np-density-2 .np-closing { margin: 4px 0; }
+    .np-wrap.np-density-2 .np-sign { margin-top: 3px; gap: 12px; }
+    .np-wrap.np-density-2 .np-sign-cell { font-size: 9.5px; }
+    .np-wrap.np-density-2 .np-sign-space { height: 28px; }
+    .np-wrap.np-density-2 .np-lembar { margin-top: 4px; font-size: 8.5px; }
+    .np-wrap.np-density-2 .kw-kop { margin-bottom: 2mm; padding-bottom: 1.5mm; }
+    .np-wrap.np-density-2 .kw-kop img { max-height: 22mm; }
 
     /* ── Rekap Print ── */
     .rk-wrap { font-family: Arial, sans-serif; max-width: 100%; padding: 16px 20px; font-size: 11px; color: #111; }
@@ -1007,32 +1039,39 @@
     }
     .rg-page:last-child { page-break-after: auto; break-after: auto; }
     .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
+    .rg-first-head {
+      display: flex;
+      align-items: center;
+      gap: 4mm;
+      margin-bottom: 2mm;
+    }
     .rg-kop {
-      width: calc(100% + 16mm);
-      margin: 0 -8mm 3mm;
-      padding: 0 4mm 1.5mm;
-      box-sizing: border-box;
-      text-align: center;
+      flex: 0 0 auto;
+      width: auto;
+      margin: 0;
+      padding: 0;
+      text-align: left;
     }
     .rg-kop img {
       display: block;
-      width: 100%;
-      height: 10mm;
+      width: 46mm;
+      max-width: 46mm;
+      height: auto;
       max-height: 10mm;
-      margin: 0 auto;
-      object-fit: cover;
-      object-position: center center;
+      margin: 0;
+      object-fit: contain;
+      object-position: left center;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .rg-wrap .rg-kop,
-    #register-preview-wrap .rg-kop {
-      width: calc(100% + 32px);
-      margin-left: -16px;
-      margin-right: -16px;
-      padding: 0 8px 6px;
+    .rg-first-head .rg-doc-title {
+      flex: 1 1 auto;
+      text-align: center;
+      margin-bottom: 0;
     }
-    #register-preview-wrap .rg-kop img { width: 100%; height: 36px; max-height: 36px; object-fit: cover; }
+    .rg-wrap .rg-first-head,
+    #register-preview-wrap .rg-first-head { gap: 12px; }
+    #register-preview-wrap .rg-kop img { width: 140px; max-width: 140px; max-height: 28px; }
     .rg-doc-title { text-align: center; margin-bottom: 3px; }
     .rg-doc-title h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
     .rg-doc-title .rg-doc-period { margin: 3px 0 0; font-size: 9px; font-weight: 600; color: #222; }
@@ -1074,21 +1113,14 @@
     body.register-printing #register-print .rg-page:last-child {
       page-break-after: auto; break-after: auto;
     }
-    body.register-printing #register-print .rg-kop {
-      width: calc(100% + 16mm) !important;
-      margin-left: -8mm !important;
-      margin-right: -8mm !important;
-      padding: 0 4mm 1.5mm !important;
-      box-sizing: border-box !important;
-    }
     body.register-printing #register-print .rg-kop img {
-      width: 100% !important;
-      height: 10mm !important;
+      width: 46mm !important;
+      max-width: 46mm !important;
+      height: auto !important;
       max-height: 10mm !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-      object-fit: cover !important;
-      object-position: center center !important;
+      margin: 0 !important;
+      object-fit: contain !important;
+      object-position: left center !important;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .anggaran-readonly {
@@ -3448,13 +3480,15 @@ function onNilaiBrutoInput() {
       <div id="register-info" class="px-3 py-2 text-muted" style="font-size:12px">—</div>
       <div id="register-preview-wrap">
         <div class="rg-wrap" id="register-preview">
-          <div class="rg-kop">
-            <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
-          </div>
-          <div class="rg-doc-title">
-            <h4 id="reg-preview-title">Register Pengeluaran</h4>
-            <p class="rg-doc-period" id="reg-preview-period">Semua Periode</p>
-            <p class="rg-doc-tahun">Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
+          <div class="rg-first-head">
+            <div class="rg-kop">
+              <img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" />
+            </div>
+            <div class="rg-doc-title">
+              <h4 id="reg-preview-title">Register Pengeluaran</h4>
+              <p class="rg-doc-period" id="reg-preview-period">Semua Periode</p>
+              <p class="rg-doc-tahun">Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
+            </div>
           </div>
           <div class="rg-meta">
             <div id="reg-preview-filter">Filter: Semua data</div>
@@ -5695,6 +5729,60 @@ function fitKwitansiSheet(sheet) {
   }
 }
 
+function applyNp2dDensity(sheet) {
+  const wrap = sheet?.querySelector('.np-wrap');
+  if (!wrap) return 0;
+  const n = sheet.querySelectorAll('#np-pajak-rows tr').length;
+  wrap.classList.remove('np-density-0', 'np-density-1', 'np-density-2');
+  if (n >= 6) wrap.classList.add('np-density-2');
+  else if (n >= 3) wrap.classList.add('np-density-1');
+  else wrap.classList.add('np-density-0');
+  return n;
+}
+
+function fitNp2dSheet(sheet) {
+  if (!sheet) return;
+  applyNp2dDensity(sheet);
+  const scaleBox = sheet.querySelector('.kw-scale-box');
+  const wrap = sheet.querySelector('.kw-wrap');
+  if (!wrap || !scaleBox) return;
+  wrap.style.transform = 'none';
+  wrap.style.zoom = '1';
+  scaleBox.style.zoom = '1';
+  scaleBox.style.transform = 'none';
+  sheet.style.width = KW_A4_W_MM + 'mm';
+  sheet.style.height = KW_A4_H_MM + 'mm';
+  sheet.style.maxHeight = KW_A4_H_MM + 'mm';
+  sheet.style.overflow = 'hidden';
+  scaleBox.style.width = KW_A4_W_MM + 'mm';
+  scaleBox.style.height = KW_A4_H_MM + 'mm';
+  scaleBox.style.maxHeight = KW_A4_H_MM + 'mm';
+  scaleBox.style.overflow = 'hidden';
+  void wrap.offsetHeight;
+  const maxH = mmToPx(KW_A4_H_MM);
+  const maxW = mmToPx(KW_A4_W_MM);
+  const minScale = 0.38;
+  let contentH = wrap.scrollHeight;
+  let contentW = wrap.scrollWidth;
+  let scale = Math.min(1, maxH / contentH, maxW / contentW);
+  scale = Math.max(minScale, Math.floor(scale * 1000) / 1000);
+  if (scale < 0.999) {
+    wrap.style.zoom = String(scale);
+    void wrap.offsetHeight;
+    const scaledH = wrap.getBoundingClientRect().height;
+    const scaledW = wrap.getBoundingClientRect().width;
+    if (scaledH > maxH * 1.01 || scaledW > maxW * 1.01) {
+      const fix = Math.min(maxH / scaledH, maxW / scaledW, 1);
+      wrap.style.zoom = String(Math.max(minScale, Math.floor(scale * fix * 1000) / 1000));
+    }
+    if (wrap.scrollHeight > maxH * 1.02) {
+      wrap.style.zoom = '1';
+      scaleBox.style.transform = 'scale(' + scale + ')';
+      scaleBox.style.transformOrigin = 'top center';
+    }
+  }
+}
+
 function getKwitansiPrintElement() {
   return document.querySelector('#kwitansi-print .kw-a4-sheet');
 }
@@ -5965,9 +6053,9 @@ function cetakNP2D(id) {
   np2dFilenameBase = `NP2D_${slug}_${penerimaSlug}`;
 
   const sheet = document.querySelector('#np2d-print .kw-a4-sheet');
-  fitKwitansiSheet(sheet);
+  fitNp2dSheet(sheet);
   document.getElementById('np2d-preview').innerHTML = sheet.outerHTML;
-  fitKwitansiSheet(document.querySelector('#np2d-preview .kw-a4-sheet'));
+  fitNp2dSheet(document.querySelector('#np2d-preview .kw-a4-sheet'));
   new bootstrap.Modal(document.getElementById('modalNP2D')).show();
 }
 
@@ -5978,7 +6066,7 @@ function getNp2dPrintElement() {
 async function buildNp2dCaptureNode() {
   const source = getNp2dPrintElement();
   if (!source) throw new Error('Data NP2D tidak ditemukan.');
-  fitKwitansiSheet(source);
+  fitNp2dSheet(source);
   const host = document.getElementById('kw-capture-host');
   host.innerHTML = '';
   const clone = source.cloneNode(true);
@@ -5986,7 +6074,7 @@ async function buildNp2dCaptureNode() {
   clone.style.boxShadow = 'none';
   clone.querySelectorAll('.kw-scale-box').forEach(el => { el.style.transform = 'none'; el.style.zoom = '1'; });
   host.appendChild(clone);
-  fitKwitansiSheet(clone);
+  fitNp2dSheet(clone);
   clone.querySelectorAll('img').forEach(img => {
     const src = img.getAttribute('src');
     if (src) img.src = new URL(src, window.location.origin).href;
@@ -6063,7 +6151,7 @@ async function doSimpanNP2D() {
 }
 
 function doCetakNP2D() {
-  fitKwitansiSheet(getNp2dPrintElement());
+  fitNp2dSheet(getNp2dPrintElement());
   document.body.classList.add('np2d-printing');
   bootstrap.Modal.getInstance(document.getElementById('modalNP2D'))?.hide();
   setTimeout(() => {
@@ -6751,7 +6839,7 @@ function buildRegisterTitleBlock() {
 
 function buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage) {
   if (isFirstPage) {
-    return `${buildRegisterKopHtml()}${buildRegisterTitleBlock()}<div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
+    return `<div class="rg-first-head">${buildRegisterKopHtml()}${buildRegisterTitleBlock()}</div><div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
   }
   const periode = buildRegisterPeriodDisplayLabel();
   return `<div class="rg-meta rg-meta-cont"><div>Register Pengeluaran · ${escapeHtmlRegister(periode)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
@@ -7013,18 +7101,14 @@ async function renderRegisterPageCanvas(pageEl) {
       doc.querySelectorAll('.rg-page, .rg-page *').forEach(el => {
         el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
       });
-      doc.querySelectorAll('.rg-kop').forEach(el => {
-        el.style.setProperty('width', 'calc(100% + 16mm)', 'important');
-        el.style.setProperty('margin-left', '-8mm', 'important');
-        el.style.setProperty('margin-right', '-8mm', 'important');
-        el.style.setProperty('text-align', 'center', 'important');
-      });
       doc.querySelectorAll('.rg-kop img').forEach(el => {
-        el.style.setProperty('width', '100%', 'important');
-        el.style.setProperty('height', '10mm', 'important');
+        el.style.setProperty('width', '46mm', 'important');
+        el.style.setProperty('max-width', '46mm', 'important');
+        el.style.setProperty('height', 'auto', 'important');
         el.style.setProperty('max-height', '10mm', 'important');
-        el.style.setProperty('object-fit', 'cover', 'important');
-        el.style.setProperty('object-position', 'center center', 'important');
+        el.style.setProperty('margin', '0', 'important');
+        el.style.setProperty('object-fit', 'contain', 'important');
+        el.style.setProperty('object-position', 'left center', 'important');
       });
     },
   });
