@@ -1850,7 +1850,10 @@
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
     #settings-app-shell { display: none; }
-    #settings-app-shell.visible { display: block; }
+    #settings-app-shell.visible {
+      display: block; position: fixed; inset: 0; z-index: 10002;
+      overflow-y: auto; background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
     .portal-theme-settings { --portal-accent: #6366f1; border-color: rgba(99,102,241,.35); }
     .portal-theme-settings .portal-app-icon.settings-portal-icon {
       display: flex; align-items: center; justify-content: center;
@@ -1861,7 +1864,18 @@
       --naruto: #6366f1;
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
     }
-    #settings-app-shell { min-height: 100vh; position: relative; z-index: 2; color: #e2e8f0; }
+    #settings-app-shell { min-height: 100vh; position: relative; z-index: 10002; color: #e2e8f0; }
+    #settings-app-shell .form-control {
+      background: #1e293b; border-color: rgba(99,102,241,.35); color: #f1f5f9;
+    }
+    #settings-app-shell .form-control:focus {
+      background: #334155; color: #fff; border-color: #6366f1;
+      box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25);
+    }
+    #settings-app-shell .form-control::placeholder { color: #64748b; }
+    body.settings-mode #portal-screen,
+    body.settings-mode #login-screen,
+    body.settings-mode #ds-loader { display: none !important; pointer-events: none !important; }
     .settings-layout { display: flex; min-height: 100vh; }
     #settings-sidebar {
       width: 260px; flex-shrink: 0; background: rgba(15,23,42,.95);
@@ -4033,7 +4047,7 @@ function onNilaiBrutoInput() {
         <button type="button" class="btn btn-primary" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Pengaturan</button>
         <div id="sys-save-msg" class="mt-2" style="font-size:13px"></div>
       </div>
-      <div id="settings-page-akses" class="settings-page" style="display:none">
+      <div id="settings-page-akses" class="settings-page">
         <h4 class="mb-3" style="color:#e0e7ff"><i class="bi bi-shield-check me-2"></i>Hak Akses Operator</h4>
         <div class="settings-card">
           <p class="text-muted mb-3" style="font-size:13px">Centang fitur yang boleh diakses operator pada masing-masing portal. Admin selalu memiliki akses penuh.</p>
@@ -4790,6 +4804,7 @@ function resolvePortalApp(serverModule) {
 }
 
 function showPortal() {
+  document.body.classList.remove('settings-mode');
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -4946,11 +4961,13 @@ function showKasApp() {
 }
 
 function showSettingsApp() {
+  document.body.classList.add('settings-mode');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.add('visible');
+  document.getElementById('ds-loader')?.classList.add('hidden');
   applyPortalTheme(document.body, 'pengaturan');
   const el = document.getElementById('settings-user-label');
   if (el && currentUser) el.textContent = (currentUser.name || '—') + ' · Pengaturan Sistem';
@@ -4989,16 +5006,62 @@ function escHtml(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 }
 
+function initDefaultSystemSettingsCache() {
+  systemSettingsCache = {
+    settings_portal_username: '199010132019031001',
+    settings_portal_name: 'Administrator Sistem SIPKEU',
+    settings_portal_password: '********',
+    portals: {},
+    operator_perms: {},
+  };
+  const defaultPerms = {};
+  OPERATOR_PERM_DEFS.forEach(def => {
+    defaultPerms[def.key] = ['add_transaksi', 'edit_transaksi', 'delete_transaksi', 'view_register', 'cetak_kwitansi', 'cetak_np2d'].includes(def.key);
+  });
+  SETTINGS_PORTAL_IDS.forEach(id => {
+    systemSettingsCache.portals[id] = {
+      admin_username: 'admin', admin_password: '********', admin_name: 'Administrator SIPKEU',
+      operator_username: 'operator', operator_password: '********', operator_name: 'Operator SIPKEU',
+    };
+    systemSettingsCache.operator_perms[id] = { ...defaultPerms };
+  });
+}
+
+function applySystemSettingsToForm() {
+  if (!systemSettingsCache) return;
+  const u = document.getElementById('sys-settings-user');
+  const n = document.getElementById('sys-settings-name');
+  const p = document.getElementById('sys-settings-pass');
+  if (u) u.value = systemSettingsCache.settings_portal_username || '';
+  if (n) n.value = systemSettingsCache.settings_portal_name || '';
+  if (p) p.value = '';
+  renderSysPortalTabs();
+  renderSysPortalAuthForm();
+  renderSysPermPortalTabs();
+  renderSysPermCheckboxes();
+}
+
 async function bootSettingsApp(fromRestore = true) {
   if (!fromRestore) markInAppSession();
   showSettingsApp();
   showSettingsPage('profil', document.getElementById('settings-nav-profil'));
-  await loadSystemSettings();
+  try {
+    await loadSystemSettings();
+  } catch (err) {
+    if (!systemSettingsCache) initDefaultSystemSettingsCache();
+    applySystemSettingsToForm();
+    const msg = document.getElementById('sys-save-msg');
+    if (msg) msg.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Gagal memuat pengaturan: ${escHtml(err.message)}. Form default ditampilkan — Anda tetap bisa mengubah dan menyimpan.</span>`;
+  }
 }
 
 function showSettingsPage(page, navEl) {
-  document.querySelectorAll('.settings-page').forEach(p => p.classList.remove('active'));
-  document.getElementById('settings-page-' + page)?.classList.add('active');
+  document.querySelectorAll('.settings-page').forEach(p => {
+    p.classList.remove('active');
+    p.style.removeProperty('display');
+  });
+  const pageEl = document.getElementById('settings-page-' + page);
+  if (pageEl) pageEl.classList.add('active');
   document.querySelectorAll('#settings-sidebar .settings-nav a').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
 }
@@ -5008,13 +5071,7 @@ async function loadSystemSettings() {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Gagal memuat pengaturan');
   systemSettingsCache = data;
-  document.getElementById('sys-settings-user').value = data.settings_portal_username || '';
-  document.getElementById('sys-settings-name').value = data.settings_portal_name || '';
-  document.getElementById('sys-settings-pass').value = '';
-  renderSysPortalTabs();
-  renderSysPortalAuthForm();
-  renderSysPermPortalTabs();
-  renderSysPermCheckboxes();
+  applySystemSettingsToForm();
 }
 
 function renderSysPortalTabs() {
@@ -5195,8 +5252,15 @@ async function doLogin(e) {
     else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(false);
     else await bootApp(false);
   } catch (err) {
-    errEl.textContent = err.message || 'Login gagal';
-    errEl.classList.add('show');
+    if (selectedPortalApp === 'pengaturan') {
+      document.getElementById('login-screen')?.classList.add('hidden');
+      document.body.classList.add('settings-mode');
+      const msg = document.getElementById('sys-save-msg');
+      if (msg) msg.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle me-1"></i>${escHtml(err.message || 'Login gagal')}</span>`;
+    } else {
+      errEl.textContent = err.message || 'Login gagal';
+      errEl.classList.add('show');
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Masuk';
