@@ -500,10 +500,12 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if incoming.PortalStatus != nil {
+			portalChanged := false
 			for id, st := range incoming.PortalStatus {
 				if containsPortalID(id) {
 					prev := cur.PortalStatus[id]
 					cur.PortalStatus[id] = st
+					portalChanged = true
 					if prev.Enabled != st.Enabled {
 						state := "diaktifkan"
 						if !st.Enabled {
@@ -512,6 +514,9 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 						recordAudit(putSess.Username, "portal_"+state, id, "Portal "+state+" via Command Center", clientIP(r))
 					}
 				}
+			}
+			if portalChanged {
+				invalidatePortalStatusCache()
 			}
 		}
 

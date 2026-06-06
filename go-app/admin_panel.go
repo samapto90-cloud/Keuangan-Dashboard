@@ -168,21 +168,29 @@ func handlePortalStatusPublic(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
 		return
 	}
-	sys := getSystemSettingsCopy()
-	out := map[string]interface{}{}
-	for _, id := range sipkeuPortalIDs {
-		enabled := true
-		if sys.PortalStatus != nil {
-			if st, ok := sys.PortalStatus[id]; ok {
-				enabled = st.Enabled
+	out := cachedPortalStatus(func() map[string]interface{} {
+		sys := getSystemSettingsCopy()
+		portals := map[string]interface{}{}
+		for _, id := range sipkeuPortalIDs {
+			enabled := true
+			if sys.PortalStatus != nil {
+				if st, ok := sys.PortalStatus[id]; ok {
+					enabled = st.Enabled
+				}
+			}
+			portals[id] = map[string]interface{}{
+				"enabled": enabled,
+				"label":   portalLabel(id),
 			}
 		}
-		out[id] = map[string]interface{}{
-			"enabled": enabled,
-			"label":   portalLabel(id),
-		}
-	}
-	jsonResponse(w, http.StatusOK, map[string]interface{}{"portals": out})
+		return map[string]interface{}{"portals": portals}
+	})
+	// Salin agar respons cache aman untuk encoder JSON paralel.
+	payload := map[string]interface{}{"portals": out["portals"]}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=15, stale-while-revalidate=30")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func handleAdminCommandCenter(w http.ResponseWriter, r *http.Request) {

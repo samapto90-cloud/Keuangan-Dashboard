@@ -20,9 +20,12 @@ const (
 	maxLoginBodyBytes   = 8 << 10  // 8 KiB
 	loginMaxFails       = 5
 	loginLockDuration   = 15 * time.Minute
-	apiRateLimitMax     = 360
-	apiRateWindow       = time.Minute
+	defaultAPIRateMax   = 600
+	defaultAPIRateWin   = time.Minute
+	defaultLoginRateMax = 60
+	loginRateWindow     = time.Minute
 	bcryptCost          = 10
+	maxBcryptConcurrent = 48
 )
 
 type loginGuard struct {
@@ -45,20 +48,53 @@ type apiRateBucket struct {
 	windowStart time.Time
 }
 
+type loginRateGuard struct {
+	mu      sync.Mutex
+	buckets map[string]*apiRateBucket
+}
+
 var (
-	loginLimiter  loginGuard
-	apiRateLimiter apiRateGuard
-	trustProxy    bool
+	loginLimiter     loginGuard
+	loginRateLimiter loginRateGuard
+	apiRateLimiter   apiRateGuard
+	trustProxy       bool
+	apiRateLimitMax  int
+	apiRateWindow    time.Duration
+	loginRateMax     int
+	bcryptSem        = make(chan struct{}, maxBcryptConcurrent)
 )
 
 func initSecurity() {
 	loginLimiter.attempts = map[string]*loginAttempt{}
+	loginRateLimiter.buckets = map[string]*apiRateBucket{}
 	apiRateLimiter.buckets = map[string]*apiRateBucket{}
 	trustProxy = strings.TrimSpace(os.Getenv("SIPKEU_TRUST_PROXY")) == "1"
+	apiRateLimitMax = securityEnvInt("SIPKEU_API_RATE_LIMIT", defaultAPIRateMax)
+	if apiRateLimitMax < 120 {
+		apiRateLimitMax = 120
+	}
+	apiRateWindow = defaultAPIRateWin
+	loginRateMax = securityEnvInt("SIPKEU_LOGIN_RATE_LIMIT", defaultLoginRateMax)
+	if loginRateMax < 15 {
+		loginRateMax = 15
+	}
 	go purgeExpiredSessionsLoop()
 	go purgeLoginAttemptsLoop()
 	go purgeAPIRateBucketsLoop()
+	go purgeLoginRateBucketsLoop()
 	warnWeakProductionSecrets()
+}
+
+func securityEnvInt(key string, def int) int {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return def
+	}
+	n, err := strconv.Atoi(raw)
+	if err != nil || n <= 0 {
+		return def
+	}
+	return n
 }
 
 func hashPasswordStore(plain string) (string, error) {
@@ -144,6 +180,40 @@ func (g *loginGuard) recordSuccess(ip string) {
 	delete(g.attempts, ip)
 }
 
+func (g *loginRateGuard) allow(ip string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	now := time.Now()
+	b := g.buckets[ip]
+	if b == nil || now.Sub(b.windowStart) >= loginRateWindow {
+		g.buckets[ip] = &apiRateBucket{count: 1, windowStart: now}
+		return true
+	}
+	if b.count >= loginRateMax {
+		return false
+	}
+	b.count++
+	return true
+}
+
+func purgeLoginRateBucketsLoop() {
+	ticker := time.NewTicker(10 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		loginRateLimiter.mu.Lock()
+		for k, b := range loginRateLimiter.buckets {
+			if now.Sub(b.windowStart) > 2*loginRateWindow {
+				delete(loginRateLimiter.buckets, k)
+			}
+		}
+		loginRateLimiter.mu.Unlock()
+	}
+}
+
+func loginRateAllow(ip string) bool {
+	return loginRateLimiter.allow(ip)
+}
+
 func purgeLoginAttemptsLoop() {
 	ticker := time.NewTicker(30 * time.Minute)
 	for range ticker.C {
@@ -201,15 +271,16 @@ func purgeAPIRateBucketsLoop() {
 
 func withAPIRateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/health" || r.URL.Path == "/data/auth/login" {
+		path := r.URL.Path
+		if path == "/health" || path == "/favicon.ico" || path == "/data/auth/login" || path == "/data/portals/status" {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+		if strings.HasPrefix(path, "/assets/") {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if r.URL.Path == "/" && r.Method == http.MethodGet {
+		if path == "/" && r.Method == http.MethodGet {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -241,12 +312,40 @@ func withRecover(next http.Handler) http.Handler {
 func passwordMatches(stored, input string) bool {
 	stored = strings.TrimSpace(stored)
 	if strings.HasPrefix(stored, "$2a$") || strings.HasPrefix(stored, "$2b$") || strings.HasPrefix(stored, "$2y$") {
+		bcryptSem <- struct{}{}
+		defer func() { <-bcryptSem }()
 		return bcrypt.CompareHashAndPassword([]byte(stored), []byte(input)) == nil
 	}
 	if len(stored) != len(input) {
 		return false
 	}
 	return subtle.ConstantTimeCompare([]byte(stored), []byte(input)) == 1
+}
+
+func withBlockSuspiciousPaths(next http.Handler) http.Handler {
+	blocked := []string{
+		"/.env", "/.git", "/wp-admin", "/wp-login", "/phpmyadmin", "/admin.php",
+		"/cgi-bin", "/vendor/phpunit", "/.aws", "/config.php", "/shell",
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := strings.ToLower(r.URL.Path)
+		if strings.Contains(p, "..") || strings.Contains(p, "\x00") {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		for _, b := range blocked {
+			if strings.HasPrefix(p, b) || strings.Contains(p, b) {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodPost &&
+			r.Method != http.MethodPut && r.Method != http.MethodDelete && r.Method != http.MethodOptions {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func sessionLifetime() time.Duration {
@@ -324,6 +423,7 @@ func withSecurityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
 		w.Header().Set("Cross-Origin-Resource-Policy", "same-site")
+		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 		w.Header().Set("Content-Security-Policy", securityCSP())
 		if strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") || r.TLS != nil {
 			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")

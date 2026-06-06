@@ -171,6 +171,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	if !loginRateAllow(ip) {
+		jsonResponse(w, http.StatusTooManyRequests, map[string]string{
+			"error": "Terlalu banyak permintaan login dari jaringan ini. Coba lagi sebentar.",
+		})
+		return
+	}
 	appModule := strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
 	if appModule == "" {
 		appModule = "sekretariat"
@@ -191,6 +197,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	loginLimiter.recordSuccess(ip)
+	if activeSessionCount() >= maxActiveSessions() {
+		jsonResponse(w, http.StatusServiceUnavailable, map[string]string{
+			"error": "Server sedang penuh sesi aktif. Coba lagi beberapa saat.",
+		})
+		return
+	}
 	token, err := newSessionToken()
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, map[string]string{"error": "Gagal membuat sesi"})
@@ -252,4 +264,19 @@ func handleMe(w http.ResponseWriter, r *http.Request) {
 		"app_module":  sess.AppModule,
 		"permissions": permissionsForSession(sess),
 	})
+}
+
+func activeSessionCount() int {
+	sessionsMu.RLock()
+	n := len(sessions)
+	sessionsMu.RUnlock()
+	return n
+}
+
+func maxActiveSessions() int {
+	n := securityEnvInt("SIPKEU_MAX_SESSIONS", 8000)
+	if n < 500 {
+		return 500
+	}
+	return n
 }

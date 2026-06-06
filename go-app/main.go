@@ -19,6 +19,9 @@ var indexHTML []byte
 //go:embed kop-disdik.png
 var kopDisdikPNG []byte
 
+//go:embed assets/sakubijak-logo.png
+var sakubijakLogoPNG []byte
+
 //go:embed assets/portal-tanjiro.png
 var portalTanjiroPNG []byte
 
@@ -88,6 +91,12 @@ type Transaction struct {
 	NamaWP           string  `json:"nama_wp"`
 	BPP              string  `json:"bpp"`
 	NoNP2D           string  `json:"no_np2d"`
+	Status           string  `json:"status,omitempty"`
+	CreatedBy        string  `json:"created_by,omitempty"`
+	SubmittedAt      string  `json:"submitted_at,omitempty"`
+	ReviewedBy       string  `json:"reviewed_by,omitempty"`
+	ReviewedAt       string  `json:"reviewed_at,omitempty"`
+	ReviewNote       string  `json:"review_note,omitempty"`
 }
 
 type DashboardStats struct {
@@ -99,6 +108,7 @@ type DashboardStats struct {
         Realisasi        float64        `json:"realisasi"`
         SisaPagu         float64        `json:"sisa_pagu"`
         PersenRealisasi  float64        `json:"persen_realisasi"`
+        PendingApproval  int            `json:"pending_approval"`
         NilaiPerKegiatan []KegiatanStat `json:"nilai_per_kegiatan"`
         NilaiPerPPTK     []PPTKStat     `json:"nilai_per_pptk"`
         RecentTransaksi  []Transaction  `json:"recent_transaksi"`
@@ -243,12 +253,15 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
                         return
                 }
                 normalizeTransactionTax(&t)
+                stampTransactionOnCreate(sess, &t)
                 mod.mu.Lock()
                 t.ID = mod.nextID
                 mod.nextID++
                 mod.txs = append(mod.txs, t)
                 mod.mu.Unlock()
                 persistModule(mod)
+                recordAudit(sess.Username, "add_transaksi", mod.ID,
+                        fmt.Sprintf("Transaksi #%d status %s (BPK %s)", t.ID, effectiveTrxStatus(t), strings.TrimSpace(t.NoBPK)), clientIP(r))
                 jsonResponse(w, http.StatusCreated, t)
 
         default:
@@ -282,12 +295,21 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         return
                 }
                 normalizeTransactionTax(&updated)
+                existing, ok := findModuleTransaction(mod, id)
+                if !ok {
+                        jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
+                        return
+                }
+                merged, err := mergeTransactionUpdate(sess, existing, updated)
+                if err != nil {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": err.Error()})
+                        return
+                }
                 mod.mu.Lock()
                 found := false
                 for i, t := range mod.txs {
                         if t.ID == id {
-                                updated.ID = id
-                                mod.txs[i] = updated
+                                mod.txs[i] = merged
                                 found = true
                                 break
                         }
@@ -298,7 +320,7 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         return
                 }
                 persistModule(mod)
-                jsonResponse(w, http.StatusOK, updated)
+                jsonResponse(w, http.StatusOK, merged)
 
         case http.MethodDelete:
                 sess := getSession(r)
@@ -306,14 +328,23 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                         jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
                         return
                 }
-                deleteTransactionByID(w, mod, id)
+                deleteTransactionByID(w, r, mod, id, sess)
 
         default:
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
         }
 }
 
-func deleteTransactionByID(w http.ResponseWriter, mod *SipkeuModule, id int) {
+func deleteTransactionByID(w http.ResponseWriter, r *http.Request, mod *SipkeuModule, id int, sess *Session) {
+        existing, ok := findModuleTransaction(mod, id)
+        if !ok {
+                jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
+                return
+        }
+        if !operatorMayModifyTransaction(sess, existing) && sess != nil && sess.Role != "admin" {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi yang sudah disetujui tidak dapat dihapus operator"})
+                return
+        }
         mod.mu.Lock()
         found := false
         for i, t := range mod.txs {
@@ -329,6 +360,10 @@ func deleteTransactionByID(w http.ResponseWriter, mod *SipkeuModule, id int) {
                 return
         }
         persistModule(mod)
+        if sess != nil {
+                recordAudit(sess.Username, "delete_transaksi", mod.ID,
+                        fmt.Sprintf("Hapus transaksi #%d (BPK %s)", id, strings.TrimSpace(existing.NoBPK)), clientIP(r))
+        }
         jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
 }
 
@@ -354,7 +389,7 @@ func handleDeleteTransaction(w http.ResponseWriter, r *http.Request) {
                 return
         }
         mod := moduleFromRequest(r)
-        deleteTransactionByID(w, mod, payload.ID)
+        deleteTransactionByID(w, r, mod, payload.ID, sess)
 }
 
 func handleDeleteBulkTransactions(w http.ResponseWriter, r *http.Request) {
@@ -392,6 +427,10 @@ func handleDeleteBulkTransactions(w http.ResponseWriter, r *http.Request) {
         deleted := 0
         for _, t := range mod.txs {
                 if delSet[t.ID] {
+                        if !operatorMayModifyTransaction(sess, t) && sess.Role != "admin" {
+                                kept = append(kept, t)
+                                continue
+                        }
                         deleted++
                         continue
                 }
@@ -454,6 +493,7 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                         skipped++
                         continue
                 }
+                stampTransactionOnCreate(sess, &items[i])
                 items[i].ID = mod.nextID
                 mod.nextID++
                 accepted = append(accepted, items[i])
@@ -500,7 +540,12 @@ func computeDashboardStats(mod *SipkeuModule) DashboardStats {
         data := moduleTransactionsCopy(mod)
 
         stats := DashboardStats{}
-        stats.TotalTransaksi = len(data)
+        stats.TotalTransaksi = 0
+        for _, t := range data {
+                if trxIsApproved(t) {
+                        stats.TotalTransaksi++
+                }
+        }
 
         kegiatanMap := map[string]*KegiatanStat{}
         pptkMap := map[string]*PPTKStat{}
@@ -508,6 +553,13 @@ func computeDashboardStats(mod *SipkeuModule) DashboardStats {
 
         var totalPotongan float64
         for _, t := range data {
+                st := effectiveTrxStatus(t)
+                if st == trxStatusPending {
+                        stats.PendingApproval++
+                }
+                if !trxIsApproved(t) {
+                        continue
+                }
                 stats.TotalNilai += t.Nilai
                 stats.TotalPajak += t.Pajak
                 totalPotongan += t.NilaiPotongan
@@ -770,6 +822,8 @@ func main() {
 
         mux.HandleFunc("/", serveIndexHTML)
 
+        mux.HandleFunc("/favicon.ico", servePNG(sakubijakLogoPNG))
+        mux.HandleFunc("/assets/sakubijak-logo.png", servePNG(sakubijakLogoPNG))
         mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "image/png")
                 w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
@@ -810,6 +864,7 @@ func main() {
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
         mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 
+        mux.HandleFunc("/data/transactions/review", cors(requireAuth(handleTransactionReview)))
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
@@ -850,7 +905,7 @@ func main() {
 
         fmt.Printf("%s\n", storageInfo())
         fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        handler := withRecover(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux)))))
+        handler := withRecover(withBlockSuspiciousPaths(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux))))))
         srv := &http.Server{
                 Addr:              ":" + port,
                 Handler:           handler,

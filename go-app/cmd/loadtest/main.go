@@ -5,97 +5,230 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
+type stepResult struct {
+	ok      bool
+	latency time.Duration
+	code    int
+	step    string
+}
+
 func main() {
-	base := env("LOADTEST_URL", "http://127.0.0.1:3000")
-	users := envInt("LOADTEST_USERS", 200)
+	base := env("LOADTEST_URL", "http://127.0.0.1:3099")
+	desktop := envInt("LOADTEST_DESKTOP", 1000)
+	mobile := envInt("LOADTEST_MOBILE", 1000)
+	concurrency := envInt("LOADTEST_CONCURRENCY", 120)
+	user := env("LOADTEST_USER", "admin")
+	pass := env("LOADTEST_PASS", "admin2026")
 	if len(os.Args) > 1 {
 		if n, err := strconv.Atoi(os.Args[1]); err == nil && n > 0 {
-			users = n
+			desktop = n
+			mobile = 0
 		}
 	}
-	fmt.Printf("Load test: %d virtual users -> %s\n", users, base)
+	total := desktop + mobile
+	fmt.Printf("Load test SIPKEU\n  URL: %s\n  Desktop: %d | Mobile: %d | Total: %d\n  Concurrency: %d\n",
+		base, desktop, mobile, total, concurrency)
 
-	var ok, fail uint64
+	transport := &http.Transport{
+		MaxIdleConns:          concurrency * 4,
+		MaxIdleConnsPerHost:   concurrency * 4,
+		MaxConnsPerHost:       concurrency * 2,
+		IdleConnTimeout:       90 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+		ForceAttemptHTTP2:     false,
+	}
+	client := &http.Client{
+		Timeout:   45 * time.Second,
+		Transport: transport,
+	}
+
+	var okCount, failCount uint64
+	results := make([]stepResult, 0, total*5)
+	var resMu sync.Mutex
 	start := time.Now()
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 50)
+	sem := make(chan struct{}, concurrency)
 
-	for i := 0; i < users; i++ {
-		wg.Add(1)
-		go func(id int) {
-			defer wg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
+	runUser := func(id int, mobile bool) {
+		defer wg.Done()
+		sem <- struct{}{}
+		defer func() { <-sem }()
 
-			client := &http.Client{Timeout: 15 * time.Second}
-			if code := get(client, base+"/health"); code == 200 {
-				atomic.AddUint64(&ok, 1)
+		ua := desktopUA
+		if mobile {
+			ua = mobileUA
+		}
+		vip := virtualIP(id)
+
+		record := func(step string, ok bool, code int, lat time.Duration) {
+			resMu.Lock()
+			results = append(results, stepResult{ok: ok, latency: lat, code: code, step: step})
+			resMu.Unlock()
+			if ok {
+				atomic.AddUint64(&okCount, 1)
 			} else {
-				atomic.AddUint64(&fail, 1)
+				atomic.AddUint64(&failCount, 1)
 			}
+		}
 
-			loginBody, _ := json.Marshal(map[string]string{
-				"username": "admin",
-				"password": "admin2026",
-			})
-			req, _ := http.NewRequest(http.MethodPost, base+"/data/auth/login", bytes.NewReader(loginBody))
-			req.Header.Set("Content-Type", "application/json")
+		do := func(step, method, path string, body []byte, auth string) bool {
+			t0 := time.Now()
+			req, err := http.NewRequest(method, base+path, bytes.NewReader(body))
+			if err != nil {
+				record(step, false, 0, time.Since(t0))
+				return false
+			}
+			req.Header.Set("User-Agent", ua)
+			req.Header.Set("Accept-Encoding", "gzip")
+			req.Header.Set("X-Forwarded-For", vip)
+			req.Header.Set("X-Real-IP", vip)
+			if body != nil {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			if auth != "" {
+				req.Header.Set("Authorization", "Bearer "+auth)
+			}
 			req.Header.Set("X-SIPKEU-App", "sekretariat")
 			res, err := client.Do(req)
-			if err != nil || res.StatusCode != 200 {
-				atomic.AddUint64(&fail, 1)
-				return
+			lat := time.Since(t0)
+			if err != nil {
+				record(step, false, 0, lat)
+				return false
 			}
-			var loginResp map[string]interface{}
-			json.NewDecoder(res.Body).Decode(&loginResp)
+			io.Copy(io.Discard, res.Body)
 			res.Body.Close()
-			token, _ := loginResp["token"].(string)
-			if token == "" {
-				atomic.AddUint64(&fail, 1)
-				return
-			}
+			ok := res.StatusCode >= 200 && res.StatusCode < 300
+			record(step, ok, res.StatusCode, lat)
+			return ok && res.StatusCode == 200
+		}
 
-			h := http.Header{}
-			h.Set("Authorization", "Bearer "+token)
-			h.Set("X-SIPKEU-App", "sekretariat")
-			dreq, _ := http.NewRequest(http.MethodGet, base+"/data/dashboard", nil)
-			dreq.Header = h
-			dres, err := client.Do(dreq)
-			if err != nil || dres.StatusCode != 200 {
-				atomic.AddUint64(&fail, 1)
-				return
-			}
-			io.Copy(io.Discard, dres.Body)
-			dres.Body.Close()
-			atomic.AddUint64(&ok, 1)
-		}(i)
+		if !do("index", http.MethodGet, "/", nil, "") {
+			return
+		}
+		if !do("portal_status", http.MethodGet, "/data/portals/status", nil, "") {
+			return
+		}
+		loginBody, _ := json.Marshal(map[string]string{"username": user, "password": pass})
+		t0 := time.Now()
+		req, err := http.NewRequest(http.MethodPost, base+"/data/auth/login", bytes.NewReader(loginBody))
+		if err != nil {
+			record("login", false, 0, time.Since(t0))
+			return
+		}
+		req.Header.Set("User-Agent", ua)
+		req.Header.Set("X-Forwarded-For", vip)
+		req.Header.Set("X-Real-IP", vip)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-SIPKEU-App", "sekretariat")
+		res, err := client.Do(req)
+		lat := time.Since(t0)
+		if err != nil {
+			record("login", false, 0, lat)
+			return
+		}
+		var loginResp map[string]interface{}
+		json.NewDecoder(res.Body).Decode(&loginResp)
+		res.Body.Close()
+		token, _ := loginResp["token"].(string)
+		okLogin := res.StatusCode == 200 && token != ""
+		record("login", okLogin, res.StatusCode, lat)
+		if !okLogin {
+			return
+		}
+
+		if !do("dashboard", http.MethodGet, "/data/dashboard", nil, token) {
+			return
+		}
+		do("transactions", http.MethodGet, "/data/transactions", nil, token)
+		do("favicon", http.MethodGet, "/favicon.ico", nil, "")
+	}
+
+	for i := 0; i < desktop; i++ {
+		wg.Add(1)
+		go runUser(i, false)
+	}
+	for i := 0; i < mobile; i++ {
+		wg.Add(1)
+		go runUser(10000+i, true)
 	}
 	wg.Wait()
 	elapsed := time.Since(start)
-	total := ok + fail
-	fmt.Printf("Done in %v — OK: %d, Fail: %d, RPS: %.1f\n", elapsed, ok, fail, float64(total)/elapsed.Seconds())
-	if fail > total/10 {
+
+	printReport(results, elapsed, okCount, failCount)
+	if failCount > 0 && float64(failCount)/float64(okCount+failCount) > 0.05 {
 		os.Exit(1)
 	}
 }
 
-func get(client *http.Client, url string) int {
-	res, err := client.Get(url)
-	if err != nil {
+func printReport(results []stepResult, elapsed time.Duration, ok, fail uint64) {
+	fmt.Printf("\nDone in %v — OK steps: %d, Fail steps: %d, throughput: %.1f req/s\n",
+		elapsed, ok, fail, float64(ok+fail)/elapsed.Seconds())
+
+	byStep := map[string][]time.Duration{}
+	failByStep := map[string]int{}
+	failCodes := map[string]map[int]int{}
+	for _, r := range results {
+		if r.ok {
+			byStep[r.step] = append(byStep[r.step], r.latency)
+		} else {
+			failByStep[r.step]++
+			if failCodes[r.step] == nil {
+				failCodes[r.step] = map[int]int{}
+			}
+			failCodes[r.step][r.code]++
+		}
+	}
+	steps := []string{"index", "portal_status", "login", "dashboard", "transactions", "favicon"}
+	for _, step := range steps {
+		lats := byStep[step]
+		if len(lats) == 0 {
+			if failByStep[step] > 0 {
+				fmt.Printf("  %-16s FAIL=%d codes=%v\n", step+":", failByStep[step], failCodes[step])
+			}
+			continue
+		}
+		sort.Slice(lats, func(i, j int) bool { return lats[i] < lats[j] })
+		fmt.Printf("  %-16s n=%-5d p50=%-8v p95=%-8v max=%-8v fail=%d codes=%v\n",
+			step+":", len(lats), lats[pct(lats, 50)], lats[pct(lats, 95)], lats[len(lats)-1], failByStep[step], failCodes[step])
+	}
+}
+
+func pct(lats []time.Duration, p int) int {
+	if len(lats) == 0 {
 		return 0
 	}
-	defer res.Body.Close()
-	io.Copy(io.Discard, res.Body)
-	return res.StatusCode
+	idx := int(math.Ceil(float64(p)/100*float64(len(lats)))) - 1
+	if idx < 0 {
+		idx = 0
+	}
+	if idx >= len(lats) {
+		idx = len(lats) - 1
+	}
+	return idx
 }
+
+func virtualIP(id int) string {
+	a := 10 + (id / 65025)
+	b := (id / 255) % 255
+	c := id % 255
+	if a > 250 {
+		a = 10 + a%240
+	}
+	return fmt.Sprintf("%d.%d.%d.%d", a, b, c, 1+(id%200))
+}
+
+const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+const mobileUA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
 
 func env(k, def string) string {
 	if v := os.Getenv(k); v != "" {

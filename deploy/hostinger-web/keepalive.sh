@@ -28,6 +28,11 @@ if [ -f "$HOME/hostinger-web/.env" ]; then
   set +a
 fi
 
+export SIPKEU_TRUST_PROXY="${SIPKEU_TRUST_PROXY:-1}"
+export SIPKEU_API_RATE_LIMIT="${SIPKEU_API_RATE_LIMIT:-1200}"
+export SIPKEU_LOGIN_RATE_LIMIT="${SIPKEU_LOGIN_RATE_LIMIT:-60}"
+export SIPKEU_MAX_SESSIONS="${SIPKEU_MAX_SESSIONS:-10000}"
+
 pkill -x keuangan 2>/dev/null || true
 sleep 1
 cd "$APP_DIR"

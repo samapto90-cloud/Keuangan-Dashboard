@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPKEU Portal — Dinas Pendidikan Kota Batam</title>
+  <title>Sakubijak SIPKEU — Dinas Pendidikan Kota Batam</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/assets/sakubijak-logo.png?v=1" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/sakubijak-logo.png?v=1" />
+  <meta name="theme-color" content="#1a3a6b" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="/assets/portal-tanjiro.png" as="image" fetchpriority="high" />
+  <link rel="preload" href="/assets/sakubijak-logo.png?v=1" as="image" fetchpriority="high" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
@@ -609,6 +613,30 @@
     .trx-table-footer { font-size: 13px; color: #64748b; border-color: rgba(56,189,248,.1) !important; }
     .trx-page-size-label { font-size: 13px; color: var(--text-muted); }
     .trx-table-footer-totals { font-size: 13px; color: #64748b; }
+    .trx-status-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .3px; padding: 4px 8px; border-radius: 999px;
+      white-space: nowrap; display: inline-block;
+    }
+    .trx-status-pending { background: rgba(251,191,36,.18); color: #fbbf24; border: 1px solid rgba(251,191,36,.35); }
+    .trx-status-approved { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .trx-status-rejected { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+    .trx-pending-panel {
+      margin-bottom: 16px; padding: 16px 18px; border-radius: 14px;
+      border: 1px solid rgba(251,191,36,.35); background: rgba(251,191,36,.08);
+    }
+    .trx-pending-panel h6 { color: #fbbf24; margin: 0 0 10px; font-size: 14px; }
+    .trx-pending-item {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 0; border-top: 1px solid rgba(251,191,36,.15);
+    }
+    .trx-pending-item:first-of-type { border-top: none; padding-top: 0; }
+    .trx-pending-meta { font-size: 12px; color: #cbd5e1; }
+    .trx-pending-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    #nav-transaksi .nav-pending-badge {
+      display: none; margin-left: 6px; font-size: 10px; padding: 2px 7px; border-radius: 999px;
+      background: #fbbf24; color: #1a1200; font-weight: 800;
+    }
+    body.role-admin #nav-transaksi.has-pending .nav-pending-badge { display: inline-block; }
     #trx-pagination .btn { min-width: 34px; }
     #trx-pagination .trx-page-indicator { font-size: 12px; color: var(--text-muted); padding: 0 8px; white-space: nowrap; }
     .table { margin: 0; font-size: 13px; color: var(--text-main); --bs-table-bg: transparent; --bs-table-color: var(--text-main); }
@@ -837,7 +865,8 @@
       .stat-card .icon-wrap { width: 40px; height: 40px; font-size: 18px; }
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
-      .portal-header h1 { letter-spacing: 2px; }
+      .portal-header h1 { font-size: 1.05rem; }
+      .portal-brand-card { padding: 14px 16px 10px; border-radius: 14px; }
       #sidebar nav a:hover, .kas-nav-link:hover { transform: none; }
     }
 
@@ -1227,27 +1256,40 @@
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
-    .portal-header { text-align: center; margin-bottom: 36px; }
-    .portal-header .portal-logo {
-      width: 72px; height: 72px; margin: 0 auto 14px;
-      border-radius: 50%; overflow: hidden;
-      border: 2px solid rgba(255,107,0,.35);
-      box-shadow: 0 12px 32px rgba(255,107,0,.3), 0 0 24px rgba(59,130,246,.2);
+    .portal-header { text-align: center; margin-bottom: 40px; }
+    .portal-brand-card {
+      display: inline-block;
+      max-width: min(300px, 88vw);
+      padding: 18px 22px 14px;
+      margin: 0 auto 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+      border-radius: 18px;
+      box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.42),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 72px rgba(26, 58, 107, 0.22);
     }
-    .portal-header .portal-logo img {
-      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    .portal-brand-card img {
+      width: 100%; height: auto; display: block; object-fit: contain;
+    }
+    .portal-tagline {
+      margin: 0 auto 14px;
+      max-width: 540px;
+      color: #94a3b8;
+      font-size: clamp(13px, 2.4vw, 15px);
+      line-height: 1.65;
+      font-weight: 500;
     }
     .portal-header h1 {
-      font-family: 'Bangers', cursive; letter-spacing: 3px;
-      font-size: clamp(2rem, 5vw, 2.75rem); margin: 0 0 8px;
-      background: linear-gradient(90deg, var(--naruto), var(--gold), var(--chakra));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
+      font-size: clamp(1.1rem, 2.8vw, 1.35rem); margin: 0 0 6px;
+      font-weight: 700; color: #e2e8f0;
     }
     .portal-header p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
     .portal-header .portal-ta {
-      display: inline-block; margin-top: 12px; padding: 4px 14px; border-radius: 999px;
+      display: inline-block; margin-top: 12px; padding: 5px 16px; border-radius: 999px;
       font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      background: rgba(255,107,0,.12); border: 1px solid rgba(255,107,0,.25); color: var(--naruto);
+      background: rgba(26, 58, 107, 0.35); border: 1px solid rgba(212, 175, 96, 0.45); color: #e8c872;
     }
     .portal-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1835,6 +1877,17 @@
     .login-brand {
       text-align: center; margin-bottom: 28px;
     }
+    .login-brand .login-logo-mark {
+      max-width: 200px;
+      margin: 0 auto 14px;
+      padding: 12px 16px 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+      border-radius: 14px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    .login-brand .login-logo-mark img {
+      width: 100%; height: auto; display: block; object-fit: contain;
+    }
     .login-brand .login-icon {
       width: 64px; height: 64px; margin: 0 auto 12px;
       background: linear-gradient(135deg, var(--naruto), #ff8c42);
@@ -1842,9 +1895,12 @@
       font-size: 28px; color: #fff;
       box-shadow: 0 8px 24px rgba(255,107,0,.35);
     }
+    .login-brand .login-app-label {
+      font-size: 13px; font-weight: 700; color: #e8c872; letter-spacing: 0.4px; margin-bottom: 4px;
+    }
     .login-brand h4 {
-      font-family: 'Bangers', cursive; letter-spacing: 2px;
-      color: var(--naruto); font-size: 28px; margin: 0 0 4px;
+      font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
+      color: #e2e8f0; font-size: 22px; margin: 0 0 4px; font-weight: 700;
     }
     .login-brand p { font-size: 12px; color: var(--text-muted); margin: 0; }
     .pwd-toggle-wrap { position: relative; }
@@ -3058,9 +3114,11 @@
 <div id="portal-screen">
   <div class="portal-wrap ds-animate">
     <header class="portal-header">
-      <div class="portal-logo"><img src="/assets/portal-tanjiro.png" alt="SIPKEU Portal" loading="eager" decoding="async" fetchpriority="high" /></div>
-      <h1>SIPKEU PORTAL</h1>
-      <p>Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam</p>
+      <div class="portal-brand-card">
+        <img src="/assets/sakubijak-logo.png?v=1" alt="Sakubijak — Keuangan Bijak untuk Semua" loading="eager" decoding="async" fetchpriority="high" />
+      </div>
+      <h1>SIPKEU Portal</h1>
+      <p class="portal-tagline">Sistem Informasi Penatausahaan Keuangan · Dinas Pendidikan Kota Batam</p>
       <span class="portal-ta">Tahun Anggaran 2026</span>
     </header>
 
@@ -3134,9 +3192,11 @@
 <div id="login-screen" class="hidden">
   <div class="login-card ds-animate">
     <div class="login-brand">
-      <div class="login-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div class="login-logo-mark">
+        <img src="/assets/sakubijak-logo.png?v=1" alt="Sakubijak" loading="lazy" decoding="async" />
+      </div>
       <div class="login-app-label" id="login-app-label">SIPKEU Sekretariat</div>
-      <h4>SIPKEU</h4>
+      <h4>SIPKEU Portal</h4>
       <p id="login-app-desc">Dinas Pendidikan Kota Batam · Tahun Anggaran 2026</p>
     </div>
     <div class="login-error" id="login-error"></div>
@@ -3214,6 +3274,7 @@ function getRakRowAnggaran(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
 function getRealisasiBrutoRakLine(kegiatan, subKegiatan, kodeRekening, pekerjaan, excludeId) {
   return (allTransactions || []).reduce((sum, t) => {
     if (excludeId != null && t.id === excludeId) return sum;
+    if (!trxCountsTowardPagu(t)) return sum;
     if (t.kegiatan === kegiatan &&
         t.sub_kegiatan === subKegiatan &&
         t.kode_rekening === kodeRekening &&
@@ -3222,6 +3283,35 @@ function getRealisasiBrutoRakLine(kegiatan, subKegiatan, kodeRekening, pekerjaan
     }
     return sum;
   }, 0);
+}
+
+function trxEffectiveStatus(t) {
+  const s = String(t?.status || '').trim().toLowerCase();
+  if (!s) return 'approved';
+  return s;
+}
+function trxIsApproved(t) { return trxEffectiveStatus(t) === 'approved'; }
+function trxCountsTowardPagu(t) {
+  const s = trxEffectiveStatus(t);
+  return s === 'approved' || s === 'pending';
+}
+function trxStatusLabel(t) {
+  const s = trxEffectiveStatus(t);
+  if (s === 'pending') return 'Menunggu';
+  if (s === 'rejected') return 'Ditolak';
+  return 'Disetujui';
+}
+function trxStatusBadge(t) {
+  const s = trxEffectiveStatus(t);
+  return `<span class="trx-status-badge trx-status-${s}">${trxStatusLabel(t)}</span>`;
+}
+function operatorMayEditTrx(t) {
+  if (isAdmin()) return true;
+  const s = trxEffectiveStatus(t);
+  if (s !== 'pending' && s !== 'rejected') return false;
+  const by = String(t.created_by || '').trim().toLowerCase();
+  const me = String(currentUser?.username || '').trim().toLowerCase();
+  return !by || by === me;
 }
 
 function getRakSelectionFromForm() {
@@ -3320,7 +3410,7 @@ function onNilaiBrutoInput() {
   <nav>
     <div class="nav-label">Menu Utama</div>
     <a href="#" data-perm="view_dashboard" class="nav-admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-    <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi</a>
+    <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi <span class="nav-pending-badge" id="nav-pending-badge">0</span></a>
     <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
     <div class="nav-label mt-2 nav-label-admin">Laporan</div>
     <a href="#" data-perm="view_rekap" class="nav-admin-only" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
@@ -3361,7 +3451,7 @@ function onNilaiBrutoInput() {
     <div class="row g-3 mb-4">
       <div class="col-sm-6 col-xl-3">
         <div class="stat-card stat-water ds-animate d-flex justify-content-between align-items-start" style="--ds-delay:.05s">
-          <div><div class="label">Total Transaksi</div><div class="value" id="stat-total">—</div><div class="sub">Data terinput</div></div>
+          <div><div class="label">Total Transaksi</div><div class="value" id="stat-total">—</div><div class="sub">Disetujui · <span id="stat-pending-trx">0</span> menunggu</div></div>
           <div class="icon-wrap"><i class="bi bi-receipt"></i></div>
         </div>
       </div>
@@ -3439,8 +3529,8 @@ function onNilaiBrutoInput() {
       <div class="card-head"><h6><i class="bi bi-clock-history me-2 text-primary"></i>Transaksi Terbaru</h6><a href="#" class="btn btn-sm btn-outline-primary" onclick="showPage('transaksi',document.querySelectorAll('#sidebar nav a')[1])">Lihat Semua</a></div>
       <div class="table-wrapper">
         <table class="table table-hover">
-          <thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Penerima</th><th>No. BPK</th><th class="text-end">Nilai</th></tr></thead>
-          <tbody id="recent-tbody"><tr><td colspan="5" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Penerima</th><th>No. BPK</th><th>Status</th><th class="text-end">Nilai</th></tr></thead>
+          <tbody id="recent-tbody"><tr><td colspan="6" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -3451,6 +3541,9 @@ function onNilaiBrutoInput() {
     <!-- Form -->
     <div class="form-card mb-4 ds-animate" id="trx-form-panel" style="--ds-delay:.05s">
       <h6><i class="bi bi-pencil-square me-2 text-primary"></i><span id="form-mode-label">Tambah Transaksi Baru</span></h6>
+      <div class="alert alert-warning py-2 px-3 mb-3" id="trx-operator-hint" style="display:none;font-size:13px">
+        <i class="bi bi-info-circle me-1"></i>Transaksi yang Anda input akan <strong>menunggu persetujuan Admin</strong> sebelum masuk dashboard, register, dan laporan resmi.
+      </div>
       <form id="trx-form">
         <input type="hidden" id="f-id" />
         <div class="row g-3">
@@ -3649,10 +3742,20 @@ function onNilaiBrutoInput() {
     </div>
 
     <!-- Daftar Transaksi -->
+    <div class="trx-pending-panel ds-animate" id="trx-pending-panel" style="display:none">
+      <h6><i class="bi bi-hourglass-split me-1"></i> Menunggu Persetujuan Admin (<span id="trx-pending-count">0</span>)</h6>
+      <div id="trx-pending-list"></div>
+    </div>
     <div class="table-card ds-animate" id="trx-list-section" style="--ds-delay:.12s">
       <div class="card-head">
         <h6><i class="bi bi-table me-2 text-primary"></i>Daftar Transaksi</h6>
         <div class="d-flex gap-2 align-items-center trx-admin-tools">
+          <select class="form-select form-select-sm" id="trx-status-filter" onchange="filterTable()" style="width:auto;min-width:130px">
+            <option value="">Semua status</option>
+            <option value="pending">Menunggu</option>
+            <option value="approved">Disetujui</option>
+            <option value="rejected">Ditolak</option>
+          </select>
           <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
           <button class="btn btn-sm btn-outline-success" data-perm="export_transaksi" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-download me-1"></i>Ekspor</button>
           <button class="btn btn-sm btn-outline-primary" data-perm="import_transaksi" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
@@ -3666,14 +3769,14 @@ function onNilaiBrutoInput() {
           <thead>
             <tr>
               <th class="text-center" style="width:34px"><input type="checkbox" id="trx-check-all" class="form-check-input" title="Pilih semua" onchange="toggleSelectAllTrx(this.checked)" /></th>
-              <th>No</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
+              <th>No</th><th>Status</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
               <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
               <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
               <th class="text-end">Nilai (Rp)</th><th>Jenis Pajak</th><th class="text-end">Pajak (Rp)</th><th>Jenis Potongan</th><th class="text-end">Potongan (Rp)</th>
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="21" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="22" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top trx-table-footer">
@@ -5207,6 +5310,8 @@ function applyPermissionUI() {
   if (tools) tools.style.display = tools.querySelector('[data-perm].perm-on') ? 'flex' : 'none';
   const formSection = document.getElementById('trx-form-panel');
   if (formSection) formSection.style.display = canDo('add_transaksi') ? '' : 'none';
+  const opHint = document.getElementById('trx-operator-hint');
+  if (opHint) opHint.style.display = (!isAdmin() && canDo('add_transaksi')) ? '' : 'none';
 }
 
 function showApp() {
@@ -6101,6 +6206,8 @@ async function loadDashboard() {
   const res = await apiFetch(API + '/dashboard');
   const data = await res.json();
   document.getElementById('stat-total').textContent = data.total_transaksi || 0;
+  const pendingEl = document.getElementById('stat-pending-trx');
+  if (pendingEl) pendingEl.textContent = data.pending_approval || 0;
   document.getElementById('stat-nilai').textContent = formatRupiah(data.total_nilai);
   document.getElementById('stat-pajak').textContent = formatRupiah(data.total_pajak);
   document.getElementById('stat-bersih').textContent = formatRupiah(data.nilai_bersih);
@@ -6113,13 +6220,14 @@ async function loadDashboard() {
 
   const tbody = document.getElementById('recent-tbody');
   if (!data.recent_transaksi || !data.recent_transaksi.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada transaksi</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada transaksi</p></div></td></tr>`;
   } else {
     tbody.innerHTML = [...data.recent_transaksi].reverse().map(t => `
       <tr><td>${formatTanggal(t.tanggal)}</td>
       <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan}">${t.kegiatan||'-'}</td>
       <td>${t.penerima||'-'}</td>
       <td><span class="badge bg-light text-dark">${t.no_bpk||'-'}</span></td>
+      <td>${trxStatusBadge(t)}</td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(t.nilai)}</span></td></tr>`).join('');
   }
 
@@ -6365,15 +6473,82 @@ async function loadTransaksi(force = false) {
   allTransactions = await fetchAllTransactions(force);
   trxPage = 1;
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
+  renderPendingPanel();
+  updatePendingNavBadge();
   renderTable();
   updatePaguRekeningUI();
 }
 
+function getPendingTransactions() {
+  return (allTransactions || []).filter(t => trxEffectiveStatus(t) === 'pending');
+}
+
+function updatePendingNavBadge() {
+  const pending = getPendingTransactions().length;
+  const nav = document.getElementById('nav-transaksi');
+  const badge = document.getElementById('nav-pending-badge');
+  if (badge) badge.textContent = pending;
+  nav?.classList.toggle('has-pending', isAdmin() && pending > 0);
+}
+
+function renderPendingPanel() {
+  const panel = document.getElementById('trx-pending-panel');
+  const list = document.getElementById('trx-pending-list');
+  const countEl = document.getElementById('trx-pending-count');
+  if (!panel || !list) return;
+  const pending = getPendingTransactions();
+  if (countEl) countEl.textContent = pending.length;
+  if (!isAdmin() || !pending.length) {
+    panel.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  panel.style.display = '';
+  list.innerHTML = pending.map(t => `
+    <div class="trx-pending-item">
+      <div class="trx-pending-meta">
+        <strong>#${t.id}</strong> · ${formatTanggal(t.tanggal)} · ${escHtml(t.penerima || '—')} · BPK ${escHtml(t.no_bpk || '—')} · <span class="badge-rupiah">${formatRupiah(t.nilai)}</span>
+        ${t.created_by ? `<br><span class="text-muted">Operator: ${escHtml(t.created_by)}</span>` : ''}
+      </div>
+      <div class="trx-pending-actions">
+        <button type="button" class="btn btn-sm btn-success" onclick="reviewTransaction(${t.id}, 'approve')"><i class="bi bi-check-lg me-1"></i>Setujui</button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="reviewTransaction(${t.id}, 'reject')"><i class="bi bi-x-lg me-1"></i>Tolak</button>
+      </div>
+    </div>`).join('');
+}
+
+async function reviewTransaction(id, action) {
+  if (!isAdmin()) return;
+  let note = '';
+  if (action === 'reject') {
+    note = prompt('Alasan penolakan (opsional):') || '';
+    if (note === null) return;
+  } else if (!confirm('Setujui transaksi #' + id + '?')) {
+    return;
+  }
+  try {
+    const res = await apiFetch(API + '/transactions/review', {
+      method: 'POST',
+      body: JSON.stringify({ id, action, note }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Gagal memproses persetujuan');
+    invalidateTxCache();
+    await loadTransaksi(true);
+    if (document.getElementById('page-dashboard')?.classList.contains('active')) await loadDashboard();
+    alert(data.message || 'Transaksi diproses.');
+  } catch (e) {
+    alert(e.message || 'Gagal memproses transaksi.');
+  }
+}
+
 function getFilteredTransactions() {
   const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-  if (!q) return allTransactions;
-  return allTransactions.filter(t =>
-    (t.kegiatan||'').toLowerCase().includes(q) ||
+  const statusFilter = (document.getElementById('trx-status-filter')?.value || '').trim();
+  return (allTransactions || []).filter(t => {
+    if (statusFilter && trxEffectiveStatus(t) !== statusFilter) return false;
+    if (!q) return true;
+    return (t.kegiatan||'').toLowerCase().includes(q) ||
     (t.penerima||'').toLowerCase().includes(q) ||
     (t.no_bpk||'').toLowerCase().includes(q) ||
     (t.no_bast||'').toLowerCase().includes(q) ||
@@ -6384,8 +6559,8 @@ function getFilteredTransactions() {
     (t.jenis_potongan||'').toLowerCase().includes(q) ||
     (t.potongan_pajak||[]).some(p => (p.jenis||'').toLowerCase().includes(q)) ||
     (t.ntpn||'').toLowerCase().includes(q) ||
-    (t.tanggal||'').includes(q)
-  );
+    (t.tanggal||'').includes(q);
+  });
 }
 
 function onTrxPageSizeChange() {
@@ -6419,10 +6594,14 @@ function renderTrxPagination(total, totalPages, start, shown) {
 
 function trxActionButtons(t) {
   let html = '';
-  if (canDo('cetak_kwitansi')) html += `<button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})"><i class="bi bi-printer"></i></button> `;
-  if (canDo('cetak_np2d')) html += `<button class="btn btn-sm btn-outline-info" title="Cetak NP2D" onclick="cetakNP2D(${t.id})"><i class="bi bi-bank"></i></button> `;
-  if (canDo('edit_transaksi')) html += `<button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})"><i class="bi bi-pencil"></i></button> `;
-  if (canDo('delete_transaksi')) html += `<button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
+  if (isAdmin() && trxEffectiveStatus(t) === 'pending') {
+    html += `<button class="btn btn-sm btn-success" title="Setujui" onclick="reviewTransaction(${t.id}, 'approve')"><i class="bi bi-check-lg"></i></button> `;
+    html += `<button class="btn btn-sm btn-outline-danger" title="Tolak" onclick="reviewTransaction(${t.id}, 'reject')"><i class="bi bi-x-lg"></i></button> `;
+  }
+  if (canDo('cetak_kwitansi') && trxIsApproved(t)) html += `<button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})"><i class="bi bi-printer"></i></button> `;
+  if (canDo('cetak_np2d') && trxIsApproved(t)) html += `<button class="btn btn-sm btn-outline-info" title="Cetak NP2D" onclick="cetakNP2D(${t.id})"><i class="bi bi-bank"></i></button> `;
+  if (canDo('edit_transaksi') && operatorMayEditTrx(t)) html += `<button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})"><i class="bi bi-pencil"></i></button> `;
+  if (canDo('delete_transaksi') && operatorMayEditTrx(t)) html += `<button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
   return html || '<span class="text-muted" style="font-size:11px">—</span>';
 }
 
@@ -6431,7 +6610,7 @@ function renderTable() {
   const tbody = document.getElementById('trx-tbody');
   let totalN = 0, totalP = 0, totalPot = 0;
   if (!data || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="21"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="22"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
@@ -6442,6 +6621,7 @@ function renderTable() {
     return;
   }
   data.forEach(t => {
+    if (!trxIsApproved(t)) return;
     totalN += t.nilai || 0;
     totalP += t.pajak || 0;
     totalPot += t.nilai_potongan || 0;
@@ -6455,6 +6635,7 @@ function renderTable() {
     return `<tr class="trx-row-hoverable${checked ? ' table-active' : ''}">
       <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
       <td class="table-num">${start + i + 1}</td>
+      <td>${trxStatusBadge(t)}</td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
       <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
       <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.sub_kegiatan||''}">${t.sub_kegiatan||'-'}</td>
@@ -6625,14 +6806,29 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
   };
   const btn = document.getElementById('btn-submit');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
-  let url = API+'/transactions', method='POST';
-  if (editingId != null) { url += '/'+editingId; method='PUT'; }
-  const wasEdit = editingId != null;
-  await apiFetch(url, { method, body: JSON.stringify(payload) });
-  btn.disabled = false; resetForm();
-  invalidateTxCache();
-  await loadTransaksi(true);
-  alert(wasEdit ? 'Transaksi berhasil diperbarui.' : 'Transaksi berhasil disimpan.');
+  try {
+    let url = API+'/transactions', method='POST';
+    if (editingId != null) { url += '/'+editingId; method='PUT'; }
+    const wasEdit = editingId != null;
+    const res = await apiFetch(url, { method, body: JSON.stringify(payload) });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(result.error || 'Gagal menyimpan transaksi');
+    resetForm();
+    invalidateTxCache();
+    await loadTransaksi(true);
+    if (isAdmin()) {
+      alert(wasEdit ? 'Transaksi berhasil diperbarui.' : 'Transaksi berhasil disimpan.');
+    } else {
+      alert(wasEdit
+        ? 'Perubahan transaksi dikirim ulang. Menunggu persetujuan Admin.'
+        : 'Transaksi berhasil dikirim. Menunggu persetujuan Admin sebelum masuk laporan resmi.');
+    }
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan transaksi.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
+  }
 });
 
 function resetForm() {
@@ -6665,6 +6861,10 @@ function resetForm() {
 function editTrx(id) {
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
+  if (!operatorMayEditTrx(t)) {
+    alert('Transaksi ini sudah disetujui dan tidak dapat diubah oleh operator.');
+    return;
+  }
   editingId = id;
   document.getElementById('f-tanggal').value = t.tanggal||'';
   document.getElementById('f-nobpk').value = t.no_bpk||'';
@@ -6796,6 +6996,10 @@ function cetakKwitansi(id) {
   syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
+  if (!trxIsApproved(t)) {
+    alert('Kwitansi hanya dapat dicetak untuk transaksi yang sudah disetujui Admin.');
+    return;
+  }
 
   const pptkNip = t.pptk_nip || dbPPTKNip(t.pptk) || '—';
   const tgl = formatTanggalShort(t.tanggal);
@@ -7224,6 +7428,10 @@ function cetakNP2D(id) {
   syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
+  if (!trxIsApproved(t)) {
+    alert('NP2D hanya dapat dicetak untuk transaksi yang sudah disetujui Admin.');
+    return;
+  }
   const cfg = getPortalAppConfig();
   const items = getPotonganItemsFromTransaction(t);
   const pajakItems = items.filter(i => i.kategori === 'pajak');
@@ -7912,7 +8120,7 @@ function trxMatchesRegisterPeriod(t, rangeStart, rangeEnd) {
 
 function getRegisterPeriodTransactions() {
   const { start, end } = getRegisterPeriodBounds();
-  return (allTransactions || []).filter(t => trxMatchesRegisterPeriod(t, start, end));
+  return (allTransactions || []).filter(t => trxIsApproved(t) && trxMatchesRegisterPeriod(t, start, end));
 }
 
 function getRegisterDicetakDate() {
@@ -8455,7 +8663,7 @@ function cetakRegisterPDF() {
 async function loadRekap() {
   await loadSettings();
   rekapMode = document.getElementById('rekap-mode')?.value || rekapMode;
-  rekapTransactionsCache = await fetchAllTransactions();
+  rekapTransactionsCache = (await fetchAllTransactions()).filter(trxIsApproved);
   rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
   renderRekapTable();
 }
