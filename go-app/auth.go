@@ -52,7 +52,7 @@ func envOr(key, fallback string) string {
 
 func isValidAppModule(id string) bool {
 	switch id {
-	case "sekretariat", "paud", "sd", "smp", "kas-belanja":
+	case "sekretariat", "paud", "sd", "smp", "kas-belanja", "pengaturan":
 		return true
 	default:
 		return false
@@ -140,8 +140,15 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	user, ok := defaultUsers[username]
-	if !ok || !passwordMatches(user.Password, body.Password) {
+	appModule := strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
+	if appModule == "" {
+		appModule = "sekretariat"
+	}
+	if !isValidAppModule(appModule) {
+		appModule = "sekretariat"
+	}
+	user, ok := authenticatePortalUser(body.Username, body.Password, appModule)
+	if !ok {
 		loginLimiter.recordFail(ip)
 		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Username atau password salah"})
 		return
@@ -151,13 +158,6 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, map[string]string{"error": "Gagal membuat sesi"})
 		return
-	}
-	appModule := strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
-	if appModule == "" {
-		appModule = "sekretariat"
-	}
-	if !isValidAppModule(appModule) {
-		appModule = "sekretariat"
 	}
 	sess := Session{
 		Username:  username,
@@ -170,11 +170,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	sessions[token] = sess
 	sessionsMu.Unlock()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"token":      token,
-		"username":   username,
-		"role":       user.Role,
-		"name":       user.Name,
-		"app_module": appModule,
+		"token":       token,
+		"username":    username,
+		"role":        user.Role,
+		"name":        user.Name,
+		"app_module":  appModule,
+		"permissions": permissionsForSession(&sess),
 	})
 }
 
@@ -203,9 +204,10 @@ func handleMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"username":   sess.Username,
-		"role":       sess.Role,
-		"name":       sess.Name,
-		"app_module": sess.AppModule,
+		"username":    sess.Username,
+		"role":        sess.Role,
+		"name":        sess.Name,
+		"app_module":  sess.AppModule,
+		"permissions": permissionsForSession(sess),
 	})
 }

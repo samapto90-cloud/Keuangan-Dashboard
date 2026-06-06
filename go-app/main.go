@@ -235,6 +235,15 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusOK, result)
 
         case http.MethodPost:
+                sess := getSession(r)
+                if sess == nil {
+                        jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                        return
+                }
+                if !sessionHasPermission(sess, "add_transaksi") {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+                        return
+                }
                 var t Transaction
                 if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
                         jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
@@ -269,6 +278,11 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
         mod := moduleFromRequest(r)
         switch r.Method {
         case http.MethodPut:
+                sess := getSession(r)
+                if !sessionHasPermission(sess, "edit_transaksi") {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+                        return
+                }
                 var updated Transaction
                 if err := json.NewDecoder(r.Body).Decode(&updated); err != nil {
                         jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
@@ -294,6 +308,11 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusOK, updated)
 
         case http.MethodDelete:
+                sess := getSession(r)
+                if !sessionHasPermission(sess, "delete_transaksi") {
+                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+                        return
+                }
                 deleteTransactionByID(w, mod, id)
 
         default:
@@ -325,8 +344,13 @@ func handleDeleteTransaction(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
                 return
         }
-        if getSession(r) == nil {
+        sess := getSession(r)
+        if sess == nil {
                 jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        if !sessionHasPermission(sess, "delete_transaksi") {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
                 return
         }
         var payload struct {
@@ -347,6 +371,11 @@ func handleDeleteBulkTransactions(w http.ResponseWriter, r *http.Request) {
         }
         if getSession(r) == nil {
                 jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        sess := getSession(r)
+        if !sessionHasPermission(sess, "delete_bulk") {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
                 return
         }
         var payload struct {
@@ -404,8 +433,13 @@ func handleDeleteAllTransactions(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleImport(w http.ResponseWriter, r *http.Request) {
-        if getSession(r) == nil || getSession(r).Role != "admin" {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+        sess := getSession(r)
+        if sess == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        if !sessionHasPermission(sess, "import_transaksi") {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
                 return
         }
         if r.Method != http.MethodPost {
@@ -419,25 +453,42 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
         }
         mod := moduleFromRequest(r)
         mod.mu.Lock()
+        accepted := make([]Transaction, 0, len(items))
+        skipped := 0
         for i := range items {
                 normalizeTransactionTax(&items[i])
+                if !importTransactionAllowed(mod, items[i]) {
+                        skipped++
+                        continue
+                }
                 items[i].ID = mod.nextID
                 mod.nextID++
-                mod.txs = append(mod.txs, items[i])
+                accepted = append(accepted, items[i])
         }
+        mod.txs = append(mod.txs, accepted...)
         total := len(mod.txs)
         mod.mu.Unlock()
         persistModule(mod)
+        msg := fmt.Sprintf("%d transaksi ditambahkan. Total kini %d transaksi (data lama tetap tersimpan).", len(accepted), total)
+        if skipped > 0 {
+                msg += fmt.Sprintf(" %d baris dilewati karena No BPK/NP2D tidak sesuai portal %s.", skipped, mod.ID)
+        }
         jsonResponse(w, http.StatusOK, map[string]interface{}{
-                "imported": len(items),
+                "imported": len(accepted),
+                "skipped":  skipped,
                 "total":    total,
-                "message":  fmt.Sprintf("%d transaksi ditambahkan. Total kini %d transaksi (data lama tetap tersimpan).", len(items), total),
+                "message":  msg,
         })
 }
 
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
-        if getSession(r) == nil || getSession(r).Role != "admin" {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+        sess := getSession(r)
+        if sess == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        if !sessionHasPermission(sess, "view_dashboard") {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
                 return
         }
         if r.Method != http.MethodGet {
@@ -754,6 +805,8 @@ func main() {
                 mux.Handle("/assets/ds-kas-runners/", http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub))))
         }
 
+        mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
+
         mux.HandleFunc("/data/auth/login", cors(handleLogin))
         mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
         mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
@@ -762,12 +815,12 @@ func main() {
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
         mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
-        mux.HandleFunc("/data/transactions/delete-all", cors(requireAdmin(handleDeleteAllTransactions)))
+        mux.HandleFunc("/data/transactions/delete-all", cors(requireAuth(requirePermission("delete_all")(handleDeleteAllTransactions))))
         mux.HandleFunc("/data/admin/backfill-np2d", cors(requireAdmin(handleBackfillNP2D)))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
         mux.HandleFunc("/data/settings", cors(handleSettings))
-        mux.HandleFunc("/data/import/anggaran", cors(requireAdmin(handleImportAnggaran)))
+        mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
         mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
         mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(handleKasImportRAK)))
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(handleKasSaveRealisasi)))
@@ -775,6 +828,7 @@ func main() {
 
         initSipkeuModules()
         initStorage()
+        initSystemSettings()
         loadAllModulesFromDisk()
         repairAllModulesIsolation()
         loadKasFromDisk()

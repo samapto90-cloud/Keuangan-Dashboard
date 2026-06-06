@@ -57,6 +57,20 @@ func transactionBelongsToModule(mod *SipkeuModule, t Transaction) bool {
 	return strings.Contains(no, "/"+mod.BPKCode+"/")
 }
 
+func importTransactionAllowed(mod *SipkeuModule, t Transaction) bool {
+	if mod == nil {
+		return false
+	}
+	if !transactionBelongsToModule(mod, t) {
+		return false
+	}
+	np2d := strings.TrimSpace(t.NoNP2D)
+	if np2d != "" && !strings.Contains(np2d, "/"+mod.BPKCode+"/") {
+		return false
+	}
+	return true
+}
+
 func moduleTransactionsCopy(mod *SipkeuModule) []Transaction {
 	mod.mu.Lock()
 	defer mod.mu.Unlock()

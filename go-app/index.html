@@ -1849,6 +1849,59 @@
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
+    #settings-app-shell { display: none; }
+    #settings-app-shell.visible { display: block; }
+    .portal-theme-settings { --portal-accent: #6366f1; border-color: rgba(99,102,241,.35); }
+    .portal-theme-settings .portal-app-icon.settings-portal-icon {
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 2.2rem;
+    }
+    body.theme-settings {
+      --naruto: #6366f1;
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    #settings-app-shell { min-height: 100vh; position: relative; z-index: 2; color: #e2e8f0; }
+    .settings-layout { display: flex; min-height: 100vh; }
+    #settings-sidebar {
+      width: 260px; flex-shrink: 0; background: rgba(15,23,42,.95);
+      border-right: 1px solid rgba(99,102,241,.25); padding: 20px 0;
+      display: flex; flex-direction: column;
+    }
+    .settings-brand { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .settings-brand h6 { color: #c7d2fe; margin: 0; font-weight: 700; }
+    .settings-brand small { color: #94a3b8; font-size: 11px; }
+    .settings-nav { padding: 16px 12px; flex: 1; }
+    .settings-nav a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      color: #cbd5e1; text-decoration: none; border-radius: 8px; margin-bottom: 4px; font-size: 13px;
+    }
+    .settings-nav a:hover, .settings-nav a.active { background: rgba(99,102,241,.2); color: #fff; }
+    .settings-main { flex: 1; padding: 24px 28px; overflow-y: auto; }
+    .settings-card {
+      background: rgba(30,41,59,.85); border: 1px solid rgba(99,102,241,.2);
+      border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    }
+    .settings-card h5 { color: #e0e7ff; font-size: 15px; margin-bottom: 16px; }
+    .settings-portal-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .settings-portal-tabs button {
+      border: 1px solid rgba(99,102,241,.35); background: transparent; color: #cbd5e1;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    }
+    .settings-portal-tabs button.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .settings-perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .settings-perm-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      background: rgba(15,23,42,.6); border-radius: 8px; font-size: 13px;
+    }
+    .settings-perm-item input { width: 16px; height: 16px; accent-color: #6366f1; }
+    .settings-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 768px) { .settings-form-grid { grid-template-columns: 1fr; } .settings-layout { flex-direction: column; } #settings-sidebar { width: 100%; } }
+    .settings-page { display: none; }
+    .settings-page.active { display: block; }
+    [data-perm] { display: none !important; }
+    body.perms-applied [data-perm].perm-on { display: flex !important; }
+    body.perms-applied .trx-admin-tools [data-perm].perm-on { display: inline-flex !important; }
 
     /* ── Kas Belanja App — Gundam RX-78 Theme ── */
     :root {
@@ -2952,6 +3005,16 @@
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
+
+      <div class="portal-app-card portal-theme-settings portal-active" onclick="openPortalApp('pengaturan')">
+        <div class="portal-app-icon settings-portal-icon"><i class="bi bi-gear-wide-connected"></i></div>
+        <h3>Portal Pengaturan Sistem</h3>
+        <p>Kelola profil &amp; password semua portal SIPKEU serta hak akses operator per modul.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Pengaturan <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
     </div>
 
     <div class="portal-footer fire-glow-text">Developer by Shinta Widyastati</div>
@@ -2967,7 +3030,7 @@
       <h4>SIPKEU</h4>
       <p id="login-app-desc">Sistem Informasi Penatausahaan Keuangan<br>Dinas Pendidikan Kota Batam · TA 2026</p>
     </div>
-    <div class="login-roles">
+    <div class="login-roles" id="login-roles-box">
       <div class="login-role-hint">
         <strong><i class="bi bi-person-gear me-1"></i>Admin</strong>
         Akses penuh: dashboard, rekap, pengaturan, ekspor/impor.
@@ -3156,15 +3219,15 @@ function onNilaiBrutoInput() {
   </div>
   <nav>
     <div class="nav-label">Menu Utama</div>
-    <a href="#" class="nav-admin-only active" id="nav-dashboard" onclick="showPage('dashboard',this)"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a href="#" data-perm="view_dashboard" class="nav-admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)"><i class="bi bi-grid-1x2"></i> Dashboard</a>
     <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi</a>
-    <a href="#" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
+    <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
     <div class="nav-label mt-2 nav-label-admin">Laporan</div>
-    <a href="#" class="nav-admin-only" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
+    <a href="#" data-perm="view_rekap" class="nav-admin-only" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
     <div class="nav-label mt-2 nav-label-admin">Pengaturan</div>
-    <a href="#" class="nav-admin-only" onclick="showPage('pengaturan',this)"><i class="bi bi-person-gear"></i> Pejabat Keuangan</a>
+    <a href="#" data-perm="view_pejabat" class="nav-admin-only" onclick="showPage('pengaturan',this)"><i class="bi bi-person-gear"></i> Pejabat Keuangan</a>
     <div class="nav-label mt-2 nav-label-admin">Data</div>
-    <a href="#" class="nav-admin-only" onclick="showModalImporAnggaran();return false"><i class="bi bi-table"></i> Impor Anggaran & Kegiatan</a>
+    <a href="#" data-perm="import_anggaran" class="nav-admin-only" onclick="showModalImporAnggaran();return false"><i class="bi bi-table"></i> Impor Anggaran & Kegiatan</a>
     <div class="nav-label mt-2">Navigasi</div>
     <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Portal Aplikasi</a>
   </nav>
@@ -3286,7 +3349,7 @@ function onNilaiBrutoInput() {
   <!-- ══ TRANSAKSI ══ -->
   <div id="page-transaksi" class="page">
     <!-- Form -->
-    <div class="form-card mb-4 ds-animate" style="--ds-delay:.05s">
+    <div class="form-card mb-4 ds-animate" id="trx-form-panel" style="--ds-delay:.05s">
       <h6><i class="bi bi-pencil-square me-2 text-primary"></i><span id="form-mode-label">Tambah Transaksi Baru</span></h6>
       <form id="trx-form">
         <input type="hidden" id="f-id" />
@@ -3491,10 +3554,10 @@ function onNilaiBrutoInput() {
         <h6><i class="bi bi-table me-2 text-primary"></i>Daftar Transaksi</h6>
         <div class="d-flex gap-2 align-items-center trx-admin-tools">
           <input type="text" class="form-control form-control-sm" id="search-input" placeholder="Cari..." oninput="filterTable()" style="width:180px" />
-          <button class="btn btn-sm btn-outline-success" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-download me-1"></i>Ekspor</button>
-          <button class="btn btn-sm btn-outline-primary" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
-          <button class="btn btn-sm btn-danger" id="btn-hapus-terpilih" onclick="confirmHapusTerpilih()" title="Hapus transaksi yang dicentang" disabled><i class="bi bi-trash me-1"></i>Hapus Terpilih (<span id="trx-selected-count">0</span>)</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
+          <button class="btn btn-sm btn-outline-success" data-perm="export_transaksi" onclick="showModalEkspor()" title="Ekspor Excel"><i class="bi bi-download me-1"></i>Ekspor</button>
+          <button class="btn btn-sm btn-outline-primary" data-perm="import_transaksi" onclick="showModalImpor()" title="Impor Excel"><i class="bi bi-upload me-1"></i>Impor</button>
+          <button class="btn btn-sm btn-danger" data-perm="delete_bulk" id="btn-hapus-terpilih" onclick="confirmHapusTerpilih()" title="Hapus transaksi yang dicentang" disabled><i class="bi bi-trash me-1"></i>Hapus Terpilih (<span id="trx-selected-count">0</span>)</button>
+          <button class="btn btn-sm btn-outline-danger" data-perm="delete_all" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
         </div>
       </div>
       <div class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke kiri/kanan untuk melihat semua kolom</div>
@@ -3933,6 +3996,56 @@ function onNilaiBrutoInput() {
   </div><!-- /kas-main -->
 </div><!-- /kas-app-shell -->
 
+<!-- ═══════════════ PORTAL PENGATURAN SISTEM ═══════════════ -->
+<div id="settings-app-shell">
+  <div class="settings-layout">
+    <aside id="settings-sidebar">
+      <div class="settings-brand">
+        <h6><i class="bi bi-gear-wide-connected me-1"></i> Pengaturan Sistem</h6>
+        <small>SIPKEU · Dinas Pendidikan Kota Batam</small>
+      </div>
+      <nav class="settings-nav">
+        <a href="#" class="active" id="settings-nav-profil" onclick="showSettingsPage('profil',this);return false"><i class="bi bi-person-vcard"></i> Profil &amp; Password</a>
+        <a href="#" id="settings-nav-akses" onclick="showSettingsPage('akses',this);return false"><i class="bi bi-shield-check"></i> Hak Akses Operator</a>
+        <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Kembali ke Portal</a>
+      </nav>
+      <div style="padding:12px 20px;border-top:1px solid rgba(255,255,255,.08)">
+        <div style="font-size:12px;color:#94a3b8" id="settings-user-label">—</div>
+        <button type="button" class="btn btn-sm btn-outline-light w-100 mt-2" onclick="doLogout()"><i class="bi bi-box-arrow-left me-1"></i>Keluar</button>
+      </div>
+    </aside>
+    <main class="settings-main">
+      <div id="settings-page-profil" class="settings-page active">
+        <h4 class="mb-3" style="color:#e0e7ff"><i class="bi bi-person-vcard me-2"></i>Profil &amp; Password Portal</h4>
+        <div class="settings-card">
+          <h5><i class="bi bi-shield-lock me-1"></i> Akun Portal Pengaturan</h5>
+          <div class="settings-form-grid">
+            <div><label class="form-label text-light">Username (NIP)</label><input type="text" class="form-control" id="sys-settings-user"></div>
+            <div><label class="form-label text-light">Password Baru</label><input type="password" class="form-control" id="sys-settings-pass" placeholder="Kosongkan jika tidak diubah"></div>
+            <div class="settings-form-grid" style="grid-column:1/-1"><div><label class="form-label text-light">Nama Lengkap</label><input type="text" class="form-control" id="sys-settings-name"></div></div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h5><i class="bi bi-grid me-1"></i> Kredensial per Portal</h5>
+          <div class="settings-portal-tabs" id="sys-portal-tabs"></div>
+          <div id="sys-portal-auth-form"></div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Pengaturan</button>
+        <div id="sys-save-msg" class="mt-2" style="font-size:13px"></div>
+      </div>
+      <div id="settings-page-akses" class="settings-page" style="display:none">
+        <h4 class="mb-3" style="color:#e0e7ff"><i class="bi bi-shield-check me-2"></i>Hak Akses Operator</h4>
+        <div class="settings-card">
+          <p class="text-muted mb-3" style="font-size:13px">Centang fitur yang boleh diakses operator pada masing-masing portal. Admin selalu memiliki akses penuh.</p>
+          <div class="settings-portal-tabs" id="sys-perm-portal-tabs"></div>
+          <div id="sys-perm-checkboxes" class="settings-perm-grid"></div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Hak Akses</button>
+      </div>
+    </main>
+  </div>
+</div>
+
 <div id="kas-print"></div>
 
 <!-- ══ REGISTER PRINT (PDF / Cetak) — diisi dinamis per halaman ══ -->
@@ -4276,7 +4389,7 @@ function onNilaiBrutoInput() {
         <div class="mb-3">
           <label class="form-label fw-bold">Pilih File Excel (.xlsx, .xls) atau CSV (.csv)</label>
           <input type="file" id="import-file" class="form-control" accept=".xlsx,.xls,.csv" onchange="previewImpor(event)" />
-          <div class="form-text">Kolom wajib: Tanggal, Penerima, Nilai. Kolom lain opsional. <a href="#" onclick="downloadTemplate();return false">Download template kosong</a></div>
+          <div class="form-text">Kolom wajib: Tanggal, Penerima, Nilai. Kolom opsional termasuk <strong>No BPK</strong> dan <strong>No NP2D / NPD</strong> (kosongkan agar diisi otomatis sesuai portal aktif). Data dengan kode BPK/NP2D portal lain akan ditolak. <a href="#" onclick="downloadTemplate();return false">Download template</a></div>
         </div>
         <div id="import-preview" style="display:none">
           <div class="alert py-2 mb-2" id="import-alert" style="font-size:12px"></div>
@@ -4518,6 +4631,11 @@ const PORTAL_APPS = {
     desc: 'Modul realisasi anggaran kas belanja — tema Gundam RX-78 · upload RAK, input realisasi, laporan Angkas.',
     available: true,
   },
+  pengaturan: {
+    label: 'Portal Pengaturan Sistem',
+    desc: 'Kelola profil &amp; password semua portal SIPKEU serta hak akses operator.',
+    available: true,
+  },
 };
 
 const SIPKEU_PORTAL_PROFILE = {
@@ -4665,8 +4783,8 @@ function endPortalSession() {
 
 function resolvePortalApp(serverModule) {
   const stored = sessionStorage.getItem('sipkeu_app');
-  if (stored === 'kas-belanja' || (stored && PORTAL_APPS[stored]?.available)) return stored;
-  const valid = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja'];
+  if (stored === 'kas-belanja' || stored === 'pengaturan' || (stored && PORTAL_APPS[stored]?.available)) return stored;
+  const valid = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja', 'pengaturan'];
   if (serverModule && valid.includes(serverModule)) return serverModule;
   return 'sekretariat';
 }
@@ -4676,6 +4794,7 @@ function showPortal() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.remove('visible');
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
   endPortalSession();
@@ -4683,14 +4802,15 @@ function showPortal() {
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   currentUser = null;
-  document.body.classList.remove('role-admin', 'role-operator');
+  document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
 }
 
-const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto'];
+const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings'];
 function clearPortalThemes(el) {
   if (el) el.classList.remove(...PORTAL_THEME_CLASSES);
 }
 function portalThemeClass(appKey) {
+  if (appKey === 'pengaturan') return 'theme-settings';
   const prof = SIPKEU_PORTAL_PROFILE[appKey];
   const theme = prof?.theme || (appKey === 'kas-belanja' ? 'gundam' : '');
   return theme ? 'theme-' + theme : '';
@@ -4718,9 +4838,12 @@ function showLogin(appKey) {
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.remove('visible');
   resetAppPageUI();
   currentUser = null;
-  document.body.classList.remove('role-admin', 'role-operator');
+  document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
+  const rolesBox = document.getElementById('login-roles-box');
+  if (rolesBox) rolesBox.style.display = nextApp === 'pengaturan' ? 'none' : '';
   document.getElementById('login-error')?.classList.remove('show');
 }
 
@@ -4773,11 +4896,34 @@ async function apiFetch(path, options = {}) {
 
 function isAdmin() { return currentUser?.role === 'admin'; }
 
+function canDo(perm) {
+  if (!currentUser) return false;
+  if (currentUser.role === 'admin' || currentUser.role === 'settings-admin') return true;
+  return !!currentUser.permissions?.[perm];
+}
+
+function canAccessTransaksi() {
+  return canDo('add_transaksi') || canDo('edit_transaksi') || canDo('delete_transaksi')
+    || canDo('cetak_kwitansi') || canDo('cetak_np2d') || canDo('export_transaksi') || canDo('import_transaksi');
+}
+
+function applyPermissionUI() {
+  document.querySelectorAll('[data-perm]').forEach(el => {
+    el.classList.toggle('perm-on', canDo(el.dataset.perm));
+  });
+  document.body.classList.add('perms-applied');
+  const tools = document.querySelector('.trx-admin-tools');
+  if (tools) tools.style.display = tools.querySelector('[data-perm].perm-on') ? 'flex' : 'none';
+  const formSection = document.getElementById('trx-form-panel');
+  if (formSection) formSection.style.display = canDo('add_transaksi') ? '' : 'none';
+}
+
 function showApp() {
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.remove('visible');
   applyPortalTheme(document.body, selectedPortalApp);
   applyRoleUI();
 }
@@ -4786,6 +4932,7 @@ function showKasApp() {
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.add('visible');
   clearPortalThemes(document.body);
   document.body.classList.add('theme-gundam');
@@ -4798,9 +4945,184 @@ function showKasApp() {
   }
 }
 
+function showSettingsApp() {
+  document.getElementById('portal-screen')?.classList.add('hidden');
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.add('visible');
+  applyPortalTheme(document.body, 'pengaturan');
+  const el = document.getElementById('settings-user-label');
+  if (el && currentUser) el.textContent = (currentUser.name || '—') + ' · Pengaturan Sistem';
+}
+
+const SETTINGS_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja'];
+const SETTINGS_PORTAL_LABELS = {
+  sekretariat: 'Sekretariat',
+  paud: 'PAUD',
+  sd: 'SD',
+  smp: 'SMP',
+  'kas-belanja': 'Kas Belanja',
+};
+const OPERATOR_PERM_DEFS = [
+  { key: 'view_dashboard', label: 'Lihat Dashboard' },
+  { key: 'view_rekap', label: 'Lihat Rekapitulasi' },
+  { key: 'view_pejabat', label: 'Lihat Pejabat Keuangan' },
+  { key: 'add_transaksi', label: 'Tambah Transaksi' },
+  { key: 'edit_transaksi', label: 'Edit Transaksi' },
+  { key: 'delete_transaksi', label: 'Hapus Transaksi (per baris)' },
+  { key: 'delete_bulk', label: 'Hapus Terpilih (bulk)' },
+  { key: 'delete_all', label: 'Hapus Semua Transaksi' },
+  { key: 'export_transaksi', label: 'Ekspor Excel' },
+  { key: 'import_transaksi', label: 'Impor Excel' },
+  { key: 'import_anggaran', label: 'Impor Anggaran & Kegiatan' },
+  { key: 'view_register', label: 'Register Pengeluaran' },
+  { key: 'cetak_kwitansi', label: 'Cetak Kwitansi' },
+  { key: 'cetak_np2d', label: 'Cetak NP2D' },
+];
+
+let systemSettingsCache = null;
+let sysActivePortalTab = 'sekretariat';
+let sysActivePermPortal = 'sekretariat';
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}
+
+async function bootSettingsApp(fromRestore = true) {
+  if (!fromRestore) markInAppSession();
+  showSettingsApp();
+  showSettingsPage('profil', document.getElementById('settings-nav-profil'));
+  await loadSystemSettings();
+}
+
+function showSettingsPage(page, navEl) {
+  document.querySelectorAll('.settings-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('settings-page-' + page)?.classList.add('active');
+  document.querySelectorAll('#settings-sidebar .settings-nav a').forEach(a => a.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+}
+
+async function loadSystemSettings() {
+  const res = await apiFetch(API + '/system-settings');
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Gagal memuat pengaturan');
+  systemSettingsCache = data;
+  document.getElementById('sys-settings-user').value = data.settings_portal_username || '';
+  document.getElementById('sys-settings-name').value = data.settings_portal_name || '';
+  document.getElementById('sys-settings-pass').value = '';
+  renderSysPortalTabs();
+  renderSysPortalAuthForm();
+  renderSysPermPortalTabs();
+  renderSysPermCheckboxes();
+}
+
+function renderSysPortalTabs() {
+  const el = document.getElementById('sys-portal-tabs');
+  if (!el) return;
+  el.innerHTML = SETTINGS_PORTAL_IDS.map(id =>
+    `<button type="button" class="${id === sysActivePortalTab ? 'active' : ''}" onclick="selectSysPortalTab('${id}')">${SETTINGS_PORTAL_LABELS[id]}</button>`
+  ).join('');
+}
+
+function selectSysPortalTab(id) {
+  sysActivePortalTab = id;
+  renderSysPortalTabs();
+  renderSysPortalAuthForm();
+}
+
+function renderSysPortalAuthForm() {
+  const el = document.getElementById('sys-portal-auth-form');
+  if (!el || !systemSettingsCache) return;
+  const p = systemSettingsCache.portals?.[sysActivePortalTab] || {};
+  el.innerHTML = `
+    <div class="settings-form-grid">
+      <div><label class="form-label text-light">Username Admin</label><input type="text" class="form-control" id="sys-admin-user" value="${escHtml(p.admin_username || '')}"></div>
+      <div><label class="form-label text-light">Password Admin</label><input type="password" class="form-control" id="sys-admin-pass" placeholder="Kosongkan jika tidak diubah"></div>
+      <div><label class="form-label text-light">Nama Admin</label><input type="text" class="form-control" id="sys-admin-name" value="${escHtml(p.admin_name || '')}"></div>
+      <div></div>
+      <div><label class="form-label text-light">Username Operator</label><input type="text" class="form-control" id="sys-op-user" value="${escHtml(p.operator_username || '')}"></div>
+      <div><label class="form-label text-light">Password Operator</label><input type="password" class="form-control" id="sys-op-pass" placeholder="Kosongkan jika tidak diubah"></div>
+      <div><label class="form-label text-light">Nama Operator</label><input type="text" class="form-control" id="sys-op-name" value="${escHtml(p.operator_name || '')}"></div>
+    </div>`;
+}
+
+function renderSysPermPortalTabs() {
+  const el = document.getElementById('sys-perm-portal-tabs');
+  if (!el) return;
+  el.innerHTML = SETTINGS_PORTAL_IDS.map(id =>
+    `<button type="button" class="${id === sysActivePermPortal ? 'active' : ''}" onclick="selectSysPermPortal('${id}')">${SETTINGS_PORTAL_LABELS[id]}</button>`
+  ).join('');
+}
+
+function selectSysPermPortal(id) {
+  sysActivePermPortal = id;
+  renderSysPermPortalTabs();
+  renderSysPermCheckboxes();
+}
+
+function renderSysPermCheckboxes() {
+  const el = document.getElementById('sys-perm-checkboxes');
+  if (!el || !systemSettingsCache) return;
+  const perms = systemSettingsCache.operator_perms?.[sysActivePermPortal] || {};
+  el.innerHTML = OPERATOR_PERM_DEFS.map(def =>
+    `<label class="settings-perm-item"><input type="checkbox" data-perm-key="${def.key}" ${perms[def.key] ? 'checked' : ''}> ${def.label}</label>`
+  ).join('');
+}
+
+function collectPortalAuthFromForm() {
+  if (!systemSettingsCache?.portals) systemSettingsCache = { portals: {}, operator_perms: {} };
+  const id = sysActivePortalTab;
+  const cur = systemSettingsCache.portals[id] || {};
+  const adminPass = document.getElementById('sys-admin-pass')?.value || '';
+  const opPass = document.getElementById('sys-op-pass')?.value || '';
+  systemSettingsCache.portals[id] = {
+    admin_username: document.getElementById('sys-admin-user')?.value.trim() || cur.admin_username,
+    admin_password: adminPass || cur.admin_password || '********',
+    admin_name: document.getElementById('sys-admin-name')?.value.trim() || cur.admin_name,
+    operator_username: document.getElementById('sys-op-user')?.value.trim() || cur.operator_username,
+    operator_password: opPass || cur.operator_password || '********',
+    operator_name: document.getElementById('sys-op-name')?.value.trim() || cur.operator_name,
+  };
+}
+
+function collectPermFromForm() {
+  if (!systemSettingsCache.operator_perms) systemSettingsCache.operator_perms = {};
+  const perms = {};
+  document.querySelectorAll('#sys-perm-checkboxes input[data-perm-key]').forEach(cb => {
+    perms[cb.dataset.permKey] = cb.checked;
+  });
+  systemSettingsCache.operator_perms[sysActivePermPortal] = perms;
+}
+
+async function saveSystemSettings() {
+  const msg = document.getElementById('sys-save-msg');
+  try {
+    collectPortalAuthFromForm();
+    collectPermFromForm();
+    const payload = {
+      settings_portal_username: document.getElementById('sys-settings-user').value.trim(),
+      settings_portal_password: document.getElementById('sys-settings-pass').value,
+      settings_portal_name: document.getElementById('sys-settings-name').value.trim(),
+      portals: systemSettingsCache.portals,
+      operator_perms: systemSettingsCache.operator_perms,
+    };
+    const res = await apiFetch(API + '/system-settings', { method: 'PUT', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
+    systemSettingsCache = data.data || data;
+    document.getElementById('sys-settings-pass').value = '';
+    renderSysPortalAuthForm();
+    if (msg) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + (data.message || 'Tersimpan') + '</span>'; }
+  } catch (err) {
+    if (msg) msg.innerHTML = '<span class="text-danger">' + err.message + '</span>';
+  }
+}
+
 function applyRoleUI() {
   document.body.classList.toggle('role-admin', isAdmin());
-  document.body.classList.toggle('role-operator', !isAdmin());
+  document.body.classList.toggle('role-operator', currentUser?.role === 'operator');
+  applyPermissionUI();
   const roleLabel = isAdmin() ? 'Administrator' : 'Operator';
   const el = document.getElementById('sidebar-user-role');
   if (el) el.textContent = `${currentUser?.name || '—'} · ${roleLabel}`;
@@ -4833,6 +5155,7 @@ async function tryRestoreSession() {
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
     if (selectedPortalApp === 'kas-belanja') await bootKasApp(true);
+    else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(true);
     else await bootApp(true);
   } catch {
     endPortalSession();
@@ -4869,6 +5192,7 @@ async function doLogin(e) {
     resetPortalLocalState();
     currentUser = data;
     if (selectedPortalApp === 'kas-belanja') await bootKasApp(false);
+    else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(false);
     else await bootApp(false);
   } catch (err) {
     errEl.textContent = err.message || 'Login gagal';
@@ -4897,8 +5221,12 @@ async function bootApp(fromRestore = true) {
   applyPortalBranding();
   applyPejabatUI();
   resetAppPageUI();
-  if (isAdmin()) {
+  if (canDo('view_dashboard')) {
     showPage('dashboard', document.getElementById('nav-dashboard'));
+  } else if (canAccessTransaksi()) {
+    showPage('transaksi', document.getElementById('nav-transaksi'));
+  } else if (canDo('view_register')) {
+    showPage('register', document.getElementById('nav-register'));
   } else {
     showPage('transaksi', document.getElementById('nav-transaksi'));
   }
@@ -4906,6 +5234,7 @@ async function bootApp(fromRestore = true) {
   syncPortalPejabat();
   applyPejabatUI();
   initForm();
+  applyPermissionUI();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -4979,8 +5308,11 @@ function toggleMobileSidebar(which) {
 }
 
 function showPage(name, el) {
-  if (!isAdmin() && name !== 'transaksi' && name !== 'register') {
-    return showPage('transaksi', document.getElementById('nav-transaksi'));
+  const pagePerms = { dashboard: 'view_dashboard', rekap: 'view_rekap', pengaturan: 'view_pejabat', register: 'view_register' };
+  const need = pagePerms[name];
+  if (need && !canDo(need)) {
+    if (canAccessTransaksi()) return showPage('transaksi', document.getElementById('nav-transaksi'));
+    return false;
   }
   playBreathSlash();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -5521,10 +5853,12 @@ function renderTrxPagination(total, totalPages, start, shown) {
 }
 
 function trxActionButtons(t) {
-  return `<button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})"><i class="bi bi-printer"></i></button>
-          <button class="btn btn-sm btn-outline-info" title="Cetak NP2D" onclick="cetakNP2D(${t.id})"><i class="bi bi-bank"></i></button>
-          <button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
+  let html = '';
+  if (canDo('cetak_kwitansi')) html += `<button class="btn btn-sm btn-outline-success" title="Cetak Kwitansi" onclick="cetakKwitansi(${t.id})"><i class="bi bi-printer"></i></button> `;
+  if (canDo('cetak_np2d')) html += `<button class="btn btn-sm btn-outline-info" title="Cetak NP2D" onclick="cetakNP2D(${t.id})"><i class="bi bi-bank"></i></button> `;
+  if (canDo('edit_transaksi')) html += `<button class="btn btn-sm btn-outline-warning" title="Edit" onclick="editTrx(${t.id})"><i class="bi bi-pencil"></i></button> `;
+  if (canDo('delete_transaksi')) html += `<button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="confirmHapus(${t.id})"><i class="bi bi-trash"></i></button>`;
+  return html || '<span class="text-muted" style="font-size:11px">—</span>';
 }
 
 function renderTable() {
@@ -5852,7 +6186,7 @@ document.getElementById('btn-confirm-hapus').addEventListener('click', async () 
 });
 
 function confirmHapusSemua() {
-  if (!isAdmin()) { alert('Hanya Administrator yang dapat menghapus semua transaksi.'); return; }
+  if (!canDo('delete_all')) { alert('Anda tidak memiliki hak untuk menghapus semua transaksi.'); return; }
   const n = allTransactions.length;
   if (!n) { alert('Tidak ada transaksi untuk dihapus.'); return; }
   document.getElementById('hapus-semua-count').textContent = n;
@@ -8149,10 +8483,39 @@ const EXPORT_COLS = [
   {label:'No NP2D',      key:'no_np2d'},
 ];
 
+const IMPORT_COL_ALIASES = {
+  no_bpk: ['nomor bpk', 'bpk'],
+  no_np2d: ['no np2d', 'np2d', 'npd', 'no npd', 'nomor np2d', 'nomor npd', 'no np2d pptk', 'np2d pptk', 'np2d-pptk'],
+};
+
+function normImportHeader(h) {
+  return String(h || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function buildImportColMap(headers) {
+  const colMap = {};
+  const norms = headers.map(normImportHeader);
+  EXPORT_COLS.forEach(c => {
+    const want = [normImportHeader(c.label), ...(IMPORT_COL_ALIASES[c.key] || [])];
+    const idx = norms.findIndex(h => want.includes(h));
+    if (idx >= 0) colMap[c.key] = idx;
+  });
+  return colMap;
+}
+
+function importRowValidForPortal(t, bpkCode) {
+  const bpk = String(t.no_bpk || '').trim();
+  const np2d = String(t.no_np2d || '').trim();
+  if (bpk && !bpk.includes('/' + bpkCode + '/')) return false;
+  if (np2d && !np2d.includes('/' + bpkCode + '/')) return false;
+  return true;
+}
+
 // ── Ekspor ────────────────────────────────────────────────────────────────
 let importData = [];
 
 function showModalEkspor() {
+  if (!canDo('export_transaksi')) { alert('Anda tidak memiliki hak ekspor transaksi.'); return; }
   // Populate kegiatan filter
   const sel = document.getElementById('export-kegiatan');
   sel.innerHTML = '<option value="">— Semua Kegiatan —</option>';
@@ -8194,8 +8557,19 @@ async function doEkspor() {
 // ── Template Download ─────────────────────────────────────────────────────
 async function downloadTemplate() {
   await ensureXlsx();
+  const cfg = getPortalAppConfig();
   const header = EXPORT_COLS.map(c => c.label);
-  const example = ['2026-01-10','Administrasi Keuangan Perangkat Daerah','Penyediaan Administrasi Pelaksanaan Tugas ASN','5.1.02.02.001.00080','CV. Contoh Maju','0001/BPK/UP/...','0001/BAST/DISDIK/I/2026','','Belanja ATK','Pengadaan ATK bulan Januari 2026','PPh 22 — 1,5% (Pembelian Barang NPWP)','Iuran Wajib Pegawai (IWP)',1000000,15000,10000,'1234567890123456','820260100000001','BND2026010001','HENDRI ARULAN, S.Pd','RAMA WARNI, MM','ELDINA SRIDHANTY, SE'];
+  const bpkExample = `0001/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
+  const np2dExample = `0001/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
+  const example = [
+    '2026-01-10', 'Administrasi Keuangan Perangkat Daerah', 'Penyediaan Administrasi Pelaksanaan Tugas ASN', '5.1.02.02.001.00080',
+    'CV. Contoh Maju', bpkExample, '0001/BAST/DISDIK/I/2026', '', 'Belanja ATK', 'Pengadaan ATK bulan Januari 2026',
+    'PPh 22 — 1,5% (Pembelian Barang NPWP)', 'Iuran Wajib Pegawai (IWP)', 1000000, 15000, 10000,
+    '1234567890123456', '820260100000001', 'BND2026010001',
+    cfg.defaultPa.nama, 'RAMA WARNI, MM', cfg.defaultBendahara.nama,
+    'Rekening Contoh', '1234567890', 'Bank Nagari', '01.234.567.8-901.000', 'CV. Contoh Maju',
+    np2dExample,
+  ];
   const ws = XLSX.utils.aoa_to_sheet([header, example]);
   ws['!cols'] = EXPORT_COLS.map((_, i) => ({ wch: [6,40,40,20,30,32,24,24,40,50,12,14,14,14,14,18,16,14,14,30,30,25][i] || 15 }));
   const wb = XLSX.utils.book_new();
@@ -8205,6 +8579,7 @@ async function downloadTemplate() {
 
 // ── Impor ─────────────────────────────────────────────────────────────────
 function showModalImpor() {
+  if (!canDo('import_transaksi')) { alert('Anda tidak memiliki hak impor transaksi.'); return; }
   const fileEl = document.getElementById('import-file');
   if (fileEl) fileEl.value = '';
   const previewEl = document.getElementById('import-preview');
@@ -8232,12 +8607,8 @@ function previewImpor(event) {
       const headers = rows[0].map(h => String(h).trim());
       const dataRows = rows.slice(1).filter(r => r.some(v => v !== ''));
 
-      // Map header labels to keys
-      const colMap = {};
-      EXPORT_COLS.forEach(c => {
-        const idx = headers.findIndex(h => h.toLowerCase() === c.label.toLowerCase());
-        if (idx >= 0) colMap[c.key] = idx;
-      });
+      const colMap = buildImportColMap(headers);
+      const cfg = getPortalAppConfig();
 
       importData = dataRows.map(row => {
         const t = {};
@@ -8264,24 +8635,40 @@ function previewImpor(event) {
         return;
       }
 
-      // Preview table (semua akses elemen null-safe agar 1 elemen hilang
-      // tidak menggagalkan seluruh proses baca file)
+      const validRows = importData.filter(t => importRowValidForPortal(t, cfg.bpkCode));
+      const rejectedPortal = importData.length - validRows.length;
+
       const head = document.getElementById('import-thead');
       const tbody = document.getElementById('import-tbody');
-      const previewCols = ['tanggal','penerima','kegiatan','pekerjaan','jenis_pajak','pajak','jenis_potongan','nilai_potongan'];
-      const previewLabels = ['Tanggal','Penerima','Kegiatan','Pekerjaan','Jenis Pajak','Pajak','Jenis Potongan','Nilai Potongan'];
+      const previewCols = ['tanggal','penerima','no_bpk','no_np2d','kegiatan','pekerjaan','nilai'];
+      const previewLabels = ['Tanggal','Penerima','No BPK','No NP2D/NPD','Kegiatan','Pekerjaan','Nilai'];
       if (head) head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
-      if (tbody) tbody.innerHTML = importData.slice(0, 20).map(t =>
-        '<tr>' + previewCols.map(k => `<td style="font-size:11px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis">${k==='pajak'||k==='nilai_potongan' ? formatRupiah(t[k]||0) : (t[k]||'-')}</td>`).join('') + '</tr>'
-      ).join('');
+      if (tbody) tbody.innerHTML = importData.slice(0, 20).map(t => {
+        const ok = importRowValidForPortal(t, cfg.bpkCode);
+        const rowStyle = ok ? '' : ' style="background:#fff3cd" title="Kode BPK/NP2D tidak sesuai portal ' + cfg.bpkCode + '"';
+        return '<tr' + rowStyle + '>' + previewCols.map(k =>
+          `<td style="font-size:11px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis">${k === 'nilai' ? formatRupiah(t[k] || 0) : (t[k] || '-')}</td>`
+        ).join('') + '</tr>';
+      }).join('');
 
       const countEl = document.getElementById('import-count');
-      if (countEl) countEl.textContent = importData.length;
+      if (countEl) countEl.textContent = validRows.length;
       const previewEl = document.getElementById('import-preview');
       if (previewEl) previewEl.style.display = '';
       const confirmBtn = document.getElementById('btn-confirm-impor');
-      if (confirmBtn) confirmBtn.style.display = '';
-      showImportAlert(`<i class="bi bi-check-circle me-1"></i>${importData.length} baris data siap diimpor${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}.`, 'success');
+      if (confirmBtn) {
+        confirmBtn.style.display = validRows.length ? '' : 'none';
+        confirmBtn.disabled = !validRows.length;
+      }
+      if (!validRows.length) {
+        showImportAlert(`<i class="bi bi-x-circle me-1"></i>Tidak ada baris valid untuk portal ${cfg.bpkCode}. Periksa kolom No BPK / No NP2D (NPD).`, 'danger');
+        return;
+      }
+      let alertMsg = `<i class="bi bi-check-circle me-1"></i>${validRows.length} baris siap diimpor ke portal ${cfg.bpkCode}${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}.`;
+      if (rejectedPortal) {
+        alertMsg += ` <strong>${rejectedPortal} baris ditolak</strong> (kode BPK/NP2D portal lain).`;
+      }
+      showImportAlert(alertMsg, rejectedPortal ? 'warning' : 'success');
     } catch(err) {
       console.error('previewImpor error:', err);
       showImportAlert('<i class="bi bi-x-circle me-1"></i>Gagal membaca file: ' + (err && err.message ? err.message : err), 'danger');
@@ -8335,7 +8722,11 @@ async function doImpor() {
       if (!items.length) return base;
       const legacy = syncLegacyTaxFieldsFromItems(items);
       return { ...base, potongan_pajak: items, ...legacy };
-    });
+    }).filter(t => importRowValidForPortal(t, cfg.bpkCode));
+    if (!payload.length) {
+      alert('Tidak ada transaksi valid untuk portal ' + cfg.bpkCode + '. Pastikan No BPK/NP2D sesuai portal aktif atau kosongkan agar diisi otomatis.');
+      return;
+    }
     const res = await apiFetch(API + '/transactions/import', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -8343,7 +8734,7 @@ async function doImpor() {
     const result = await res.json();
     bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
     await loadTransaksi();
-    alert(result.message || `${importData.length} transaksi ditambahkan (transaksi lama tetap tersimpan).`);
+    alert(result.message || `${payload.length} transaksi ditambahkan (transaksi lama tetap tersimpan).`);
   } catch(err) {
     alert('Gagal mengimpor: ' + err.message);
   } finally {
@@ -8483,6 +8874,7 @@ function parseAnggaranSheet(rows) {
 }
 
 function showModalImporAnggaran() {
+  if (!canDo('import_anggaran')) { alert('Anda tidak memiliki hak impor anggaran.'); return; }
   importAnggaranData = [];
   document.getElementById('import-anggaran-file').value = '';
   document.getElementById('import-anggaran-preview').style.display = 'none';
