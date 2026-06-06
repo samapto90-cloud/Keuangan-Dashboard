@@ -995,18 +995,20 @@
     .rg-page:last-child { page-break-after: auto; break-after: auto; }
     .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
     .rg-kop.kw-kop {
-      width: calc(100% + 16mm);
-      margin-left: -8mm;
-      margin-right: -8mm;
-      padding: 1mm 6mm 1.5mm;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto 2mm;
+      padding: 0;
       box-sizing: border-box;
-      margin-bottom: 2mm;
+      text-align: center;
     }
     .rg-kop.kw-kop img {
       width: 100%;
+      max-width: 100%;
       height: auto;
       max-height: 20mm;
       display: block;
+      margin: 0 auto;
       object-fit: contain;
       object-position: center center;
       -webkit-print-color-adjust: exact;
@@ -1014,7 +1016,8 @@
     }
     .rg-doc-title { text-align: center; margin-bottom: 3px; }
     .rg-doc-title h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
-    .rg-doc-title p { margin: 2px 0 0; font-size: 8.5px; color: #444; }
+    .rg-doc-title .rg-doc-period { margin: 3px 0 0; font-size: 9px; font-weight: 600; color: #222; }
+    .rg-doc-title .rg-doc-tahun { margin: 2px 0 0; font-size: 8.5px; color: #444; }
     .rg-meta.rg-meta-cont { justify-content: flex-end; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1px solid #ccc; }
     #rg-measure-host {
       position: fixed; left: -16000px; top: 0; z-index: -9999;
@@ -3421,7 +3424,8 @@ function onNilaiBrutoInput() {
           </div>
           <div class="rg-doc-title">
             <h4 id="reg-preview-title">Register Pengeluaran</h4>
-            <p>Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
+            <p class="rg-doc-period" id="reg-preview-period">Semua Periode</p>
+            <p class="rg-doc-tahun">Tahun Anggaran <span id="reg-preview-tahun">2026</span></p>
           </div>
           <div class="rg-meta">
             <div id="reg-preview-filter">Filter: Semua data</div>
@@ -6689,20 +6693,34 @@ function buildRegisterTableFootHtml(rows) {
   </tr>`;
 }
 
+function buildRegisterPeriodDisplayLabel() {
+  const dariTgl = document.getElementById('reg-filter-dari-tgl')?.value;
+  const sampaiTgl = document.getElementById('reg-filter-sampai-tgl')?.value;
+  if (dariTgl && sampaiTgl) {
+    if (dariTgl === sampaiTgl) return formatTanggalShort(dariTgl);
+    return formatTanggalShort(dariTgl) + ' s/d ' + formatTanggalShort(sampaiTgl);
+  }
+  if (dariTgl) return 'Dari ' + formatTanggalShort(dariTgl);
+  if (sampaiTgl) return 'Sampai ' + formatTanggalShort(sampaiTgl);
+  return 'Semua Periode';
+}
+
 function buildRegisterKopHtml() {
   return `<div class="rg-kop kw-kop"><img src="/assets/kop-disdik.png" alt="Pemerintah Kota Batam — Dinas Pendidikan" /></div>`;
 }
 
 function buildRegisterTitleBlock() {
   const tahun = DB.tahun || 2026;
-  return `<div class="rg-doc-title"><h4>Register Pengeluaran</h4><p>Tahun Anggaran ${escapeHtmlRegister(String(tahun))}</p></div>`;
+  const periode = buildRegisterPeriodDisplayLabel();
+  return `<div class="rg-doc-title"><h4>Register Pengeluaran</h4><p class="rg-doc-period">${escapeHtmlRegister(periode)}</p><p class="rg-doc-tahun">Tahun Anggaran ${escapeHtmlRegister(String(tahun))}</p></div>`;
 }
 
 function buildRegisterPageHeader(tanggal, pageNum, totalPages, isFirstPage) {
   if (isFirstPage) {
     return `${buildRegisterKopHtml()}${buildRegisterTitleBlock()}<div class="rg-meta"><div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
   }
-  return `<div class="rg-meta rg-meta-cont"><div>Register Pengeluaran · Hal. ${pageNum} / ${totalPages}</div></div>`;
+  const periode = buildRegisterPeriodDisplayLabel();
+  return `<div class="rg-meta rg-meta-cont"><div>Register Pengeluaran · ${escapeHtmlRegister(periode)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
 }
 
 function buildRegisterSignatureHtml() {
@@ -6825,6 +6843,7 @@ function fillRegisterPejabatPreview() {
   const cfg = getPortalAppConfig();
   const filterLabel = 'Filter: ' + buildRegisterFilterLabel();
   document.getElementById('reg-preview-tahun').textContent = DB.tahun || 2026;
+  document.getElementById('reg-preview-period').textContent = buildRegisterPeriodDisplayLabel();
   document.getElementById('reg-preview-date').textContent = getRegisterDicetakDate();
   document.getElementById('reg-preview-filter').textContent = filterLabel;
   document.getElementById('reg-preview-pa-nama').textContent = DB.pa?.nama || '—';
@@ -6869,12 +6888,11 @@ function exportRegisterExcel() {
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
   if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
   const dicetak = getRegisterDicetakDate();
-  const filterLbl = buildRegisterFilterLabel();
   const metaRows = [
     ['REGISTER PENGELUARAN'],
+    ['Periode', buildRegisterPeriodDisplayLabel()],
     ['Tahun Anggaran', DB.tahun || 2026],
     ['Dicetak', dicetak],
-    ['Filter', filterLbl],
     [],
   ];
   const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Jenis Potongan', 'Nilai Bruto', 'Potongan', 'Nilai Netto'];
