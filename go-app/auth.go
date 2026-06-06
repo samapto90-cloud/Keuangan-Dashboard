@@ -18,10 +18,11 @@ type UserAccount struct {
 }
 
 type Session struct {
-	Username string
-	Role     string
-	Name     string
-	Expires  time.Time
+	Username  string
+	Role      string
+	Name      string
+	AppModule string
+	Expires   time.Time
 }
 
 var (
@@ -133,20 +134,32 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusInternalServerError, map[string]string{"error": "Gagal membuat sesi"})
 		return
 	}
+	appModule := strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
+	if appModule == "" {
+		appModule = "sekretariat"
+	}
+	sipkeuModulesMu.RLock()
+	_, moduleOK := sipkeuModules[appModule]
+	sipkeuModulesMu.RUnlock()
+	if !moduleOK {
+		appModule = "sekretariat"
+	}
 	sess := Session{
-		Username: username,
-		Role:     user.Role,
-		Name:     user.Name,
-		Expires:  time.Now().Add(8 * time.Hour),
+		Username:  username,
+		Role:      user.Role,
+		Name:      user.Name,
+		AppModule: appModule,
+		Expires:   time.Now().Add(8 * time.Hour),
 	}
 	sessionsMu.Lock()
 	sessions[token] = sess
 	sessionsMu.Unlock()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"token":    token,
-		"username": username,
-		"role":     user.Role,
-		"name":     user.Name,
+		"token":      token,
+		"username":   username,
+		"role":       user.Role,
+		"name":       user.Name,
+		"app_module": appModule,
 	})
 }
 
@@ -175,8 +188,9 @@ func handleMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"username": sess.Username,
-		"role":     sess.Role,
-		"name":     sess.Name,
+		"username":   sess.Username,
+		"role":       sess.Role,
+		"name":       sess.Name,
+		"app_module": sess.AppModule,
 	})
 }

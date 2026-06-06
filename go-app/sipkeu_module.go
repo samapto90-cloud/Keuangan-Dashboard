@@ -66,15 +66,22 @@ func initSipkeuModules() {
 }
 
 func moduleFromRequest(r *http.Request) *SipkeuModule {
-	key := strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
+	key := ""
+	if sess := getSession(r); sess != nil && strings.TrimSpace(sess.AppModule) != "" {
+		key = strings.TrimSpace(sess.AppModule)
+	}
+	if key == "" {
+		key = strings.TrimSpace(r.Header.Get("X-SIPKEU-App"))
+	}
 	if key == "" {
 		key = "sekretariat"
 	}
 	sipkeuModulesMu.RLock()
 	mod, ok := sipkeuModules[key]
+	fallback := sipkeuModules["sekretariat"]
 	sipkeuModulesMu.RUnlock()
 	if !ok {
-		return sipkeuModules["sekretariat"]
+		return fallback
 	}
 	return mod
 }

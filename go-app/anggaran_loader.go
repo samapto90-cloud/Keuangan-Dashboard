@@ -234,7 +234,32 @@ func normalizeAnggaranUnit(rows []RakRow) {
 }
 
 func applyRakImport(rows []RakRow) ImportAnggaranResult {
-	return applyRakToAllModules(rows)
+	sipkeuModulesMu.RLock()
+	mod := sipkeuModules["sekretariat"]
+	sipkeuModulesMu.RUnlock()
+	if mod == nil {
+		return ImportAnggaranResult{Message: "Modul sekretariat tidak ditemukan"}
+	}
+	mod.mu.Lock()
+	hasRak := len(mod.settings.Rak) > 0
+	mod.mu.Unlock()
+	if hasRak {
+		return ImportAnggaranResult{Message: "RAK sekretariat sudah ada, lewati seed default"}
+	}
+	var totalAnggaran float64
+	for _, row := range rows {
+		totalAnggaran += row.Anggaran
+	}
+	meta := RakMeta{
+		Version:       "apbd",
+		Label:         rakVersionLabel("apbd"),
+		ImportedAt:    time.Now().Format(time.RFC3339),
+		RowCount:      len(rows),
+		TotalAnggaran: totalAnggaran,
+	}
+	result := applyRakToModule(mod, cloneRakRows(rows), &meta)
+	result.Message = fmt.Sprintf("%d baris kegiatan dimuat ke modul sekretariat", len(rows))
+	return result
 }
 
 func applyRakToAllModules(rows []RakRow) ImportAnggaranResult {

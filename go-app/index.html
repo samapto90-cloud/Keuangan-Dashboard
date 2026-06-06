@@ -4402,6 +4402,16 @@ function clearAppDataCaches() {
   rekapTransactionsCache = [];
   rekapRowsCache = [];
 }
+
+function resetPortalLocalState() {
+  clearAppDataCaches();
+  appSettings = { pa: {}, bendahara: {}, anggaran_kegiatan: {}, rak: [], rak_meta: {} };
+  DB.rak = [];
+  importAnggaranData = [];
+  editingId = null;
+  trxPage = 1;
+  if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
+}
 let trxPage = 1;
 let trxPageSize = 10;
 let editingId = null;
@@ -4530,7 +4540,8 @@ function showPortal() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
-  clearAppDataCaches();
+  resetPortalLocalState();
+  selectedPortalApp = 'sekretariat';
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator');
 }
@@ -4553,7 +4564,7 @@ function applyPortalTheme(el, appKey) {
 
 function showLogin(appKey) {
   const nextApp = appKey || 'sekretariat';
-  if (selectedPortalApp !== nextApp) clearAppDataCaches();
+  if (selectedPortalApp !== nextApp) resetPortalLocalState();
   selectedPortalApp = nextApp;
   sessionStorage.setItem('sipkeu_app', selectedPortalApp);
   const app = PORTAL_APPS[selectedPortalApp] || PORTAL_APPS.sekretariat;
@@ -4587,7 +4598,7 @@ function openPortalApp(appKey) {
 function backToPortal() {
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_app');
-  clearAppDataCaches();
+  resetPortalLocalState();
   currentUser = null;
   showPortal();
 }
@@ -4669,10 +4680,16 @@ async function tryRestoreSession() {
     const res = await apiFetch(API + '/auth/me');
     if (!res.ok) throw new Error();
     currentUser = await res.json();
+    if (currentUser?.app_module) {
+      selectedPortalApp = currentUser.app_module;
+      sessionStorage.setItem('sipkeu_app', selectedPortalApp);
+    }
+    resetPortalLocalState();
     if (selectedPortalApp === 'kas-belanja') await bootKasApp();
     else await bootApp();
   } catch {
     sessionStorage.removeItem('sipkeu_token');
+    sessionStorage.removeItem('sipkeu_app');
     showPortal();
   }
 }
@@ -4685,9 +4702,13 @@ async function doLogin(e) {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses…';
   try {
+    const loginHeaders = { 'Content-Type': 'application/json' };
+    if (selectedPortalApp && selectedPortalApp !== 'kas-belanja') {
+      loginHeaders['X-SIPKEU-App'] = selectedPortalApp;
+    }
     const res = await fetch(API + '/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: loginHeaders,
       body: JSON.stringify({
         username: document.getElementById('login-username').value.trim(),
         password: document.getElementById('login-password').value,
@@ -4696,8 +4717,11 @@ async function doLogin(e) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login gagal');
     sessionStorage.setItem('sipkeu_token', data.token);
+    if (data.app_module) {
+      selectedPortalApp = data.app_module;
+    }
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
-    clearAppDataCaches();
+    resetPortalLocalState();
     currentUser = data;
     if (selectedPortalApp === 'kas-belanja') await bootKasApp();
     else await bootApp();
@@ -4713,12 +4737,15 @@ async function doLogin(e) {
 async function doLogout() {
   try { await apiFetch(API + '/auth/logout', { method: 'POST' }); } catch (_) {}
   sessionStorage.removeItem('sipkeu_token');
+  sessionStorage.removeItem('sipkeu_app');
+  resetPortalLocalState();
   currentUser = null;
   showPortal();
   document.getElementById('login-form')?.reset();
 }
 
 async function bootApp() {
+  resetPortalLocalState();
   showApp();
   applyPortalBranding();
   await loadSettings();
@@ -6345,10 +6372,18 @@ async function loadSettings() {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || ('HTTP ' + res.status));
     }
-    appSettings = await res.json() || appSettings;
-    if (appSettings.pa) DB.pa = appSettings.pa;
-    if (appSettings.bendahara) DB.bendahara = appSettings.bendahara;
-    if (!appSettings.anggaran_kegiatan) appSettings.anggaran_kegiatan = {};
+    const data = await res.json() || {};
+    appSettings = {
+      pa: data.pa || {},
+      bendahara: data.bendahara || {},
+      anggaran_kegiatan: data.anggaran_kegiatan || {},
+      rak: Array.isArray(data.rak) ? data.rak : [],
+      rak_meta: data.rak_meta || {},
+    };
+    if (appSettings.pa?.nama) DB.pa = appSettings.pa;
+    else DB.pa = { ...getPortalAppConfig().defaultPa };
+    if (appSettings.bendahara?.nama) DB.bendahara = appSettings.bendahara;
+    else DB.bendahara = { ...getPortalAppConfig().defaultBendahara };
     applyRakFromServer(appSettings.rak);
     updateRakMetaUI();
     applyPejabatUI();

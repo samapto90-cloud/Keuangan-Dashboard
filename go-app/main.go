@@ -781,7 +781,6 @@ func main() {
         loadKasFromDisk()
 
         sek := sipkeuModules["sekretariat"]
-        paud := sipkeuModules["paud"]
 
         if !moduleHasData(sek) {
                 addSampleData(sek)
@@ -795,16 +794,6 @@ func main() {
         if !hasAnggaranSek {
                 initSampleAnggaran(sek)
                 persistModule(sek)
-        }
-        paud.mu.Lock()
-        hasAnggaranPaud := len(paud.settings.AnggaranKegiatan) > 0
-        paud.mu.Unlock()
-        if !hasAnggaranPaud && hasAnggaranSek {
-                sek.mu.Lock()
-                paud.settings.Rak = cloneRakRows(sek.settings.Rak)
-                paud.settings.AnggaranKegiatan = cloneAnggaranMap(sek.settings.AnggaranKegiatan)
-                sek.mu.Unlock()
-                persistModule(paud)
         }
 
         fmt.Printf("%s\n", storageInfo())
