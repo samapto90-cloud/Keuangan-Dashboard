@@ -1074,7 +1074,7 @@
       .portal-header h1 { font-size: 1.05rem; }
       .fx-fighter { width: min(30vw, 130px); top: 18%; }
       .portal-battle-fx { height: clamp(220px, 36vh, 360px); }
-      .fx-proj { width: min(26vw, 100px); height: min(26vw, 100px); top: 30%; }
+      .fx-proj { width: var(--fx-proj-size, min(26vw, 100px)); height: var(--fx-proj-size, min(26vw, 100px)); }
       .portal-battle-fx .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
       .portal-battle-fx .fx-clash-ring,
       .portal-battle-fx .fx-clash-sparks { top: 30%; }
@@ -1517,9 +1517,9 @@
       overflow: visible;
     }
     .fx-burst-shower i {
-      position: absolute;
-      left: 50%;
-      top: 34%;
+      position: fixed;
+      left: var(--fx-clash-x, 50vw);
+      top: var(--fx-clash-y, 34vh);
       width: var(--sz, 7px);
       height: var(--sz, 7px);
       border-radius: 50%;
@@ -1546,15 +1546,19 @@
       z-index: 3;
     }
     .fx-proj {
-      position: absolute;
-      top: 34%;
-      width: min(20vw, 140px);
-      height: min(20vw, 140px);
+      position: fixed;
+      left: var(--fx-ras-x, 18vw);
+      top: var(--fx-proj-y, 34vh);
+      width: var(--fx-proj-size, min(20vw, 140px));
+      height: var(--fx-proj-size, min(20vw, 140px));
       border-radius: 50%;
       transform: translate(-50%, -50%);
       opacity: 0;
       z-index: 2;
-      will-change: left, opacity, transform;
+      will-change: transform, opacity;
+    }
+    .fx-proj-chidori {
+      left: var(--fx-chi-x, 82vw);
     }
     .fx-proj-rasengan {
       background: radial-gradient(circle, #fff 0%, #bfdbfe 14%, #3b82f6 36%, #ff6b00 56%, transparent 74%);
@@ -1588,18 +1592,18 @@
       background: radial-gradient(circle, rgba(167, 139, 250, 0.55), transparent 70%);
     }
     @keyframes fxRasenganFly {
-      0%, 15% { left: 22%; opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
-      17% { left: 22%; opacity: 1; transform: translate(-50%, -50%) scale(0.95) rotate(90deg); }
-      44% { left: 47%; opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(720deg); }
-      47% { left: 49%; opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(900deg); }
-      100% { left: 49%; opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+      0%, 15% { opacity: 0; transform: translate(-50%, -50%) translateX(0) scale(0.4) rotate(0deg); }
+      17% { opacity: 1; transform: translate(-50%, -50%) translateX(0) scale(0.95) rotate(90deg); }
+      44% { opacity: 1; transform: translate(-50%, -50%) translateX(var(--fx-ras-fly, 28vw)) scale(1.18) rotate(720deg); }
+      47% { opacity: 0; transform: translate(-50%, -50%) translateX(var(--fx-ras-fly, 28vw)) scale(0.2) rotate(900deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateX(var(--fx-ras-fly, 28vw)) scale(0.2); }
     }
     @keyframes fxChidoriFly {
-      0%, 15% { left: 78%; opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-      17% { left: 78%; opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
-      44% { left: 53%; opacity: 1; transform: translate(-50%, -50%) scale(1.18); filter: brightness(1.3); }
-      47% { left: 51%; opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
-      100% { left: 51%; opacity: 0; }
+      0%, 15% { opacity: 0; transform: translate(-50%, -50%) translateX(0) scale(0.4); }
+      17% { opacity: 1; transform: translate(-50%, -50%) translateX(0) scale(0.95); }
+      44% { opacity: 1; transform: translate(-50%, -50%) translateX(calc(-1 * var(--fx-chi-fly, 28vw))) scale(1.18); filter: brightness(1.3); }
+      47% { opacity: 0; transform: translate(-50%, -50%) translateX(calc(-1 * var(--fx-chi-fly, 28vw))) scale(0.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateX(calc(-1 * var(--fx-chi-fly, 28vw))) scale(0.2); }
     }
     @keyframes fxProjTrail {
       0%, 15% { opacity: 0; transform: scale(0.5); }
@@ -1607,8 +1611,9 @@
       47%, 100% { opacity: 0; transform: scale(0.3); }
     }
     .portal-battle-fx .fx-clash-flash {
-      position: absolute;
-      left: 50%; top: 34%;
+      position: fixed;
+      left: var(--fx-clash-x, 50vw);
+      top: var(--fx-clash-y, 34vh);
       width: min(85vw, 720px);
       height: min(85vw, 720px);
       z-index: 4;
@@ -1620,8 +1625,9 @@
       animation: fxClashFlash 8s cubic-bezier(.22, 1, .36, 1) infinite;
     }
     .portal-battle-fx .fx-clash-ring {
-      position: absolute;
-      left: 50%; top: 34%;
+      position: fixed;
+      left: var(--fx-clash-x, 50vw);
+      top: var(--fx-clash-y, 34vh);
       z-index: 3;
     }
     .portal-battle-fx .fx-clash-ring-a { animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite; }
@@ -1648,8 +1654,9 @@
       border-color: rgba(255, 60, 0, 0.35);
     }
     .portal-battle-fx .fx-clash-sparks {
-      position: absolute;
-      left: 50%; top: 34%;
+      position: fixed;
+      left: var(--fx-clash-x, 50vw);
+      top: var(--fx-clash-y, 34vh);
       width: 8px; height: 8px;
       border-radius: 50%;
       background: #fff;
@@ -6135,6 +6142,7 @@ function schedulePortalFx() {
   if (!host) {
     stopPortalFx();
     stopPortalBurstFx();
+    stopBattleLayoutSync();
     return;
   }
   setFxLayerActive(true);
@@ -6142,13 +6150,16 @@ function schedulePortalFx() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.getElementById('sipkeu-fx-layer')?.classList.remove('is-canvas-live');
     stopPortalBurstFx();
+    stopBattleLayoutSync();
     return;
   }
   stopPortalFx();
   stopPortalBurstFx();
+  stopBattleLayoutSync();
   requestAnimationFrame(() => requestAnimationFrame(() => {
     startPortalFx();
     startPortalBurstFx();
+    startBattleLayoutSync();
   }));
 }
 
@@ -11384,7 +11395,57 @@ async function doImporAnggaran() {
 
 // ── Portal burst particles (ledakan besar Rasengan vs Chidori) ──
 let portalBurstRaf = 0;
+let battleLayoutRaf = 0;
 const BURST_CYCLE = 8;
+
+function syncBattleProjLayout() {
+  const naruto = document.querySelector('.fx-naruto-side');
+  const sasuke = document.querySelector('.fx-sasuke-side');
+  if (!naruto || !sasuke) return;
+
+  const nr = naruto.getBoundingClientRect();
+  const sr = sasuke.getBoundingClientRect();
+  if (nr.width < 8 || sr.width < 8) return;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const rasX = nr.left + nr.width * 0.9;
+  const chiX = sr.left + sr.width * 0.1;
+  const projY = (nr.top + nr.height * 0.4 + sr.top + sr.height * 0.4) / 2;
+  const clashX = vw * 0.5;
+  const projSize = Math.max(56, Math.min(nr.width * 0.6, sr.width * 0.6, vh * 0.12, vw * 0.16));
+
+  const root = document.documentElement;
+  root.style.setProperty('--fx-ras-x', rasX + 'px');
+  root.style.setProperty('--fx-chi-x', chiX + 'px');
+  root.style.setProperty('--fx-proj-y', projY + 'px');
+  root.style.setProperty('--fx-clash-x', clashX + 'px');
+  root.style.setProperty('--fx-clash-y', projY + 'px');
+  root.style.setProperty('--fx-proj-size', projSize + 'px');
+  root.style.setProperty('--fx-ras-fly', Math.max(0, clashX - rasX) + 'px');
+  root.style.setProperty('--fx-chi-fly', Math.max(0, chiX - clashX) + 'px');
+
+  window.__fxClashCenter = { x: clashX, y: projY };
+}
+
+function stopBattleLayoutSync() {
+  if (battleLayoutRaf) cancelAnimationFrame(battleLayoutRaf);
+  battleLayoutRaf = 0;
+}
+
+function startBattleLayoutSync() {
+  stopBattleLayoutSync();
+  function tick() {
+    if (!burstFxVisible()) {
+      stopBattleLayoutSync();
+      return;
+    }
+    syncBattleProjLayout();
+    battleLayoutRaf = requestAnimationFrame(tick);
+  }
+  syncBattleProjLayout();
+  battleLayoutRaf = requestAnimationFrame(tick);
+}
 
 function initBurstShowers() {
   document.querySelectorAll('.fx-burst-shower').forEach(shower => {
@@ -11417,6 +11478,7 @@ function burstFxVisible() {
 function stopPortalBurstFx() {
   if (portalBurstRaf) cancelAnimationFrame(portalBurstRaf);
   portalBurstRaf = 0;
+  stopBattleLayoutSync();
   document.querySelectorAll('.fx-burst-canvas').forEach(c => {
     c.style.display = 'none';
     const ctx = c.getContext('2d');
@@ -11514,8 +11576,9 @@ function startPortalBurstFx() {
     }
     t += 0.016;
     const phase = (t % BURST_CYCLE) / BURST_CYCLE;
-    const cx = W * 0.5;
-    const cy = H * 0.34;
+    const clash = window.__fxClashCenter || { x: W * 0.5, y: H * 0.34 };
+    const cx = clash.x;
+    const cy = clash.y;
 
     ctx.clearRect(0, 0, W, H);
 
@@ -12068,13 +12131,26 @@ function startPortalFx() {
 
     drawGround();
 
-    const cy = H * 0.38;
-    const cx = W * 0.5;
+    const clash = window.__fxClashCenter || { x: W * 0.5, y: H * 0.38 };
+    const cx = clash.x;
+    const cy = clash.y;
     const scale = Math.min(W / 1100, H / 760, 1) * 1.15;
-    const narutoX = W * 0.18;
-    const sasukeX = W * 0.82;
-    const rasStartX = W * 0.24;
-    const chiStartX = W * 0.76;
+    const narutoEl = document.querySelector('.fx-naruto-side');
+    const sasukeEl = document.querySelector('.fx-sasuke-side');
+    let rasStartX = W * 0.24;
+    let chiStartX = W * 0.76;
+    let narutoX = W * 0.18;
+    let sasukeX = W * 0.82;
+    if (narutoEl && sasukeEl) {
+      const nr = narutoEl.getBoundingClientRect();
+      const sr = sasukeEl.getBoundingClientRect();
+      if (nr.width > 8 && sr.width > 8) {
+        rasStartX = nr.left + nr.width * 0.9;
+        chiStartX = sr.left + sr.width * 0.1;
+        narutoX = nr.left + nr.width * 0.5;
+        sasukeX = sr.left + sr.width * 0.5;
+      }
+    }
     const throwStart = 0.16;
     const throwEnd = 0.48;
     const impactStart = 0.48;
@@ -13885,10 +13961,12 @@ window.addEventListener('pageshow', (ev) => {
   else bootApp(true);
 });
 
+window.addEventListener('resize', () => syncBattleProjLayout());
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   initSettingsNav();
   initBurstShowers();
+  syncBattleProjLayout();
   resetAllShells();
   setFxLayerActive(true);
   const bootWatchdog = setTimeout(sipkeuRecoverFromStuck, 14000);
