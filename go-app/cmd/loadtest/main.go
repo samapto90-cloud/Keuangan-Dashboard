@@ -24,9 +24,9 @@ type stepResult struct {
 
 func main() {
 	base := env("LOADTEST_URL", "http://127.0.0.1:3099")
-	desktop := envInt("LOADTEST_DESKTOP", 1000)
-	mobile := envInt("LOADTEST_MOBILE", 1000)
-	concurrency := envInt("LOADTEST_CONCURRENCY", 120)
+	desktop := envInt("LOADTEST_DESKTOP", 5000)
+	mobile := envInt("LOADTEST_MOBILE", 5000)
+	concurrency := envInt("LOADTEST_CONCURRENCY", 250)
 	user := env("LOADTEST_USER", "admin")
 	pass := env("LOADTEST_PASS", "admin2026")
 	if len(os.Args) > 1 {
@@ -40,15 +40,16 @@ func main() {
 		base, desktop, mobile, total, concurrency)
 
 	transport := &http.Transport{
-		MaxIdleConns:          concurrency * 4,
-		MaxIdleConnsPerHost:   concurrency * 4,
-		MaxConnsPerHost:       concurrency * 2,
-		IdleConnTimeout:       90 * time.Second,
-		ResponseHeaderTimeout: 30 * time.Second,
+		MaxIdleConns:          concurrency * 6,
+		MaxIdleConnsPerHost:   concurrency * 6,
+		MaxConnsPerHost:       concurrency * 3,
+		IdleConnTimeout:       120 * time.Second,
+		ResponseHeaderTimeout: 45 * time.Second,
 		ForceAttemptHTTP2:     false,
+		DisableCompression:    false,
 	}
 	client := &http.Client{
-		Timeout:   45 * time.Second,
+		Timeout:   60 * time.Second,
 		Transport: transport,
 	}
 
@@ -82,34 +83,50 @@ func main() {
 		}
 
 		do := func(step, method, path string, body []byte, auth string) bool {
-			t0 := time.Now()
-			req, err := http.NewRequest(method, base+path, bytes.NewReader(body))
-			if err != nil {
-				record(step, false, 0, time.Since(t0))
-				return false
+			for attempt := 0; attempt < 3; attempt++ {
+				if attempt > 0 {
+					time.Sleep(time.Duration(attempt*40) * time.Millisecond)
+				}
+				t0 := time.Now()
+				var bodyReader io.Reader
+				if body != nil {
+					bodyReader = bytes.NewReader(body)
+				}
+				req, err := http.NewRequest(method, base+path, bodyReader)
+				if err != nil {
+					continue
+				}
+				req.Header.Set("User-Agent", ua)
+				req.Header.Set("Accept-Encoding", "gzip")
+				req.Header.Set("X-Forwarded-For", vip)
+				req.Header.Set("X-Real-IP", vip)
+				if body != nil {
+					req.Header.Set("Content-Type", "application/json")
+				}
+				if auth != "" {
+					req.Header.Set("Authorization", "Bearer "+auth)
+				}
+				req.Header.Set("X-SIPKEU-App", "sekretariat")
+				res, err := client.Do(req)
+				lat := time.Since(t0)
+				if err != nil {
+					if attempt == 2 {
+						record(step, false, 0, lat)
+					}
+					continue
+				}
+				io.Copy(io.Discard, res.Body)
+				res.Body.Close()
+				ok := res.StatusCode >= 200 && res.StatusCode < 300
+				if ok {
+					record(step, true, res.StatusCode, lat)
+					return res.StatusCode == 200
+				}
+				if attempt == 2 {
+					record(step, false, res.StatusCode, lat)
+				}
 			}
-			req.Header.Set("User-Agent", ua)
-			req.Header.Set("Accept-Encoding", "gzip")
-			req.Header.Set("X-Forwarded-For", vip)
-			req.Header.Set("X-Real-IP", vip)
-			if body != nil {
-				req.Header.Set("Content-Type", "application/json")
-			}
-			if auth != "" {
-				req.Header.Set("Authorization", "Bearer "+auth)
-			}
-			req.Header.Set("X-SIPKEU-App", "sekretariat")
-			res, err := client.Do(req)
-			lat := time.Since(t0)
-			if err != nil {
-				record(step, false, 0, lat)
-				return false
-			}
-			io.Copy(io.Discard, res.Body)
-			res.Body.Close()
-			ok := res.StatusCode >= 200 && res.StatusCode < 300
-			record(step, ok, res.StatusCode, lat)
-			return ok && res.StatusCode == 200
+			return false
 		}
 
 		if !do("index", http.MethodGet, "/", nil, "") {

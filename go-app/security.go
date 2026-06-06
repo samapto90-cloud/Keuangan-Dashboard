@@ -20,12 +20,12 @@ const (
 	maxLoginBodyBytes   = 8 << 10  // 8 KiB
 	loginMaxFails       = 5
 	loginLockDuration   = 15 * time.Minute
-	defaultAPIRateMax   = 600
+	defaultAPIRateMax   = 1200
 	defaultAPIRateWin   = time.Minute
 	defaultLoginRateMax = 60
 	loginRateWindow     = time.Minute
 	bcryptCost          = 10
-	maxBcryptConcurrent = 48
+	maxBcryptConcurrent = 96
 )
 
 type loginGuard struct {

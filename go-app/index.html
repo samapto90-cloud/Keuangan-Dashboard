@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#1a3a6b" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="/assets/sakubijak-logo-transparent.png?v=4" as="image" fetchpriority="high" />
+  <link rel="preload" href="/assets/sakubijak-logo-transparent.png?v=5" as="image" fetchpriority="high" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
@@ -64,12 +64,22 @@
     }
 
     /* ── FX Layer ── */
-    #fx-canvas {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      opacity: 0.88;
+    #portal-screen {
+      isolation: isolate;
+    }
+    #portal-screen #fx-canvas {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      width: 100%; height: 100%; opacity: 0.94;
+    }
+    #portal-screen .portal-fx-vignette {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    }
+    #global-fx-vignette {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.62) 100%);
     }
     .fx-vignette {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
       background:
         radial-gradient(ellipse at 50% 48%, rgba(220,38,38,.08) 0%, transparent 35%),
         radial-gradient(ellipse at 18% 52%, rgba(255,80,0,.16) 0%, transparent 40%),
@@ -780,7 +790,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-      #fx-canvas { display: none; }
+      #portal-screen #fx-canvas { display: none; }
     }
 
     /* ── Mobile / HP ── */
@@ -866,8 +876,8 @@
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
-      .sakubijak-brand { max-width: min(360px, 92vw); }
-      .sakubijak-logo-full { max-width: min(200px, 52vw); max-height: min(190px, 40vw); }
+      .sakubijak-brand { max-width: min(380px, 94vw); }
+      .sakubijak-logo-full { max-width: min(240px, 62vw); }
       #sidebar nav a:hover, .kas-nav-link:hover { transform: none; }
     }
 
@@ -1263,6 +1273,12 @@
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
+    @keyframes sakubijakLogoBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      35% { transform: translateY(-12px) scale(1.03); }
+      55% { transform: translateY(-5px) scale(1.015); }
+      75% { transform: translateY(-8px) scale(1.02); }
+    }
     .portal-header {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; width: 100%; margin-bottom: 40px;
@@ -1379,11 +1395,13 @@
     .sakubijak-logo-full {
       position: relative; z-index: 1;
       width: auto; height: auto;
-      max-width: min(240px, 58vw);
-      max-height: min(228px, 46vw);
+      max-width: min(280px, 68vw);
       display: block; margin: 0 auto;
       object-fit: contain; object-position: center;
-      animation: sakubijakLogoFire 2s ease-in-out infinite;
+      overflow: visible;
+      animation:
+        sakubijakLogoBounce 2.6s cubic-bezier(.45, .05, .25, 1) infinite,
+        sakubijakLogoFire 2s ease-in-out infinite;
     }
     .sakubijak-name {
       position: relative; z-index: 2;
@@ -2010,8 +2028,7 @@
       max-width: min(300px, 88vw); margin-bottom: 14px; padding: 8px 12px 4px;
     }
     .login-brand .sakubijak-logo-full {
-      max-width: min(200px, 50vw);
-      max-height: min(190px, 40vw);
+      max-width: min(220px, 58vw);
     }
     .login-brand .sakubijak-name {
       font-size: clamp(1.45rem, 4.8vw, 1.85rem);
@@ -3230,9 +3247,7 @@
 <body>
 
 <!-- FX Layers -->
-<canvas id="fx-canvas"></canvas>
-<div class="fx-spiral"></div>
-<div class="fx-vignette"></div>
+<div class="fx-vignette" id="global-fx-vignette"></div>
 <div id="breath-overlay"><div class="slash"></div></div>
 
 <!-- Loader -->
@@ -3243,10 +3258,12 @@
 
 <!-- ═══════════════ PORTAL APLIKASI (Homepage) ═══════════════ -->
 <div id="portal-screen">
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <div class="fx-vignette portal-fx-vignette" aria-hidden="true"></div>
   <div class="portal-wrap ds-animate">
     <header class="portal-header">
       <div class="sakubijak-brand">
-        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=4" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
+        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=5" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
         <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
         <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
       </div>
@@ -3326,7 +3343,7 @@
   <div class="login-card ds-animate">
     <div class="login-brand">
       <div class="sakubijak-brand">
-        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=4" alt="Lambang Sakubijak" loading="lazy" decoding="async" />
+        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=5" alt="Lambang Sakubijak" loading="lazy" decoding="async" />
         <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
         <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
       </div>
@@ -3443,7 +3460,7 @@ function trxStatusBadge(t) {
 function compareTrxNewestFirst(a, b) {
   const idDiff = (b.id || 0) - (a.id || 0);
   if (idDiff !== 0) return idDiff;
-  return normalizeTrxDateKey(b.tanggal).localeCompare(normalizeTrxDateKey(a.tanggal));
+  return String(b.tanggal || '').localeCompare(String(a.tanggal || ''));
 }
 function sortTransactionsNewestFirst(list) {
   return [...(list || [])].sort(compareTrxNewestFirst);
@@ -5295,9 +5312,10 @@ function showPortal() {
 
 function schedulePortalFx() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  stopPortalFx();
   const run = () => startPortalFx();
-  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2500 });
-  else setTimeout(run, 800);
+  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 1200 });
+  else setTimeout(run, 400);
 }
 
 let portalStatusCache = {};
@@ -9944,17 +9962,21 @@ async function doImporAnggaran() {
   }
 }
 
-// ── FX: Kyubi Naruto vs Curse Mark Sasuke (3D-style) — deferred for LCP ──
+// ── FX: Kyubi Naruto vs Curse Mark Sasuke (3D-style) ──
 let portalFxRaf = 0;
+let portalFxActive = false;
 function stopPortalFx() {
   if (portalFxRaf) cancelAnimationFrame(portalFxRaf);
   portalFxRaf = 0;
+  portalFxActive = false;
 }
 function startPortalFx() {
-  if (portalFxRaf) return;
+  if (portalFxActive) return;
   const canvas = document.getElementById('fx-canvas');
   if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (document.getElementById('portal-screen')?.classList.contains('hidden')) return;
+  const portal = document.getElementById('portal-screen');
+  if (!portal || portal.classList.contains('hidden')) return;
+  portalFxActive = true;
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, t = 0;
   const sparks = [], bolts = [], embers = [];
@@ -11998,6 +12020,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   resetAllShells();
   loadPortalStatus();
+  schedulePortalFx();
   tryRestoreSession().catch(() => showPortal());
 });
 </script>

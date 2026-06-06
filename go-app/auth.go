@@ -274,7 +274,7 @@ func activeSessionCount() int {
 }
 
 func maxActiveSessions() int {
-	n := securityEnvInt("SIPKEU_MAX_SESSIONS", 8000)
+	n := securityEnvInt("SIPKEU_MAX_SESSIONS", 12000)
 	if n < 500 {
 		return 500
 	}

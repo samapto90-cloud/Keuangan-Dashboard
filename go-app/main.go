@@ -922,10 +922,10 @@ func main() {
         srv := &http.Server{
                 Addr:              ":" + port,
                 Handler:           handler,
-                ReadHeaderTimeout: 10 * time.Second,
-                ReadTimeout:       60 * time.Second,
-                WriteTimeout:      120 * time.Second,
-                IdleTimeout:       120 * time.Second,
+                ReadHeaderTimeout: 15 * time.Second,
+                ReadTimeout:       90 * time.Second,
+                WriteTimeout:      180 * time.Second,
+                IdleTimeout:       180 * time.Second,
                 MaxHeaderBytes:    1 << 20,
         }
         log.Fatal(srv.ListenAndServe())
