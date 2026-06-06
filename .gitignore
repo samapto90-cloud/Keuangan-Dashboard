@@ -43,6 +43,13 @@ Thumbs.db
 
 # Go telemetry / local config
 .config/
+go-app/data/
+go-app/_ref-angkas*
+go-app/_sample-*.xlsx
+go-app/cmd/process_sticker/
+go-app/cmd/inspect_xlsx/
+go-app/cmd/strip_white/
+assets/gundam-sheet.png
 
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md

@@ -5,12 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIPKEU Portal — Dinas Pendidikan Kota Batam</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="/assets/portal-tanjiro.png" as="image" fetchpriority="high" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@600;700&family=Outfit:wght@400;600;700&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" as="style" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@600;700&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Bangers&family=Orbitron:wght@600;700&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet" />
+  </noscript>
   <style>
     :root {
       --sidebar-width: 268px;
@@ -5036,6 +5043,14 @@ function showPortal() {
   selectedPortalApp = 'sekretariat';
   currentUser = null;
   loadPortalStatus();
+  schedulePortalFx();
+}
+
+function schedulePortalFx() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const run = () => startPortalFx();
+  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2500 });
+  else setTimeout(run, 800);
 }
 
 let portalStatusCache = {};
@@ -5095,6 +5110,7 @@ function applyPortalTheme(el, appKey) {
 }
 
 function showLogin(appKey) {
+  stopPortalFx();
   const nextApp = appKey || 'sekretariat';
   if (selectedPortalApp !== nextApp) resetPortalLocalState();
   sessionStorage.removeItem('sipkeu_token');
@@ -5194,6 +5210,7 @@ function applyPermissionUI() {
 }
 
 function showApp() {
+  stopPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
@@ -5204,6 +5221,7 @@ function showApp() {
 }
 
 function showKasApp() {
+  stopPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -5221,6 +5239,7 @@ function showKasApp() {
 }
 
 function showSettingsApp() {
+  stopPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -6147,18 +6166,7 @@ const OP_RUNNER_CHARACTERS = [
   { label: 'Jinbe', file: 'jinbe.png' },
   { label: 'Brook', file: 'brook.png' },
 ];
-const NARUTO_RUNNER_CHARACTERS = [
-  { label: 'Naruto', file: 'naruto.png' },
-  { label: 'Sasuke', file: 'sasuke.png' },
-  { label: 'Hinata', file: 'hinata.png' },
-  { label: 'Kakashi', file: 'kakashi.png' },
-  { label: 'Gaara', file: 'gaara.png' },
-  { label: 'Neji', file: 'neji.png' },
-  { label: 'Shikamaru', file: 'shikamaru.png' },
-  { label: 'Rock Lee', file: 'lee.png' },
-  { label: 'Jiraiya', file: 'jiraiya.png' },
-];
-const DORAEMON_RUNNER_CHARACTERS = [
+const NARUTO_SMP_RUNNER_CHARACTERS = [
   { label: 'Doraemon', file: 'doraemon.png' },
   { label: 'Nobita', file: 'nobita.png' },
   { label: 'Shizuka', file: 'shizuka.png' },
@@ -6190,7 +6198,6 @@ const FROZEN_RUNNER_CHARACTERS = [
   { label: 'Snow Fairy', file: 'snow-fairy.png' },
 ];
 const OP_RUNNER_ASSET_VER = '6';
-const NARUTO_RUNNER_ASSET_VER = '3';
 const DORAEMON_RUNNER_ASSET_VER = '3';
 const NARUTO_SMP_RUNNER_ASSET_VER = '3';
 const FROZEN_RUNNER_ASSET_VER = '3';
@@ -9571,10 +9578,17 @@ async function doImporAnggaran() {
   }
 }
 
-// ── FX: Kyubi Naruto vs Curse Mark Sasuke (3D-style) ─────────────────────
-(function initEpicClashFX() {
+// ── FX: Kyubi Naruto vs Curse Mark Sasuke (3D-style) — deferred for LCP ──
+let portalFxRaf = 0;
+function stopPortalFx() {
+  if (portalFxRaf) cancelAnimationFrame(portalFxRaf);
+  portalFxRaf = 0;
+}
+function startPortalFx() {
+  if (portalFxRaf) return;
   const canvas = document.getElementById('fx-canvas');
   if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.getElementById('portal-screen')?.classList.contains('hidden')) return;
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, t = 0;
   const sparks = [], bolts = [], embers = [];
@@ -9987,10 +10001,14 @@ async function doImporAnggaran() {
 
     if (phase < 0.04) { sparks.length = 0; bolts.length = 0; embers.length = 0; }
 
-    requestAnimationFrame(frame);
+    if (document.getElementById('portal-screen')?.classList.contains('hidden')) {
+      stopPortalFx();
+      return;
+    }
+    portalFxRaf = requestAnimationFrame(frame);
   }
-  frame();
-})();
+  portalFxRaf = requestAnimationFrame(frame);
+}
 
 // ── Kas Belanja Module ───────────────────────────────────────────────────
 const KAS_BULAN_LABEL = {

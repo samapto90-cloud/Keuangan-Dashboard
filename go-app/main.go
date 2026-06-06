@@ -22,20 +22,11 @@ var kopDisdikPNG []byte
 //go:embed assets/portal-tanjiro.png
 var portalTanjiroPNG []byte
 
-//go:embed assets/portal-nezuko.png
-var portalNezukoPNG []byte
-
-//go:embed assets/portal-zenitsu.png
-var portalZenitsuPNG []byte
-
 //go:embed assets/logo-batam.png
 var logoBatamPNG []byte
 
 //go:embed assets/op-runners/*
 var opRunnersFS embed.FS
-
-//go:embed assets/naruto-runners/*
-var narutoRunnersFS embed.FS
 
 //go:embed assets/doraemon-runners/*
 var doraemonRunnersFS embed.FS
@@ -211,7 +202,7 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
 func servePNG(data []byte) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "image/png")
-                w.Header().Set("Cache-Control", "public, max-age=86400")
+                w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
                 w.Write(data)
         }
 }
@@ -781,18 +772,13 @@ func main() {
 
         mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Content-Type", "image/png")
-                w.Header().Set("Cache-Control", "public, max-age=86400")
+                w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
                 w.Write(kopDisdikPNG)
         })
         mux.HandleFunc("/assets/portal-tanjiro.png", servePNG(portalTanjiroPNG))
-        mux.HandleFunc("/assets/portal-nezuko.png", servePNG(portalNezukoPNG))
-        mux.HandleFunc("/assets/portal-zenitsu.png", servePNG(portalZenitsuPNG))
         mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
         if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
                 mux.Handle("/assets/op-runners/", withStaticCache(http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub)))))
-        }
-        if nrSub, err := fs.Sub(narutoRunnersFS, "assets/naruto-runners"); err == nil {
-                mux.Handle("/assets/naruto-runners/", withStaticCache(http.StripPrefix("/assets/naruto-runners/", http.FileServer(http.FS(nrSub)))))
         }
         if drSub, err := fs.Sub(doraemonRunnersFS, "assets/doraemon-runners"); err == nil {
                 mux.Handle("/assets/doraemon-runners/", withStaticCache(http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub)))))
