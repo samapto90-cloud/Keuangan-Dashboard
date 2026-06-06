@@ -1849,9 +1849,10 @@
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
-    #settings-app-shell { display: none; }
+    #settings-app-shell { display: none; pointer-events: none; }
     #settings-app-shell.visible {
-      display: block; position: fixed; inset: 0; z-index: 10002;
+      display: block; pointer-events: auto;
+      position: fixed; inset: 0; z-index: 10002;
       overflow-y: auto; background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
     }
     .portal-theme-settings { --portal-accent: #6366f1; border-color: rgba(99,102,241,.35); }
@@ -1873,9 +1874,6 @@
       box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25);
     }
     #settings-app-shell .form-control::placeholder { color: #64748b; }
-    body.settings-mode #portal-screen,
-    body.settings-mode #login-screen,
-    body.settings-mode #ds-loader { display: none !important; pointer-events: none !important; }
     .settings-layout { display: flex; min-height: 100vh; }
     #settings-sidebar {
       width: 260px; flex-shrink: 0; background: rgba(15,23,42,.95);
@@ -1913,9 +1911,9 @@
     @media (max-width: 768px) { .settings-form-grid { grid-template-columns: 1fr; } .settings-layout { flex-direction: column; } #settings-sidebar { width: 100%; } }
     .settings-page { display: none; }
     .settings-page.active { display: block; }
-    [data-perm] { display: none !important; }
-    body.perms-applied [data-perm].perm-on { display: flex !important; }
-    body.perms-applied .trx-admin-tools [data-perm].perm-on { display: inline-flex !important; }
+    #app-shell [data-perm] { display: none !important; }
+    body.perms-applied #app-shell [data-perm].perm-on { display: flex !important; }
+    body.perms-applied #app-shell .trx-admin-tools [data-perm].perm-on { display: inline-flex !important; }
 
     /* ── Kas Belanja App — Gundam RX-78 Theme ── */
     :root {
@@ -2954,7 +2952,7 @@
 <div id="breath-overlay"><div class="slash"></div></div>
 
 <!-- Loader -->
-<div id="ds-loader">
+<div id="ds-loader" class="hidden">
   <div class="loader-ring"></div>
   <div class="loader-text">Gathering Chakra...</div>
 </div>
@@ -4803,13 +4801,18 @@ function resolvePortalApp(serverModule) {
   return 'sekretariat';
 }
 
-function showPortal() {
-  document.body.classList.remove('settings-mode');
+function resetAllShells() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
+  document.getElementById('ds-loader')?.classList.add('hidden');
+  document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
+}
+
+function showPortal() {
+  resetAllShells();
   clearPortalThemes(document.body);
   clearPortalThemes(document.getElementById('login-screen'));
   endPortalSession();
@@ -4817,7 +4820,6 @@ function showPortal() {
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   currentUser = null;
-  document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
 }
 
 const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings'];
@@ -4854,6 +4856,7 @@ function showLogin(appKey) {
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
+  document.getElementById('ds-loader')?.classList.add('hidden');
   resetAppPageUI();
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
@@ -4923,7 +4926,7 @@ function canAccessTransaksi() {
 }
 
 function applyPermissionUI() {
-  document.querySelectorAll('[data-perm]').forEach(el => {
+  document.querySelectorAll('#app-shell [data-perm]').forEach(el => {
     el.classList.toggle('perm-on', canDo(el.dataset.perm));
   });
   document.body.classList.add('perms-applied');
@@ -4961,7 +4964,6 @@ function showKasApp() {
 }
 
 function showSettingsApp() {
-  document.body.classList.add('settings-mode');
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -5252,15 +5254,11 @@ async function doLogin(e) {
     else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(false);
     else await bootApp(false);
   } catch (err) {
-    if (selectedPortalApp === 'pengaturan') {
-      document.getElementById('login-screen')?.classList.add('hidden');
-      document.body.classList.add('settings-mode');
-      const msg = document.getElementById('sys-save-msg');
-      if (msg) msg.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle me-1"></i>${escHtml(err.message || 'Login gagal')}</span>`;
-    } else {
-      errEl.textContent = err.message || 'Login gagal';
-      errEl.classList.add('show');
-    }
+    document.getElementById('login-screen')?.classList.remove('hidden');
+    document.getElementById('portal-screen')?.classList.add('hidden');
+    document.getElementById('settings-app-shell')?.classList.remove('visible');
+    errEl.textContent = err.message || 'Login gagal';
+    errEl.classList.add('show');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Masuk';
@@ -11118,6 +11116,7 @@ async function exportKasExcel() {
 // ── Init ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
+  resetAllShells();
   const hideLoader = () => document.getElementById('ds-loader')?.classList.add('hidden');
   hideLoader();
   tryRestoreSession().catch(() => showPortal()).finally(hideLoader);
