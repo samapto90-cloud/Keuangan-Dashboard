@@ -31,6 +31,10 @@ func trxIsApproved(t Transaction) bool {
 	return effectiveTrxStatus(t) == trxStatusApproved
 }
 
+func sessionIsPortalAdmin(sess *Session) bool {
+	return sess != nil && sess.Role == "admin"
+}
+
 func stampTransactionOnCreate(sess *Session, t *Transaction) {
 	now := time.Now().Format(time.RFC3339)
 	if strings.TrimSpace(t.SubmittedAt) == "" {
@@ -39,20 +43,22 @@ func stampTransactionOnCreate(sess *Session, t *Transaction) {
 	if sess != nil && strings.TrimSpace(t.CreatedBy) == "" {
 		t.CreatedBy = sess.Username
 	}
-	if sess != nil && sess.Role == "admin" {
+	// Abaikan status dari client — ditentukan oleh peran pengguna.
+	t.Status = ""
+	t.ReviewedBy = ""
+	t.ReviewedAt = ""
+	t.ReviewNote = ""
+	if sessionIsPortalAdmin(sess) {
 		t.Status = trxStatusApproved
 		t.ReviewedBy = sess.Username
 		t.ReviewedAt = now
 		return
 	}
 	t.Status = trxStatusPending
-	t.ReviewedBy = ""
-	t.ReviewedAt = ""
-	t.ReviewNote = ""
 }
 
 func operatorMayModifyTransaction(sess *Session, t Transaction) bool {
-	if sess == nil || sess.Role == "admin" {
+	if sess == nil || sessionIsPortalAdmin(sess) {
 		return true
 	}
 	if sess.Role != "operator" {
@@ -93,21 +99,23 @@ func mergeTransactionUpdate(sess *Session, existing, updated Transaction) (Trans
 		updated.SubmittedAt = existing.SubmittedAt
 	}
 
-	if sess.Role == "admin" {
-		incoming := strings.TrimSpace(strings.ToLower(updated.Status))
-		switch incoming {
-		case trxStatusPending, trxStatusApproved, trxStatusRejected:
-			updated.Status = incoming
-		default:
-			updated.Status = existing.Status
-		}
-		if strings.TrimSpace(updated.Status) == "" {
-			updated.Status = trxStatusApproved
-		}
-		if effectiveTrxStatus(updated) == trxStatusApproved && effectiveTrxStatus(existing) != trxStatusApproved {
+	if sessionIsPortalAdmin(sess) {
+		// Admin simpan langsung disetujui — tidak perlu alur persetujuan.
+		updated.Status = trxStatusApproved
+		now := time.Now().Format(time.RFC3339)
+		if effectiveTrxStatus(existing) != trxStatusApproved {
 			updated.ReviewedBy = sess.Username
-			updated.ReviewedAt = time.Now().Format(time.RFC3339)
+			updated.ReviewedAt = now
+		} else {
+			if strings.TrimSpace(existing.ReviewedBy) != "" {
+				updated.ReviewedBy = existing.ReviewedBy
+				updated.ReviewedAt = existing.ReviewedAt
+			} else {
+				updated.ReviewedBy = sess.Username
+				updated.ReviewedAt = now
+			}
 		}
+		updated.ReviewNote = ""
 		return updated, nil
 	}
 
@@ -140,7 +148,7 @@ func handleTransactionReview(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
 		return
 	}
-	if sess.Role != "admin" {
+	if !sessionIsPortalAdmin(sess) {
 		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Hanya Admin yang dapat menyetujui atau menolak transaksi"})
 		return
 	}

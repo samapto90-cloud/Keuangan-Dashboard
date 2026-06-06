@@ -3721,7 +3721,7 @@ function onNilaiBrutoInput() {
     <div class="form-card mb-4 ds-animate" id="trx-form-panel" style="--ds-delay:.05s">
       <h6><i class="bi bi-pencil-square me-2 text-primary"></i><span id="form-mode-label">Tambah Transaksi Baru</span></h6>
       <div class="alert alert-warning py-2 px-3 mb-3" id="trx-operator-hint" style="display:none;font-size:13px">
-        <i class="bi bi-info-circle me-1"></i>Transaksi yang Anda input akan <strong>menunggu persetujuan Admin</strong> sebelum masuk dashboard, register, dan laporan resmi. Setelah diajukan, transaksi <strong>tidak dapat diedit atau dihapus</strong> kecuali Admin <strong>menolak</strong> terlebih dahulu.
+        <i class="bi bi-info-circle me-1"></i>Hanya <strong>Operator</strong> yang perlu persetujuan Admin. Login sebagai <strong>Admin</strong> → transaksi langsung aktif di dashboard, register, dan laporan.
       </div>
       <form id="trx-form">
         <input type="hidden" id="f-id" />
@@ -7042,6 +7042,7 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     nama_wp: document.getElementById('f-penerima').value.trim(),
     no_np2d: document.getElementById('f-nonp2d').value.trim(),
   };
+  if (isAdmin()) payload.status = 'approved';
   const btn = document.getElementById('btn-submit');
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
   try {
@@ -7055,7 +7056,7 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     invalidateTxCache();
     await loadTransaksi(true);
     if (isAdmin()) {
-      alert(wasEdit ? 'Transaksi berhasil diperbarui.' : 'Transaksi berhasil disimpan.');
+      alert(wasEdit ? 'Transaksi berhasil diperbarui.' : 'Transaksi berhasil disimpan dan langsung aktif.');
     } else {
       alert(wasEdit
         ? 'Perubahan transaksi dikirim ulang. Menunggu persetujuan Admin.'
