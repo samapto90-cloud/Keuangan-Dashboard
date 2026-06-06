@@ -28,13 +28,16 @@ sleep 2
 
 cd "$APP_DIR"
 nohup ./keuangan >> "$LOG" 2>&1 &
-sleep 2
 
-if curl -sf "http://127.0.0.1:${PORT}/health" >/dev/null; then
-  echo "OK: SIPKEU running on port ${PORT}"
-  echo "Data: ${DATA_DIR}"
-else
-  echo "FAIL: health check"
-  tail -30 "$LOG"
-  exit 1
-fi
+for i in 1 2 3 4 5; do
+  sleep 2
+  if curl -sf "http://127.0.0.1:${PORT}/health" >/dev/null; then
+    echo "OK: SIPKEU running on port ${PORT}"
+    echo "Data: ${DATA_DIR}"
+    exit 0
+  fi
+done
+
+echo "FAIL: health check"
+tail -40 "$LOG"
+exit 1

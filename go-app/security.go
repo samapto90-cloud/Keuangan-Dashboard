@@ -22,7 +22,7 @@ const (
 	loginLockDuration   = 15 * time.Minute
 	apiRateLimitMax     = 240
 	apiRateWindow       = time.Minute
-	bcryptCost          = 12
+	bcryptCost          = 10
 )
 
 type loginGuard struct {
