@@ -63,18 +63,51 @@
       overflow-x: hidden;
     }
 
-    /* ── FX Layer (fullscreen di belakang portal) ── */
-    #fx-canvas {
-      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-      width: 100%; height: 100%; opacity: 0.96;
+    /* ── FX Layer Naruto vs Sasuke (fullscreen di belakang semua shell) ── */
+    #sipkeu-fx-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
     }
-    #portal-screen .portal-fx-vignette,
-    .portal-fx-vignette {
-      position: fixed; inset: 0; z-index: 9999; pointer-events: none !important;
+    #fx-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      z-index: 2; opacity: 1;
+    }
+    #sipkeu-fx-layer .portal-fx-vignette {
+      position: absolute; inset: 0; z-index: 3; pointer-events: none !important;
       display: none;
     }
+    #sipkeu-fx-layer.is-active .portal-fx-vignette { display: block; }
+    .fx-static-battle {
+      position: absolute; inset: 0; z-index: 1;
+    }
+    .fx-static-rasengan, .fx-static-chidori {
+      position: absolute; top: 42%; width: min(28vw, 220px); height: min(28vw, 220px);
+      border-radius: 50%; transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .fx-static-rasengan {
+      left: 16%;
+      background: radial-gradient(circle, #fff 0%, #bfdbfe 16%, #3b82f6 38%, #ff6b00 58%, transparent 72%);
+      box-shadow: 0 0 60px rgba(255,107,0,.75), 0 0 90px rgba(59,130,246,.55);
+      animation: rasenganPulse 1.1s ease-in-out infinite;
+    }
+    .fx-static-chidori {
+      right: 16%;
+      background: radial-gradient(circle, #fff 0%, #c4b5fd 28%, #6366f1 52%, transparent 72%);
+      box-shadow: 0 0 55px rgba(99,102,241,.85), 0 0 80px rgba(167,139,250,.6);
+      animation: chidoriPulse 0.75s ease-in-out infinite;
+    }
+    #sipkeu-fx-layer.is-hidden { opacity: 0; visibility: hidden; }
+    #sipkeu-fx-layer.is-active { opacity: 1; visibility: visible; }
+    @keyframes rasenganPulse {
+      0%, 100% { transform: translateY(-50%) scale(0.88) rotate(0deg); opacity: 0.85; }
+      50% { transform: translateY(-50%) scale(1.12) rotate(180deg); opacity: 1; }
+    }
+    @keyframes chidoriPulse {
+      0%, 100% { transform: translateY(-50%) scale(0.9); opacity: 0.75; filter: brightness(1); }
+      50% { transform: translateY(-50%) scale(1.15); opacity: 1; filter: brightness(1.4); }
+    }
     #global-fx-vignette {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background:
         radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.62) 100%);
     }
@@ -812,7 +845,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-      #fx-canvas { display: none; }
+      #fx-canvas { display: none !important; }
+      .fx-static-rasengan, .fx-static-chidori { animation: none !important; opacity: 0.9 !important; }
     }
 
     /* ── Mobile / HP ── */
@@ -1274,7 +1308,7 @@
 
     /* ── Login ── */
     #login-screen {
-      position: fixed; inset: 0; z-index: 10000;
+      position: fixed; inset: 0; z-index: 5;
       display: flex; align-items: center; justify-content: center;
       padding: 24px;
       background: transparent;
@@ -1283,7 +1317,7 @@
 
     /* ── Portal Aplikasi (Homepage) ── */
     #portal-screen {
-      position: fixed; inset: 0; z-index: 10001;
+      position: fixed; inset: 0; z-index: 5;
       display: flex; align-items: flex-start; justify-content: center;
       padding: 32px 20px 48px; overflow-y: auto;
       pointer-events: auto;
@@ -1469,7 +1503,7 @@
     }
     .portal-app-card {
       position: relative; cursor: pointer; border-radius: 20px; padding: 28px 24px 22px;
-      background: rgba(10, 14, 26, 0.88); border: 1px solid rgba(148,163,184,.15);
+      background: rgba(10, 14, 26, 0.72); border: 1px solid rgba(148,163,184,.15);
       backdrop-filter: blur(12px); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
       overflow: hidden; min-height: 220px; display: flex; flex-direction: column;
     }
@@ -2040,7 +2074,7 @@
     .login-back-portal:hover { color: var(--naruto); }
     .login-card {
       width: 100%; max-width: 420px;
-      background: rgba(10, 14, 26, 0.92);
+      background: rgba(10, 14, 26, 0.78);
       border: 1px solid rgba(255, 107, 0, 0.25);
       border-radius: 20px; padding: 36px 32px;
       box-shadow: 0 24px 80px rgba(0,0,0,.55), 0 0 40px rgba(255,107,0,.08);
@@ -2089,14 +2123,14 @@
       margin-bottom: 14px;
     }
     .login-error.show { display: block; }
-    #app-shell { display: none; position: relative; z-index: 10002; }
+    #app-shell { display: none; position: relative; z-index: 5; }
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
     #settings-app-shell { display: none !important; pointer-events: none !important; }
     #settings-app-shell.visible {
       display: block !important; pointer-events: auto !important; min-height: 100vh;
-      position: relative; z-index: 10002; isolation: isolate;
+      position: relative; z-index: 5; isolation: isolate;
       color: #e2e8f0;
       background:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.14), transparent),
@@ -3377,7 +3411,15 @@
 })();
 </script>
 
-<!-- FX Layers -->
+<!-- FX Layers — Naruto Rasengan vs Sasuke Chidori -->
+<div id="sipkeu-fx-layer" class="is-active" aria-hidden="true">
+  <div class="fx-static-battle">
+    <div class="fx-static-rasengan"></div>
+    <div class="fx-static-chidori"></div>
+  </div>
+  <canvas id="fx-canvas"></canvas>
+  <div class="fx-vignette portal-fx-vignette"></div>
+</div>
 <div class="fx-vignette" id="global-fx-vignette"></div>
 <div id="breath-overlay"><div class="slash"></div></div>
 
@@ -3386,9 +3428,6 @@
   <div class="loader-ring"></div>
   <div class="loader-text">Gathering Chakra...</div>
 </div>
-
-<canvas id="fx-canvas" aria-hidden="true"></canvas>
-<div class="fx-vignette portal-fx-vignette" aria-hidden="true"></div>
 
 <!-- ═══════════════ PORTAL APLIKASI (Homepage) ═══════════════ -->
 <div id="portal-screen">
@@ -5658,8 +5697,17 @@ function resetAllShells() {
 }
 
 function clearFxCanvasHide() {
-  document.getElementById('fx-canvas')?.style.removeProperty('display');
-  document.querySelector('.portal-fx-vignette')?.style.removeProperty('display');
+  const layer = document.getElementById('sipkeu-fx-layer');
+  const canvas = document.getElementById('fx-canvas');
+  canvas?.style.removeProperty('display');
+  layer?.classList.remove('is-hidden');
+}
+
+function setFxLayerActive(active) {
+  const layer = document.getElementById('sipkeu-fx-layer');
+  if (!layer) return;
+  layer.classList.toggle('is-active', !!active);
+  layer.classList.toggle('is-hidden', !active);
 }
 
 function currentFxHost() {
@@ -5667,10 +5715,12 @@ function currentFxHost() {
   const login = document.getElementById('login-screen');
   const app = document.getElementById('app-shell');
   const settings = document.getElementById('settings-app-shell');
-  if (portal && !portal.classList.contains('hidden')) return { opacity: 0.96, vignette: true };
-  if (login && !login.classList.contains('hidden')) return { opacity: 0.9, vignette: true };
-  if (app?.classList.contains('visible')) return { opacity: 0.34, vignette: true };
-  if (settings?.classList.contains('visible')) return { opacity: 0.28, vignette: true };
+  const kas = document.getElementById('kas-app-shell');
+  if (kas?.classList.contains('visible')) return null;
+  if (portal && !portal.classList.contains('hidden')) return { opacity: 1, vignette: true };
+  if (login && !login.classList.contains('hidden')) return { opacity: 1, vignette: true };
+  if (app?.classList.contains('visible')) return { opacity: 0.55, vignette: true };
+  if (settings?.classList.contains('visible')) return { opacity: 0.48, vignette: true };
   return null;
 }
 
@@ -5687,9 +5737,19 @@ function showPortal() {
 }
 
 function schedulePortalFx() {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const host = currentFxHost();
+  if (!host) {
+    stopPortalFx();
+    return;
+  }
+  setFxLayerActive(true);
+  clearFxCanvasHide();
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.getElementById('sipkeu-fx-layer')?.classList.remove('is-canvas-live');
+    return;
+  }
   stopPortalFx();
-  requestAnimationFrame(() => startPortalFx());
+  requestAnimationFrame(() => requestAnimationFrame(() => startPortalFx()));
 }
 
 let portalStatusCache = {};
@@ -5905,6 +5965,7 @@ function showApp() {
 }
 
 function showKasApp() {
+  setFxLayerActive(false);
   stopPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
@@ -10928,24 +10989,35 @@ function stopPortalFx() {
   if (portalFxRaf) cancelAnimationFrame(portalFxRaf);
   portalFxRaf = 0;
   portalFxActive = false;
+  const layer = document.getElementById('sipkeu-fx-layer');
+  layer?.classList.remove('is-canvas-live');
   const canvas = document.getElementById('fx-canvas');
-  if (canvas) canvas.style.display = 'none';
-  const vignette = document.querySelector('.portal-fx-vignette');
+  if (canvas) {
+    canvas.style.display = 'none';
+    if (canvas._fxResizeHandler) {
+      window.removeEventListener('resize', canvas._fxResizeHandler);
+      canvas._fxResizeHandler = null;
+    }
+  }
+  const vignette = document.querySelector('#sipkeu-fx-layer .portal-fx-vignette');
   if (vignette) vignette.style.display = 'none';
 }
 function startPortalFx() {
-  if (portalFxActive) return;
   const canvas = document.getElementById('fx-canvas');
-  if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const layer = document.getElementById('sipkeu-fx-layer');
+  if (!canvas || !layer) return;
   const host = currentFxHost();
-  if (!host) {
-    canvas.style.display = 'none';
+  if (!host || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (canvas) canvas.style.display = 'none';
+    layer.classList.remove('is-canvas-live');
     return;
   }
+  setFxLayerActive(true);
   canvas.style.removeProperty('display');
-  canvas.style.display = 'block';
+  canvas.style.setProperty('display', 'block', 'important');
   canvas.style.opacity = String(host.opacity);
-  const vignette = document.querySelector('.portal-fx-vignette');
+  layer.classList.add('is-canvas-live');
+  const vignette = document.querySelector('#sipkeu-fx-layer .portal-fx-vignette');
   if (vignette) vignette.style.display = host.vignette ? 'block' : 'none';
   portalFxActive = true;
   const ctx = canvas.getContext('2d');
@@ -10958,7 +11030,10 @@ function startPortalFx() {
     H = canvas.height = window.innerHeight;
   }
   resize();
-  window.addEventListener('resize', resize);
+  if (!canvas._fxResizeHandler) {
+    canvas._fxResizeHandler = resize;
+    window.addEventListener('resize', resize);
+  }
 
   function spawnSpark(x, y, hue, power) {
     for (let i = 0; i < Math.floor(power * 20) + 8; i++) {
@@ -11284,8 +11359,13 @@ function startPortalFx() {
   function frame() {
     t += 0.016;
     const phase = (t % CYCLE) / CYCLE;
-    ctx.fillStyle = 'rgba(8, 10, 20, 0.22)';
-    ctx.fillRect(0, 0, W, H);
+    if (t < 0.05) {
+      ctx.fillStyle = '#0a0e1a';
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      ctx.fillStyle = 'rgba(8, 10, 20, 0.18)';
+      ctx.fillRect(0, 0, W, H);
+    }
 
     drawGround();
 
@@ -13050,12 +13130,20 @@ window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   initSettingsNav();
   resetAllShells();
+  setFxLayerActive(true);
   const bootWatchdog = setTimeout(sipkeuRecoverFromStuck, 14000);
   loadPortalStatus().catch(() => {});
   schedulePortalFx();
   tryRestoreSession()
     .catch(() => showPortal())
-    .finally(() => clearTimeout(bootWatchdog));
+    .finally(() => {
+      clearTimeout(bootWatchdog);
+      schedulePortalFx();
+    });
+});
+window.addEventListener('load', () => schedulePortalFx());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') schedulePortalFx();
 });
 </script>
 </body>
