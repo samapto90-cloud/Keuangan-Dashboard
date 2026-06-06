@@ -816,6 +816,7 @@ func main() {
         loginHandler := http.HandlerFunc(cors(handleLogin))
         mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
 
+        mux.HandleFunc("/data/portals/status", cors(handlePortalStatusPublic))
         mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
         mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
         mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))

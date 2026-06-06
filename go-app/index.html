@@ -1263,6 +1263,12 @@
       box-shadow: 0 16px 40px rgba(0,0,0,.35), 0 0 24px rgba(34,197,94,.12);
     }
     .portal-app-card.portal-active:hover { border-color: rgba(34,197,94,.65); }
+    .portal-app-card.portal-disabled {
+      opacity: .58; cursor: not-allowed; pointer-events: auto;
+      border-color: rgba(248,113,113,.35) !important;
+      box-shadow: none !important; filter: grayscale(.35);
+    }
+    .portal-app-card.portal-disabled:hover { transform: none; border-color: rgba(248,113,113,.4) !important; }
     .portal-app-card.portal-soon { cursor: default; opacity: .92; }
     .portal-app-card.portal-soon:hover { transform: translateY(-3px); border-color: rgba(148,163,184,.25); }
     .portal-app-icon {
@@ -1776,6 +1782,7 @@
       padding: 4px 10px; border-radius: 999px;
     }
     .portal-badge-live { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .portal-badge-off { background: rgba(248,113,113,.12); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
     .portal-badge-soon { background: rgba(148,163,184,.1); color: #94a3b8; border: 1px solid rgba(148,163,184,.2); }
     .portal-app-action {
       font-size: 12px; font-weight: 700; color: var(--naruto); display: flex; align-items: center; gap: 4px;
@@ -3051,7 +3058,7 @@
     </header>
 
     <div class="portal-grid">
-      <div class="portal-app-card portal-theme-onepiece portal-active" onclick="openPortalApp('sekretariat')">
+      <div class="portal-app-card portal-theme-onepiece portal-active" data-portal-id="sekretariat" onclick="openPortalApp('sekretariat')">
         <div class="portal-app-icon"><img src="/assets/op-runners/luffy.png?v=6" alt="Luffy — SIPKEU Sekretariat" loading="lazy" decoding="async" /></div>
         <h3>SIPKEU Sekretariat</h3>
         <p>Penatausahaan keuangan Sekretariat Dinas Pendidikan · TA 2026.</p>
@@ -3061,7 +3068,7 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-frozen portal-active" onclick="openPortalApp('paud')">
+      <div class="portal-app-card portal-theme-frozen portal-active" data-portal-id="paud" onclick="openPortalApp('paud')">
         <div class="portal-app-icon"><img src="/assets/frozen-runners/elsa.png?v=3" alt="Elsa — SIPKEU PAUD" loading="lazy" decoding="async" /></div>
         <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
         <p>Penatausahaan keuangan bidang PAUD &amp; Kesetaraan · TA 2026.</p>
@@ -3071,7 +3078,7 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-doraemon portal-active" onclick="openPortalApp('sd')">
+      <div class="portal-app-card portal-theme-doraemon portal-active" data-portal-id="sd" onclick="openPortalApp('sd')">
         <div class="portal-app-icon"><img src="/assets/doraemon-runners/doraemon.png?v=1" alt="Doraemon — SIPKEU SD" loading="lazy" decoding="async" /></div>
         <h3>SIPKEU Sekolah Dasar</h3>
         <p>Penatausahaan keuangan Bidang Pembinaan Sekolah Dasar · TA 2026.</p>
@@ -3081,7 +3088,7 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-naruto portal-active" onclick="openPortalApp('smp')">
+      <div class="portal-app-card portal-theme-naruto portal-active" data-portal-id="smp" onclick="openPortalApp('smp')">
         <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=1" alt="Naruto — SIPKEU SMP" loading="lazy" decoding="async" /></div>
         <h3>SIPKEU Sekolah Menengah Pertama</h3>
         <p>Penatausahaan keuangan Bidang Pembinaan SMP · TA 2026.</p>
@@ -3091,7 +3098,7 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-gundam portal-active" onclick="openPortalApp('kas-belanja')">
+      <div class="portal-app-card portal-theme-gundam portal-active" data-portal-id="kas-belanja" onclick="openPortalApp('kas-belanja')">
         <div class="portal-app-icon"><img class="ds-kas-portal-icon" src="/assets/ds-kas-runners/tanjiro.png?v=1" alt="Tanjiro — Realisasi Kas Belanja" loading="lazy" decoding="async" /></div>
         <h3>Realisasi Anggaran Kas Belanja</h3>
         <p>Monitoring dan laporan realisasi anggaran kas belanja · TA 2026.</p>
@@ -5028,6 +5035,46 @@ function showPortal() {
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   currentUser = null;
+  loadPortalStatus();
+}
+
+let portalStatusCache = {};
+
+function isPortalEnabledPublic(id) {
+  if (id === 'pengaturan') return true;
+  const st = portalStatusCache[id];
+  return st?.enabled !== false;
+}
+
+async function loadPortalStatus() {
+  try {
+    const res = await fetch(API + '/portals/status', { cache: 'no-store' });
+    const data = await res.json();
+    portalStatusCache = data.portals || {};
+    applyPortalStatusUI();
+  } catch (e) {
+    console.warn('Gagal memuat status portal:', e);
+  }
+}
+
+function applyPortalStatusUI() {
+  document.querySelectorAll('.portal-app-card[data-portal-id]').forEach(card => {
+    const id = card.dataset.portalId;
+    const on = isPortalEnabledPublic(id);
+    card.classList.toggle('portal-active', on);
+    card.classList.toggle('portal-disabled', !on);
+    const badge = card.querySelector('.portal-badge');
+    const action = card.querySelector('.portal-app-action');
+    if (badge) {
+      badge.className = 'portal-badge ' + (on ? 'portal-badge-live' : 'portal-badge-off');
+      badge.textContent = on ? 'Aktif' : 'Nonaktif';
+    }
+    if (action) {
+      action.innerHTML = on
+        ? 'Buka Aplikasi <i class="bi bi-arrow-right"></i>'
+        : 'Dinonaktifkan <i class="bi bi-lock-fill"></i>';
+    }
+  });
 }
 
 const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings', 'theme-sao'];
@@ -5074,6 +5121,10 @@ function showLogin(appKey) {
 function openPortalApp(appKey) {
   const app = PORTAL_APPS[appKey];
   if (!app) return;
+  if (appKey !== 'pengaturan' && !isPortalEnabledPublic(appKey)) {
+    alert('Portal "' + (app.label || appKey) + '" sedang dinonaktifkan oleh Super Admin.\nHubungi administrator sistem jika memerlukan akses.');
+    return;
+  }
   sessionStorage.removeItem('sipkeu_token');
   sessionStorage.removeItem('sipkeu_in_app');
   sessionStorage.setItem('sipkeu_app', appKey);
@@ -5355,14 +5406,27 @@ function renderPortalControlGrid() {
   el.innerHTML = SETTINGS_PORTAL_IDS.map(id => {
     const st = systemSettingsCache.portal_status?.[id] || { enabled: true };
     const label = SETTINGS_PORTAL_LABELS[id];
+    const on = st.enabled !== false;
     return `
-      <div class="sao-portal-card ${st.enabled !== false ? '' : 'disabled'}">
-        <div class="sao-portal-card-head"><h6>${label}</h6><span class="sao-badge ${st.enabled !== false ? 'sao-badge-live' : 'sao-badge-off'}">${st.enabled !== false ? 'AKTIF' : 'NONAKTIF'}</span></div>
-        <div class="sao-portal-meta">Nonaktifkan untuk memblokir login ke modul ini.</div>
-        <label class="sao-toggle"><input type="checkbox" data-portal-id="${id}" ${st.enabled !== false ? 'checked' : ''}> Portal aktif</label>
-        <button type="button" class="btn btn-sm btn-sao-danger mt-2" onclick="revokeModuleSessions('${id}')"><i class="bi bi-x-circle me-1"></i>Akhiri sesi portal</button>
+      <div class="sao-portal-card ${on ? '' : 'disabled'}" id="sao-portal-ctrl-${id}">
+        <div class="sao-portal-card-head"><h6>${label}</h6><span class="sao-badge ${on ? 'sao-badge-live' : 'sao-badge-off'}" id="sao-portal-badge-${id}">${on ? 'AKTIF' : 'NONAKTIF'}</span></div>
+        <div class="sao-portal-meta">Matikan untuk memblokir login dan akses ke modul ini. Pengguna yang sudah login akan ditolak saat sesi berakhir.</div>
+        <label class="sao-toggle"><input type="checkbox" data-portal-id="${id}" ${on ? 'checked' : ''} onchange="onPortalToggleChange('${id}', this.checked)"> <strong>${on ? 'Portal aktif' : 'Portal nonaktif'}</strong></label>
+        <button type="button" class="btn btn-sm btn-sao-danger mt-2" onclick="revokeModuleSessions('${id}')"><i class="bi bi-x-circle me-1"></i>Akhiri sesi portal ini</button>
       </div>`;
   }).join('');
+}
+
+function onPortalToggleChange(id, enabled) {
+  if (!systemSettingsCache.portal_status) systemSettingsCache.portal_status = {};
+  systemSettingsCache.portal_status[id] = { enabled };
+  const card = document.getElementById('sao-portal-ctrl-' + id);
+  const badge = document.getElementById('sao-portal-badge-' + id);
+  if (card) card.classList.toggle('disabled', !enabled);
+  if (badge) {
+    badge.className = 'sao-badge ' + (enabled ? 'sao-badge-live' : 'sao-badge-off');
+    badge.textContent = enabled ? 'AKTIF' : 'NONAKTIF';
+  }
 }
 
 async function savePortalStatus() {
@@ -5384,8 +5448,12 @@ async function savePortalStatus() {
     const res = await apiFetch(API + '/system-settings', { method: 'PUT', body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
-    systemSettingsCache = data.data || data;
-    if (msg) msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Status portal tersimpan</span>';
+    if (data.data) {
+      Object.assign(systemSettingsCache, data.data);
+    }
+    portalStatusCache = systemSettingsCache.portal_status || portalStatusCache;
+    applyPortalStatusUI();
+    if (msg) msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Status portal tersimpan — perubahan langsung berlaku di halaman portal</span>';
     await loadCommandCenter();
   } catch (e) {
     if (msg) msg.innerHTML = '<span class="text-danger">' + escHtml(e.message) + '</span>';
@@ -11545,6 +11613,7 @@ async function exportKasExcel() {
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   resetAllShells();
+  loadPortalStatus();
   tryRestoreSession().catch(() => showPortal());
 });
 </script>

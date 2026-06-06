@@ -163,6 +163,28 @@ func revokeSessionsForModule(moduleID string) int {
 	return n
 }
 
+func handlePortalStatusPublic(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	sys := getSystemSettingsCopy()
+	out := map[string]interface{}{}
+	for _, id := range sipkeuPortalIDs {
+		enabled := true
+		if sys.PortalStatus != nil {
+			if st, ok := sys.PortalStatus[id]; ok {
+				enabled = st.Enabled
+			}
+		}
+		out[id] = map[string]interface{}{
+			"enabled": enabled,
+			"label":   portalLabel(id),
+		}
+	}
+	jsonResponse(w, http.StatusOK, map[string]interface{}{"portals": out})
+}
+
 func handleAdminCommandCenter(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
