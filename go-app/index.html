@@ -93,8 +93,10 @@
       background: var(--bg-deep);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: opacity .6s ease, visibility .6s ease;
+      pointer-events: none;
     }
-    #ds-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #ds-loader:not(.hidden) { pointer-events: auto; }
+    #ds-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none !important; display: none !important; }
     .page:not(.active), .kas-page:not(.active) {
       content-visibility: hidden;
       contain-intrinsic-size: 0 480px;
@@ -1207,15 +1209,16 @@
       display: flex; align-items: center; justify-content: center;
       padding: 24px;
     }
-    #login-screen.hidden { display: none; }
+    #login-screen.hidden { display: none !important; pointer-events: none !important; }
 
     /* ── Portal Aplikasi (Homepage) ── */
     #portal-screen {
       position: fixed; inset: 0; z-index: 10001;
       display: flex; align-items: flex-start; justify-content: center;
       padding: 32px 20px 48px; overflow-y: auto;
+      pointer-events: auto;
     }
-    #portal-screen.hidden { display: none; }
+    #portal-screen.hidden { display: none !important; pointer-events: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
     .portal-header { text-align: center; margin-bottom: 36px; }
     .portal-header .portal-logo {
@@ -1849,12 +1852,8 @@
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
-    #settings-app-shell { display: none; pointer-events: none; }
-    #settings-app-shell.visible {
-      display: block; pointer-events: auto;
-      position: fixed; inset: 0; z-index: 10002;
-      overflow-y: auto; background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-    }
+    #settings-app-shell { display: none !important; pointer-events: none !important; }
+    #settings-app-shell.visible { display: block !important; pointer-events: auto !important; min-height: 100vh; position: relative; z-index: 1; color: #e2e8f0; background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); }
     .portal-theme-settings { --portal-accent: #6366f1; border-color: rgba(99,102,241,.35); }
     .portal-theme-settings .portal-app-icon.settings-portal-icon {
       display: flex; align-items: center; justify-content: center;
@@ -1865,7 +1864,6 @@
       --naruto: #6366f1;
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
     }
-    #settings-app-shell { min-height: 100vh; position: relative; z-index: 10002; color: #e2e8f0; }
     #settings-app-shell .form-control {
       background: #1e293b; border-color: rgba(99,102,241,.35); color: #f1f5f9;
     }
@@ -3029,7 +3027,7 @@
       </div>
     </div>
 
-    <div class="portal-footer fire-glow-text">Developer by Shinta Widyastati</div>
+    <div class="portal-footer fire-glow-text">Developer by Shinta Widyastati · <a href="#" onclick="hardResetSession();return false" style="color:#94a3b8;font-size:11px">Reset sesi</a></div>
   </div>
 </div>
 
@@ -4801,6 +4799,14 @@ function resolvePortalApp(serverModule) {
   return 'sekretariat';
 }
 
+function hardResetSession() {
+  try { sessionStorage.clear(); } catch (_) {}
+  currentUser = null;
+  selectedPortalApp = 'sekretariat';
+  showPortal();
+  location.reload();
+}
+
 function resetAllShells() {
   document.getElementById('portal-screen')?.classList.remove('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
@@ -5182,41 +5188,65 @@ function applyRoleUI() {
   document.body.classList.toggle('role-admin', isAdmin());
   document.body.classList.toggle('role-operator', currentUser?.role === 'operator');
   applyPermissionUI();
-  const roleLabel = isAdmin() ? 'Administrator' : 'Operator';
+  const roleLabel = isAdmin() ? 'Administrator' : (currentUser?.role === 'settings-admin' ? 'Pengaturan Sistem' : 'Operator');
   const el = document.getElementById('sidebar-user-role');
   if (el) el.textContent = `${currentUser?.name || '—'} · ${roleLabel}`;
-  if (currentUser) {
-    if (isAdmin()) {
-      applyPejabatUI();
-    } else {
-      const parts = (currentUser.name || 'OP').split(/\s+/);
-      document.getElementById('topbar-avatar').textContent = (parts[0]?.[0] || 'O') + (parts[1]?.[0] || 'P');
-      document.getElementById('topbar-pa-nama').textContent = currentUser.name;
-      document.getElementById('topbar-pa-jabatan').textContent = roleLabel;
-    }
+  if (currentUser && isAdmin()) {
+    applyPejabatUI();
+  } else if (currentUser && currentUser.role !== 'settings-admin') {
+    const av = document.getElementById('topbar-avatar');
+    const nama = document.getElementById('topbar-pa-nama');
+    const jab = document.getElementById('topbar-pa-jabatan');
+    const parts = (currentUser.name || 'OP').split(/\s+/);
+    if (av) av.textContent = (parts[0]?.[0] || 'O') + (parts[1]?.[0] || 'P');
+    if (nama) nama.textContent = currentUser.name;
+    if (jab) jab.textContent = roleLabel;
   }
 }
 
 async function tryRestoreSession() {
   const token = sessionStorage.getItem('sipkeu_token');
   const inApp = sessionStorage.getItem('sipkeu_in_app') === '1';
+  const storedApp = sessionStorage.getItem('sipkeu_app') || 'sekretariat';
+
   if (!token || !inApp) {
     if (token) sessionStorage.removeItem('sipkeu_token');
     showPortal();
     return;
   }
-  selectedPortalApp = sessionStorage.getItem('sipkeu_app') || 'sekretariat';
+
+  // Portal pengaturan tidak di-restore otomatis (hindari layar blank/stuck)
+  if (storedApp === 'pengaturan') {
+    sessionStorage.removeItem('sipkeu_token');
+    sessionStorage.removeItem('sipkeu_in_app');
+    showPortal();
+    return;
+  }
+
+  selectedPortalApp = storedApp;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const res = await apiFetch(API + '/auth/me');
-    if (!res.ok) throw new Error();
+    const res = await fetch(API + '/auth/me', {
+      cache: 'no-store',
+      signal: ctrl.signal,
+      headers: authHeaders(),
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('Sesi tidak valid');
     currentUser = await res.json();
     selectedPortalApp = resolvePortalApp(currentUser?.app_module);
+    if (selectedPortalApp === 'pengaturan') {
+      endPortalSession();
+      showPortal();
+      return;
+    }
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
     if (selectedPortalApp === 'kas-belanja') await bootKasApp(true);
-    else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(true);
     else await bootApp(true);
   } catch {
+    clearTimeout(timer);
     endPortalSession();
     showPortal();
   }
@@ -11117,9 +11147,7 @@ async function exportKasExcel() {
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   resetAllShells();
-  const hideLoader = () => document.getElementById('ds-loader')?.classList.add('hidden');
-  hideLoader();
-  tryRestoreSession().catch(() => showPortal()).finally(hideLoader);
+  tryRestoreSession().catch(() => showPortal());
 });
 </script>
 </body>
