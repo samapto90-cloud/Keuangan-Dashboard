@@ -973,16 +973,31 @@
     .rg-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 10px; }
     .rg-header h4 { margin: 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
     .rg-header p { margin: 3px 0 0; font-size: 9px; color: #444; }
-    .rg-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 8.5px; margin-bottom: 8px; }
-    .rg-table { width: 100%; border-collapse: collapse; font-size: 8px; table-layout: fixed; }
+    .rg-meta { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; font-size: 8.5px; margin-bottom: 8px; }
+    .rg-table { width: 100%; border-collapse: collapse; font-size: 8px; table-layout: fixed; margin: 0 auto; }
     .rg-table th, .rg-table td { border: 1px solid #333; padding: 3px 4px; vertical-align: top; word-wrap: break-word; overflow-wrap: anywhere; }
     .rg-table th { background: #ececec; font-weight: 700; text-align: center; font-size: 7.5px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rg-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
     .rg-table tfoot td { font-weight: 700; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rg-table .rg-num { text-align: right; white-space: nowrap; }
     .rg-table .rg-c { text-align: center; }
     .rg-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-top: 22px; font-size: 9px; }
     .rg-ttd-box { text-align: center; }
     .rg-ttd-space { height: 52px; margin: 6px 16px 0; }
+    .rg-page {
+      width: 297mm; min-height: 210mm; max-height: 210mm;
+      margin: 0 auto; padding: 8mm 10mm; box-sizing: border-box;
+      background: #fff; color: #111;
+      page-break-after: always; break-after: page;
+      display: flex; justify-content: center; align-items: flex-start;
+      overflow: hidden;
+    }
+    .rg-page:last-child { page-break-after: auto; break-after: auto; }
+    .rg-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
+    #rg-measure-host {
+      position: fixed; left: -16000px; top: 0; z-index: -9999;
+      width: 277mm; visibility: hidden; pointer-events: none; background: #fff;
+    }
     .register-filter-bar {
       display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
       padding: 14px 16px; border-bottom: 1px solid rgba(148,163,184,.15);
@@ -1001,8 +1016,15 @@
     body.register-printing #register-print,
     body.register-printing #register-print * { visibility: visible; }
     body.register-printing #register-print {
-      display: block !important; position: fixed; top: 0; left: 0; right: 0;
+      display: block !important; position: static;
       z-index: 99999; background: #fff; color: #000;
+    }
+    body.register-printing #register-print .rg-page {
+      page-break-after: always; break-after: page;
+      max-height: none; overflow: visible;
+    }
+    body.register-printing #register-print .rg-page:last-child {
+      page-break-after: auto; break-after: auto;
     }
     .anggaran-readonly {
       display: inline-block; font-size: 12px; font-weight: 700; color: #94a3b8;
@@ -3368,20 +3390,21 @@ function onNilaiBrutoInput() {
           <table class="rg-table">
             <thead>
               <tr>
-                <th style="width:9%">No BPK</th>
+                <th style="width:8%">No BPK</th>
                 <th style="width:5%">Tgl</th>
-                <th style="width:11%">Kegiatan</th>
-                <th style="width:11%">Sub Kegiatan</th>
-                <th style="width:7%">Kode Rek.</th>
-                <th style="width:9%">Pekerjaan</th>
-                <th style="width:14%">Uraian Pekerjaan</th>
-                <th style="width:9%">Penerima</th>
-                <th style="width:8%">Nilai Bruto</th>
-                <th style="width:10%">Jenis Potongan</th>
+                <th style="width:10%">Kegiatan</th>
+                <th style="width:10%">Sub Kegiatan</th>
+                <th style="width:6%">Kode Rek.</th>
+                <th style="width:8%">Pekerjaan</th>
+                <th style="width:13%">Uraian Pekerjaan</th>
+                <th style="width:8%">Penerima</th>
+                <th style="width:9%">Jenis Potongan</th>
+                <th style="width:7%">Nilai Bruto</th>
                 <th style="width:7%">Potongan</th>
+                <th style="width:7%">Nilai Netto</th>
               </tr>
             </thead>
-            <tbody id="reg-preview-tbody"><tr><td colspan="11" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
+            <tbody id="reg-preview-tbody"><tr><td colspan="12" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
             <tfoot id="reg-preview-tfoot"></tfoot>
           </table>
           <div class="rg-ttd">
@@ -3706,52 +3729,8 @@ function onNilaiBrutoInput() {
 
 <div id="kas-print"></div>
 
-<!-- ══ REGISTER PRINT (PDF / Cetak) ══ -->
-<div id="register-print">
-  <div class="rg-wrap">
-    <div class="rg-header">
-      <h4 id="rg-print-title">Register Pengeluaran</h4>
-      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rg-tahun">2026</span></p>
-    </div>
-    <div class="rg-meta">
-      <div id="rg-filter-label">Filter: Semua data</div>
-      <div>Dicetak: <span id="rg-tanggal">—</span></div>
-    </div>
-    <table class="rg-table">
-      <thead>
-        <tr>
-          <th style="width:9%">No BPK</th>
-          <th style="width:5%">Tgl</th>
-          <th style="width:11%">Kegiatan</th>
-          <th style="width:11%">Sub Kegiatan</th>
-          <th style="width:7%">Kode Rek.</th>
-          <th style="width:9%">Pekerjaan</th>
-          <th style="width:14%">Uraian Pekerjaan</th>
-          <th style="width:9%">Penerima</th>
-          <th style="width:8%">Nilai Bruto</th>
-          <th style="width:10%">Jenis Potongan</th>
-          <th style="width:7%">Potongan</th>
-        </tr>
-      </thead>
-      <tbody id="rg-print-tbody"></tbody>
-      <tfoot id="rg-print-tfoot"></tfoot>
-    </table>
-    <div class="rg-ttd">
-      <div class="rg-ttd-box">
-        <div id="rg-pa-jabatan">Pengguna Anggaran,</div>
-        <div class="rg-ttd-space"></div>
-        <div><strong id="rg-pa-nama">—</strong></div>
-        <div id="rg-pa-nip" style="font-size:8px">—</div>
-      </div>
-      <div class="rg-ttd-box">
-        <div id="rg-bend-jabatan">Bendahara Pengeluaran,</div>
-        <div class="rg-ttd-space"></div>
-        <div><strong id="rg-bend-nama">—</strong></div>
-        <div id="rg-bend-nip" style="font-size:8px">—</div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- ══ REGISTER PRINT (PDF / Cetak) — diisi dinamis per halaman ══ -->
+<div id="register-print"></div>
 
 <!-- ══ REKAP PRINT (PDF) ══ -->
 <div id="rekap-print">
@@ -3910,6 +3889,7 @@ function onNilaiBrutoInput() {
 
 <div id="kw-capture-host" aria-hidden="true"></div>
 <div id="rg-capture-host" aria-hidden="true"></div>
+<div id="rg-measure-host" aria-hidden="true"></div>
 
 <!-- Modal Preview Kwitansi -->
 <div class="modal fade" id="modalKwitansi" tabindex="-1">
@@ -4213,6 +4193,7 @@ function onNilaiBrutoInput() {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script>
@@ -6531,8 +6512,42 @@ function trxJenisPotonganLabel(t) {
   return legacy.length ? legacy.join(' · ') : '—';
 }
 
+function trxNetto(t) {
+  return Math.max(0, (t.nilai || 0) - trxPotonganTotal(t));
+}
+
+function computeRegisterTotals(rows) {
+  let totBruto = 0, totPot = 0, totNetto = 0;
+  rows.forEach(t => {
+    totBruto += t.nilai || 0;
+    totPot += trxPotonganTotal(t);
+    totNetto += trxNetto(t);
+  });
+  return { totBruto, totPot, totNetto };
+}
+
+const RG_REGISTER_COLS = 12;
+
+function getRegisterTheadHtml() {
+  return `<thead><tr>
+    <th style="width:8%">No BPK</th>
+    <th style="width:5%">Tgl</th>
+    <th style="width:10%">Kegiatan</th>
+    <th style="width:10%">Sub Kegiatan</th>
+    <th style="width:6%">Kode Rek.</th>
+    <th style="width:8%">Pekerjaan</th>
+    <th style="width:13%">Uraian Pekerjaan</th>
+    <th style="width:8%">Penerima</th>
+    <th style="width:9%">Jenis Potongan</th>
+    <th style="width:7%">Nilai Bruto</th>
+    <th style="width:7%">Potongan</th>
+    <th style="width:7%">Nilai Netto</th>
+  </tr></thead>`;
+}
+
 function buildRegisterRowHtml(t) {
   const pot = trxPotonganTotal(t);
+  const netto = trxNetto(t);
   return `<tr>
     <td>${escapeHtmlRegister(t.no_bpk || '—')}</td>
     <td class="rg-c">${escapeHtmlRegister(formatTanggalShort(t.tanggal))}</td>
@@ -6542,29 +6557,154 @@ function buildRegisterRowHtml(t) {
     <td>${escapeHtmlRegister(t.pekerjaan || '—')}</td>
     <td>${escapeHtmlRegister(t.uraian || '—')}</td>
     <td>${escapeHtmlRegister(t.penerima || '—')}</td>
-    <td class="rg-num">${formatRupiah(t.nilai || 0)}</td>
     <td>${escapeHtmlRegister(trxJenisPotonganLabel(t))}</td>
+    <td class="rg-num">${formatRupiah(t.nilai || 0)}</td>
     <td class="rg-num">${formatRupiah(pot)}</td>
+    <td class="rg-num">${formatRupiah(netto)}</td>
   </tr>`;
 }
 
 function buildRegisterTableBodyHtml(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="11" style="text-align:center;padding:12px">Tidak ada transaksi untuk filter ini.</td></tr>';
+    return `<tr><td colspan="${RG_REGISTER_COLS}" style="text-align:center;padding:12px">Tidak ada transaksi untuk filter ini.</td></tr>`;
   }
   return rows.map(buildRegisterRowHtml).join('');
 }
 
 function buildRegisterTableFootHtml(rows) {
   if (!rows.length) return '';
-  let totBruto = 0, totPot = 0;
-  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
+  const { totBruto, totPot, totNetto } = computeRegisterTotals(rows);
   return `<tr>
-    <td colspan="9" style="text-align:right"><strong>JUMLAH</strong></td>
-    <td class="rg-num"><strong>${formatRupiah(totBruto)}</strong></td>
+    <td colspan="8" style="text-align:right"><strong>JUMLAH</strong></td>
     <td></td>
+    <td class="rg-num"><strong>${formatRupiah(totBruto)}</strong></td>
     <td class="rg-num"><strong>${formatRupiah(totPot)}</strong></td>
+    <td class="rg-num"><strong>${formatRupiah(totNetto)}</strong></td>
   </tr>`;
+}
+
+function buildRegisterHeaderBlock(tanggal, pageNum, totalPages) {
+  const tahun = DB.tahun || 2026;
+  return `
+    <div class="rg-header">
+      <h4>Register Pengeluaran</h4>
+      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA ${escapeHtmlRegister(String(tahun))}</p>
+    </div>
+    <div class="rg-meta">
+      <div>Dicetak: ${escapeHtmlRegister(tanggal)} · Hal. ${pageNum} / ${totalPages}</div>
+    </div>`;
+}
+
+function buildRegisterSignatureHtml() {
+  const cfg = getPortalAppConfig();
+  return `
+    <div class="rg-ttd">
+      <div class="rg-ttd-box">
+        <div>${escapeHtmlRegister(cfg.paLabel)},</div>
+        <div class="rg-ttd-space"></div>
+        <div><strong>${escapeHtmlRegister(DB.pa?.nama || '—')}</strong></div>
+        <div style="font-size:8px">${escapeHtmlRegister(DB.pa?.nip || '—')}</div>
+      </div>
+      <div class="rg-ttd-box">
+        <div>${escapeHtmlRegister(cfg.bendaharaLabel)},</div>
+        <div class="rg-ttd-space"></div>
+        <div><strong>${escapeHtmlRegister(DB.bendahara?.nama || '—')}</strong></div>
+        <div style="font-size:8px">${escapeHtmlRegister(DB.bendahara?.nip || '—')}</div>
+      </div>
+    </div>`;
+}
+
+function ensureRegisterMeasureHost() {
+  let host = document.getElementById('rg-measure-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'rg-measure-host';
+    host.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(host);
+  }
+  host.style.cssText = 'position:fixed;left:-16000px;top:0;z-index:-9999;width:277mm;visibility:hidden;pointer-events:none;background:#fff;';
+  return host;
+}
+
+function measureRegisterBlockHeight(html) {
+  const host = ensureRegisterMeasureHost();
+  host.innerHTML = `<div class="rg-page-inner">${html}</div>`;
+  const el = host.firstElementChild;
+  return el ? el.offsetHeight : 0;
+}
+
+function measureRegisterTableHeight(rowHtmlList, includeTfoot, tfootHtml) {
+  const body = rowHtmlList.join('');
+  const tfoot = includeTfoot ? `<tfoot>${tfootHtml}</tfoot>` : '';
+  return measureRegisterBlockHeight(`<table class="rg-table">${getRegisterTheadHtml()}<tbody>${body}</tbody>${tfoot}</table>`);
+}
+
+function paginateRegisterRows(rows) {
+  if (!rows.length) return [[]];
+  const pageH = mmToPx(RG_A4_LANDSCAPE_H_MM - 16);
+  const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const headerH = measureRegisterBlockHeight(buildRegisterHeaderBlock(tanggal, 1, 1));
+  const ttdH = measureRegisterBlockHeight(buildRegisterSignatureHtml());
+  const tfootHtml = buildRegisterTableFootHtml(rows);
+  const theadOnlyH = measureRegisterTableHeight([], false, '');
+  const tfootOnlyH = measureRegisterTableHeight([], true, tfootHtml) - theadOnlyH;
+  const rowHtmls = rows.map(buildRegisterRowHtml);
+  const buffer = 10;
+  const chunks = [];
+  let i = 0;
+
+  while (i < rows.length) {
+    const left = rows.length - i;
+    const remainingBodyH = measureRegisterTableHeight(rowHtmls.slice(i), true, tfootHtml);
+    if (headerH + remainingBodyH + ttdH + buffer <= pageH) {
+      chunks.push(rows.slice(i));
+      break;
+    }
+
+    const availMid = pageH - headerH - theadOnlyH - buffer;
+    let lo = 1, hi = left, best = 1;
+    while (lo <= hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      const h = measureRegisterTableHeight(rowHtmls.slice(i, i + mid), false, '');
+      if (h <= availMid) { best = mid; lo = mid + 1; } else { hi = mid - 1; }
+    }
+
+    if (best >= left) {
+      const fitLast = pageH - headerH - theadOnlyH - tfootOnlyH - ttdH - buffer;
+      lo = 1; hi = left; best = 1;
+      while (lo <= hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        const h = measureRegisterTableHeight(rowHtmls.slice(i, i + mid), false, '');
+        if (h <= fitLast) { best = mid; lo = mid + 1; } else { hi = mid - 1; }
+      }
+    }
+
+    chunks.push(rows.slice(i, i + best));
+    i += best;
+  }
+  return chunks.length ? chunks : [[]];
+}
+
+function buildRegisterPagesHtml(rows) {
+  const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  const chunks = paginateRegisterRows(rows);
+  const totalPages = chunks.length;
+  const tfootHtml = buildRegisterTableFootHtml(rows);
+
+  return chunks.map((chunk, idx) => {
+    const pageNum = idx + 1;
+    const isLast = pageNum === totalPages;
+    const tbody = buildRegisterTableBodyHtml(chunk);
+    const tfoot = isLast ? `<tfoot>${tfootHtml}</tfoot>` : '';
+    const signature = isLast ? buildRegisterSignatureHtml() : '';
+    return `<div class="rg-page">
+      <div class="rg-page-inner">
+        ${buildRegisterHeaderBlock(tanggal, pageNum, totalPages)}
+        <table class="rg-table">${getRegisterTheadHtml()}<tbody>${tbody}</tbody>${tfoot}</table>
+        ${signature}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function fillRegisterPejabatPreview() {
@@ -6583,21 +6723,14 @@ function fillRegisterPejabatPreview() {
 }
 
 function fillRegisterPrint() {
-  const cfg = getPortalAppConfig();
-  const now = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
-  document.getElementById('rg-print-title').textContent = 'Register Pengeluaran';
-  document.getElementById('rg-tahun').textContent = DB.tahun || 2026;
-  document.getElementById('rg-tanggal').textContent = now;
-  document.getElementById('rg-filter-label').textContent = 'Filter: ' + buildRegisterFilterLabel();
-  document.getElementById('rg-pa-jabatan').textContent = cfg.paLabel + ',';
-  document.getElementById('rg-bend-jabatan').textContent = cfg.bendaharaLabel + ',';
-  document.getElementById('rg-pa-nama').textContent = DB.pa?.nama || '—';
-  document.getElementById('rg-pa-nip').textContent = DB.pa?.nip || '—';
-  document.getElementById('rg-bend-nama').textContent = DB.bendahara?.nama || '—';
-  document.getElementById('rg-bend-nip').textContent = DB.bendahara?.nip || '—';
-  document.getElementById('rg-print-tbody').innerHTML = buildRegisterTableBodyHtml(rows);
-  document.getElementById('rg-print-tfoot').innerHTML = buildRegisterTableFootHtml(rows);
+  const el = document.getElementById('register-print');
+  if (!el) return;
+  el.innerHTML = rows.length ? buildRegisterPagesHtml(rows) : `
+    <div class="rg-page"><div class="rg-page-inner">
+      ${buildRegisterHeaderBlock(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }), 1, 1)}
+      <table class="rg-table">${getRegisterTheadHtml()}<tbody>${buildRegisterTableBodyHtml([])}</tbody></table>
+    </div></div>`;
 }
 
 function renderRegisterPreview() {
@@ -6605,10 +6738,10 @@ function renderRegisterPreview() {
   fillRegisterPejabatPreview();
   document.getElementById('reg-preview-tbody').innerHTML = buildRegisterTableBodyHtml(rows);
   document.getElementById('reg-preview-tfoot').innerHTML = buildRegisterTableFootHtml(rows);
-  let totBruto = 0, totPot = 0;
-  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
+  let totBruto = 0, totPot = 0, totNetto = 0;
+  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); totNetto += trxNetto(t); });
   document.getElementById('register-info').textContent =
-    `${rows.length} transaksi · Total bruto ${formatRupiah(totBruto)} · Total potongan ${formatRupiah(totPot)}`;
+    `${rows.length} transaksi · Total bruto ${formatRupiah(totBruto)} · Total potongan ${formatRupiah(totPot)} · Total netto ${formatRupiah(totNetto)}`;
 }
 
 async function loadRegister() {
@@ -6624,7 +6757,7 @@ async function loadRegister() {
 function exportRegisterExcel() {
   const rows = registerRowsCache.length ? registerRowsCache : getRegisterFilteredTransactions();
   if (!rows.length) { alert('Tidak ada data register untuk filter ini.'); return; }
-  const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Nilai Bruto', 'Jenis Potongan', 'Potongan'];
+  const header = ['No BPK', 'Tgl', 'Kegiatan', 'Sub Kegiatan', 'Kode Rekening', 'Pekerjaan', 'Uraian Pekerjaan', 'Penerima', 'Jenis Potongan', 'Nilai Bruto', 'Potongan', 'Nilai Netto'];
   const dataRows = rows.map(t => [
     t.no_bpk || '',
     formatTanggalShort(t.tanggal),
@@ -6634,15 +6767,15 @@ function exportRegisterExcel() {
     t.pekerjaan || '',
     t.uraian || '',
     t.penerima || '',
-    t.nilai || 0,
     trxJenisPotonganLabel(t),
+    t.nilai || 0,
     trxPotonganTotal(t),
+    trxNetto(t),
   ]);
-  let totBruto = 0, totPot = 0;
-  rows.forEach(t => { totBruto += t.nilai || 0; totPot += trxPotonganTotal(t); });
-  dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', totBruto, '', totPot]);
+  const { totBruto, totPot, totNetto } = computeRegisterTotals(rows);
+  dataRows.push(['', '', '', '', '', '', '', 'JUMLAH', '', totBruto, totPot, totNetto]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
-  ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 16 }, { wch: 28 }, { wch: 14 }];
+  ws['!cols'] = [{ wch: 28 }, { wch: 12 }, { wch: 34 }, { wch: 34 }, { wch: 18 }, { wch: 22 }, { wch: 36 }, { wch: 24 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 16 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Register');
   const slug = buildRegisterFilterLabel().replace(/[^\w\-]+/g, '_').slice(0, 40);
@@ -6652,23 +6785,28 @@ function exportRegisterExcel() {
 const RG_A4_LANDSCAPE_W_MM = 297;
 const RG_A4_LANDSCAPE_H_MM = 210;
 
-async function buildRegisterCaptureNode() {
+async function buildRegisterCapturePages() {
   fillRegisterPrint();
-  const source = document.querySelector('#register-print .rg-wrap');
-  if (!source) throw new Error('Template register tidak ditemukan.');
+  const sourcePages = [...document.querySelectorAll('#register-print .rg-page')];
+  if (!sourcePages.length) throw new Error('Template register tidak ditemukan.');
   const host = document.getElementById('rg-capture-host');
   if (!host) throw new Error('Capture host register tidak ditemukan.');
   host.innerHTML = '';
-  const clone = source.cloneNode(true);
-  clone.style.display = 'block';
-  clone.style.visibility = 'visible';
-  clone.style.background = '#fff';
-  clone.style.color = '#111';
-  clone.style.width = RG_A4_LANDSCAPE_W_MM + 'mm';
-  clone.style.boxShadow = 'none';
-  host.appendChild(clone);
+  const clones = sourcePages.map(page => {
+    const clone = page.cloneNode(true);
+    clone.style.display = 'flex';
+    clone.style.visibility = 'visible';
+    clone.style.background = '#fff';
+    clone.style.color = '#111';
+    clone.style.width = RG_A4_LANDSCAPE_W_MM + 'mm';
+    clone.style.minHeight = RG_A4_LANDSCAPE_H_MM + 'mm';
+    clone.style.maxHeight = RG_A4_LANDSCAPE_H_MM + 'mm';
+    clone.style.boxShadow = 'none';
+    host.appendChild(clone);
+    return clone;
+  });
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  return clone;
+  return clones;
 }
 
 function clearRegisterCaptureNode() {
@@ -6681,67 +6819,63 @@ function registerPdfFilename() {
   return `SIPKEU_Register_${slug}_${DB.tahun || 2026}.pdf`;
 }
 
-async function renderRegisterCanvas() {
+async function renderRegisterPageCanvas(pageEl) {
   const h2c = window.html2canvas;
   if (typeof h2c !== 'function') throw new Error('Library html2canvas belum dimuat. Tekan Ctrl+F5.');
-  let node;
-  try {
-    node = await buildRegisterCaptureNode();
-    const w = Math.max(node.scrollWidth, Math.round(mmToPx(RG_A4_LANDSCAPE_W_MM)));
-    const h = Math.max(node.scrollHeight, Math.round(mmToPx(RG_A4_LANDSCAPE_H_MM)));
-    const canvas = await h2c(node, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      width: w,
-      height: h,
-      windowWidth: w,
-      windowHeight: h,
-      scrollX: 0,
-      scrollY: 0,
-      logging: false,
-      onclone(doc) {
-        doc.querySelectorAll('.rg-wrap, .rg-wrap *').forEach(el => {
-          el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
-        });
-      },
-    });
-    if (!canvas?.width) throw new Error('Render register gagal (canvas kosong).');
-    return canvas;
-  } finally {
-    clearRegisterCaptureNode();
-  }
+  const w = pageEl.offsetWidth || Math.round(mmToPx(RG_A4_LANDSCAPE_W_MM));
+  const h = pageEl.offsetHeight || Math.round(mmToPx(RG_A4_LANDSCAPE_H_MM));
+  if (!w || !h) throw new Error('Render register gagal (ukuran halaman nol).');
+  const canvas = await h2c(pageEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    width: w,
+    height: h,
+    windowWidth: w,
+    windowHeight: h,
+    scrollX: 0,
+    scrollY: 0,
+    logging: false,
+    onclone(doc) {
+      doc.querySelectorAll('.rg-page, .rg-page *').forEach(el => {
+        el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
+      });
+    },
+  });
+  if (!canvas?.width) throw new Error('Render register gagal (canvas kosong).');
+  return canvas;
 }
 
-async function saveRegisterPdfFromCanvas(canvas, filename) {
-  const margin = 6;
-  const pageWmm = RG_A4_LANDSCAPE_W_MM;
-  const pageHmm = RG_A4_LANDSCAPE_H_MM;
-  const contentWmm = pageWmm - margin * 2;
-  const contentHmm = pageHmm - margin * 2;
-  const slicePxH = Math.max(1, Math.floor(canvas.width * (contentHmm / contentWmm)));
+async function saveRegisterPdfFromPages(pages, filename) {
+  const pageWpt = 841.89;
+  const pageHpt = 595.28;
 
-  const JsPDF = window.jspdf?.jsPDF;
+  if (window.PDFLib?.PDFDocument) {
+    const pdfDoc = await PDFLib.PDFDocument.create();
+    for (const pageEl of pages) {
+      const canvas = await renderRegisterPageCanvas(pageEl);
+      const page = pdfDoc.addPage([pageWpt, pageHpt]);
+      let img;
+      const jpgUrl = canvas.toDataURL('image/jpeg', 0.92);
+      try {
+        img = await pdfDoc.embedJpg(dataUrlToBytes(jpgUrl));
+      } catch {
+        img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png')));
+      }
+      page.drawImage(img, { x: 0, y: 0, width: pageWpt, height: pageHpt });
+    }
+    downloadPdfBlob(await pdfDoc.save(), filename);
+    return;
+  }
+
+  const JsPDF = window.jspdf?.jsPDF || (typeof window.jsPDF === 'function' ? window.jsPDF : null);
   if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
   const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-
-  let offsetY = 0;
-  let pageIdx = 0;
-  while (offsetY < canvas.height) {
-    if (pageIdx > 0) pdf.addPage('a4', 'landscape');
-    const sliceH = Math.min(slicePxH, canvas.height - offsetY);
-    const slice = document.createElement('canvas');
-    slice.width = canvas.width;
-    slice.height = sliceH;
-    const ctx = slice.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
-    const imgHmm = (sliceH / canvas.width) * contentWmm;
-    pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentWmm, imgHmm);
-    offsetY += sliceH;
-    pageIdx++;
+  for (let i = 0; i < pages.length; i++) {
+    if (i > 0) pdf.addPage('a4', 'landscape');
+    const canvas = await renderRegisterPageCanvas(pages[i]);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, RG_A4_LANDSCAPE_W_MM, RG_A4_LANDSCAPE_H_MM);
   }
   pdf.save(filename);
 }
@@ -6752,13 +6886,15 @@ async function saveRegisterPDF() {
   const btn = document.querySelector('#page-register .btn-outline-danger');
   const orig = btn?.innerHTML;
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan…'; }
+  let pages;
   try {
-    const canvas = await renderRegisterCanvas();
-    await saveRegisterPdfFromCanvas(canvas, registerPdfFilename());
+    pages = await buildRegisterCapturePages();
+    await saveRegisterPdfFromPages(pages, registerPdfFilename());
   } catch (err) {
     console.error('Simpan register PDF gagal:', err);
     alert('Gagal menyimpan PDF register: ' + (err.message || err));
   } finally {
+    clearRegisterCaptureNode();
     if (btn) { btn.disabled = false; btn.innerHTML = orig; }
   }
 }
