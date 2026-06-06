@@ -850,8 +850,9 @@
       body.np2d-printing #np2d-print,
       body.np2d-printing #np2d-print * { visibility: visible; }
       body.np2d-printing #np2d-print {
-        display: block !important; position: fixed; top: 0; left: 0;
-        width: 210mm !important; height: 297mm !important; max-height: 297mm !important;
+        display: flex !important; justify-content: center !important; align-items: flex-start !important;
+        position: fixed; top: 0; left: 0; right: 0;
+        width: 100% !important; height: 297mm !important; max-height: 297mm !important;
         margin: 0 !important; padding: 0 !important;
         z-index: 99999; background: #fff; overflow: hidden !important;
         page-break-before: avoid; page-break-after: avoid; page-break-inside: avoid;
@@ -859,16 +860,19 @@
       body.np2d-printing #np2d-print .kw-a4-sheet {
         width: 210mm !important; height: 297mm !important;
         max-height: 297mm !important; overflow: hidden !important;
-        margin: 0 !important; page-break-inside: avoid;
+        margin: 0 auto !important; flex-shrink: 0;
+        page-break-inside: avoid;
       }
       body.np2d-printing #np2d-print .kw-scale-box {
         width: 210mm !important; height: 297mm !important;
         max-height: 297mm !important; overflow: hidden !important;
+        transform-origin: top center !important;
+        justify-content: center !important;
       }
       body.np2d-printing #np2d-print .kw-wrap {
         box-shadow: none !important; border: none !important;
         font-family: Arial, sans-serif !important;
-        padding: 5mm 6mm 4mm !important;
+        padding: 6mm 8mm 5mm !important;
       }
       body.np2d-printing #np2d-print .kw-wrap * { font-family: Arial, sans-serif !important; }
       body.np2d-printing .kw-kop {
@@ -881,8 +885,9 @@
         -webkit-print-color-adjust: exact; print-color-adjust: exact;
       }
       body.kwitansi-printing #kwitansi-print {
-        display: block !important; position: fixed; top: 0; left: 0;
-        width: 210mm !important; height: 297mm !important; max-height: 297mm !important;
+        display: flex !important; justify-content: center !important; align-items: flex-start !important;
+        position: fixed; top: 0; left: 0; right: 0;
+        width: 100% !important; height: 297mm !important; max-height: 297mm !important;
         margin: 0 !important; padding: 0 !important;
         z-index: 99999; background: #fff; overflow: hidden !important;
         page-break-before: avoid; page-break-after: avoid; page-break-inside: avoid;
@@ -890,11 +895,14 @@
       body.kwitansi-printing #kwitansi-print .kw-a4-sheet {
         width: 210mm !important; height: 297mm !important;
         max-height: 297mm !important; overflow: hidden !important;
-        margin: 0 !important; page-break-inside: avoid;
+        margin: 0 auto !important; flex-shrink: 0;
+        page-break-inside: avoid;
       }
       body.kwitansi-printing #kwitansi-print .kw-scale-box {
         width: 210mm !important; height: 297mm !important;
         max-height: 297mm !important; overflow: hidden !important;
+        transform-origin: top center !important;
+        justify-content: center !important;
       }
       body.kwitansi-printing #kwitansi-print .kw-wrap {
         box-shadow: none !important; border: none !important;
@@ -931,7 +939,8 @@
       body.register-printing #register-print,
       body.register-printing #register-print * { visibility: visible; }
       body.register-printing #register-print {
-        display: block !important; position: relative !important;
+        display: flex !important; flex-direction: column !important; align-items: center !important;
+        position: relative !important;
         width: 100% !important; margin: 0 !important; padding: 0 !important;
         z-index: 99999; background: #fff; color: #000;
         overflow: visible !important;
@@ -950,7 +959,7 @@
     }
     #kwitansi-print, #rekap-print, #register-print { display: none; }
     #np2d-print { display: none; }
-    #np2d-print .kw-wrap { padding: 5mm 6mm 4mm; }
+    #np2d-print .kw-wrap { padding: 6mm 8mm 5mm; }
     .np-wrap { color: #000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.45; }
     .np-title { text-align: center; font-weight: 800; font-size: 13px; text-transform: uppercase; margin: 8px 0 6px; line-height: 1.35; }
     .np-nomor { text-align: center; font-size: 11px; margin: 0 0 18px; padding-bottom: 2px; }
@@ -1114,7 +1123,8 @@
     body.register-printing #register-print,
     body.register-printing #register-print * { visibility: visible; }
     body.register-printing #register-print {
-      display: block !important; position: static;
+      display: flex !important; flex-direction: column !important; align-items: center !important;
+      position: static;
       z-index: 99999; background: #fff; color: #000;
     }
     body.register-printing #register-print .rg-page {
@@ -1987,7 +1997,7 @@
       }
       body.register-printing #register-print .rg-page {
         box-shadow: 0 4px 28px rgba(0,0,0,.22);
-        margin-bottom: 16px !important;
+        margin: 0 auto 16px !important;
       }
     }
     #kas-main {
@@ -2647,7 +2657,8 @@
     }
     .kw-scale-box {
       width: 210mm; height: 297mm; overflow: hidden;
-      display: flex; justify-content: flex-start; align-items: flex-start;
+      display: flex; justify-content: center; align-items: flex-start;
+      transform-origin: top center;
     }
     .kw-wrap {
       font-family: Arial, sans-serif !important;
@@ -5763,10 +5774,13 @@ function fitKwitansiSheet(sheet) {
   wrap.style.zoom = '1';
   scaleBox.style.zoom = '1';
   scaleBox.style.transform = 'none';
+  scaleBox.style.transformOrigin = 'top center';
+  scaleBox.style.justifyContent = 'center';
   sheet.style.width = KW_A4_W_MM + 'mm';
   sheet.style.height = KW_A4_H_MM + 'mm';
   sheet.style.maxHeight = KW_A4_H_MM + 'mm';
   sheet.style.overflow = 'hidden';
+  sheet.style.margin = '0 auto';
   scaleBox.style.width = KW_A4_W_MM + 'mm';
   scaleBox.style.height = KW_A4_H_MM + 'mm';
   scaleBox.style.maxHeight = KW_A4_H_MM + 'mm';
@@ -5805,9 +5819,16 @@ function fitNp2dSheet(sheet) {
   wrap.style.zoom = '1';
   scaleBox.style.transform = 'none';
   scaleBox.style.zoom = '1';
+  scaleBox.style.transformOrigin = 'top center';
+  scaleBox.style.justifyContent = 'center';
   sheet.style.width = KW_A4_W_MM + 'mm';
+  sheet.style.height = KW_A4_H_MM + 'mm';
+  sheet.style.maxHeight = KW_A4_H_MM + 'mm';
   sheet.style.overflow = 'hidden';
+  sheet.style.margin = '0 auto';
   scaleBox.style.width = KW_A4_W_MM + 'mm';
+  scaleBox.style.height = KW_A4_H_MM + 'mm';
+  scaleBox.style.maxHeight = KW_A4_H_MM + 'mm';
   scaleBox.style.overflow = 'hidden';
   void wrap.offsetHeight;
   const maxH = mmToPx(KW_A4_H_MM);
@@ -5817,15 +5838,10 @@ function fitNp2dSheet(sheet) {
   const contentW = wrap.scrollWidth;
   let scale = Math.min(1, maxH / contentH, maxW / contentW);
   scale = Math.max(minScale, Math.floor(scale * 1000) / 1000);
-  scaleBox.style.height = contentH + 'px';
-  scaleBox.style.transformOrigin = 'top left';
   if (scale < 0.999) {
     scaleBox.style.transform = 'scale(' + scale + ')';
+    scaleBox.style.transformOrigin = 'top center';
   }
-  sheet.style.height = KW_A4_H_MM + 'mm';
-  sheet.style.maxHeight = KW_A4_H_MM + 'mm';
-  sheet.style.minHeight = KW_A4_H_MM + 'mm';
-  scaleBox.style.maxHeight = contentH + 'px';
   sheet.dataset.np2dFitScale = String(scale);
   return scale;
 }
@@ -6227,16 +6243,13 @@ async function renderNp2dCanvas() {
           node.style.setProperty('font-family', 'Arial, sans-serif', 'important');
         });
         doc.querySelectorAll('.kw-scale-box').forEach(el => {
-          el.style.setProperty('transform-origin', 'top left', 'important');
-          el.style.setProperty('justify-content', 'flex-start', 'important');
-        });
-        doc.querySelectorAll('#np2d-print .kw-wrap, .np-wrap').forEach(el => {
-          el.style.setProperty('padding', '5mm 6mm 4mm', 'important');
+          el.style.setProperty('transform-origin', 'top center', 'important');
+          el.style.setProperty('justify-content', 'center', 'important');
         });
       },
     });
     if (!raw || !raw.width) throw new Error('Render NP2D gagal (canvas kosong).');
-    return normalizeCanvasForPdf(raw, 8);
+    return cropCanvasToA4(raw);
   } finally {
     clearKwitansiCaptureNode();
   }
@@ -6245,15 +6258,11 @@ async function renderNp2dCanvas() {
 async function saveNp2dPdfFromCanvas(canvas, filename) {
   const pageW = 595.28;
   const pageH = 841.89;
-  const marginX = 8;
-  const marginY = 6;
-  const availW = pageW - marginX * 2;
-  const availH = pageH - marginY * 2;
-  const scale = Math.min(availW / canvas.width, availH / canvas.height);
-  const drawW = canvas.width * scale;
-  const drawH = canvas.height * scale;
-  const x = marginX + (availW - drawW) / 2;
-  const y = pageH - marginY - drawH;
+  const margin = 0;
+  const drawW = pageW - margin * 2;
+  const drawH = pageH - margin * 2;
+  const x = margin;
+  const y = margin;
 
   if (window.PDFLib?.PDFDocument) {
     try {
