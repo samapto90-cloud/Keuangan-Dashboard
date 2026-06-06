@@ -2245,6 +2245,13 @@
       flex: 1 1 0; min-width: 68px; max-width: 148px; height: 100%;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
       position: relative; z-index: 1;
+      isolation: isolate;
+    }
+    .kas-gundam-col:hover, .kas-gundam-col:focus-within { z-index: 20; }
+    .kas-gundam-stage {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: flex-end; justify-content: center;
+      pointer-events: none; overflow: visible;
     }
     .kas-gundam-ang {
       position: absolute; bottom: 0; width: 62%; min-width: 30px;
@@ -2269,12 +2276,50 @@
       transition: height .85s cubic-bezier(.22,1,.36,1);
       pointer-events: none; z-index: 1;
     }
+    .kas-gundam-rea-bar.kas-rea-over {
+      box-shadow: 0 0 22px rgba(239,68,68,.55), 0 0 40px rgba(251,191,36,.25);
+      border-color: rgba(254,202,202,.65);
+    }
+    .kas-gundam-rea-bar.kas-rea-over::after {
+      content: ''; position: absolute; left: 50%; top: -4px; transform: translateX(-50%);
+      width: 140%; height: 8px; border-radius: 999px;
+      background: radial-gradient(ellipse, rgba(251,191,36,.55), transparent 70%);
+      animation: kasReaSpark 1.6s ease-in-out infinite;
+    }
+    @keyframes kasReaSpark {
+      0%, 100% { opacity: .45; transform: translateX(-50%) scaleX(.85); }
+      50% { opacity: 1; transform: translateX(-50%) scaleX(1.05); }
+    }
     .kas-gundam-ms {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 3;
+      position: relative; bottom: auto; left: auto; transform: none; z-index: 3;
       display: flex; align-items: flex-end; justify-content: center;
-      transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1), bottom .85s cubic-bezier(.22,1,.36,1);
+      max-width: 100%; width: var(--ms-w, 72px); height: var(--ms-h, 72px);
+      margin-bottom: var(--ms-lift, 0px);
+      transition: width .85s cubic-bezier(.22,1,.36,1), height .85s cubic-bezier(.22,1,.36,1), margin-bottom .85s cubic-bezier(.22,1,.36,1);
       filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)) drop-shadow(0 0 16px rgba(147,51,234,.28));
-      cursor: default;
+      cursor: default; pointer-events: auto;
+    }
+    .kas-gundam-ms::before {
+      content: ''; position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%);
+      width: calc(var(--aura, 0) * 1px); height: calc(var(--aura, 0) * 0.55px);
+      border-radius: 50%; z-index: -1; pointer-events: none;
+      background: radial-gradient(ellipse, rgba(167,139,250,.35), transparent 68%);
+      opacity: calc(.25 + var(--aura-op, 0));
+      transition: opacity .5s ease;
+    }
+    .kas-gundam-ms.kas-ms-over::before {
+      background: radial-gradient(ellipse, rgba(239,68,68,.42), rgba(251,191,36,.18) 45%, transparent 72%);
+      animation: kasOverAura 2s ease-in-out infinite;
+    }
+    @keyframes kasOverAura {
+      0%, 100% { transform: translateX(-50%) scale(.92); opacity: .55; }
+      50% { transform: translateX(-50%) scale(1.08); opacity: .95; }
+    }
+    .kas-gundam-ms.kas-ms-over img {
+      filter: drop-shadow(0 0 10px rgba(239,68,68,.45)) drop-shadow(0 0 18px rgba(251,191,36,.25));
+    }
+    .kas-gundam-ms.kas-ms-high::before {
+      background: radial-gradient(ellipse, rgba(34,211,238,.28), transparent 68%);
     }
     @keyframes kasDsFloat {
       0%, 100% { translate: 0 0; }
@@ -2295,13 +2340,21 @@
       .kas-gundam-ms { animation: none !important; }
     }
     .kas-gundam-pct {
-      position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
       font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
-      white-space: nowrap; letter-spacing: .02em;
+      white-space: nowrap; letter-spacing: .02em; z-index: 5;
       background: rgba(15,23,42,.88); border: 1px solid rgba(167,139,250,.35);
       color: #e9d5ff; box-shadow: 0 2px 8px rgba(0,0,0,.35);
     }
-    .kas-gundam-pct.kas-pct-over { color: #fecaca; border-color: rgba(248,113,113,.45); }
+    .kas-gundam-pct.kas-pct-over {
+      color: #fecaca; border-color: rgba(248,113,113,.55);
+      box-shadow: 0 0 14px rgba(239,68,68,.35);
+      animation: kasPctPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes kasPctPulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.06); }
+    }
     .kas-gundam-pct.kas-pct-warn { color: #fde68a; border-color: rgba(251,191,36,.4); }
     .kas-gundam-pct.kas-pct-ok { color: #bbf7d0; border-color: rgba(74,222,128,.35); }
     .kas-gundam-label {
@@ -7763,11 +7816,49 @@ function preloadGundamIcons() {
   }))).then(() => { kasGundamChartReady = true; });
 }
 
-function kasGundamIconSize(ratio, chartH) {
-  const minPx = 78;
-  const maxPx = chartH * 0.88;
-  const r = Math.max(0, Math.min(1, ratio));
-  return minPx + r * (maxPx - minPx);
+function kasHashiraIconSize(ratio, colW, chartH) {
+  const capped = Math.min(Math.max(ratio, 0), 1.25);
+  const eased = Math.pow(Math.min(capped, 1), 0.62) + (capped > 1 ? (capped - 1) * 0.08 : 0);
+  const maxByCol = Math.max(44, colW * 0.88);
+  const maxByChart = Math.max(52, chartH * 0.38);
+  const maxPx = Math.min(maxByCol, maxByChart);
+  const minPx = Math.min(48, maxPx * 0.58);
+  return minPx + Math.min(eased, 1.12) * (maxPx - minPx);
+}
+
+function layoutHashiraColumns(items, chartW, chartH, gapPx) {
+  const n = items.length;
+  const pad = 24;
+  const colW = Math.max(56, (chartW - pad - gapPx * Math.max(0, n - 1)) / n);
+  const layouts = items.map((item, i) => {
+    const ratio = item.ratio;
+    let icon = kasHashiraIconSize(ratio, colW, chartH);
+    const lift = Math.max(0, item.reaH - 2);
+    const headroom = chartH - lift - 30;
+    if (icon > headroom) icon = Math.max(44, headroom);
+    const aura = icon * (0.95 + Math.min(ratio, 1.4) * 0.35);
+    return { ...item, i, colW, icon, lift, aura, ratio };
+  });
+
+  for (let pass = 0; pass < 3; pass++) {
+    for (let i = 0; i < layouts.length - 1; i++) {
+      const a = layouts[i];
+      const b = layouts[i + 1];
+      const aTop = a.lift + a.icon;
+      const bTop = b.lift + b.icon;
+      const overlapTop = Math.min(aTop, bTop);
+      const minTop = Math.max(a.icon, b.icon) * 0.55;
+      if (overlapTop > chartH - 24 && a.icon > minTop) {
+        a.icon = Math.max(minTop, a.icon - 6);
+        a.aura = a.icon * (0.95 + Math.min(a.ratio, 1.4) * 0.35);
+      }
+      if (overlapTop > chartH - 24 && b.icon > minTop) {
+        b.icon = Math.max(minTop, b.icon - 6);
+        b.aura = b.icon * (0.95 + Math.min(b.ratio, 1.4) * 0.35);
+      }
+    }
+  }
+  return layouts;
 }
 
 function kasGundamLiftHeight(value, maxScale, chartH) {
@@ -7792,31 +7883,46 @@ function renderKasGundamChart() {
 
   const wrap = box.closest('.kas-flame-canvas-wrap');
   const chartH = Math.max(240, (wrap?.clientHeight || 460) - 72);
+  const chartW = Math.max(320, box.clientWidth || wrap?.clientWidth || 900);
   const maxScale = Math.max(...anggaran, ...realisasi, 1);
+  const gapPx = Math.min(20, Math.max(6, chartW * 0.014));
 
-  box.innerHTML = '<div class="kas-gundam-chart-grid" aria-hidden="true"></div><div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + fullLabels.map((label, i) => {
+  const rawItems = fullLabels.map((label, i) => {
     const ang = anggaran[i] || 0;
     const real = realisasi[i] || 0;
     const pct = persen[i] || 0;
     const ratio = ang > 0 ? real / ang : (maxScale > 0 ? real / maxScale : 0);
-    const angH = kasGundamLiftHeight(ang, maxScale, chartH);
-    const reaH = kasGundamLiftHeight(real, maxScale, chartH);
-    const icon = kasGundamIconSize(ratio, chartH);
-    const ds = DS_KAS_ICONS[i % DS_KAS_ICONS.length];
+    return {
+      label, ang, real, pct,
+      ratio,
+      angH: kasGundamLiftHeight(ang, maxScale, chartH),
+      reaH: kasGundamLiftHeight(real, maxScale, chartH),
+      ds: DS_KAS_ICONS[i % DS_KAS_ICONS.length],
+    };
+  });
+
+  const layouts = layoutHashiraColumns(rawItems, chartW, chartH, gapPx);
+
+  box.innerHTML = '<div class="kas-gundam-chart-grid" aria-hidden="true"></div><div class="kas-gundam-chart-axis" aria-hidden="true"></div>' + layouts.map((row, i) => {
+    const { label, ang, real, pct, ratio, angH, reaH, ds, icon, lift, aura } = row;
     const pctCls = pct >= 100 ? 'kas-pct-over' : pct >= 75 ? 'kas-pct-warn' : 'kas-pct-ok';
+    const msCls = ratio >= 1 ? 'kas-ms-over' : ratio >= 0.75 ? 'kas-ms-high' : '';
+    const reaCls = ratio >= 1 ? 'kas-rea-over' : '';
     const floatDelay = ((i % 6) * 0.35).toFixed(2);
-    const charBottom = Math.max(0, reaH - 4);
-    return `<div class="kas-gundam-col" tabindex="0">
+    const auraOp = Math.min(0.85, 0.2 + Math.min(ratio, 1.2) * 0.45).toFixed(2);
+    return `<div class="kas-gundam-col" tabindex="0" style="z-index:${3 + Math.round(Math.min(ratio, 1.5) * 8)}">
       <div class="kas-gundam-ang" style="height:${angH.toFixed(1)}px" title="Anggaran Kas"></div>
-      <div class="kas-gundam-rea-bar" style="height:${reaH.toFixed(1)}px" title="Realisasi"></div>
-      <div class="kas-gundam-ms" style="width:${icon.toFixed(1)}px;height:${icon.toFixed(1)}px;bottom:${charBottom.toFixed(1)}px;--float-delay:${floatDelay}s" title="${label.replace(/"/g, '&quot;')}">
-        <span class="kas-gundam-pct ${pctCls}">${pct.toFixed(1)}%</span>
-        <img src="${dsKasIconUrl(ds.file)}" alt="${ds.name}" loading="lazy" decoding="async" />
-        <div class="kas-gundam-tip">
-          <strong>${label}</strong>
-          <div class="tip-row"><span>Anggaran Kas</span><span>Rp ${formatKasAmount(ang)}</span></div>
-          <div class="tip-row"><span>Realisasi</span><span>Rp ${formatKasAmount(real)}</span></div>
-          <div class="tip-pct ${pctCls}">${pct.toFixed(2)}% realisasi · ${ds.name}</div>
+      <div class="kas-gundam-rea-bar ${reaCls}" style="height:${reaH.toFixed(1)}px" title="Realisasi"></div>
+      <div class="kas-gundam-stage" style="height:${chartH.toFixed(1)}px">
+        <div class="kas-gundam-ms ${msCls}" style="--ms-w:${icon.toFixed(1)}px;--ms-h:${icon.toFixed(1)}px;--ms-lift:${lift.toFixed(1)}px;--aura:${aura.toFixed(1)};--aura-op:${auraOp};--float-delay:${floatDelay}s" title="${label.replace(/"/g, '&quot;')}">
+          <span class="kas-gundam-pct ${pctCls}">${pct.toFixed(1)}%</span>
+          <img src="${dsKasIconUrl(ds.file)}" alt="${ds.name}" loading="lazy" decoding="async" />
+          <div class="kas-gundam-tip">
+            <strong>${label}</strong>
+            <div class="tip-row"><span>Anggaran Kas</span><span>Rp ${formatKasAmount(ang)}</span></div>
+            <div class="tip-row"><span>Realisasi</span><span>Rp ${formatKasAmount(real)}</span></div>
+            <div class="tip-pct ${pctCls}">${pct.toFixed(2)}% realisasi · ${ds.name}</div>
+          </div>
         </div>
       </div>
       <div class="kas-gundam-label" title="${label.replace(/"/g, '&quot;')}">${label}</div>
@@ -7828,6 +7934,13 @@ async function renderKasFlameChart() {
   await preloadGundamIcons();
   renderKasGundamChart();
 }
+
+let kasFlameResizeTimer;
+window.addEventListener('resize', () => {
+  if (!document.getElementById('kas-gundam-chart')?.children.length) return;
+  clearTimeout(kasFlameResizeTimer);
+  kasFlameResizeTimer = setTimeout(() => renderKasGundamChart(), 120);
+});
 
 function initKasFlameEmbers() {
   const box = document.getElementById('kas-flame-embers');
