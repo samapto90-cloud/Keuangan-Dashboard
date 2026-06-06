@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#1a3a6b" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="/assets/sakubijak-emblem.png?v=2" as="image" fetchpriority="high" />
+  <link rel="preload" href="/assets/sakubijak-logo-transparent.png?v=3" as="image" fetchpriority="high" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
@@ -866,8 +866,8 @@
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
-      .sakubijak-brand { max-width: 280px; }
-      .sakubijak-emblem img { max-width: 120px; }
+      .sakubijak-brand { max-width: min(320px, 88vw); }
+      .sakubijak-logo-full { max-width: min(260px, 72vw); }
       #sidebar nav a:hover, .kas-nav-link:hover { transform: none; }
     }
 
@@ -1256,9 +1256,10 @@
       pointer-events: auto;
     }
     @media (prefers-reduced-motion: reduce) {
-      .sakubijak-emblem img,
+      .sakubijak-logo-full,
       .sakubijak-name,
-      .sakubijak-motto { animation: none !important; }
+      .sakubijak-motto,
+      .sakubijak-brand::before { animation: none !important; }
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
@@ -1266,68 +1267,144 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; width: 100%; margin-bottom: 40px;
     }
-    @keyframes sakubijakEmblemGlow {
+    @keyframes sakubijakLogoFire {
       0%, 100% {
-        filter: drop-shadow(0 0 10px rgba(212, 175, 96, 0.8))
-                drop-shadow(0 0 24px rgba(56, 189, 248, 0.45));
+        filter:
+          drop-shadow(0 0 8px rgba(255, 220, 80, 0.95))
+          drop-shadow(0 0 18px rgba(255, 130, 0, 0.85))
+          drop-shadow(0 0 34px rgba(255, 60, 0, 0.65))
+          drop-shadow(0 -6px 22px rgba(255, 180, 0, 0.55));
       }
-      50% {
-        filter: drop-shadow(0 0 18px rgba(250, 204, 21, 0.95))
-                drop-shadow(0 0 40px rgba(96, 165, 250, 0.75));
+      33% {
+        filter:
+          drop-shadow(0 0 12px rgba(255, 255, 160, 1))
+          drop-shadow(0 0 26px rgba(255, 90, 0, 0.95))
+          drop-shadow(0 0 48px rgba(255, 30, 0, 0.8))
+          drop-shadow(0 -10px 32px rgba(255, 140, 0, 0.75));
+      }
+      66% {
+        filter:
+          drop-shadow(0 0 10px rgba(255, 190, 50, 0.9))
+          drop-shadow(0 0 22px rgba(255, 70, 0, 0.88))
+          drop-shadow(0 0 40px rgba(220, 20, 0, 0.72))
+          drop-shadow(0 -8px 26px rgba(255, 200, 60, 0.62));
       }
     }
-    @keyframes sakubijakNameGlow {
+    @keyframes sakubijakFlameAura {
       0%, 100% {
-        text-shadow:
-          0 0 8px rgba(147, 197, 253, 0.95),
-          0 0 22px rgba(59, 130, 246, 0.65),
-          0 0 40px rgba(37, 99, 235, 0.35);
+        opacity: 0.45; transform: translateX(-50%) scale(1);
       }
       50% {
-        text-shadow:
-          0 0 14px rgba(191, 219, 254, 1),
-          0 0 32px rgba(96, 165, 250, 0.9),
-          0 0 56px rgba(59, 130, 246, 0.55);
+        opacity: 0.72; transform: translateX(-50%) scale(1.08);
       }
     }
-    @keyframes sakubijakMottoGlow {
+    @keyframes sakubijakNameFire {
       0%, 100% {
         text-shadow:
-          0 0 6px rgba(186, 230, 253, 0.85),
-          0 0 18px rgba(56, 189, 248, 0.5);
+          0 0 4px #fff,
+          0 -2px 10px #ffee00,
+          0 -4px 18px #ff9500,
+          0 -8px 28px #ff5500,
+          0 -12px 40px #ff2200,
+          0 2px 6px #ff6600,
+          0 4px 12px rgba(255, 80, 0, 0.85);
+        color: #fff8e7;
+      }
+      25% {
+        text-shadow:
+          0 0 6px #fff,
+          0 -3px 14px #ffff66,
+          0 -6px 24px #ffaa00,
+          0 -10px 36px #ff6600,
+          0 -16px 52px #ff3300,
+          0 2px 8px #ff8800,
+          0 6px 16px rgba(255, 50, 0, 0.95);
+        color: #fffdf0;
       }
       50% {
         text-shadow:
-          0 0 10px rgba(224, 242, 254, 1),
-          0 0 26px rgba(125, 211, 252, 0.75);
+          0 0 5px #fff,
+          0 -2px 12px #ffd700,
+          0 -5px 20px #ff7700,
+          0 -9px 32px #ff4400,
+          0 -14px 46px #cc1100,
+          0 3px 7px #ff5500,
+          0 5px 14px rgba(255, 100, 0, 0.9);
+        color: #fff5dc;
+      }
+      75% {
+        text-shadow:
+          0 0 7px #fff,
+          0 -4px 16px #fff176,
+          0 -7px 26px #ff8800,
+          0 -11px 38px #ff5500,
+          0 -18px 56px #ff1100,
+          0 2px 9px #ff7700,
+          0 7px 18px rgba(255, 40, 0, 1);
+        color: #fffef5;
+      }
+    }
+    @keyframes sakubijakMottoFire {
+      0%, 100% {
+        text-shadow:
+          0 0 3px #fff,
+          0 -1px 8px #ffcc00,
+          0 -3px 14px #ff8800,
+          0 -6px 22px #ff4400,
+          0 1px 4px #ff6600;
+        color: #ffe8c8;
+      }
+      50% {
+        text-shadow:
+          0 0 5px #fff,
+          0 -2px 12px #ffee55,
+          0 -5px 20px #ff9900,
+          0 -9px 32px #ff5500,
+          0 2px 6px #ff7700;
+        color: #fff4e0;
       }
     }
     .sakubijak-brand {
+      position: relative;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      width: 100%; max-width: min(340px, 92vw); margin: 0 auto 22px;
+      width: 100%; max-width: min(360px, 92vw); margin: 0 auto 22px;
       background: none; border: none; box-shadow: none; padding: 0;
     }
-    .sakubijak-emblem {
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; margin-bottom: 10px;
+    .sakubijak-brand::before {
+      content: '';
+      position: absolute;
+      top: 8%; left: 50%; transform: translateX(-50%);
+      width: min(280px, 75vw); height: 55%;
+      pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at 50% 80%,
+        rgba(255, 120, 0, 0.55) 0%,
+        rgba(255, 60, 0, 0.28) 35%,
+        rgba(255, 30, 0, 0.08) 55%,
+        transparent 72%);
+      filter: blur(14px);
+      animation: sakubijakFlameAura 1.4s ease-in-out infinite;
     }
-    .sakubijak-emblem img {
-      width: auto; max-width: min(168px, 42vw); height: auto; display: block;
-      object-fit: contain; animation: sakubijakEmblemGlow 3.2s ease-in-out infinite;
+    .sakubijak-logo-full {
+      position: relative; z-index: 1;
+      width: 100%; max-width: min(300px, 78vw); height: auto;
+      display: block; object-fit: contain;
+      animation: sakubijakLogoFire 1.1s ease-in-out infinite;
     }
     .sakubijak-name {
-      margin: 0; padding: 0; width: 100%;
-      font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: 0.6px;
-      font-size: clamp(1.65rem, 5vw, 2.15rem); line-height: 1.15;
-      color: #e8f2ff; text-align: center;
-      animation: sakubijakNameGlow 2.8s ease-in-out infinite;
+      position: relative; z-index: 2;
+      margin: 10px 0 0; padding: 0; width: 100%;
+      font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: 0.8px;
+      font-size: clamp(1.75rem, 5.2vw, 2.25rem); line-height: 1.1;
+      text-align: center;
+      animation: sakubijakNameFire 0.85s ease-in-out infinite;
     }
     .sakubijak-motto {
-      margin: 6px 0 0; padding: 0; width: 100%;
-      font-family: 'Outfit', sans-serif; font-weight: 500; letter-spacing: 0.2px;
-      font-size: clamp(0.82rem, 2.6vw, 0.98rem); line-height: 1.35;
-      color: #bae6fd; text-align: center;
-      animation: sakubijakMottoGlow 3.4s ease-in-out infinite;
+      position: relative; z-index: 2;
+      margin: 8px 0 0; padding: 0; width: 100%;
+      font-family: 'Outfit', sans-serif; font-weight: 600; letter-spacing: 0.35px;
+      font-size: clamp(0.88rem, 2.8vw, 1.05rem); line-height: 1.35;
+      text-align: center;
+      animation: sakubijakMottoFire 1.05s ease-in-out infinite;
     }
     .portal-tagline {
       margin: 0 auto 14px;
@@ -1935,16 +2012,16 @@
       text-align: center; margin-bottom: 28px;
     }
     .login-brand .sakubijak-brand {
-      max-width: 240px; margin-bottom: 16px;
+      max-width: min(280px, 86vw); margin-bottom: 14px;
     }
-    .login-brand .sakubijak-emblem img {
-      max-width: 132px;
+    .login-brand .sakubijak-logo-full {
+      max-width: min(240px, 68vw);
     }
     .login-brand .sakubijak-name {
-      font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+      font-size: clamp(1.45rem, 4.8vw, 1.85rem);
     }
     .login-brand .sakubijak-motto {
-      font-size: clamp(0.75rem, 2.4vw, 0.88rem);
+      font-size: clamp(0.78rem, 2.5vw, 0.92rem);
     }
     .login-brand .login-icon {
       width: 64px; height: 64px; margin: 0 auto 12px;
@@ -3173,10 +3250,8 @@
   <div class="portal-wrap ds-animate">
     <header class="portal-header">
       <div class="sakubijak-brand">
-        <div class="sakubijak-emblem">
-          <img src="/assets/sakubijak-emblem.png?v=2" alt="" aria-hidden="true" loading="eager" decoding="async" fetchpriority="high" />
-        </div>
-        <p class="sakubijak-name">Sakubijak</p>
+        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=3" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
+        <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
         <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
       </div>
       <h1>SIPKEU Portal</h1>
@@ -3255,10 +3330,8 @@
   <div class="login-card ds-animate">
     <div class="login-brand">
       <div class="sakubijak-brand">
-        <div class="sakubijak-emblem">
-          <img src="/assets/sakubijak-emblem.png?v=2" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-        </div>
-        <p class="sakubijak-name">Sakubijak</p>
+        <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=3" alt="Lambang Sakubijak" loading="lazy" decoding="async" />
+        <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
         <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
       </div>
       <div class="login-app-label" id="login-app-label">SIPKEU Sekretariat</div>
