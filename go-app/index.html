@@ -192,8 +192,6 @@
       background:
         radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,220,120,.75) 12%, rgba(255,100,0,.45) 28%, rgba(139,92,246,.28) 48%, transparent 68%);
     }
-    .fx-dom-battle .fx-clash-flash,
-    .fx-dom-battle .fx-clash-ring { display: none; }
     @keyframes fxClashFlash {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
       48% { opacity: 1; transform: translate(-50%, -50%) scale(0.55); }
@@ -1460,7 +1458,6 @@
       background: transparent;
     }
     #login-screen.hidden { display: none !important; pointer-events: none !important; }
-    #login-screen.hidden .portal-battle-fx { display: none !important; }
 
     /* ── Portal Aplikasi (Homepage) ── */
     #portal-screen {
@@ -1471,7 +1468,7 @@
       background: transparent;
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
-    #portal-screen.hidden .portal-battle-fx { display: none !important; }
+    #portal-screen.hidden .fx-dom-battle { display: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
     @keyframes sakubijakLogoBounce {
       0%, 100% { transform: translateY(0) scale(1); }
@@ -1491,25 +1488,36 @@
       margin-bottom: 28px;
       overflow: visible;
     }
-    .fx-burst-canvas {
+    .portal-battle-hero .fx-dom-battle {
       position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .portal-battle-hero .fx-fighter {
+      top: 10%;
+      width: min(22vw, 190px);
+    }
+    .fx-burst-canvas {
+      position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 2;
+      z-index: 6;
       pointer-events: none;
     }
     .fx-burst-shower {
-      position: absolute;
+      position: fixed;
       inset: 0;
-      z-index: 2;
+      z-index: 6;
       pointer-events: none;
       overflow: visible;
     }
     .fx-burst-shower i {
-      position: absolute;
-      left: var(--fx-clash-x, 50vw);
-      top: var(--fx-clash-y, 34vh);
+      position: fixed;
+      left: var(--fx-burst-x, 50vw);
+      top: var(--fx-burst-y, 34vh);
       width: var(--sz, 7px);
       height: var(--sz, 7px);
       border-radius: 50%;
@@ -1602,11 +1610,12 @@
     }
     .fx-dom-battle .fx-clash-flash {
       position: absolute;
-      left: var(--fx-clash-x, 50vw);
-      top: var(--fx-clash-y, 34vh);
+      left: var(--fx-clash-x, 50%);
+      top: var(--fx-clash-y, 50%);
       width: min(85vw, 720px);
       height: min(85vw, 720px);
       z-index: 4;
+      transform: translate(-50%, -50%) scale(0);
       filter: blur(2px);
       background:
         radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,245,200,.95) 8%, rgba(255,160,0,.8) 20%, rgba(255,80,0,.55) 34%, rgba(139,92,246,.4) 50%, transparent 72%);
@@ -1616,9 +1625,10 @@
     }
     .fx-dom-battle .fx-clash-ring {
       position: absolute;
-      left: var(--fx-clash-x, 50vw);
-      top: var(--fx-clash-y, 34vh);
-      z-index: 3;
+      left: var(--fx-clash-x, 50%);
+      top: var(--fx-clash-y, 50%);
+      transform: translate(-50%, -50%);
+      z-index: 4;
     }
     .fx-dom-battle .fx-clash-ring-a { animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite; }
     .fx-dom-battle .fx-clash-ring-b {
@@ -1645,8 +1655,8 @@
     }
     .fx-dom-battle .fx-clash-sparks {
       position: absolute;
-      left: var(--fx-clash-x, 50vw);
-      top: var(--fx-clash-y, 34vh);
+      left: var(--fx-clash-x, 50%);
+      top: var(--fx-clash-y, 50%);
       width: 8px; height: 8px;
       border-radius: 50%;
       background: #fff;
@@ -3767,30 +3777,10 @@
 <!-- FX Layers — Naruto Rasengan vs Sasuke Chidori -->
 <div id="sipkeu-fx-layer" class="is-active" aria-hidden="true">
   <canvas id="fx-canvas"></canvas>
-  <div class="fx-dom-battle">
-    <div class="fx-arena-floor"></div>
-    <canvas class="fx-burst-canvas"></canvas>
-    <div class="fx-burst-shower"></div>
-    <div class="fx-proj fx-proj-rasengan"></div>
-    <div class="fx-proj fx-proj-chidori"></div>
-    <div class="fx-clash-flash"></div>
-    <div class="fx-clash-ring fx-clash-ring-a"></div>
-    <div class="fx-clash-ring fx-clash-ring-b"></div>
-    <div class="fx-clash-ring fx-clash-ring-c"></div>
-    <div class="fx-clash-ring fx-clash-ring-d"></div>
-    <div class="fx-clash-ring fx-clash-ring-e"></div>
-    <div class="fx-clash-sparks"></div>
-    <div class="fx-fighter fx-naruto-side">
-      <div class="fx-kyubi-tails"></div>
-      <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
-    </div>
-    <div class="fx-fighter fx-sasuke-side">
-      <div class="fx-susanoo-shell"></div>
-      <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=1" alt="" decoding="async" loading="eager" />
-    </div>
-  </div>
   <div class="fx-vignette portal-fx-vignette"></div>
 </div>
+<canvas class="fx-burst-canvas" aria-hidden="true"></canvas>
+<div class="fx-burst-shower" aria-hidden="true"></div>
 <div class="fx-vignette" id="global-fx-vignette"></div>
 <div id="breath-overlay"><div class="slash"></div></div>
 
@@ -3804,6 +3794,26 @@
 <div id="portal-screen">
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
+      <div class="fx-dom-battle" aria-hidden="true">
+        <div class="fx-arena-floor"></div>
+        <div class="fx-fighter fx-naruto-side">
+          <div class="fx-kyubi-tails"></div>
+          <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
+        </div>
+        <div class="fx-fighter fx-sasuke-side">
+          <div class="fx-susanoo-shell"></div>
+          <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=1" alt="" decoding="async" loading="eager" />
+        </div>
+        <div class="fx-proj fx-proj-rasengan"></div>
+        <div class="fx-proj fx-proj-chidori"></div>
+        <div class="fx-clash-flash"></div>
+        <div class="fx-clash-ring fx-clash-ring-a"></div>
+        <div class="fx-clash-ring fx-clash-ring-b"></div>
+        <div class="fx-clash-ring fx-clash-ring-c"></div>
+        <div class="fx-clash-ring fx-clash-ring-d"></div>
+        <div class="fx-clash-ring fx-clash-ring-e"></div>
+        <div class="fx-clash-sparks"></div>
+      </div>
       <div class="sakubijak-brand">
         <div class="sakubijak-logo-bounce">
           <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
@@ -11374,33 +11384,42 @@ let battleLayoutRaf = 0;
 const BURST_CYCLE = 8;
 
 function syncBattleProjLayout() {
+  const hero = document.querySelector('.portal-battle-hero');
+  const battle = document.querySelector('.fx-dom-battle');
   const naruto = document.querySelector('.fx-naruto-side');
   const sasuke = document.querySelector('.fx-sasuke-side');
-  if (!naruto || !sasuke) return;
+  const portal = document.getElementById('portal-screen');
+  if (!hero || !battle || !naruto || !sasuke || !portal || portal.classList.contains('hidden')) return;
 
+  const heroR = hero.getBoundingClientRect();
   const nr = naruto.getBoundingClientRect();
   const sr = sasuke.getBoundingClientRect();
-  if (nr.width < 8 || sr.width < 8) return;
+  if (nr.width < 8 || sr.width < 8 || heroR.width < 8) return;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const rasX = nr.left + nr.width * 0.9;
-  const chiX = sr.left + sr.width * 0.1;
-  const projY = (nr.top + nr.height * 0.4 + sr.top + sr.height * 0.4) / 2;
-  const clashX = vw * 0.5;
-  const projSize = Math.max(56, Math.min(nr.width * 0.6, sr.width * 0.6, vh * 0.12, vw * 0.16));
+  const rasX = nr.left - heroR.left + nr.width * 0.88;
+  const chiX = sr.left - heroR.left + sr.width * 0.12;
+  const projY = (nr.top + nr.height * 0.42 + sr.top + sr.height * 0.42) / 2 - heroR.top;
+  const clashX = heroR.width * 0.5;
+  const burstX = heroR.left + clashX;
+  const burstY = heroR.top + projY;
+  const projSize = Math.max(48, Math.min(nr.width * 0.55, sr.width * 0.55, heroR.height * 0.22, vw * 0.14));
+
+  battle.style.setProperty('--fx-ras-x', rasX + 'px');
+  battle.style.setProperty('--fx-chi-x', chiX + 'px');
+  battle.style.setProperty('--fx-proj-y', projY + 'px');
+  battle.style.setProperty('--fx-clash-x', clashX + 'px');
+  battle.style.setProperty('--fx-clash-y', projY + 'px');
+  battle.style.setProperty('--fx-proj-size', projSize + 'px');
+  battle.style.setProperty('--fx-ras-fly', Math.max(0, clashX - rasX) + 'px');
+  battle.style.setProperty('--fx-chi-fly', Math.max(0, chiX - clashX) + 'px');
 
   const root = document.documentElement;
-  root.style.setProperty('--fx-ras-x', rasX + 'px');
-  root.style.setProperty('--fx-chi-x', chiX + 'px');
-  root.style.setProperty('--fx-proj-y', projY + 'px');
-  root.style.setProperty('--fx-clash-x', clashX + 'px');
-  root.style.setProperty('--fx-clash-y', projY + 'px');
-  root.style.setProperty('--fx-proj-size', projSize + 'px');
-  root.style.setProperty('--fx-ras-fly', Math.max(0, clashX - rasX) + 'px');
-  root.style.setProperty('--fx-chi-fly', Math.max(0, chiX - clashX) + 'px');
+  root.style.setProperty('--fx-burst-x', burstX + 'px');
+  root.style.setProperty('--fx-burst-y', burstY + 'px');
 
-  window.__fxClashCenter = { x: clashX, y: projY };
+  window.__fxClashCenter = { x: burstX, y: burstY };
 }
 
 function stopBattleLayoutSync() {
@@ -13937,6 +13956,10 @@ window.addEventListener('pageshow', (ev) => {
 });
 
 window.addEventListener('resize', () => syncBattleProjLayout());
+(function bindPortalBattleScroll() {
+  const portal = document.getElementById('portal-screen');
+  if (portal) portal.addEventListener('scroll', syncBattleProjLayout, { passive: true });
+})();
 window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   initSettingsNav();
