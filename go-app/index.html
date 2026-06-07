@@ -1553,13 +1553,11 @@
     }
     .fx-burst-shower i {
       position: fixed;
-      left: var(--fx-burst-x, 50vw);
-      top: var(--fx-burst-y, 34vh);
-      width: var(--sz, 7px);
-      height: var(--sz, 7px);
+      width: var(--sz, 3px);
+      height: var(--sz, 3px);
       border-radius: 50%;
       background: var(--c, #ff8800);
-      box-shadow: 0 0 10px var(--c, #ff8800), 0 0 18px rgba(255, 200, 80, 0.6);
+      box-shadow: 0 0 4px var(--c, #ff8800), 0 0 7px rgba(255, 200, 80, 0.35);
       opacity: 0;
       transform: translate(-50%, -50%) rotate(var(--a, 0deg)) translateX(0) scale(0);
       animation: fxParticleBurst 8s cubic-bezier(.15, .85, .25, 1) infinite;
@@ -1567,11 +1565,11 @@
     }
     @keyframes fxParticleBurst {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(0) scale(0); }
-      48% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateX(24px) scale(1.4); }
-      58% { opacity: 0.95; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 0.45)) scale(1.1); }
-      72% { opacity: 0.55; transform: translate(-50%, -50%) rotate(var(--a)) translateX(var(--d)) scale(0.65); }
-      88% { opacity: 0.12; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.15)) scale(0.25); }
-      100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.3)) scale(0); }
+      48% { opacity: 0.85; transform: translate(-50%, -50%) rotate(var(--a)) translateX(12px) scale(0.7); }
+      58% { opacity: 0.75; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 0.5)) scale(0.55); }
+      72% { opacity: 0.4; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 0.92)) scale(0.35); }
+      88% { opacity: 0.1; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.05)) scale(0.15); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.12)) scale(0); }
     }
     .portal-battle-hero .sakubijak-brand,
     .portal-battle-hero h1,
@@ -1658,8 +1656,8 @@
       position: absolute;
       left: var(--fx-clash-x, 50%);
       top: var(--fx-clash-y, 50%);
-      width: min(85vw, 720px);
-      height: min(85vw, 720px);
+      width: min(55vw, 420px);
+      height: min(55vw, 420px);
       z-index: 4;
       transform: translate(-50%, -50%) scale(0);
       filter: blur(2px);
@@ -1703,16 +1701,16 @@
       position: absolute;
       left: var(--fx-clash-x, 50%);
       top: var(--fx-clash-y, 50%);
-      width: 8px; height: 8px;
+      width: 4px; height: 4px;
       border-radius: 50%;
       background: #fff;
       box-shadow:
-        0 0 16px #fff, 0 0 32px #ff8800,
-        80px -40px 0 6px #ffcc00, -70px 35px 0 5px #a855f7,
-        55px 65px 0 7px #ff6600, -90px -55px 0 6px #6366f1,
-        110px 25px 0 5px #ffaa00, -100px 60px 0 6px #c084fc,
-        40px -90px 0 5px #ff4400, -120px -20px 0 6px #818cf8,
-        130px -30px 0 5px #fbbf24, -130px 40px 0 6px #e879f9;
+        0 0 8px #fff, 0 0 14px #ff8800,
+        80px -40px 0 3px #ffcc00, -70px 35px 0 2px #a855f7,
+        55px 65px 0 3px #ff6600, -90px -55px 0 2px #6366f1,
+        110px 25px 0 2px #ffaa00, -100px 60px 0 3px #c084fc,
+        40px -90px 0 2px #ff4400, -120px -20px 0 3px #818cf8,
+        130px -30px 0 2px #fbbf24, -130px 40px 0 3px #e879f9;
       opacity: 0;
       z-index: 5;
       transform: translate(-50%, -50%) scale(0);
@@ -1720,10 +1718,10 @@
     }
     @keyframes fxClashSparks {
       0%, 46% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-      48% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
-      58% { opacity: 0.85; transform: translate(-50%, -50%) scale(3.5); }
-      75% { opacity: 0.35; transform: translate(-50%, -50%) scale(6); }
-      90%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(9); }
+      48% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+      58% { opacity: 0.7; transform: translate(-50%, -50%) scale(2.2); }
+      75% { opacity: 0.28; transform: translate(-50%, -50%) scale(4.5); }
+      90%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(7); }
     }
     .sakubijak-logo-bounce {
       display: block;
@@ -11562,20 +11560,26 @@ function startBattleLayoutSync() {
 
 function initBurstShowers() {
   document.querySelectorAll('.fx-burst-shower').forEach(shower => {
-    if (shower.dataset.ready === '1') return;
+    shower.innerHTML = '';
     shower.dataset.ready = '1';
-    const count = 52;
-    const span = Math.max(window.innerWidth, window.innerHeight);
+    const count = 120;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const originX = vw * 0.5;
+    const originY = vh * 0.4;
+    const maxDist = Math.hypot(vw, vh) * 0.54;
     for (let i = 0; i < count; i++) {
       const p = document.createElement('i');
-      const angle = (360 / count) * i + (Math.random() - 0.5) * 10;
-      const dist = 200 + Math.random() * span * 0.48;
+      const angle = (360 / count) * i + (Math.random() - 0.5) * 12;
+      const dist = maxDist * (0.72 + Math.random() * 0.38);
       const colors = ['#ff8800', '#ffcc00', '#ff4400', '#a855f7', '#6366f1', '#fff176', '#ff6600', '#e879f9'];
+      p.style.left = originX + 'px';
+      p.style.top = originY + 'px';
       p.style.setProperty('--a', angle + 'deg');
       p.style.setProperty('--d', dist + 'px');
-      p.style.setProperty('--sz', (5 + Math.random() * 10) + 'px');
+      p.style.setProperty('--sz', (1.5 + Math.random() * 3) + 'px');
       p.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
-      p.style.setProperty('--delay', (Math.random() * 0.08) + 's');
+      p.style.setProperty('--delay', (Math.random() * 0.1) + 's');
       shower.appendChild(p);
     }
   });
@@ -11633,30 +11637,33 @@ function startPortalBurstFx() {
     const cycleIdx = Math.floor(t / BURST_CYCLE);
     if (cycleIdx === lastBurstCycle) return;
     lastBurstCycle = cycleIdx;
-    const maxSpd = Math.max(W, H) * 0.022;
-    for (let i = 0; i < 360; i++) {
+    const maxSpd = Math.hypot(W, H) * 0.028;
+    const burstCx = W * 0.5;
+    const burstCy = H * 0.4;
+    for (let i = 0; i < 480; i++) {
       const a = Math.random() * Math.PI * 2;
-      const sp = 4 + Math.random() * maxSpd;
+      const sp = 3 + Math.random() * maxSpd;
       particles.push({
-        x: cx + (Math.random() - 0.5) * 30,
-        y: cy + (Math.random() - 0.5) * 30,
+        x: burstCx + (Math.random() - 0.5) * 24,
+        y: burstCy + (Math.random() - 0.5) * 24,
         vx: Math.cos(a) * sp,
-        vy: Math.sin(a) * sp - Math.random() * 3,
+        vy: Math.sin(a) * sp - Math.random() * 2,
         life: 1,
-        decay: 0.005 + Math.random() * 0.007,
-        size: 2 + Math.random() * 11,
+        decay: 0.003 + Math.random() * 0.0045,
+        size: 0.8 + Math.random() * 2.6,
         hue: Math.random() > 0.4 ? 16 + Math.random() * 32 : 248 + Math.random() * 45,
-        glow: Math.random() > 0.45,
+        glow: Math.random() > 0.55,
       });
     }
-    for (let i = 0; i < 12; i++) {
+    const fullSpan = Math.hypot(W, H);
+    for (let i = 0; i < 10; i++) {
       rings.push({
-        x: cx, y: cy,
-        r: 16 + i * 10,
-        maxR: Math.max(W, H) * (0.5 + i * 0.07),
+        x: burstCx, y: burstCy,
+        r: 10 + i * 8,
+        maxR: fullSpan * (0.38 + i * 0.06),
         life: 1,
-        speed: 7 + i * 1.8,
-        alpha: 0.92 - i * 0.05,
+        speed: 6 + i * 1.4,
+        alpha: 0.55 - i * 0.04,
       });
     }
   }
@@ -11664,21 +11671,22 @@ function startPortalBurstFx() {
   function drawBurstExplosion(cx, cy, intensity) {
     if (intensity <= 0.01) return;
     const peak = Math.sin(intensity * Math.PI);
-    const r = Math.max(W, H) * (0.22 + intensity * 0.42);
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    g.addColorStop(0, `rgba(255,255,255,${peak * 0.98})`);
-    g.addColorStop(0.07, `rgba(255,245,180,${peak * 0.88})`);
-    g.addColorStop(0.2, `rgba(255,130,0,${peak * 0.7})`);
-    g.addColorStop(0.38, `rgba(255,60,0,${peak * 0.48})`);
-    g.addColorStop(0.55, `rgba(167,139,250,${peak * 0.32})`);
+    const burstCx = W * 0.5;
+    const burstCy = H * 0.4;
+    const r = Math.max(W, H) * (0.08 + intensity * 0.14);
+    const g = ctx.createRadialGradient(burstCx, burstCy, 0, burstCx, burstCy, r);
+    g.addColorStop(0, `rgba(255,255,255,${peak * 0.75})`);
+    g.addColorStop(0.12, `rgba(255,245,180,${peak * 0.55})`);
+    g.addColorStop(0.28, `rgba(255,130,0,${peak * 0.35})`);
+    g.addColorStop(0.5, `rgba(255,60,0,${peak * 0.18})`);
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.arc(burstCx, burstCy, r, 0, Math.PI * 2);
     ctx.fill();
-    if (peak > 0.2) {
+    if (peak > 0.45) {
       ctx.save();
-      ctx.globalAlpha = peak * 0.25;
+      ctx.globalAlpha = peak * 0.06;
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, W, H);
       ctx.restore();
@@ -11692,33 +11700,32 @@ function startPortalBurstFx() {
     }
     t += 0.016;
     const phase = (t % BURST_CYCLE) / BURST_CYCLE;
-    const clash = window.__fxClashCenter || { x: W * 0.5, y: H * 0.34 };
-    const cx = clash.x;
-    const cy = clash.y;
+    const burstCx = W * 0.5;
+    const burstCy = H * 0.4;
 
     ctx.clearRect(0, 0, W, H);
 
     let explodeT = 0;
     if (phase >= 0.47 && phase < 0.9) {
       explodeT = (phase - 0.47) / 0.43;
-      if (phase < 0.49) spawnMegaBurst(cx, cy);
+      if (phase < 0.49) spawnMegaBurst(burstCx, burstCy);
     }
 
-    if (explodeT > 0) drawBurstExplosion(cx, cy, burstEase(Math.min(explodeT * 1.1, 1)));
+    if (explodeT > 0) drawBurstExplosion(burstCx, burstCy, burstEase(Math.min(explodeT * 1.1, 1)));
 
     for (let i = rings.length - 1; i >= 0; i--) {
       const ring = rings[i];
       ring.r += ring.speed;
-      ring.life -= 0.011;
+      ring.life -= 0.009;
       const prog = ring.r / ring.maxR;
       const alpha = ring.alpha * (1 - prog) * ring.life;
       if (alpha <= 0.01 || ring.life <= 0) { rings.splice(i, 1); continue; }
       ctx.beginPath();
       ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
       ctx.strokeStyle = `rgba(255, 235, 190, ${alpha})`;
-      ctx.lineWidth = 5 * (1 - prog * 0.75);
-      ctx.shadowBlur = 28;
-      ctx.shadowColor = `rgba(255, 140, 40, ${alpha * 0.85})`;
+      ctx.lineWidth = 2 * (1 - prog * 0.8);
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = `rgba(255, 140, 40, ${alpha * 0.6})`;
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -11727,16 +11734,16 @@ function startPortalBurstFx() {
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.035;
-      p.vx *= 0.993;
+      p.vy += 0.022;
+      p.vx *= 0.994;
       p.life -= p.decay;
       if (p.life <= 0) { particles.splice(i, 1); continue; }
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 100%, ${p.glow ? 74 : 56}%, ${p.life * 0.92})`;
+      ctx.arc(p.x, p.y, Math.max(0.4, p.size * p.life), 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 100%, ${p.glow ? 68 : 54}%, ${p.life * 0.82})`;
       if (p.glow) {
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = `hsla(${p.hue}, 100%, 58%, ${p.life * 0.75})`;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 55%, ${p.life * 0.5})`;
       }
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -14077,7 +14084,10 @@ window.addEventListener('pageshow', (ev) => {
   else bootApp(true);
 });
 
-window.addEventListener('resize', () => syncBattleProjLayout());
+window.addEventListener('resize', () => {
+  syncBattleProjLayout();
+  if (isPortalHomeVisible()) initBurstShowers();
+});
 (function bindPortalBattleScroll() {
   const portal = document.getElementById('portal-screen');
   if (portal) portal.addEventListener('scroll', syncBattleProjLayout, { passive: true });
