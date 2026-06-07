@@ -64,6 +64,14 @@
       margin: 0;
       overflow-x: hidden;
     }
+    html { scrollbar-gutter: stable; }
+    body:not(.fx-portal-home) #sipkeu-fx-layer,
+    body:not(.fx-portal-home) .fx-burst-canvas,
+    body:not(.fx-portal-home) .fx-burst-shower {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
 
     /* ── FX Layer Naruto vs Sasuke (fullscreen di belakang semua shell) ── */
     #sipkeu-fx-layer {
@@ -1071,7 +1079,8 @@
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
-      .fx-fighter { width: min(30vw, 130px); top: 18%; }
+      .portal-battle-hero { min-height: 300px; height: 300px; }
+      .portal-battle-hero .fx-fighter { width: min(28vw, 120px); top: 8%; }
       .fx-proj { width: var(--fx-proj-size, min(26vw, 100px)); height: var(--fx-proj-size, min(26vw, 100px)); }
     .fx-dom-battle .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
       .fx-dom-battle .fx-clash-ring,
@@ -1464,7 +1473,11 @@
     #portal-screen {
       position: fixed; inset: 0; z-index: 5;
       display: flex; align-items: flex-start; justify-content: center;
-      padding: 32px 20px 48px; overflow-y: auto;
+      padding: 32px 20px 48px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+      scroll-behavior: auto;
       pointer-events: auto;
       background: transparent;
     }
@@ -1472,10 +1485,8 @@
     #portal-screen.hidden .fx-dom-battle { display: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
     @keyframes sakubijakLogoBounce {
-      0%, 100% { transform: translateY(0) scale(1); }
-      35% { transform: translateY(-10px) scale(1.02); }
-      55% { transform: translateY(-4px) scale(1.01); }
-      75% { transform: translateY(-6px) scale(1.015); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
     }
     .portal-header {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1483,11 +1494,34 @@
     }
     .portal-battle-hero {
       position: relative;
-      min-height: clamp(300px, 46vh, 460px);
+      min-height: 360px;
+      height: 360px;
       justify-content: center;
       padding: clamp(20px, 4vh, 44px) 12px 12px;
       margin-bottom: 28px;
-      overflow: visible;
+      overflow: hidden;
+    }
+    .portal-battle-hero .fx-naruto-side {
+      animation: fxNarutoBattleHero 8s cubic-bezier(.45, .05, .25, 1) infinite;
+    }
+    .portal-battle-hero .fx-sasuke-side {
+      animation: fxSasukeBattleHero 8s cubic-bezier(.45, .05, .25, 1) infinite;
+    }
+    @keyframes fxNarutoBattleHero {
+      0%, 8%, 100% { transform: translateX(0); }
+      16% { transform: translateX(-12px) scale(1.02); }
+      20%, 46% { transform: translateX(8px) scale(1.01); }
+      52% { transform: translateX(-22px) scale(0.99); }
+      62% { transform: translateX(-10px); }
+      78% { transform: translateX(-2px); }
+    }
+    @keyframes fxSasukeBattleHero {
+      0%, 8%, 100% { transform: translateX(0); }
+      16% { transform: translateX(12px) scale(1.02); }
+      20%, 46% { transform: translateX(-8px) scale(1.01); }
+      52% { transform: translateX(22px) scale(0.99); }
+      62% { transform: translateX(10px); }
+      78% { transform: translateX(2px); }
     }
     .portal-battle-hero .fx-dom-battle {
       position: absolute;
@@ -6133,18 +6167,26 @@ function setFxLayerActive(active) {
   layer.classList.toggle('is-hidden', !active);
 }
 
-function currentFxHost() {
+function isPortalHomeVisible() {
   const portal = document.getElementById('portal-screen');
-  const login = document.getElementById('login-screen');
-  const app = document.getElementById('app-shell');
-  const settings = document.getElementById('settings-app-shell');
-  const kas = document.getElementById('kas-app-shell');
-  if (kas?.classList.contains('visible')) return null;
-  if (portal && !portal.classList.contains('hidden')) return { opacity: 1, vignette: true };
-  if (login && !login.classList.contains('hidden')) return { opacity: 1, vignette: true };
-  if (app?.classList.contains('visible')) return { opacity: 0.55, vignette: true };
-  if (settings?.classList.contains('visible')) return { opacity: 0.48, vignette: true };
-  return null;
+  return !!(portal && !portal.classList.contains('hidden'));
+}
+
+function setPortalHomeFx(active) {
+  document.body.classList.toggle('fx-portal-home', !!active);
+}
+
+function stopAllPortalFx() {
+  setPortalHomeFx(false);
+  setFxLayerActive(false);
+  stopPortalFx();
+  stopPortalBurstFx();
+  stopBattleLayoutSync();
+}
+
+function currentFxHost() {
+  if (!isPortalHomeVisible()) return null;
+  return { opacity: 1, vignette: true };
 }
 
 function showPortal() {
@@ -6155,17 +6197,23 @@ function showPortal() {
   resetAppPageUI();
   selectedPortalApp = 'sekretariat';
   loadPortalStatus();
+  const portal = document.getElementById('portal-screen');
+  if (portal) portal.scrollTop = 0;
+  setPortalHomeFx(true);
   clearFxCanvasHide();
   schedulePortalFx();
 }
 
 function schedulePortalFx() {
+  if (!isPortalHomeVisible()) {
+    stopAllPortalFx();
+    return;
+  }
+  setPortalHomeFx(true);
   const host = currentFxHost();
   initBurstShowers();
   if (!host) {
-    stopPortalFx();
-    stopPortalBurstFx();
-    stopBattleLayoutSync();
+    stopAllPortalFx();
     return;
   }
   setFxLayerActive(true);
@@ -6275,8 +6323,7 @@ function showLogin(appKey) {
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
   document.getElementById('login-error')?.classList.remove('show');
-  clearFxCanvasHide();
-  schedulePortalFx();
+  stopAllPortalFx();
 }
 
 function openPortalApp(appKey) {
@@ -6392,17 +6439,13 @@ function showApp() {
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
-  setFxLayerActive(false);
-  stopPortalFx();
-  stopPortalBurstFx();
-  stopBattleLayoutSync();
+  stopAllPortalFx();
   applyPortalTheme(document.body, selectedPortalApp);
   applyRoleUI();
 }
 
 function showKasApp() {
-  setFxLayerActive(false);
-  stopPortalFx();
+  stopAllPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -6427,10 +6470,7 @@ function showSettingsApp() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.add('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
-  setFxLayerActive(false);
-  stopPortalFx();
-  stopPortalBurstFx();
-  stopBattleLayoutSync();
+  stopAllPortalFx();
   clearPortalThemes(document.body);
   document.body.classList.add('theme-sao');
   const el = document.getElementById('settings-user-label');
@@ -11460,12 +11500,12 @@ let battleLayoutRaf = 0;
 const BURST_CYCLE = 8;
 
 function syncBattleProjLayout() {
+  if (!isPortalHomeVisible()) return;
   const hero = document.querySelector('.portal-battle-hero');
   const battle = document.querySelector('.fx-dom-battle');
   const naruto = document.querySelector('.fx-naruto-side');
   const sasuke = document.querySelector('.fx-sasuke-side');
-  const portal = document.getElementById('portal-screen');
-  if (!hero || !battle || !naruto || !sasuke || !portal || portal.classList.contains('hidden')) return;
+  if (!hero || !battle || !naruto || !sasuke) return;
 
   const heroR = hero.getBoundingClientRect();
   const nr = naruto.getBoundingClientRect();
@@ -11505,16 +11545,8 @@ function stopBattleLayoutSync() {
 
 function startBattleLayoutSync() {
   stopBattleLayoutSync();
-  function tick() {
-    if (!burstFxVisible()) {
-      stopBattleLayoutSync();
-      return;
-    }
-    syncBattleProjLayout();
-    battleLayoutRaf = requestAnimationFrame(tick);
-  }
+  if (!isPortalHomeVisible()) return;
   syncBattleProjLayout();
-  battleLayoutRaf = requestAnimationFrame(tick);
 }
 
 function initBurstShowers() {
@@ -11539,10 +11571,7 @@ function initBurstShowers() {
 }
 
 function burstFxVisible() {
-  const portal = document.getElementById('portal-screen');
-  const login = document.getElementById('login-screen');
-  return (portal && !portal.classList.contains('hidden'))
-    || (login && !login.classList.contains('hidden'));
+  return isPortalHomeVisible();
 }
 
 function stopPortalBurstFx() {
@@ -11553,6 +11582,9 @@ function stopPortalBurstFx() {
     c.style.display = 'none';
     const ctx = c.getContext('2d');
     if (ctx && c.width) ctx.clearRect(0, 0, c.width, c.height);
+  });
+  document.querySelectorAll('.fx-burst-shower').forEach(el => {
+    el.style.display = 'none';
   });
 }
 
@@ -11565,6 +11597,9 @@ function startPortalBurstFx() {
   const canvas = document.querySelector('.fx-burst-canvas');
   if (!canvas) return;
   canvas.style.display = 'block';
+  document.querySelectorAll('.fx-burst-shower').forEach(el => {
+    el.style.display = 'block';
+  });
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, t = 0;
   const particles = [];
