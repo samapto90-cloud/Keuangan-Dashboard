@@ -67,8 +67,19 @@
     html { scrollbar-gutter: stable; }
     body.fx-portal-home #fx-canvas { display: none !important; }
     body.fx-portal-home .fx-burst-shower { display: none !important; }
-    body.fx-portal-home .portal-hero-stage {
-      contain: layout style paint;
+    body.fx-portal-home {
+      overflow-x: clip;
+    }
+    body.fx-portal-home #portal-screen {
+      overflow-x: visible;
+      overflow-y: auto;
+    }
+    body.fx-portal-home .portal-wrap,
+    body.fx-portal-home .portal-header,
+    body.fx-portal-home .portal-battle-hero,
+    body.fx-portal-home .portal-hero-stage,
+    body.fx-portal-home .portal-hero-copy {
+      overflow: visible;
     }
     body.fx-portal-home .fx-fighter {
       isolation: isolate;
@@ -96,7 +107,7 @@
     #sipkeu-fx-layer.is-active .portal-fx-vignette { display: block; }
     .fx-dom-battle {
       position: absolute; inset: 0; z-index: 2;
-      pointer-events: none; overflow: hidden;
+      pointer-events: none; overflow: visible;
     }
     .fx-arena-floor {
       position: absolute;
@@ -1147,16 +1158,19 @@
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
-      .portal-hero-stage { min-height: clamp(220px, 52vw, 300px); }
-      .portal-battle-hero .fx-fighter { width: min(32vw, 140px); top: 0; }
-      .portal-battle-hero .fx-naruto-side { left: max(0px, calc(50% - 46vw)); }
-      .portal-battle-hero .fx-sasuke-side { right: max(0px, calc(50% - 46vw)); }
-      .portal-hero-emblem { width: min(240px, 62vw); top: 42%; }
+      .portal-hero-stage {
+        min-height: clamp(300px, 58vw, 380px);
+        padding-top: clamp(24px, 6vw, 36px);
+        padding-bottom: clamp(18px, 5vw, 28px);
+      }
+      .portal-battle-hero .fx-fighter { width: min(30vw, 130px); top: 6%; }
+      .portal-battle-hero .fx-naruto-side { left: max(8px, calc(50% - 42vw)); }
+      .portal-battle-hero .fx-sasuke-side { right: max(8px, calc(50% - 42vw)); }
+      .portal-hero-emblem { width: min(240px, 62vw); top: 46%; }
+      .portal-hero-copy { margin-top: 18px; padding-bottom: 20px; }
       .fx-proj { width: var(--fx-proj-size, min(26vw, 100px)); height: var(--fx-proj-size, min(26vw, 100px)); }
-    .fx-dom-battle .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
-      .fx-dom-battle .fx-clash-ring,
-      .fx-dom-battle .fx-clash-sparks { top: 30%; }
-      .fx-arena-floor { bottom: 28%; width: 88vw; height: 32px; }
+      .fx-dom-battle .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); }
+      .fx-arena-floor { bottom: 10%; width: 86vw; height: 32px; }
       .sakubijak-brand { max-width: min(380px, 94vw); }
       .sakubijak-logo-full { max-width: min(240px, 62vw); }
       #sidebar nav a:hover, .kas-nav-link:hover { transform: none; }
@@ -1554,7 +1568,7 @@
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
     #portal-screen.hidden .fx-dom-battle { display: none !important; }
-    .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
+    .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; overflow: visible; }
     @keyframes sakubijakLogoBounce {
       0%, 100% { transform: translateY(0) scale(1); }
       35% { transform: translateY(-8px) scale(1.02); }
@@ -1562,26 +1576,30 @@
       75% { transform: translateY(-5px) scale(1.015); }
     }
     .portal-header {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       text-align: center; width: 100%; margin-bottom: 40px;
+      overflow: visible;
     }
     .portal-battle-hero {
       position: relative;
-      padding: clamp(8px, 2vh, 20px) 12px 16px;
+      padding: clamp(12px, 2.5vh, 24px) clamp(10px, 3vw, 20px) clamp(20px, 3vh, 28px);
       margin-bottom: 32px;
       overflow: visible;
+      width: 100%;
     }
     .portal-hero-stage {
       position: relative;
       width: 100%;
       max-width: 980px;
-      min-height: clamp(250px, 38vw, 360px);
+      min-height: clamp(340px, 52vw, 440px);
       margin: 0 auto;
+      padding: clamp(28px, 5vw, 44px) clamp(6px, 2vw, 12px) clamp(22px, 4vw, 34px);
+      overflow: visible;
     }
     .portal-hero-emblem {
       position: absolute;
       left: 50%;
-      top: 44%;
+      top: 46%;
       transform: translate(-50%, -50%);
       z-index: 5;
       width: min(290px, 56vw);
@@ -1618,17 +1636,18 @@
       z-index: 6;
       width: 100%;
       max-width: 720px;
-      margin: -8px auto 0;
-      padding: 4px 12px 0;
+      margin: clamp(14px, 2.5vw, 22px) auto 0;
+      padding: 8px 12px 16px;
       text-align: center;
+      overflow: visible;
     }
     .portal-battle-hero .fx-naruto-side {
       animation: fxNarutoBattleHero 8s cubic-bezier(.42, .08, .22, 1) infinite;
-      left: max(0px, calc(50% - min(46vw, 430px)));
+      left: max(6px, calc(50% - min(42vw, 400px)));
     }
     .portal-battle-hero .fx-sasuke-side {
       animation: fxSasukeBattleHero 8s cubic-bezier(.42, .08, .22, 1) infinite;
-      right: max(0px, calc(50% - min(46vw, 430px)));
+      right: max(6px, calc(50% - min(42vw, 400px)));
     }
     @keyframes fxNarutoBattleHero {
       0%, 8%, 100% { transform: translateX(0); }
@@ -1654,13 +1673,13 @@
       overflow: visible;
     }
     .portal-battle-hero .fx-fighter {
-      top: 2%;
-      width: min(30vw, 250px);
+      top: 8%;
+      width: min(28vw, 230px);
       z-index: 2;
     }
     .portal-battle-hero .fx-arena-floor {
-      bottom: 5%;
-      width: min(92vw, 920px);
+      bottom: 8%;
+      width: min(88vw, 880px);
       height: 38px;
     }
     .portal-battle-hero .portal-hero-emblem .sakubijak-logo-full {
@@ -1693,12 +1712,23 @@
       overflow: visible;
     }
     .portal-battle-hero .portal-hero-copy h1 {
-      margin-top: 4px;
-      line-height: 1.35;
-      padding-bottom: 2px;
+      margin-top: 8px;
+      line-height: 1.5;
+      padding-bottom: 8px;
+      overflow: visible;
     }
     .portal-battle-hero .portal-tagline {
-      margin-bottom: 10px;
+      margin-bottom: 14px;
+      line-height: 1.7;
+      overflow: visible;
+    }
+    .portal-battle-hero .portal-hero-copy .sakubijak-name,
+    .portal-battle-hero .portal-hero-copy .sakubijak-motto {
+      overflow: visible;
+      line-height: 1.35;
+    }
+    .portal-battle-hero .portal-ta {
+      margin-bottom: 4px;
     }
     .fx-proj {
       position: absolute;
