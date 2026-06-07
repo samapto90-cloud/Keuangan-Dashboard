@@ -1073,11 +1073,10 @@
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
       .fx-fighter { width: min(30vw, 130px); top: 18%; }
-      .portal-battle-fx { height: clamp(220px, 36vh, 360px); }
       .fx-proj { width: var(--fx-proj-size, min(26vw, 100px)); height: var(--fx-proj-size, min(26vw, 100px)); }
-      .portal-battle-fx .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
-      .portal-battle-fx .fx-clash-ring,
-      .portal-battle-fx .fx-clash-sparks { top: 30%; }
+    .fx-dom-battle .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
+      .fx-dom-battle .fx-clash-ring,
+      .fx-dom-battle .fx-clash-sparks { top: 30%; }
       .fx-arena-floor { bottom: 28%; width: 88vw; height: 32px; }
       .sakubijak-brand { max-width: min(380px, 94vw); }
       .sakubijak-logo-full { max-width: min(240px, 62vw); }
@@ -1492,17 +1491,8 @@
       margin-bottom: 28px;
       overflow: visible;
     }
-    .portal-battle-fx {
-      position: fixed;
-      left: 0; right: 0;
-      top: clamp(24px, 5vh, 52px);
-      height: clamp(260px, 40vh, 420px);
-      z-index: 1;
-      pointer-events: none;
-      overflow: visible;
-    }
     .fx-burst-canvas {
-      position: fixed;
+      position: absolute;
       inset: 0;
       width: 100vw;
       height: 100vh;
@@ -1510,14 +1500,14 @@
       pointer-events: none;
     }
     .fx-burst-shower {
-      position: fixed;
+      position: absolute;
       inset: 0;
       z-index: 2;
       pointer-events: none;
       overflow: visible;
     }
     .fx-burst-shower i {
-      position: fixed;
+      position: absolute;
       left: var(--fx-clash-x, 50vw);
       top: var(--fx-clash-y, 34vh);
       width: var(--sz, 7px);
@@ -1546,7 +1536,7 @@
       z-index: 3;
     }
     .fx-proj {
-      position: fixed;
+      position: absolute;
       left: var(--fx-ras-x, 18vw);
       top: var(--fx-proj-y, 34vh);
       width: var(--fx-proj-size, min(20vw, 140px));
@@ -1610,8 +1600,8 @@
       20%, 44% { opacity: 0.7; transform: scale(1.1); }
       47%, 100% { opacity: 0; transform: scale(0.3); }
     }
-    .portal-battle-fx .fx-clash-flash {
-      position: fixed;
+    .fx-dom-battle .fx-clash-flash {
+      position: absolute;
       left: var(--fx-clash-x, 50vw);
       top: var(--fx-clash-y, 34vh);
       width: min(85vw, 720px);
@@ -1621,40 +1611,40 @@
       background:
         radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,245,200,.95) 8%, rgba(255,160,0,.8) 20%, rgba(255,80,0,.55) 34%, rgba(139,92,246,.4) 50%, transparent 72%);
     }
-    .portal-battle-fx .fx-clash-flash {
+    .fx-dom-battle .fx-clash-flash {
       animation: fxClashFlash 8s cubic-bezier(.22, 1, .36, 1) infinite;
     }
-    .portal-battle-fx .fx-clash-ring {
-      position: fixed;
+    .fx-dom-battle .fx-clash-ring {
+      position: absolute;
       left: var(--fx-clash-x, 50vw);
       top: var(--fx-clash-y, 34vh);
       z-index: 3;
     }
-    .portal-battle-fx .fx-clash-ring-a { animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite; }
-    .portal-battle-fx .fx-clash-ring-b {
+    .fx-dom-battle .fx-clash-ring-a { animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite; }
+    .fx-dom-battle .fx-clash-ring-b {
       animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
       animation-delay: 0.1s;
       border-color: rgba(167, 139, 250, 0.65);
       box-shadow: 0 0 36px rgba(139, 92, 246, 0.7);
     }
-    .portal-battle-fx .fx-clash-ring-c {
+    .fx-dom-battle .fx-clash-ring-c {
       animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
       animation-delay: 0.2s;
       border-color: rgba(255, 160, 0, 0.55);
     }
-    .portal-battle-fx .fx-clash-ring-d {
+    .fx-dom-battle .fx-clash-ring-d {
       animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
       animation-delay: 0.32s;
       border-width: 3px;
       border-color: rgba(255, 255, 255, 0.45);
     }
-    .portal-battle-fx .fx-clash-ring-e {
+    .fx-dom-battle .fx-clash-ring-e {
       animation: fxClashRing 8s cubic-bezier(.22, 1, .36, 1) infinite;
       animation-delay: 0.44s;
       border-color: rgba(255, 60, 0, 0.35);
     }
-    .portal-battle-fx .fx-clash-sparks {
-      position: fixed;
+    .fx-dom-battle .fx-clash-sparks {
+      position: absolute;
       left: var(--fx-clash-x, 50vw);
       top: var(--fx-clash-y, 34vh);
       width: 8px; height: 8px;
@@ -3779,6 +3769,17 @@
   <canvas id="fx-canvas"></canvas>
   <div class="fx-dom-battle">
     <div class="fx-arena-floor"></div>
+    <canvas class="fx-burst-canvas"></canvas>
+    <div class="fx-burst-shower"></div>
+    <div class="fx-proj fx-proj-rasengan"></div>
+    <div class="fx-proj fx-proj-chidori"></div>
+    <div class="fx-clash-flash"></div>
+    <div class="fx-clash-ring fx-clash-ring-a"></div>
+    <div class="fx-clash-ring fx-clash-ring-b"></div>
+    <div class="fx-clash-ring fx-clash-ring-c"></div>
+    <div class="fx-clash-ring fx-clash-ring-d"></div>
+    <div class="fx-clash-ring fx-clash-ring-e"></div>
+    <div class="fx-clash-sparks"></div>
     <div class="fx-fighter fx-naruto-side">
       <div class="fx-kyubi-tails"></div>
       <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
@@ -3803,19 +3804,6 @@
 <div id="portal-screen">
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
-      <div class="portal-battle-fx" aria-hidden="true">
-        <canvas class="fx-burst-canvas"></canvas>
-        <div class="fx-burst-shower"></div>
-        <div class="fx-proj fx-proj-rasengan"></div>
-        <div class="fx-proj fx-proj-chidori"></div>
-        <div class="fx-clash-flash"></div>
-        <div class="fx-clash-ring fx-clash-ring-a"></div>
-        <div class="fx-clash-ring fx-clash-ring-b"></div>
-        <div class="fx-clash-ring fx-clash-ring-c"></div>
-        <div class="fx-clash-ring fx-clash-ring-d"></div>
-        <div class="fx-clash-ring fx-clash-ring-e"></div>
-        <div class="fx-clash-sparks"></div>
-      </div>
       <div class="sakubijak-brand">
         <div class="sakubijak-logo-bounce">
           <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
@@ -3896,19 +3884,6 @@
 
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="login-screen" class="hidden">
-  <div class="portal-battle-fx" aria-hidden="true">
-    <canvas class="fx-burst-canvas"></canvas>
-    <div class="fx-burst-shower"></div>
-    <div class="fx-proj fx-proj-rasengan"></div>
-    <div class="fx-proj fx-proj-chidori"></div>
-    <div class="fx-clash-flash"></div>
-    <div class="fx-clash-ring fx-clash-ring-a"></div>
-    <div class="fx-clash-ring fx-clash-ring-b"></div>
-    <div class="fx-clash-ring fx-clash-ring-c"></div>
-    <div class="fx-clash-ring fx-clash-ring-d"></div>
-    <div class="fx-clash-ring fx-clash-ring-e"></div>
-    <div class="fx-clash-sparks"></div>
-  </div>
   <div class="login-card ds-animate">
     <div class="login-brand">
       <div class="sakubijak-brand">
