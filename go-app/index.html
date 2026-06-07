@@ -416,11 +416,12 @@
     .topbar .user-badge div div:last-child { font-size: 11px; color: var(--text-muted); }
 
     /* ── Pages ── */
-    .page { display: none; padding: 26px; animation: pageIn .5s cubic-bezier(.22,1,.36,1) both; }
-    .page.active { display: block; }
+    .page { display: none; padding: 26px; animation: pageIn .22s cubic-bezier(.22,1,.36,1) both; }
+    .page.active { display: block; content-visibility: visible; }
+    .page:not(.active) { content-visibility: auto; contain-intrinsic-size: auto 640px; }
     @keyframes pageIn {
-      from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
-      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .ds-animate {
       animation: cardReveal .6s cubic-bezier(.22,1,.36,1) both;
@@ -5675,6 +5676,14 @@ let rekapMode = 'kegiatan';
 let allTransactions = [];
 const txFetchCache = { portal: '', data: null, ts: 0 };
 const settingsFetchCache = { portal: '', data: null, ts: 0 };
+const dashboardFetchCache = { portal: '', data: null, ts: 0 };
+const pageNavState = {
+  dashboard: { loadedAt: 0 },
+  transaksi: { loadedAt: 0 },
+  register: { loadedAt: 0 },
+  rekap: { loadedAt: 0, mode: '' },
+  pengaturan: { loadedAt: 0 },
+};
 const DATA_CACHE_MS = 55000;
 const API_FETCH_TIMEOUT_MS = 28000;
 const API_FETCH_MAX_RETRY = 2;
@@ -5685,12 +5694,39 @@ function invalidateTxCache() {
   txFetchCache.portal = '';
   txFetchCache.data = null;
   txFetchCache.ts = 0;
+  invalidateDashboardCache();
+  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap');
+}
+
+function invalidateDashboardCache() {
+  dashboardFetchCache.portal = '';
+  dashboardFetchCache.data = null;
+  dashboardFetchCache.ts = 0;
+}
+
+function invalidatePageData(...names) {
+  names.forEach(name => {
+    if (pageNavState[name]) pageNavState[name].loadedAt = 0;
+  });
+}
+
+function pageIsFresh(name) {
+  const st = pageNavState[name];
+  return !!(st && st.loadedAt && Date.now() - st.loadedAt < DATA_CACHE_MS);
+}
+
+function touchPage(name, extra) {
+  if (!pageNavState[name]) pageNavState[name] = { loadedAt: 0 };
+  pageNavState[name].loadedAt = Date.now();
+  if (extra) Object.assign(pageNavState[name], extra);
 }
 
 function invalidateSettingsCache() {
   settingsFetchCache.portal = '';
   settingsFetchCache.data = null;
   settingsFetchCache.ts = 0;
+  invalidateDashboardCache();
+  invalidatePageData('pengaturan', 'dashboard', 'rekap');
 }
 
 async function fetchAllTransactions(force = false) {
@@ -5738,6 +5774,7 @@ function clearAppDataCaches() {
   rekapRowsCache = [];
   invalidateTxCache();
   invalidateSettingsCache();
+  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap', 'pengaturan');
 }
 
 function resetImportAnggaranDraft() {
@@ -6053,6 +6090,7 @@ function endPortalSession() {
   sessionStorage.removeItem('sipkeu_in_app');
   invalidateTxCache();
   invalidateSettingsCache();
+  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap', 'pengaturan');
 }
 
 function resolvePortalApp(serverModule) {
@@ -6354,8 +6392,10 @@ function showApp() {
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
-  clearFxCanvasHide();
-  schedulePortalFx();
+  setFxLayerActive(false);
+  stopPortalFx();
+  stopPortalBurstFx();
+  stopBattleLayoutSync();
   applyPortalTheme(document.body, selectedPortalApp);
   applyRoleUI();
 }
@@ -6387,8 +6427,10 @@ function showSettingsApp() {
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.add('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
-  clearFxCanvasHide();
-  schedulePortalFx();
+  setFxLayerActive(false);
+  stopPortalFx();
+  stopPortalBurstFx();
+  stopBattleLayoutSync();
   clearPortalThemes(document.body);
   document.body.classList.add('theme-sao');
   const el = document.getElementById('settings-user-label');
@@ -7279,7 +7321,7 @@ async function bootApp(fromRestore = true) {
     const prefetch = [];
     prefetch.push(loadSettings(true));
     if (canDo('view_dashboard') || canAccessTransaksi() || canDo('view_register')) {
-      prefetch.push(fetchAllTransactions(true).catch(() => {}));
+      prefetch.push(fetchAllTransactions(false).catch(() => {}));
     }
     await Promise.all(prefetch);
     initForm();
@@ -7380,24 +7422,39 @@ function showPage(name, el) {
   }
   const activePage = document.querySelector('#app-shell .page.active');
   if (activePage?.id === 'page-transaksi' && name !== 'transaksi') discardUnsavedTrxDraft();
-  playBreathSlash();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
   const pageEl = document.getElementById('page-' + name);
   pageEl.classList.add('active');
-  pageEl.style.animation = 'none';
-  void pageEl.offsetWidth;
-  pageEl.style.animation = '';
   if (el) el.classList.add('active');
   const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', rekap:'Rekapitulasi', pengaturan:'Pejabat Keuangan' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
   document.getElementById('topbar-crumb').textContent = titles[name] || name;
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'transaksi') loadTransaksi();
-  if (name === 'register') loadRegister();
-  if (name === 'rekap') loadRekap();
-  if (name === 'pengaturan') { loadSettings(); fillSettingsForm(); }
   closeMobileSidebar();
+  if (name === 'dashboard') {
+    if (!pageIsFresh('dashboard')) loadDashboard().then(() => touchPage('dashboard')).catch(() => {});
+  } else if (name === 'transaksi') {
+    if (!pageIsFresh('transaksi') || !allTransactions.length) {
+      loadTransaksi(false).then(() => touchPage('transaksi')).catch(() => {});
+    }
+  } else if (name === 'register') {
+    if (!pageIsFresh('register') || !allTransactions.length) {
+      loadRegister(false).then(() => touchPage('register')).catch(() => {});
+    }
+  } else if (name === 'rekap') {
+    const mode = document.getElementById('rekap-mode')?.value || rekapMode;
+    if (!pageIsFresh('rekap') || pageNavState.rekap.mode !== mode || !rekapRowsCache.length) {
+      loadRekap(false).then(() => touchPage('rekap', { mode })).catch(() => {});
+    } else {
+      renderRekapTable();
+    }
+  } else if (name === 'pengaturan') {
+    if (!pageIsFresh('pengaturan')) {
+      loadSettings().then(() => { fillSettingsForm(); touchPage('pengaturan'); }).catch(() => fillSettingsForm());
+    } else {
+      fillSettingsForm();
+    }
+  }
   return false;
 }
 
@@ -7588,12 +7645,7 @@ function onPekerjaanChange() {
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────
-async function loadDashboard() {
-  const [, res] = await Promise.all([
-    Promise.all([loadSettings(), ensureChartJS()]),
-    apiFetch(API + '/dashboard'),
-  ]);
-  const data = await res.json();
+function renderDashboardData(data) {
   document.getElementById('stat-total').textContent = data.total_transaksi || 0;
   const pendingEl = document.getElementById('stat-pending-trx');
   if (pendingEl) pendingEl.textContent = data.pending_approval || 0;
@@ -7650,6 +7702,26 @@ async function loadDashboard() {
   });
 
   renderOpPptkRaceChart(data.nilai_per_pptk || []);
+}
+
+async function loadDashboard(force = false) {
+  const portal = selectedPortalApp;
+  const now = Date.now();
+  let data = null;
+  if (!force && dashboardFetchCache.portal === portal && dashboardFetchCache.data && now - dashboardFetchCache.ts < DATA_CACHE_MS) {
+    data = dashboardFetchCache.data;
+  }
+  const [, res] = await Promise.all([
+    Promise.all([loadSettings(force), ensureChartJS()]),
+    data ? Promise.resolve(null) : apiFetch(API + '/dashboard'),
+  ]);
+  if (!data) {
+    data = await res.json();
+    dashboardFetchCache.portal = portal;
+    dashboardFetchCache.data = data;
+    dashboardFetchCache.ts = now;
+  }
+  renderDashboardData(data);
 }
 
 const OP_RUNNER_CHARACTERS = [
@@ -8028,6 +8100,7 @@ async function loadTransaksi(force = false) {
   updatePendingNavBadge();
   renderTable();
   updatePaguRekeningUI();
+  touchPage('transaksi');
 }
 
 function getPendingTransactions() {
@@ -8088,7 +8161,7 @@ async function reviewTransaction(id, action) {
     if (!res.ok) throw new Error(data.error || 'Gagal memproses persetujuan');
     invalidateTxCache();
     await loadTransaksi(true);
-    if (document.getElementById('page-dashboard')?.classList.contains('active')) await loadDashboard();
+    if (document.getElementById('page-dashboard')?.classList.contains('active')) await loadDashboard(true);
     alert(data.message || 'Transaksi diproses.');
   } catch (e) {
     alert(e.message || 'Gagal memproses transaksi.');
@@ -9563,6 +9636,7 @@ function onRekapModeChange() {
   rekapMode = document.getElementById('rekap-mode').value;
   rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
   renderRekapTable();
+  touchPage('rekap', { mode: rekapMode });
 }
 
 function fillRekapPrint() {
@@ -10075,11 +10149,12 @@ function renderRegisterPreview() {
     `${rows.length} transaksi · Total bruto ${formatRupiah(totBruto)} · Total potongan ${formatRupiah(totPot)} · Total netto ${formatRupiah(totNetto)}`;
 }
 
-async function loadRegister() {
-  await loadSettings();
-  allTransactions = await fetchAllTransactions();
+async function loadRegister(force = false) {
+  await loadSettings(force);
+  allTransactions = await fetchAllTransactions(force);
   populateRegisterFilterOptions();
   onRegisterFilterChange();
+  touchPage('register');
 }
 
 async function exportRegisterExcel() {
@@ -10252,12 +10327,13 @@ function cetakRegisterPDF() {
 }
 
 // ── Rekap ────────────────────────────────────────────────────────────────
-async function loadRekap() {
-  await loadSettings();
+async function loadRekap(force = false) {
+  await loadSettings(force);
   rekapMode = document.getElementById('rekap-mode')?.value || rekapMode;
-  rekapTransactionsCache = (await fetchAllTransactions()).filter(trxIsApproved);
+  rekapTransactionsCache = (await fetchAllTransactions(force)).filter(trxIsApproved);
   rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
   renderRekapTable();
+  touchPage('rekap', { mode: rekapMode });
 }
 
 // ── Pajak & Potongan ──────────────────────────────────────────────────────
@@ -11367,7 +11443,7 @@ async function doImporAnggaran() {
       await loadDashboard();
     }
     if (document.getElementById('page-rekap')?.classList.contains('active')) {
-      await loadRekap();
+      await loadRekap(true);
     }
     alert(result.message || `${versionLabel} — ${result.total_baris || importAnggaranData.length} baris berhasil diimpor.`);
   } catch (err) {
