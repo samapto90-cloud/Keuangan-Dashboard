@@ -1079,9 +1079,11 @@
       .btn, .form-control, .form-select { font-size: 16px; }
       .login-brand h4 { font-size: 24px; }
       .portal-header h1 { font-size: 1.05rem; }
-      .portal-battle-hero { min-height: 400px; }
-      .portal-battle-hero .fx-dom-battle { height: min(280px, 52vw); }
-      .portal-battle-hero .fx-fighter { width: min(28vw, 120px); top: 8%; }
+      .portal-hero-stage { min-height: clamp(220px, 52vw, 300px); }
+      .portal-battle-hero .fx-fighter { width: min(32vw, 140px); top: 0; }
+      .portal-battle-hero .fx-naruto-side { left: max(0px, calc(50% - 46vw)); }
+      .portal-battle-hero .fx-sasuke-side { right: max(0px, calc(50% - 46vw)); }
+      .portal-hero-emblem { width: min(240px, 62vw); top: 42%; }
       .fx-proj { width: var(--fx-proj-size, min(26vw, 100px)); height: var(--fx-proj-size, min(26vw, 100px)); }
     .fx-dom-battle .fx-clash-flash { width: min(95vw, 420px); height: min(95vw, 420px); top: 30%; }
       .fx-dom-battle .fx-clash-ring,
@@ -1486,8 +1488,10 @@
     #portal-screen.hidden .fx-dom-battle { display: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; }
     @keyframes sakubijakLogoBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.025); }
+      0%, 100% { transform: translateY(0) scale(1); }
+      35% { transform: translateY(-8px) scale(1.02); }
+      55% { transform: translateY(-3px) scale(1.01); }
+      75% { transform: translateY(-5px) scale(1.015); }
     }
     .portal-header {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1495,17 +1499,61 @@
     }
     .portal-battle-hero {
       position: relative;
-      min-height: 420px;
-      justify-content: flex-start;
-      padding: clamp(16px, 3vh, 36px) 12px 24px;
-      margin-bottom: 28px;
+      padding: clamp(8px, 2vh, 20px) 12px 16px;
+      margin-bottom: 32px;
       overflow: visible;
+    }
+    .portal-hero-stage {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      min-height: clamp(250px, 38vw, 360px);
+      margin: 0 auto;
+    }
+    .portal-hero-emblem {
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      width: min(290px, 56vw);
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .portal-hero-emblem::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -42%);
+      width: min(260px, 64vw);
+      height: min(240px, 50vw);
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse at 50% 65%,
+        rgba(255, 130, 0, 0.48) 0%,
+        rgba(255, 70, 0, 0.22) 42%,
+        transparent 68%);
+      filter: blur(18px);
+      animation: sakubijakFlameAura 2.2s ease-in-out infinite;
+    }
+    .portal-hero-copy {
+      position: relative;
+      z-index: 6;
+      width: 100%;
+      max-width: 720px;
+      margin: -8px auto 0;
+      padding: 4px 12px 0;
+      text-align: center;
     }
     .portal-battle-hero .fx-naruto-side {
       animation: fxNarutoBattleHero 8s cubic-bezier(.45, .05, .25, 1) infinite;
+      left: max(0px, calc(50% - min(46vw, 430px)));
     }
     .portal-battle-hero .fx-sasuke-side {
       animation: fxSasukeBattleHero 8s cubic-bezier(.45, .05, .25, 1) infinite;
+      right: max(0px, calc(50% - min(46vw, 430px)));
     }
     @keyframes fxNarutoBattleHero {
       0%, 8%, 100% { transform: translateX(0); }
@@ -1525,16 +1573,32 @@
     }
     .portal-battle-hero .fx-dom-battle {
       position: absolute;
-      left: 0; right: 0; top: 0;
-      height: min(320px, 48vw);
-      bottom: auto;
+      inset: 0;
       z-index: 1;
       pointer-events: none;
-      overflow: hidden;
+      overflow: visible;
     }
     .portal-battle-hero .fx-fighter {
-      top: 10%;
-      width: min(22vw, 190px);
+      top: 2%;
+      width: min(30vw, 250px);
+      z-index: 2;
+    }
+    .portal-battle-hero .fx-arena-floor {
+      bottom: 5%;
+      width: min(92vw, 920px);
+      height: 38px;
+    }
+    .portal-battle-hero .portal-hero-emblem .sakubijak-logo-full {
+      position: relative;
+      z-index: 1;
+      max-width: min(250px, 58vw);
+      margin: 0 auto;
+    }
+    .portal-battle-hero .portal-hero-copy .sakubijak-name {
+      margin: 10px 0 0;
+    }
+    .portal-battle-hero .portal-hero-copy .sakubijak-motto {
+      margin: 8px 0 0;
     }
     .fx-burst-canvas {
       position: fixed;
@@ -1571,15 +1635,15 @@
       88% { opacity: 0.1; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.05)) scale(0.15); }
       100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateX(calc(var(--d) * 1.12)) scale(0); }
     }
-    .portal-battle-hero .sakubijak-brand,
-    .portal-battle-hero h1,
+    .portal-battle-hero .portal-hero-copy,
+    .portal-battle-hero .portal-hero-copy h1,
     .portal-battle-hero .portal-tagline,
     .portal-battle-hero .portal-ta {
       position: relative;
       z-index: 3;
       overflow: visible;
     }
-    .portal-battle-hero h1 {
+    .portal-battle-hero .portal-hero-copy h1 {
       margin-top: 4px;
       line-height: 1.35;
       padding-bottom: 2px;
@@ -3838,36 +3902,40 @@
 <div id="portal-screen">
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
-      <div class="fx-dom-battle" aria-hidden="true">
-        <div class="fx-arena-floor"></div>
-        <div class="fx-fighter fx-naruto-side">
-          <div class="fx-kyubi-tails"></div>
-          <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
+      <div class="portal-hero-stage">
+        <div class="fx-dom-battle" aria-hidden="true">
+          <div class="fx-arena-floor"></div>
+          <div class="fx-fighter fx-naruto-side">
+            <div class="fx-kyubi-tails"></div>
+            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
+          </div>
+          <div class="fx-fighter fx-sasuke-side">
+            <div class="fx-susanoo-shell"></div>
+            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=1" alt="" decoding="async" loading="eager" />
+          </div>
+          <div class="fx-proj fx-proj-rasengan"></div>
+          <div class="fx-proj fx-proj-chidori"></div>
+          <div class="fx-clash-flash"></div>
+          <div class="fx-clash-ring fx-clash-ring-a"></div>
+          <div class="fx-clash-ring fx-clash-ring-b"></div>
+          <div class="fx-clash-ring fx-clash-ring-c"></div>
+          <div class="fx-clash-ring fx-clash-ring-d"></div>
+          <div class="fx-clash-ring fx-clash-ring-e"></div>
+          <div class="fx-clash-sparks"></div>
         </div>
-        <div class="fx-fighter fx-sasuke-side">
-          <div class="fx-susanoo-shell"></div>
-          <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=1" alt="" decoding="async" loading="eager" />
+        <div class="portal-hero-emblem">
+          <div class="sakubijak-logo-bounce">
+            <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
+          </div>
         </div>
-        <div class="fx-proj fx-proj-rasengan"></div>
-        <div class="fx-proj fx-proj-chidori"></div>
-        <div class="fx-clash-flash"></div>
-        <div class="fx-clash-ring fx-clash-ring-a"></div>
-        <div class="fx-clash-ring fx-clash-ring-b"></div>
-        <div class="fx-clash-ring fx-clash-ring-c"></div>
-        <div class="fx-clash-ring fx-clash-ring-d"></div>
-        <div class="fx-clash-ring fx-clash-ring-e"></div>
-        <div class="fx-clash-sparks"></div>
       </div>
-      <div class="sakubijak-brand">
-        <div class="sakubijak-logo-bounce">
-          <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
-        </div>
-        <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
-        <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
+      <div class="portal-hero-copy">
+        <p class="sakubijak-name fire-glow-text" aria-label="Sakubijak">Sakubijak</p>
+        <p class="sakubijak-motto fire-glow-text">Keuangan Bijak untuk Semua</p>
+        <h1 class="fire-glow-text">SIPKEU Portal</h1>
+        <p class="portal-tagline">Sistem Informasi Penatausahaan Keuangan · Dinas Pendidikan Kota Batam</p>
+        <span class="portal-ta">Tahun Anggaran 2026</span>
       </div>
-      <h1>SIPKEU Portal</h1>
-      <p class="portal-tagline">Sistem Informasi Penatausahaan Keuangan · Dinas Pendidikan Kota Batam</p>
-      <span class="portal-ta">Tahun Anggaran 2026</span>
     </header>
 
     <div class="portal-grid">
@@ -11510,32 +11578,34 @@ const BURST_CYCLE = 8;
 
 function syncBattleProjLayout() {
   if (!isPortalHomeVisible()) return;
-  const hero = document.querySelector('.portal-battle-hero');
+  const stage = document.querySelector('.portal-hero-stage');
   const battle = document.querySelector('.fx-dom-battle');
+  const emblem = document.querySelector('.portal-hero-emblem');
   const naruto = document.querySelector('.fx-naruto-side');
   const sasuke = document.querySelector('.fx-sasuke-side');
-  if (!hero || !battle || !naruto || !sasuke) return;
+  if (!stage || !battle || !naruto || !sasuke) return;
 
-  const heroR = hero.getBoundingClientRect();
+  const stageR = stage.getBoundingClientRect();
+  const emblemR = emblem ? emblem.getBoundingClientRect() : stageR;
   const nr = naruto.getBoundingClientRect();
   const sr = sasuke.getBoundingClientRect();
-  if (nr.width < 8 || sr.width < 8 || heroR.width < 8) return;
+  if (nr.width < 8 || sr.width < 8 || stageR.width < 8) return;
 
   const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const rasX = nr.left - heroR.left + nr.width * 0.88;
-  const chiX = sr.left - heroR.left + sr.width * 0.12;
-  const projY = (nr.top + nr.height * 0.42 + sr.top + sr.height * 0.42) / 2 - heroR.top;
-  const clashX = heroR.width * 0.5;
-  const burstX = heroR.left + clashX;
-  const burstY = heroR.top + projY;
-  const projSize = Math.max(48, Math.min(nr.width * 0.55, sr.width * 0.55, heroR.height * 0.22, vw * 0.14));
+  const rasX = nr.left - stageR.left + nr.width * 0.88;
+  const chiX = sr.left - stageR.left + sr.width * 0.12;
+  const projY = (nr.top + nr.height * 0.42 + sr.top + sr.height * 0.42) / 2 - stageR.top;
+  const clashX = emblemR.left - stageR.left + emblemR.width * 0.5;
+  const clashY = emblemR.top - stageR.top + emblemR.height * 0.48;
+  const burstX = emblemR.left + emblemR.width * 0.5;
+  const burstY = emblemR.top + emblemR.height * 0.48;
+  const projSize = Math.max(44, Math.min(nr.width * 0.52, sr.width * 0.52, stageR.height * 0.2, vw * 0.12));
 
   battle.style.setProperty('--fx-ras-x', rasX + 'px');
   battle.style.setProperty('--fx-chi-x', chiX + 'px');
   battle.style.setProperty('--fx-proj-y', projY + 'px');
   battle.style.setProperty('--fx-clash-x', clashX + 'px');
-  battle.style.setProperty('--fx-clash-y', projY + 'px');
+  battle.style.setProperty('--fx-clash-y', clashY + 'px');
   battle.style.setProperty('--fx-proj-size', projSize + 'px');
   battle.style.setProperty('--fx-ras-fly', Math.max(0, clashX - rasX) + 'px');
   battle.style.setProperty('--fx-chi-fly', Math.max(0, chiX - clashX) + 'px');
