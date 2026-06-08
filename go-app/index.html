@@ -10600,30 +10600,59 @@ async function loadRekap(force = false) {
   touchPage('rekap', { mode: rekapMode });
 }
 
-// ── Pajak & Potongan ──────────────────────────────────────────────────────
+// ── Pajak & Potongan (katalog bendahara pemerintah — PMK/DJP) ──
 const PAJAK_POTONGAN_CATALOG = [
-  { id: 'pph21-5', group: 'PPh Pasal 21', label: 'PPh 21 — 5% (Pegawai/Honor NPWP)', tarif: 0.05, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph21-25', group: 'PPh Pasal 21', label: 'PPh 21 — 2,5% (Honor Non-NPWP)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph21-15', group: 'PPh Pasal 21', label: 'PPh 21 — 15% (Peserta BPJS Kesehatan)', tarif: 0.15, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph22-15', group: 'PPh Pasal 22', label: 'PPh 22 — 1,5% (Pembelian Barang NPWP)', tarif: 0.015, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph22-3', group: 'PPh Pasal 22', label: 'PPh 22 — 3% (Pembelian Barang Non-NPWP)', tarif: 0.03, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph22-05', group: 'PPh Pasal 22', label: 'PPh 22 — 0,5% (Import/Pembelian)', tarif: 0.005, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph23-2', group: 'PPh Pasal 23', label: 'PPh 23 — 2% (Jasa/Imbalan NPWP)', tarif: 0.02, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph23-4', group: 'PPh Pasal 23', label: 'PPh 23 — 4% (Jasa/Imbalan Non-NPWP)', tarif: 0.04, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph23-15', group: 'PPh Pasal 23', label: 'PPh 23 — 15% (Dividen/Bunga/Royalti)', tarif: 0.15, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph26-20', group: 'PPh Pasal 26', label: 'PPh 26 — 20% (Wajib Pajak Luar Negeri)', tarif: 0.20, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-10-sewa', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Sewa Tanah/Bangunan)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-25-sewa', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2,5% (Sewa Mesin/Alat)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-10-bunga', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Bunga Deposito/Tabungan)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-25-konstruksi', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2,5% (Jasa Konstruksi)', tarif: 0.025, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-4-konstruksi', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 4% (Jasa Konstruksi Terintegrasi)', tarif: 0.04, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-2-reklame', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 2% (Jasa Reklame)', tarif: 0.02, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-05-umkm', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 0,5% (UMKM Final)', tarif: 0.005, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-10-dividen', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 10% (Dividen)', tarif: 0.10, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph42-01-saham', group: 'PPh Pasal 4 Ayat 2 (Final)', label: 'PPh 4(2) — 0,1% (Transaksi Saham BEI)', tarif: 0.001, kategori: 'pajak', base: 'bruto' },
-  { id: 'pph15-264', group: 'PPh Pasal 15', label: 'PPh 15 — 2,64% (Angkutan/Pelayaran)', tarif: 0.0264, kategori: 'pajak', base: 'bruto' },
-  { id: 'ppn-11', group: 'PPN', label: 'PPN — 11% (DPP × 11%)', tarif: 0.11, kategori: 'pajak', base: 'dpp' },
-  { id: 'ppn-12', group: 'PPN', label: 'PPN — 12% (DPP × 12%)', tarif: 0.12, kategori: 'pajak', base: 'dpp' },
+  // ── PPh Pasal 22 · Pembelian Barang ──
+  { id: 'pph22-15', group: 'PPh Pasal 22 · Pembelian Barang', label: 'PPh 22 — 1,5% (Pembelian Barang, Penyedia NPWP)', tarif: 0.015, kategori: 'pajak', base: 'exclude_ppn', kap: '411122-900' },
+  { id: 'pph22-3', group: 'PPh Pasal 22 · Pembelian Barang', label: 'PPh 22 — 3% (Pembelian Barang, Penyedia Non-NPWP)', tarif: 0.03, kategori: 'pajak', base: 'exclude_ppn', kap: '411122-900' },
+  { id: 'pph22-05', group: 'PPh Pasal 22 · Pembelian Barang', label: 'PPh 22 — 0,5% (Import / Pembelian Tertentu)', tarif: 0.005, kategori: 'pajak', base: 'exclude_ppn', kap: '411122-100' },
+
+  // ── PPh Pasal 23 · Jasa & Sewa (Badan Usaha) ──
+  { id: 'pph23-2-konsultan', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Jasa Konsultan)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-2-pelatihan', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Jasa Pelatihan Badan Usaha)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-2-eo', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Jasa EO / Event Organizer)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-2-sewa-kendaraan', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Sewa Kendaraan Badan Usaha)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-2-sewa-alat', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Sewa Peralatan / Sound System)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-2', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 2% (Jasa / Imbalan Lain, NPWP)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-4', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 4% (Jasa / Imbalan, Non-NPWP)', tarif: 0.04, kategori: 'pajak', base: 'bruto', kap: '411124-104' },
+  { id: 'pph23-15', group: 'PPh Pasal 23 · Jasa Badan Usaha', label: 'PPh 23 — 15% (Dividen / Bunga / Royalti)', tarif: 0.15, kategori: 'pajak', base: 'bruto', kap: '411124-101' },
+
+  // ── PPh Final Pasal 4(2) · Sewa ──
+  { id: 'pph42-10-sewa', group: 'PPh Final Pasal 4(2) · Sewa', label: 'PPh 4(2) — 10% (Sewa Gedung / Aula / Hotel / Ruang Rapat)', tarif: 0.10, kategori: 'pajak', base: 'bruto', kap: '411128-403' },
+  { id: 'pph42-25-sewa', group: 'PPh Final Pasal 4(2) · Sewa', label: 'PPh 4(2) — 2,5% (Sewa Tanah / Bangunan Lain)', tarif: 0.025, kategori: 'pajak', base: 'bruto', kap: '411128-403' },
+
+  // ── PPh Final Pasal 4(2) · Konstruksi ──
+  { id: 'pph42-175-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 1,75% (Konstruksi, Usaha Kecil)', tarif: 0.0175, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-265-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 2,65% (Konstruksi, Usaha Menengah)', tarif: 0.0265, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-35-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 3,5% (Konstruksi, Usaha Besar)', tarif: 0.035, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-4-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 4% (Konstruksi, Tanpa Kualifikasi)', tarif: 0.04, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-6-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 6% (Konstruksi, Tanpa Kualifikasi)', tarif: 0.06, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-25-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 2,5% (Konstruksi / Perencana Pengawas)', tarif: 0.025, kategori: 'pajak', base: 'bruto', kap: '411128-410' },
+
+  // ── PPh Pasal 21 · Honor & Hadiah ──
+  { id: 'pph21-asn-honor', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — Honor Narasumber ASN/TNI/Polri (sesuai golongan)', tarif: null, kategori: 'pajak', base: 'manual', kap: '411121-402' },
+  { id: 'pph21-ter-honor', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — Honor Narasumber Non-ASN (Tarif Efektif/TER)', tarif: null, kategori: 'pajak', base: 'manual', kap: '411121-100' },
+  { id: 'pph21-hadiah', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — Hadiah Lomba (Orang Pribadi)', tarif: null, kategori: 'pajak', base: 'manual', kap: '411121-100' },
+  { id: 'pph21-5', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — 5% (Honor Pegawai NPWP)', tarif: 0.05, kategori: 'pajak', base: 'bruto', kap: '411121-100' },
+  { id: 'pph21-25', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — 2,5% (Honor Non-NPWP)', tarif: 0.025, kategori: 'pajak', base: 'bruto', kap: '411121-100' },
+  { id: 'pph21-15', group: 'PPh Pasal 21 · Honor & Hadiah', label: 'PPh 21 — 15% (Peserta BPJS Kesehatan)', tarif: 0.15, kategori: 'pajak', base: 'bruto', kap: '411121-100' },
+
+  // ── PPh Final UMKM ──
+  { id: 'pph42-05-umkm', group: 'PPh Final UMKM', label: 'PPh Final UMKM — 0,5% (SKT PP 55/2022)', tarif: 0.005, kategori: 'pajak', base: 'bruto', kap: '411128-420' },
+
+  // ── PPN ──
+  { id: 'ppn-11', group: 'PPN', label: 'PPN — 11% (Pembelian BKP/JKP dari PKP)', tarif: 0.11, kategori: 'pajak', base: 'dpp', kap: '411211-900' },
+  { id: 'ppn-12', group: 'PPN', label: 'PPN — 12% (Barang/Jasa Mewah Tertentu)', tarif: 0.12, kategori: 'pajak', base: 'dpp', kap: '411211-900' },
+
+  // ── Lainnya (tetap tersedia) ──
+  { id: 'pph26-20', group: 'PPh Pasal 26', label: 'PPh 26 — 20% (Wajib Pajak Luar Negeri)', tarif: 0.20, kategori: 'pajak', base: 'bruto', kap: '411127-100' },
+  { id: 'pph42-10-bunga', group: 'PPh Final Pasal 4(2) · Lainnya', label: 'PPh 4(2) — 10% (Bunga Deposito/Tabungan)', tarif: 0.10, kategori: 'pajak', base: 'bruto', kap: '411128-401' },
+  { id: 'pph42-2-reklame', group: 'PPh Final Pasal 4(2) · Lainnya', label: 'PPh 4(2) — 2% (Jasa Reklame)', tarif: 0.02, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-10-dividen', group: 'PPh Final Pasal 4(2) · Lainnya', label: 'PPh 4(2) — 10% (Dividen Orang Pribadi)', tarif: 0.10, kategori: 'pajak', base: 'bruto', kap: '411128-419' },
+  { id: 'pph42-01-saham', group: 'PPh Final Pasal 4(2) · Lainnya', label: 'PPh 4(2) — 0,1% (Transaksi Saham BEI)', tarif: 0.001, kategori: 'pajak', base: 'bruto', kap: '411128-406' },
+  { id: 'pph15-264', group: 'PPh Pasal 15', label: 'PPh 15 — 2,64% (Angkutan/Pelayaran)', tarif: 0.0264, kategori: 'pajak', base: 'bruto', kap: '411129-100' },
+
+  // ── Potongan non-pajak ──
   { id: 'iwp', group: 'Potongan Lainnya', label: 'Iuran Wajib Pegawai (IWP)', tarif: null, kategori: 'potongan', base: 'manual' },
   { id: 'bpjs-kes', group: 'Potongan Lainnya', label: 'BPJS Kesehatan', tarif: null, kategori: 'potongan', base: 'manual' },
   { id: 'bpjs-tk', group: 'Potongan Lainnya', label: 'BPJS Ketenagakerjaan', tarif: null, kategori: 'potongan', base: 'manual' },
@@ -10638,9 +10667,17 @@ const CATALOG_BY_LABEL = Object.fromEntries(PAJAK_POTONGAN_CATALOG.map(c => [c.l
 const LEGACY_LABEL_TO_ID = {
   'PPh 21 (5%)': 'pph21-5',
   'PPh 21 (2,5%)': 'pph21-25',
+  'PPh 21 — 5% (Pegawai/Honor NPWP)': 'pph21-5',
   'PPh 22 (1,5%)': 'pph22-15',
+  'PPh 22 — 1,5% (Pembelian Barang NPWP)': 'pph22-15',
   'PPh 23 (2%)': 'pph23-2',
+  'PPh 23 — 2% (Jasa/Imbalan NPWP)': 'pph23-2',
   'PPh Ps.4(2) Final (10%)': 'pph42-10-sewa',
+  'PPh 4(2) — 10% (Sewa Tanah/Bangunan)': 'pph42-10-sewa',
+  'PPh 4(2) — 2,5% (Jasa Konstruksi)': 'pph42-25-konstruksi',
+  'PPh 4(2) — 4% (Jasa Konstruksi Terintegrasi)': 'pph42-4-konstruksi',
+  'PPh 4(2) — 0,5% (UMKM Final)': 'pph42-05-umkm',
+  'PPN — 11% (DPP × 11%)': 'ppn-11',
   'Iuran Wajib Pegawai': 'iwp',
 };
 
@@ -10648,57 +10685,97 @@ let potonganManualFlags = {};
 
 // Kode Akun Pajak (KAP) - Kode Jenis Setoran (KJS) per kelompok pajak (DJP)
 const KAP_KJS_BY_GROUP = {
-  'PPh Pasal 21': [
-    { value: '411121-100', label: '411121-100 · Masa PPh Pasal 21' },
-    { value: '411121-402', label: '411121-402 · PPh 21 Final (Honor PNS/APBN-APBD)' },
-  ],
-  'PPh Pasal 22': [
-    { value: '411122-900', label: '411122-900 · PPh 22 Pemungutan oleh Bendahara' },
+  'PPh Pasal 22 · Pembelian Barang': [
+    { value: '411122-900', label: '411122-900 · PPh 22 Pemungutan Bendahara' },
     { value: '411122-100', label: '411122-100 · Masa PPh Pasal 22' },
   ],
-  'PPh Pasal 23': [
+  'PPh Pasal 23 · Jasa Badan Usaha': [
     { value: '411124-104', label: '411124-104 · PPh 23 atas Jasa' },
     { value: '411124-101', label: '411124-101 · PPh 23 atas Dividen' },
     { value: '411124-102', label: '411124-102 · PPh 23 atas Bunga' },
     { value: '411124-103', label: '411124-103 · PPh 23 atas Royalti' },
     { value: '411124-100', label: '411124-100 · Masa PPh Pasal 23' },
   ],
+  'PPh Final Pasal 4(2) · Sewa': [
+    { value: '411128-403', label: '411128-403 · Persewaan Tanah/Bangunan' },
+  ],
+  'PPh Final Pasal 4(2) · Konstruksi': [
+    { value: '411128-409', label: '411128-409 · Jasa Konstruksi (Pelaksana)' },
+    { value: '411128-410', label: '411128-410 · Jasa Konstruksi (Perencana/Pengawas)' },
+  ],
+  'PPh Pasal 21 · Honor & Hadiah': [
+    { value: '411121-100', label: '411121-100 · Masa PPh Pasal 21' },
+    { value: '411121-402', label: '411121-402 · PPh 21 Final Honor PNS/APBN-APBD' },
+  ],
+  'PPh Final UMKM': [
+    { value: '411128-420', label: '411128-420 · PPh Final UMKM (PP 55/2022) 0,5%' },
+  ],
+  'PPN': [
+    { value: '411211-900', label: '411211-900 · PPN Dipungut Bendahara' },
+    { value: '411211-100', label: '411211-100 · PPN Dalam Negeri' },
+  ],
   'PPh Pasal 26': [
     { value: '411127-100', label: '411127-100 · Masa PPh Pasal 26' },
   ],
+  'PPh Final Pasal 4(2) · Lainnya': [
+    { value: '411128-401', label: '411128-401 · Bunga Deposito/Tabungan' },
+    { value: '411128-402', label: '411128-402 · Bunga/Diskonto Obligasi' },
+    { value: '411128-405', label: '411128-405 · Pengalihan Hak Tanah/Bangunan' },
+    { value: '411128-406', label: '411128-406 · Penjualan Saham di Bursa' },
+    { value: '411128-409', label: '411128-409 · Jasa Konstruksi (Pelaksana)' },
+    { value: '411128-419', label: '411128-419 · Dividen (Orang Pribadi)' },
+  ],
+  'PPh Pasal 15': [
+    { value: '411129-100', label: '411129-100 · Masa PPh Pasal 15' },
+  ],
+  // Legacy group name (transaksi lama)
   'PPh Pasal 4 Ayat 2 (Final)': [
     { value: '411128-403', label: '411128-403 · Persewaan Tanah/Bangunan' },
     { value: '411128-409', label: '411128-409 · Jasa Konstruksi (Pelaksana)' },
     { value: '411128-410', label: '411128-410 · Jasa Konstruksi (Perencana/Pengawas)' },
     { value: '411128-420', label: '411128-420 · PPh Final UMKM (PP 23) 0,5%' },
     { value: '411128-401', label: '411128-401 · Bunga Deposito/Tabungan' },
-    { value: '411128-402', label: '411128-402 · Bunga/Diskonto Obligasi' },
-    { value: '411128-405', label: '411128-405 · Pengalihan Hak Tanah/Bangunan' },
     { value: '411128-419', label: '411128-419 · Dividen (Orang Pribadi)' },
     { value: '411128-406', label: '411128-406 · Penjualan Saham di Bursa' },
   ],
-  'PPh Pasal 15': [
-    { value: '411129-100', label: '411129-100 · Masa PPh Pasal 15' },
+  'PPh Pasal 21': [
+    { value: '411121-100', label: '411121-100 · Masa PPh Pasal 21' },
+    { value: '411121-402', label: '411121-402 · PPh 21 Final Honor PNS/APBN-APBD' },
   ],
-  'PPN': [
-    { value: '411211-900', label: '411211-900 · PPN Dipungut oleh Bendahara' },
-    { value: '411211-100', label: '411211-100 · PPN Dalam Negeri' },
+  'PPh Pasal 22': [
+    { value: '411122-900', label: '411122-900 · PPh 22 Pemungutan Bendahara' },
+    { value: '411122-100', label: '411122-100 · Masa PPh Pasal 22' },
+  ],
+  'PPh Pasal 23': [
+    { value: '411124-104', label: '411124-104 · PPh 23 atas Jasa' },
+    { value: '411124-101', label: '411124-101 · PPh 23 atas Dividen' },
+    { value: '411124-100', label: '411124-100 · Masa PPh Pasal 23' },
   ],
 };
 
 const KODE_MAP_DEFAULT_BY_ID = {
-  'pph21-5': '411121-100', 'pph21-25': '411121-100', 'pph21-15': '411121-100',
-  'pph22-15': '411122-900', 'pph22-3': '411122-900', 'pph22-05': '411122-900',
+  'pph22-15': '411122-900', 'pph22-3': '411122-900', 'pph22-05': '411122-100',
+  'pph23-2-konsultan': '411124-104', 'pph23-2-pelatihan': '411124-104', 'pph23-2-eo': '411124-104',
+  'pph23-2-sewa-kendaraan': '411124-104', 'pph23-2-sewa-alat': '411124-104',
   'pph23-2': '411124-104', 'pph23-4': '411124-104', 'pph23-15': '411124-101',
-  'pph26-20': '411127-100',
   'pph42-10-sewa': '411128-403', 'pph42-25-sewa': '411128-403',
-  'pph42-10-bunga': '411128-401', 'pph42-25-konstruksi': '411128-409',
-  'pph42-4-konstruksi': '411128-410', 'pph42-2-reklame': '411128-409',
-  'pph42-05-umkm': '411128-420', 'pph42-10-dividen': '411128-419',
-  'pph42-01-saham': '411128-406',
-  'pph15-264': '411129-100',
+  'pph42-175-konstruksi': '411128-409', 'pph42-265-konstruksi': '411128-409',
+  'pph42-35-konstruksi': '411128-409', 'pph42-4-konstruksi': '411128-409',
+  'pph42-6-konstruksi': '411128-409', 'pph42-25-konstruksi': '411128-410',
+  'pph21-asn-honor': '411121-402', 'pph21-ter-honor': '411121-100', 'pph21-hadiah': '411121-100',
+  'pph21-5': '411121-100', 'pph21-25': '411121-100', 'pph21-15': '411121-100',
+  'pph42-05-umkm': '411128-420',
   'ppn-11': '411211-900', 'ppn-12': '411211-900',
+  'pph26-20': '411127-100',
+  'pph42-10-bunga': '411128-401', 'pph42-2-reklame': '411128-409',
+  'pph42-10-dividen': '411128-419', 'pph42-01-saham': '411128-406',
+  'pph15-264': '411129-100',
 };
+
+function defaultKapForCatalog(catalogId) {
+  const c = getCatalogItem(catalogId);
+  return c?.kap || KODE_MAP_DEFAULT_BY_ID[catalogId] || '';
+}
 
 const MASA_PAJAK_OPTIONS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -10724,9 +10801,9 @@ function taxArticleLabel(item) {
 function buildKodeMapControl(catalogId, presetVal) {
   const opts = kodeMapOptionsForCatalog(catalogId);
   if (!opts) {
-    return `<input type="text" class="form-control form-control-sm potongan-kodemap" placeholder="Kode MAP/KAP (manual)" value="${presetVal || ''}" />`;
+    return `<input type="text" class="form-control form-control-sm potongan-kodemap" placeholder="Kode MAP/KAP (manual)" value="${presetVal || defaultKapForCatalog(catalogId) || ''}" />`;
   }
-  const def = presetVal || KODE_MAP_DEFAULT_BY_ID[catalogId] || '';
+  const def = presetVal || defaultKapForCatalog(catalogId);
   let html = '<select class="form-select form-select-sm potongan-kodemap"><option value="">— Pilih Kode MAP —</option>';
   if (def && !opts.some(o => o.value === def)) html += `<option value="${def}" selected>${def}</option>`;
   opts.forEach(o => { html += `<option value="${o.value}"${o.value === def ? ' selected' : ''}>${o.label}</option>`; });
@@ -10825,6 +10902,10 @@ function calcPotonganNilai(bruto, catalogItem, tarifOverride) {
   if (catalogItem.base === 'dpp') {
     const dpp = bruto / (1 + tarif);
     return Math.round(dpp * tarif);
+  }
+  if (catalogItem.base === 'exclude_ppn') {
+    const net = bruto / 1.11;
+    return Math.round(net * tarif);
   }
   return Math.round(bruto * tarif);
 }
