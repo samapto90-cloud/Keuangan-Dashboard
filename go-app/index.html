@@ -4503,16 +4503,23 @@ function onNilaiBrutoInput() {
         <input type="hidden" id="f-id" />
         <div class="row g-3">
 
-          <!-- Baris 1: Tanggal + Penerima -->
+          <!-- Baris 1: Tanggal + Jenis Transaksi + Penerima + BPK -->
           <div class="col-md-3">
             <label class="form-label">Tanggal <span class="text-danger">*</span></label>
             <input type="date" class="form-control" id="f-tanggal" required onchange="updateNoBPK()" />
           </div>
-          <div class="col-md-5">
+          <div class="col-md-2">
+            <label class="form-label">Jenis Transaksi <span class="text-danger">*</span></label>
+            <select class="form-select" id="f-jenis-trx" required onchange="onJenisTransaksiChange()">
+              <option value="UP" selected>UP</option>
+              <option value="LS">LS</option>
+            </select>
+          </div>
+          <div class="col-md-4">
             <label class="form-label">Penerima / Dibayar Kepada <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima / vendor" required />
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label">No. BPK <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-nobpk" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
           </div>
@@ -4586,7 +4593,7 @@ function onNilaiBrutoInput() {
 
           <!-- Baris 7: Nilai Bruto + ringkasan potongan -->
           <div class="col-md-4">
-            <label class="form-label">Nilai Bruto (Rp) <span class="text-danger">*</span></label>
+            <label class="form-label">Nilai Bruto / DPP (Rp) <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required oninput="onNilaiBrutoInput()" />
           </div>
           <div class="col-md-4">
@@ -4613,7 +4620,7 @@ function onNilaiBrutoInput() {
                 <span>Jenis</span><span>Tarif (%)</span><span>Kategori</span><span>Nilai (Rp)</span><span></span>
               </div>
               <div id="potongan-rows"></div>
-              <div class="text-muted mt-1" style="font-size:11px">PPN dihitung dari nilai bruto. PPh dihitung dari (bruto − PPN). Netto = bruto − PPN − PPh − potongan lain.</div>
+              <div class="text-muted mt-1" style="font-size:11px">PPN = DPP × tarif/(100+tarif), mis. 11/111. PPh = (DPP − PPN) × tarif PPh. Netto = DPP − PPN − PPh − potongan lain.</div>
             </div>
           </div>
 
@@ -4723,14 +4730,14 @@ function onNilaiBrutoInput() {
           <thead>
             <tr>
               <th class="text-center" style="width:34px"><input type="checkbox" id="trx-check-all" class="form-check-input" title="Pilih semua" onchange="toggleSelectAllTrx(this.checked)" /></th>
-              <th>No</th><th>Status</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
+              <th>No</th><th>Status</th><th>Jenis Trx</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
               <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
               <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
               <th class="text-end">Nilai (Rp)</th><th>Jenis Pajak</th><th class="text-end">Pajak (Rp)</th><th>Jenis Potongan</th><th class="text-end">Potongan (Rp)</th>
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="22" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="23" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top trx-table-footer">
@@ -7721,23 +7728,52 @@ function showPage(name, el) {
 // ── Cascading Form ──────────────────────────────────────────────────────
 const BPK_UNIT = '1.01.0.00.0.00.01.0000';
 
-function parseBpkSeq(noBpk, bpkCode) {
+function normalizeJenisTransaksi(v) {
+  return String(v || 'UP').trim().toUpperCase() === 'LS' ? 'LS' : 'UP';
+}
+
+function getJenisTransaksiFromForm() {
+  return normalizeJenisTransaksi(document.getElementById('f-jenis-trx')?.value);
+}
+
+function inferJenisTransaksi(t) {
+  if (t?.jenis_transaksi) return normalizeJenisTransaksi(t.jenis_transaksi);
+  const bpk = String(t?.no_bpk || '');
+  if (bpk.includes('/BPK/LS/')) return 'LS';
+  const np2d = String(t?.no_np2d || '');
+  if (np2d.includes('/NP2D-PPTK/LS/')) return 'LS';
+  return 'UP';
+}
+
+function trxJenisLabel(t) {
+  return inferJenisTransaksi(t);
+}
+
+function np2dDocPath(jenis) {
+  return `NP2D-PPTK/${normalizeJenisTransaksi(jenis)}`;
+}
+
+function parseBpkSeq(noBpk, bpkCode, jenis) {
   if (!noBpk || !String(noBpk).includes('/' + bpkCode + '/')) return 0;
+  const j = normalizeJenisTransaksi(jenis);
+  if (!String(noBpk).includes('/BPK/' + j + '/')) return 0;
   const m = String(noBpk).match(/^(\d+)\/BPK\//i);
   return m ? parseInt(m[1], 10) : 0;
 }
 
-function generateNoBPK(tanggal) {
+function generateNoBPK(tanggal, jenis) {
   if (!tanggal) return '';
   const [year, month] = tanggal.split('-');
   const cfg = getPortalAppConfig();
+  const j = normalizeJenisTransaksi(jenis);
   let maxSeq = 0;
   for (const t of allTransactions) {
     if (editingId != null && t.id === editingId) continue;
-    maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
+    if (inferJenisTransaksi(t) !== j) continue;
+    maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode, j));
   }
   const seq = String(maxSeq + 1).padStart(4, '0');
-  return `${seq}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+  return `${seq}/BPK/${j}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
 }
 
 function hasTrxFormInput() {
@@ -7761,32 +7797,41 @@ function updateNoBPK() {
     updateNoNP2D(true);
     return;
   }
-  el.value = generateNoBPK(document.getElementById('f-tanggal').value);
+  el.value = generateNoBPK(document.getElementById('f-tanggal').value, getJenisTransaksiFromForm());
   updateNoNP2D();
 }
 
-const NP2D_DOC = 'NP2D-PPTK';
+function onJenisTransaksiChange() {
+  updateNoBPK();
+}
 
-function parseNp2dSeq(noNp2d, bpkCode) {
+function parseNp2dSeq(noNp2d, bpkCode, jenis) {
   if (!noNp2d) return 0;
   const s = String(noNp2d);
   if (!s.includes('/' + bpkCode + '/')) return 0;
-  const m = s.match(/^(\d+)\/(?:NP2D-PPTK|LS\/NP2D-PPTK)\//i);
-  if (m) return parseInt(m[1], 10);
-  return s.match(/^(\d+)\//) ? parseInt(s.match(/^(\d+)\//)[1], 10) : 0;
+  const j = normalizeJenisTransaksi(jenis);
+  const tagged = s.match(new RegExp('^(\d+)/NP2D-PPTK/(UP|LS)/', 'i'));
+  if (tagged) return normalizeJenisTransaksi(tagged[2]) === j ? parseInt(tagged[1], 10) : 0;
+  if (j === 'UP' && /\/NP2D-PPTK\//i.test(s)) {
+    const m = s.match(/^(\d+)\//);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+  return 0;
 }
 
-function generateNoNP2D(tanggal) {
+function generateNoNP2D(tanggal, jenis) {
   if (!tanggal) return '';
   const [year, month] = tanggal.split('-');
   const cfg = getPortalAppConfig();
+  const j = normalizeJenisTransaksi(jenis);
   let maxSeq = 0;
   for (const t of allTransactions) {
     if (editingId != null && t.id === editingId) continue;
-    maxSeq = Math.max(maxSeq, parseNp2dSeq(t.no_np2d, cfg.bpkCode));
+    if (inferJenisTransaksi(t) !== j) continue;
+    maxSeq = Math.max(maxSeq, parseNp2dSeq(t.no_np2d, cfg.bpkCode, j));
   }
   const seq = String(maxSeq + 1).padStart(4, '0');
-  return `${seq}/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+  return `${seq}/${np2dDocPath(j)}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
 }
 
 function updateNoNP2D(clear) {
@@ -7794,7 +7839,7 @@ function updateNoNP2D(clear) {
   const el = document.getElementById('f-nonp2d');
   if (!el) return;
   if (clear || !hasTrxFormInput()) { el.value = ''; return; }
-  el.value = generateNoNP2D(document.getElementById('f-tanggal').value);
+  el.value = generateNoNP2D(document.getElementById('f-tanggal').value, getJenisTransaksiFromForm());
 }
 
 function initTrxFormBpkListeners() {
@@ -7811,7 +7856,7 @@ function initTrxFormBpkListeners() {
   form.addEventListener('change', e => {
     if (editingId != null) return;
     const id = e.target?.id || '';
-    if (['f-tanggal', 'f-kegiatan', 'f-subkegiatan', 'f-pekerjaan'].includes(id)) {
+    if (['f-tanggal', 'f-kegiatan', 'f-subkegiatan', 'f-pekerjaan', 'f-jenis-trx'].includes(id)) {
       updateNoBPK();
     }
   });
@@ -8436,6 +8481,7 @@ function getFilteredTransactions() {
     if (!q) return true;
     return (t.kegiatan||'').toLowerCase().includes(q) ||
     (t.penerima||'').toLowerCase().includes(q) ||
+    (trxJenisLabel(t)||'').toLowerCase().includes(q) ||
     (t.no_bpk||'').toLowerCase().includes(q) ||
     (t.no_bast||'').toLowerCase().includes(q) ||
     (t.no_kontrak||'').toLowerCase().includes(q) ||
@@ -8496,7 +8542,7 @@ function renderTable() {
   const tbody = document.getElementById('trx-tbody');
   let totalN = 0, totalP = 0, totalPot = 0;
   if (!data || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="22"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="23"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
@@ -8523,6 +8569,7 @@ function renderTable() {
       <td class="text-center"><input type="checkbox" class="form-check-input trx-row-check" value="${t.id}" ${checked} ${canSelect ? '' : 'disabled title="Transaksi sudah diajukan — hanya bisa dihapus jika Admin menolak"'} onchange="toggleSelectTrx(${t.id}, this.checked)" /></td>
       <td class="table-num">${start + i + 1}</td>
       <td>${trxStatusBadge(t)}</td>
+      <td><span class="badge ${trxJenisLabel(t) === 'LS' ? 'bg-info' : 'bg-primary'} bg-opacity-75">${trxJenisLabel(t)}</span></td>
       <td style="white-space:nowrap">${formatTanggal(t.tanggal)}</td>
       <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.kegiatan||''}">${t.kegiatan||'-'}</td>
       <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.sub_kegiatan||''}">${t.sub_kegiatan||'-'}</td>
@@ -8670,6 +8717,7 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     sub_kegiatan: document.getElementById('f-subkegiatan').value,
     kode_rekening: kodeRek || document.getElementById('f-koderek').value,
     penerima: document.getElementById('f-penerima').value,
+    jenis_transaksi: getJenisTransaksiFromForm(),
     no_bpk: document.getElementById('f-nobpk').value,
     no_bast: document.getElementById('f-nobast').value,
     no_kontrak: document.getElementById('f-nokontrak').value,
@@ -8768,6 +8816,8 @@ function resetForm() {
   const submitBtn = document.getElementById('btn-submit');
   if (submitBtn) submitBtn.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Data';
   document.getElementById('f-tanggal').value = new Date().toISOString().slice(0, 10);
+  const jenisEl = document.getElementById('f-jenis-trx');
+  if (jenisEl) jenisEl.value = 'UP';
   document.getElementById('f-nobpk').value = '';
   if (typeof updatePotonganSummaryDisplay === 'function') updatePotonganSummaryDisplay();
   updateNoBPK();
@@ -8794,6 +8844,8 @@ function editTrx(id) {
   document.getElementById('f-nobast').value = t.no_bast||'';
   document.getElementById('f-nokontrak').value = t.no_kontrak||'';
   document.getElementById('f-penerima').value = t.penerima||'';
+  const jenisEl = document.getElementById('f-jenis-trx');
+  if (jenisEl) jenisEl.value = inferJenisTransaksi(t);
   document.getElementById('f-nilai').value = t.nilai||0;
   document.getElementById('f-pa').value = DB.pa.nama;
   document.getElementById('f-pptk').value = t.pptk||'';
@@ -9358,10 +9410,11 @@ function cetakNP2D(id) {
   const items = getPotonganItemsFromTransaction(t);
   const pajakItems = items.filter(i => i.kategori === 'pajak');
   const potItems = items.filter(i => i.kategori === 'potongan');
-  const totalPajak = pajakItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.pajak || 0);
-  const totalPot = potItems.reduce((s, i) => s + (i.nilai || 0), 0) || (t.nilai_potongan || 0);
+  const { ppn, pph, pot, totalPajak } = splitPotonganTotals(items);
+  const totalPajakLegacy = totalPajak || (t.pajak || 0);
+  const totalPot = pot || (t.nilai_potongan || 0);
   const bruto = t.nilai || 0;
-  const netto = bruto - totalPajak - totalPot;
+  const netto = items.length ? calcNettoFromPotongan(bruto, items) : Math.max(0, bruto - totalPajakLegacy - totalPot);
   const tahun = DB.tahun || 2026;
   const keperluan = t.uraian || t.pekerjaan || '—';
   let pptkNip = t.pptk_nip || dbPPTKNip(t.pptk) || '';
@@ -9386,7 +9439,7 @@ function cetakNP2D(id) {
   npSetTxt('np-jumlah1', formatKwitansiAmount(netto));
 
   const sec2 = document.getElementById('np-sec2');
-  if (pajakItems.length && totalPajak > 0) {
+  if (pajakItems.length && totalPajakLegacy > 0) {
     sec2.style.display = '';
     npSetTxt('np-npwp', t.npwp || '-');
     npSetTxt('np-nama-wp', t.nama_wp || t.penerima || '-');
@@ -9404,7 +9457,7 @@ function cetakNP2D(id) {
         + `<td class="np-amt">${formatKwitansiAmount(it.nilai || 0)}</td>`
         + `</tr>`;
     }).join('');
-    npSetTxt('np-jumlah2', formatKwitansiAmount(totalPajak));
+    npSetTxt('np-jumlah2', formatKwitansiAmount(totalPajakLegacy));
   } else {
     sec2.style.display = 'none';
   }
@@ -10156,6 +10209,8 @@ function trxJenisPotonganLabel(t) {
 }
 
 function trxNetto(t) {
+  const items = getPotonganItemsFromTransaction(t);
+  if (items.length) return calcNettoFromPotongan(t.nilai || 0, items);
   return Math.max(0, (t.nilai || 0) - trxPotonganTotal(t));
 }
 
@@ -10895,20 +10950,37 @@ function isPpnCatalog(catalogItem) {
   return catalogItem?.base === 'dpp';
 }
 
-function calcPotonganNilai(bruto, catalogItem, tarifOverride, opts) {
+function isPpnPotonganItem(item) {
+  if (!item || item.kategori !== 'pajak') return false;
+  const c = getCatalogItem(resolveCatalogIdFromItem(item));
+  return isPpnCatalog(c) || /^PPN\s*—/i.test(item.jenis || '');
+}
+
+function splitPotonganTotals(items) {
+  let ppn = 0, pph = 0, pot = 0;
+  (items || []).forEach(item => {
+    const nilai = parseFloat(item.nilai) || 0;
+    if (item.kategori === 'potongan') { pot += nilai; return; }
+    if (isPpnPotonganItem(item)) ppn += nilai;
+    else pph += nilai;
+  });
+  return { ppn, pph, pot, totalPajak: ppn + pph };
+}
+
+function calcNettoFromPotongan(dpp, items) {
+  const { ppn, pph, pot } = splitPotonganTotals(items);
+  return Math.max(0, dpp - ppn - pph - pot);
+}
+
+function calcPotonganNilai(dpp, catalogItem, tarifOverride, opts) {
   if (!catalogItem || catalogItem.base === 'manual') return null;
   const tarif = tarifOverride != null ? tarifOverride : catalogItem.tarif;
   if (tarif == null) return null;
   const ppnTotal = (opts && opts.ppnTotal) || 0;
   if (catalogItem.base === 'dpp') {
-    const dpp = bruto / (1 + tarif);
-    return Math.round(dpp * tarif);
+    return Math.round(dpp * tarif / (1 + tarif));
   }
-  const pphBase = ppnTotal > 0 ? Math.max(0, bruto - ppnTotal) : bruto;
-  if (catalogItem.base === 'exclude_ppn') {
-    const net = ppnTotal > 0 ? pphBase : bruto / 1.11;
-    return Math.round(net * tarif);
-  }
+  const pphBase = ppnTotal > 0 ? Math.max(0, dpp - ppnTotal) : dpp;
   return Math.round(pphBase * tarif);
 }
 
@@ -10942,12 +11014,13 @@ function renderPotonganFormRows(items) {
   potonganManualFlags = {};
   wrap.innerHTML = '';
   if (!items.length) return;
-  items.forEach((item, idx) => addPotonganFormRow(item, idx));
-  updatePotonganSummaryDisplay();
+  items.forEach((item, idx) => addPotonganFormRow(item, idx, { skipRecalc: true }));
+  recalcAllPotonganRows();
   syncTaxFieldVisibility();
 }
 
-function addPotonganFormRow(preset, idx) {
+function addPotonganFormRow(preset, idx, opts) {
+  const skipRecalc = opts?.skipRecalc;
   const wrap = document.getElementById('potongan-rows');
   if (!wrap) return;
   const rowIdx = idx != null ? idx : wrap.querySelectorAll('.potongan-row').length;
@@ -10986,7 +11059,7 @@ function addPotonganFormRow(preset, idx) {
     </div>`;
   wrap.appendChild(row);
   if (preset?.nilai != null && preset.nilai > 0) potonganManualFlags[rowIdx] = true;
-  recalcPotonganRow(rowIdx, !potonganManualFlags[rowIdx]);
+  if (!skipRecalc) recalcPotonganRow(rowIdx, !potonganManualFlags[rowIdx]);
 }
 
 function getPotonganRowEl(idx) {
@@ -11093,7 +11166,7 @@ function recalcPotonganRow(idx, force) {
 }
 
 function recalcAllPotonganRows() {
-  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
+  const dpp = parseFloat(document.getElementById('f-nilai')?.value) || 0;
   const rows = Array.from(document.querySelectorAll('#potongan-rows .potongan-row'));
   const ppnRows = [];
   const otherRows = [];
@@ -11116,7 +11189,7 @@ function recalcAllPotonganRows() {
       totalPPN += parseFloat(entry.nilaiEl?.value) || 0;
       return;
     }
-    const nilai = calcPotonganNilai(bruto, entry.catalog, entry.tarif);
+    const nilai = calcPotonganNilai(dpp, entry.catalog, entry.tarif);
     if (nilai != null && entry.nilaiEl) {
       entry.nilaiEl.value = nilai;
       totalPPN += nilai;
@@ -11126,7 +11199,7 @@ function recalcAllPotonganRows() {
   otherRows.forEach(entry => {
     if (entry.isManual) return;
     if (entry.kategori === 'potongan' || entry.catalog?.base === 'manual') return;
-    const nilai = calcPotonganNilai(bruto, entry.catalog, entry.tarif, { ppnTotal: totalPPN });
+    const nilai = calcPotonganNilai(dpp, entry.catalog, entry.tarif, { ppnTotal: totalPPN });
     if (nilai != null && entry.nilaiEl) entry.nilaiEl.value = nilai;
   });
 
@@ -11172,15 +11245,14 @@ function syncLegacyTaxFieldsFromItems(items) {
 
 function updatePotonganSummaryDisplay() {
   const items = collectPotonganFromForm();
-  const totalPajak = sumPotonganByKategori(items, 'pajak');
-  const totalPot = sumPotonganByKategori(items, 'potongan');
-  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
+  const { ppn, pph, pot, totalPajak } = splitPotonganTotals(items);
+  const dpp = parseFloat(document.getElementById('f-nilai')?.value) || 0;
   const elP = document.getElementById('f-total-pajak');
   const elPot = document.getElementById('f-total-potongan');
   const elNet = document.getElementById('f-total-netto');
   if (elP) elP.textContent = formatRupiah(totalPajak);
-  if (elPot) elPot.textContent = formatRupiah(totalPot);
-  if (elNet) elNet.textContent = formatRupiah(Math.max(0, bruto - totalPajak - totalPot));
+  if (elPot) elPot.textContent = formatRupiah(pot);
+  if (elNet) elNet.textContent = formatRupiah(calcNettoFromPotongan(dpp, items));
 }
 
 function syncTaxFieldVisibility() {
@@ -11274,6 +11346,7 @@ const EXPORT_COLS = [
   {label:'Sub Kegiatan', key:'sub_kegiatan'},
   {label:'Kode Rekening',key:'kode_rekening'},
   {label:'Penerima',     key:'penerima'},
+  {label:'Jenis Transaksi', key:'jenis_transaksi'},
   {label:'No BPK',       key:'no_bpk'},
   {label:'No BAST',      key:'no_bast'},
   {label:'No Kontrak',   key:'no_kontrak'},
@@ -11300,6 +11373,7 @@ const EXPORT_COLS = [
 
 const IMPORT_COL_ALIASES = {
   no_bpk: ['nomor bpk', 'bpk'],
+  jenis_transaksi: ['jenis trx', 'jenis transaksi', 'tipe transaksi'],
   no_np2d: ['no np2d', 'np2d', 'npd', 'no npd', 'nomor np2d', 'nomor npd', 'no np2d pptk', 'np2d pptk', 'np2d-pptk'],
 };
 
@@ -11375,10 +11449,10 @@ async function downloadTemplate() {
   const cfg = getPortalAppConfig();
   const header = EXPORT_COLS.map(c => c.label);
   const bpkExample = `0001/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
-  const np2dExample = `0001/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
+  const np2dExample = `0001/${np2dDocPath('UP')}/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
   const example = [
     '2026-01-10', 'Administrasi Keuangan Perangkat Daerah', 'Penyediaan Administrasi Pelaksanaan Tugas ASN', '5.1.02.02.001.00080',
-    'CV. Contoh Maju', bpkExample, '0001/BAST/DISDIK/I/2026', '', 'Belanja ATK', 'Pengadaan ATK bulan Januari 2026',
+    'CV. Contoh Maju', 'UP', bpkExample, '0001/BAST/DISDIK/I/2026', '', 'Belanja ATK', 'Pengadaan ATK bulan Januari 2026',
     'PPh 22 — 1,5% (Pembelian Barang NPWP)', 'Iuran Wajib Pegawai (IWP)', 1000000, 15000, 10000,
     '1234567890123456', '820260100000001', 'BND2026010001',
     cfg.defaultPa.nama, 'RAMA WARNI, MM', cfg.defaultBendahara.nama,
@@ -11455,7 +11529,7 @@ function previewImpor(event) {
 
       const head = document.getElementById('import-thead');
       const tbody = document.getElementById('import-tbody');
-      const previewCols = ['tanggal','penerima','no_bpk','no_np2d','kegiatan','pekerjaan','nilai'];
+      const previewCols = ['tanggal','penerima','jenis_transaksi','no_bpk','no_np2d','kegiatan','pekerjaan','nilai'];
       const previewLabels = ['Tanggal','Penerima','No BPK','No NP2D/NPD','Kegiatan','Pekerjaan','Nilai'];
       if (head) head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
       if (tbody) tbody.innerHTML = importData.slice(0, 20).map(t => {
@@ -11509,30 +11583,46 @@ async function doImpor() {
   try {
     const cfg = getPortalAppConfig();
     // Nomor BPK lanjut dari urutan tertinggi transaksi yang sudah ada (impor menambah, tidak menghapus).
-    let maxSeq = 0;
-    let maxNp2dSeq = 0;
+    let maxSeqUp = 0, maxSeqLs = 0, maxNp2dUp = 0, maxNp2dLs = 0;
     for (const t of (allTransactions || [])) {
-      maxSeq = Math.max(maxSeq, parseBpkSeq(t.no_bpk, cfg.bpkCode));
-      maxNp2dSeq = Math.max(maxNp2dSeq, parseNp2dSeq(t.no_np2d, cfg.bpkCode));
+      const j = inferJenisTransaksi(t);
+      if (j === 'LS') {
+        maxSeqLs = Math.max(maxSeqLs, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'LS'));
+        maxNp2dLs = Math.max(maxNp2dLs, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'LS'));
+      } else {
+        maxSeqUp = Math.max(maxSeqUp, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'UP'));
+        maxNp2dUp = Math.max(maxNp2dUp, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'UP'));
+      }
     }
     const payload = importData.map(t => {
+      const jenis = inferJenisTransaksi(t);
       let noBpk = String(t.no_bpk || '').trim();
       let noNp2d = String(t.no_np2d || '').trim();
       if (!noBpk && t.tanggal) {
         const [year, month] = String(t.tanggal).split('-');
         if (year && month) {
-          maxSeq += 1;
-          noBpk = `${String(maxSeq).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          if (jenis === 'LS') {
+            maxSeqLs += 1;
+            noBpk = `${String(maxSeqLs).padStart(4, '0')}/BPK/LS/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          } else {
+            maxSeqUp += 1;
+            noBpk = `${String(maxSeqUp).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          }
         }
       }
       if (!noNp2d && t.tanggal) {
         const [year, month] = String(t.tanggal).split('-');
         if (year && month) {
-          maxNp2dSeq += 1;
-          noNp2d = `${String(maxNp2dSeq).padStart(4, '0')}/${NP2D_DOC}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          if (jenis === 'LS') {
+            maxNp2dLs += 1;
+            noNp2d = `${String(maxNp2dLs).padStart(4, '0')}/${np2dDocPath('LS')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          } else {
+            maxNp2dUp += 1;
+            noNp2d = `${String(maxNp2dUp).padStart(4, '0')}/${np2dDocPath('UP')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+          }
         }
       }
-      const base = { ...t, no_bpk: noBpk, no_np2d: noNp2d };
+      const base = { ...t, jenis_transaksi: jenis, no_bpk: noBpk, no_np2d: noNp2d };
       const items = getPotonganItemsFromTransaction(base);
       if (!items.length) return base;
       const legacy = syncLegacyTaxFieldsFromItems(items);

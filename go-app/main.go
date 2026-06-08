@@ -73,6 +73,7 @@ type Transaction struct {
         KodeRekening     string  `json:"kode_rekening"`
         Penerima         string  `json:"penerima"`
         NoBPK            string  `json:"no_bpk"`
+        JenisTransaksi   string  `json:"jenis_transaksi,omitempty"`
         NoBAST           string  `json:"no_bast"`
         NoKontrak        string  `json:"no_kontrak"`
         Pekerjaan        string  `json:"pekerjaan"`

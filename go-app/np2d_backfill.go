@@ -37,12 +37,34 @@ func isNewNp2dFormat(noNp2d, bpkCode string) bool {
 	if noNp2d == "" {
 		return false
 	}
-	want := fmt.Sprintf("/%s/%s/%s/", np2dDocType, bpkUnitCode, bpkCode)
-	return strings.Contains(noNp2d, want)
+	for _, jenis := range []string{"UP", "LS"} {
+		want := fmt.Sprintf("/%s/%s/%s/%s/", np2dDocType, jenis, bpkUnitCode, bpkCode)
+		if strings.Contains(noNp2d, want) {
+			return true
+		}
+	}
+	wantLegacy := fmt.Sprintf("/%s/%s/%s/", np2dDocType, bpkUnitCode, bpkCode)
+	return strings.Contains(noNp2d, wantLegacy)
 }
 
-func formatNp2dNumber(seq int, bpkCode, month, year string) string {
-	return fmt.Sprintf("%04d/%s/%s/%s/%s/%s", seq, np2dDocType, bpkUnitCode, bpkCode, month, year)
+func inferJenisTransaksiGo(t Transaction) string {
+	if strings.EqualFold(strings.TrimSpace(t.JenisTransaksi), "LS") {
+		return "LS"
+	}
+	if strings.Contains(t.NoBPK, "/BPK/LS/") {
+		return "LS"
+	}
+	if strings.Contains(t.NoNP2D, "/NP2D-PPTK/LS/") {
+		return "LS"
+	}
+	return "UP"
+}
+
+func formatNp2dNumber(seq int, bpkCode, month, year, jenis string) string {
+	if jenis != "LS" {
+		jenis = "UP"
+	}
+	return fmt.Sprintf("%04d/%s/%s/%s/%s/%s/%s", seq, np2dDocType, jenis, bpkUnitCode, bpkCode, month, year)
 }
 
 func tanggalParts(tanggal string) (year, month string, ok bool) {
@@ -80,7 +102,7 @@ func backfillModuleNP2D(mod *SipkeuModule) int {
 		if seq <= 0 {
 			continue
 		}
-		newNo := formatNp2dNumber(seq, bpkCode, month, year)
+		newNo := formatNp2dNumber(seq, bpkCode, month, year, inferJenisTransaksiGo(*t))
 		if newNo != existing {
 			t.NoNP2D = newNo
 			updated++
@@ -117,7 +139,7 @@ func backfillModuleNP2D(mod *SipkeuModule) int {
 			continue
 		}
 		maxSeq++
-		t.NoNP2D = formatNp2dNumber(maxSeq, bpkCode, month, year)
+		t.NoNP2D = formatNp2dNumber(maxSeq, bpkCode, month, year, inferJenisTransaksiGo(*t))
 		updated++
 	}
 
