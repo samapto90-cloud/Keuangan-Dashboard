@@ -19,10 +19,10 @@ var (
 	adminRekapCache   = map[string]adminRekapCacheEntry{}
 )
 
-func adminRekapCacheKey(portals []string, mode, from, to string) string {
+func adminRekapCacheKey(portals []string, mode, from, to, jenis string) string {
 	ps := append([]string(nil), portals...)
 	sort.Strings(ps)
-	return strings.Join(ps, ",") + "\x00" + mode + "\x00" + from + "\x00" + to
+	return strings.Join(ps, ",") + "\x00" + mode + "\x00" + from + "\x00" + to + "\x00" + jenis
 }
 
 func invalidateAdminRekapCache() {
@@ -31,8 +31,8 @@ func invalidateAdminRekapCache() {
 	adminRekapCacheMu.Unlock()
 }
 
-func cachedAdminRekapRows(portals []string, mode, from, to string, build func() []adminRekapRow) []adminRekapRow {
-	key := adminRekapCacheKey(portals, mode, from, to)
+func cachedAdminRekapRows(portals []string, mode, from, to, jenis string, build func() []adminRekapRow) []adminRekapRow {
+	key := adminRekapCacheKey(portals, mode, from, to, jenis)
 	now := time.Now()
 	adminRekapCacheMu.RLock()
 	if c, ok := adminRekapCache[key]; ok && now.Before(c.expires) {

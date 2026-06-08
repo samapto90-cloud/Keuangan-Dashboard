@@ -5403,6 +5403,14 @@ function initManualNumericInputUX() {
               </select>
             </div>
             <div>
+              <label class="form-label text-light mb-1" style="font-size:11px">Jenis</label>
+              <select class="form-select form-select-sm" id="sao-rekap-jenis" style="min-width:120px" onchange="scheduleAdminRekapLoad()">
+                <option value="" selected>Semua</option>
+                <option value="UP">UP</option>
+                <option value="LS">LS</option>
+              </select>
+            </div>
+            <div>
               <label class="form-label text-light mb-1" style="font-size:11px">Dari Tanggal</label>
               <input type="date" class="form-control form-control-sm" id="sao-rekap-from" style="min-width:160px" onchange="scheduleAdminRekapLoad()" />
             </div>
@@ -7078,12 +7086,14 @@ async function loadAdminRekap(force) {
     tbody.innerHTML = '<tr><td colspan="14" class="text-muted">Memuat data…</td></tr>';
   }
   const mode = document.getElementById('sao-rekap-mode')?.value || 'kegiatan';
+  const jenis = document.getElementById('sao-rekap-jenis')?.value || '';
   const from = document.getElementById('sao-rekap-from')?.value || '';
   const to = document.getElementById('sao-rekap-to')?.value || '';
   const portals = getSelectedAdminRekapPortals().join(',');
   try {
     await ensureChartJS();
     const qs = new URLSearchParams({ mode, from, to, portals });
+    if (jenis) qs.set('jenis', jenis);
     const res = await apiFetch(API + '/admin/rekapitulasi?' + qs.toString());
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat rekapitulasi');
@@ -7092,6 +7102,7 @@ async function loadAdminRekap(force) {
       summary: data.summary || {},
       pptk_stats: data.pptk_stats || [],
       mode: data.mode || mode,
+      jenis: data.jenis || jenis,
       from: data.from || from,
       to: data.to || to,
       generated_at: data.generated_at,
@@ -7119,7 +7130,8 @@ function renderAdminRekapSummary() {
   if (meta) {
     const upTrx = s.count_up != null ? s.count_up : 0;
     const lsTrx = s.count_ls != null ? s.count_ls : 0;
-    meta.textContent = `Periode ${adminRekapCache.from || '—'} s/d ${adminRekapCache.to || '—'} · ${adminRekapCache.rows.length} baris · UP: ${upTrx} trx · LS: ${lsTrx} trx · diperbarui ${adminRekapCache.generated_at ? fmtAuditTime(adminRekapCache.generated_at) : '—'}`;
+    const jenisLabel = adminRekapCache.jenis === 'UP' ? 'UP' : adminRekapCache.jenis === 'LS' ? 'LS' : 'Semua';
+    meta.textContent = `Periode ${adminRekapCache.from || '—'} s/d ${adminRekapCache.to || '—'} · Jenis: ${jenisLabel} · ${adminRekapCache.rows.length} baris · UP: ${upTrx} trx · LS: ${lsTrx} trx · diperbarui ${adminRekapCache.generated_at ? fmtAuditTime(adminRekapCache.generated_at) : '—'}`;
   }
 }
 
@@ -7322,16 +7334,19 @@ async function downloadAdminRekapExcel() {
     return base;
   });
 
+  const jenisLabel = adminRekapCache.jenis === 'UP' ? 'UP' : adminRekapCache.jenis === 'LS' ? 'LS' : 'Semua';
   const ws = XLSX.utils.aoa_to_sheet([
     ['Rekapitulasi Anggaran SIPKEU — ' + modeLabel],
     ['Periode', adminRekapCache.from || '—', 's/d', adminRekapCache.to || '—'],
+    ['Jenis Trx', jenisLabel],
     [],
     headers,
     ...dataRows,
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
-  XLSX.writeFile(wb, `SAO_Rekapitulasi_${modeLabel}_${adminRekapCache.from || 'all'}_${adminRekapCache.to || 'all'}.xlsx`);
+  const jenisSuffix = adminRekapCache.jenis ? `_${adminRekapCache.jenis}` : '';
+  XLSX.writeFile(wb, `SAO_Rekapitulasi_${modeLabel}${jenisSuffix}_${adminRekapCache.from || 'all'}_${adminRekapCache.to || 'all'}.xlsx`);
 }
 
 function renderPortalControlGrid() {

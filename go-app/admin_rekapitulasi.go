@@ -353,11 +353,25 @@ func rekapRowVisible(mode string, a *rekapAgg) bool {
 	}
 }
 
-func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transaction, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
+func parseAdminRekapJenis(raw string) string {
+	switch strings.ToUpper(strings.TrimSpace(raw)) {
+	case "LS":
+		return "LS"
+	case "UP":
+		return "UP"
+	default:
+		return ""
+	}
+}
+
+func applyRekapTransaction(mod *SipkeuModule, mode, from, to, jenis string, t Transaction, aggs map[string]*rekapAgg, rak []RakRow, anggaranKeg map[string]float64) {
 	if mod == nil || !trxIsApproved(t) || !transactionBelongsToModule(mod, t) {
 		return
 	}
 	if !transactionInDateRange(t, from, to) {
+		return
+	}
+	if jenis != "" && inferJenisTransaksiGo(t) != jenis {
 		return
 	}
 	label := portalLabel(mod.ID)
@@ -468,11 +482,12 @@ func finalizeRekapAnggaran(mod *SipkeuModule, mode string, aggs map[string]*reka
 	}
 }
 
-func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
+func buildAdminRekap(portals []string, mode, from, to, jenis string) []adminRekapRow {
 	mode = strings.TrimSpace(mode)
 	if mode == "" {
 		mode = "kegiatan"
 	}
+	jenis = parseAdminRekapJenis(jenis)
 	aggs := map[string]*rekapAgg{}
 
 	for _, portalID := range portals {
@@ -484,7 +499,7 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 		seedRekapFromRak(mod, mode, aggs, rak, anggaranKeg)
 		txs := moduleTransactionsCopy(mod)
 		for i := range txs {
-			applyRekapTransaction(mod, mode, from, to, txs[i], aggs, rak, anggaranKeg)
+			applyRekapTransaction(mod, mode, from, to, jenis, txs[i], aggs, rak, anggaranKeg)
 		}
 		finalizeRekapAnggaran(mod, mode, aggs, rak, anggaranKeg)
 	}
@@ -492,6 +507,9 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 	rows := make([]adminRekapRow, 0, len(aggs))
 	for _, a := range aggs {
 		if !rekapRowVisible(mode, a) {
+			continue
+		}
+		if jenis != "" && a.count == 0 {
 			continue
 		}
 		sisa := a.anggaran - a.realisasi
@@ -534,9 +552,9 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 	return rows
 }
 
-func buildAdminRekapPPTKStats(portals []string, from, to string) []adminRekapPPTKStat {
-	rows := cachedAdminRekapRows(portals, "pptk", from, to, func() []adminRekapRow {
-		return buildAdminRekap(portals, "pptk", from, to)
+func buildAdminRekapPPTKStats(portals []string, from, to, jenis string) []adminRekapPPTKStat {
+	rows := cachedAdminRekapRows(portals, "pptk", from, to, jenis, func() []adminRekapRow {
+		return buildAdminRekap(portals, "pptk", from, to, jenis)
 	})
 	return adminRekapRowsToPPTKStats(rows)
 }
@@ -584,21 +602,23 @@ func handleAdminRekapitulasi(w http.ResponseWriter, r *http.Request) {
 	}
 	from := strings.TrimSpace(r.URL.Query().Get("from"))
 	to := strings.TrimSpace(r.URL.Query().Get("to"))
+	jenis := parseAdminRekapJenis(r.URL.Query().Get("jenis"))
 	portals := parseAdminRekapPortals(r.URL.Query().Get("portals"))
-	rows := cachedAdminRekapRows(portals, mode, from, to, func() []adminRekapRow {
-		return buildAdminRekap(portals, mode, from, to)
+	rows := cachedAdminRekapRows(portals, mode, from, to, jenis, func() []adminRekapRow {
+		return buildAdminRekap(portals, mode, from, to, jenis)
 	})
 	var pptkStats []adminRekapPPTKStat
 	if mode == "pptk" {
 		pptkStats = adminRekapRowsToPPTKStats(rows)
 	} else {
-		pptkStats = buildAdminRekapPPTKStats(portals, from, to)
+		pptkStats = buildAdminRekapPPTKStats(portals, from, to, jenis)
 	}
 
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"mode":         mode,
 		"from":         from,
 		"to":           to,
+		"jenis":        jenis,
 		"portals":      portals,
 		"rows":         rows,
 		"pptk_stats":   pptkStats,

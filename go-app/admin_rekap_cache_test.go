@@ -10,13 +10,13 @@ func TestAdminRekapCache(t *testing.T) {
 		calls++
 		return []adminRekapRow{{PortalID: "sekretariat", Kegiatan: "Test", Anggaran: 100}}
 	}
-	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", build)
-	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", build)
+	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", "", build)
+	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", "", build)
 	if calls != 1 {
 		t.Fatalf("expected 1 build, got %d", calls)
 	}
 	invalidateAdminRekapCache()
-	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", build)
+	_ = cachedAdminRekapRows(portals, "kegiatan", "", "", "", build)
 	if calls != 2 {
 		t.Fatalf("expected 2 builds after invalidate, got %d", calls)
 	}
