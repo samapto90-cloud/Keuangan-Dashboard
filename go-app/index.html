@@ -2892,6 +2892,12 @@
       background: linear-gradient(135deg, #0284c7, #6366f1);
       color: #fff; border: none;
     }
+    .sao-rekap-legend-group {
+      display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      margin-right: 12px; padding: 4px 8px; border-radius: 8px;
+      background: rgba(15,23,42,.35); border: 1px solid rgba(148,163,184,.12);
+    }
+    .sao-rekap-legend-group strong { color: #bae6fd; font-size: 11px; margin-right: 4px; }
     @media (max-width: 480px) {
       .sao-stat-grid { grid-template-columns: 1fr; }
       .sao-stat-value { font-size: 1.35rem; }
@@ -2932,6 +2938,10 @@
     #sao-rekap-table th.sao-rekap-th-real { color: #fb923c; }
     #sao-rekap-sum-anggaran { color: #4ade80 !important; }
     #sao-rekap-sum-realisasi { color: #fb923c !important; }
+    #sao-rekap-sum-realisasi-up { color: #38bdf8 !important; }
+    #sao-rekap-sum-realisasi-ls { color: #c084fc !important; }
+    .sao-rekap-col-up { color: #38bdf8; font-weight: 700; white-space: nowrap; }
+    .sao-rekap-col-ls { color: #c084fc; font-weight: 700; white-space: nowrap; }
     @media (max-width: 991px) {
       .sao-rekap-scroll-hint { display: block; }
     }
@@ -5409,6 +5419,8 @@ function initManualNumericInputUX() {
           <div class="sao-stat-grid mb-3" id="sao-rekap-summary">
             <div class="sao-stat"><div class="sao-stat-label">Total Pagu</div><div class="sao-stat-value" id="sao-rekap-sum-anggaran">—</div></div>
             <div class="sao-stat"><div class="sao-stat-label">Realisasi</div><div class="sao-stat-value" id="sao-rekap-sum-realisasi">—</div></div>
+            <div class="sao-stat"><div class="sao-stat-label">Realisasi UP</div><div class="sao-stat-value" id="sao-rekap-sum-realisasi-up">—</div></div>
+            <div class="sao-stat"><div class="sao-stat-label">Realisasi LS</div><div class="sao-stat-value" id="sao-rekap-sum-realisasi-ls">—</div></div>
             <div class="sao-stat"><div class="sao-stat-label">Sisa</div><div class="sao-stat-value" id="sao-rekap-sum-sisa">—</div></div>
             <div class="sao-stat"><div class="sao-stat-label">% Realisasi</div><div class="sao-stat-value" id="sao-rekap-sum-pct">—</div></div>
           </div>
@@ -7063,7 +7075,7 @@ function adminRekapChartLabel(r, mode) {
 async function loadAdminRekap(force) {
   const tbody = document.getElementById('sao-rekap-tbody');
   if (tbody && (force || !adminRekapCache.rows.length)) {
-    tbody.innerHTML = '<tr><td colspan="10" class="text-muted">Memuat data…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="14" class="text-muted">Memuat data…</td></tr>';
   }
   const mode = document.getElementById('sao-rekap-mode')?.value || 'kegiatan';
   const from = document.getElementById('sao-rekap-from')?.value || '';
@@ -7090,7 +7102,7 @@ async function loadAdminRekap(force) {
     renderAdminRekapCharts();
   } catch (e) {
     console.warn('Admin rekap:', e);
-    if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="text-danger">${escHtml(e.message || 'Gagal memuat')}</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="14" class="text-danger">${escHtml(e.message || 'Gagal memuat')}</td></tr>`;
   }
 }
 
@@ -7099,11 +7111,15 @@ function renderAdminRekapSummary() {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('sao-rekap-sum-anggaran', formatRupiah(s.anggaran || 0));
   set('sao-rekap-sum-realisasi', formatRupiah(s.realisasi || 0));
+  set('sao-rekap-sum-realisasi-up', formatRupiah(s.realisasi_up || 0));
+  set('sao-rekap-sum-realisasi-ls', formatRupiah(s.realisasi_ls || 0));
   set('sao-rekap-sum-sisa', formatRupiah(s.sisa ?? ((s.anggaran || 0) - (s.realisasi || 0))));
   set('sao-rekap-sum-pct', ((s.pct || 0).toFixed ? (s.pct).toFixed(1) : parseFloat(s.pct || 0).toFixed(1)) + '%');
   const meta = document.getElementById('sao-rekap-meta');
   if (meta) {
-    meta.textContent = `Periode ${adminRekapCache.from || '—'} s/d ${adminRekapCache.to || '—'} · ${adminRekapCache.rows.length} baris · diperbarui ${adminRekapCache.generated_at ? fmtAuditTime(adminRekapCache.generated_at) : '—'}`;
+    const upTrx = s.count_up != null ? s.count_up : 0;
+    const lsTrx = s.count_ls != null ? s.count_ls : 0;
+    meta.textContent = `Periode ${adminRekapCache.from || '—'} s/d ${adminRekapCache.to || '—'} · ${adminRekapCache.rows.length} baris · UP: ${upTrx} trx · LS: ${lsTrx} trx · diperbarui ${adminRekapCache.generated_at ? fmtAuditTime(adminRekapCache.generated_at) : '—'}`;
   }
 }
 
@@ -7120,21 +7136,25 @@ function renderAdminRekapTable() {
   else if (mode === 'sub') head += '<th>Kegiatan</th><th>Sub Kegiatan</th>';
   else if (mode === 'pekerjaan') head += '<th>Kegiatan</th><th>Sub Kegiatan</th><th>Pekerjaan</th><th>Kode Rek.</th>';
   else if (mode === 'pptk') head += '<th>PPTK</th>';
-  head += '<th class="text-end sao-rekap-th-pagu">Pagu</th><th class="text-end sao-rekap-th-real">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">Trx</th><th class="text-end">%</th></tr>';
+  head += '<th class="text-end sao-rekap-th-pagu">Pagu</th><th class="text-end sao-rekap-th-real">Realisasi</th><th class="text-end">Real. UP</th><th class="text-end">Real. LS</th><th class="text-end">Sisa</th><th class="text-end">Trx</th><th class="text-end">%</th></tr>';
   thead.innerHTML = head;
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="12" class="text-muted text-center py-4">Tidak ada data pada filter ini</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="14" class="text-muted text-center py-4">Tidak ada data pada filter ini</td></tr>';
     if (tfoot) tfoot.innerHTML = '';
     return;
   }
 
-  let totAng = 0, totReal = 0, totSisa = 0, totTrx = 0;
+  let totAng = 0, totReal = 0, totRealUP = 0, totRealLS = 0, totSisa = 0, totTrx = 0;
   tbody.innerHTML = rows.map((r, i) => {
     const ang = r.anggaran || 0;
     const real = r.realisasi || 0;
+    const realUP = r.realisasi_up || 0;
+    const realLS = r.realisasi_ls || 0;
     const sisa = r.sisa ?? (ang - real);
     totReal += real;
+    totRealUP += realUP;
+    totRealLS += realLS;
     totSisa += sisa;
     totTrx += r.count || 0;
     totAng += ang;
@@ -7150,6 +7170,8 @@ function renderAdminRekapTable() {
       ${extra}
       <td class="text-end sao-rekap-col-pagu">${formatRupiah(ang)}</td>
       <td class="text-end sao-rekap-col-real">${formatRupiah(real)}</td>
+      <td class="text-end sao-rekap-col-up">${formatRupiah(realUP)}</td>
+      <td class="text-end sao-rekap-col-ls">${formatRupiah(realLS)}</td>
       <td class="text-end">${formatRupiah(sisa)}</td>
       <td class="text-end">${r.count || 0}</td>
       <td class="text-end">${pct}%</td>
@@ -7160,6 +7182,8 @@ function renderAdminRekapTable() {
   const sum = adminRekapCache.summary || {};
   const footAng = sum.anggaran != null ? sum.anggaran : totAng;
   const footReal = sum.realisasi != null ? sum.realisasi : totReal;
+  const footRealUP = sum.realisasi_up != null ? sum.realisasi_up : totRealUP;
+  const footRealLS = sum.realisasi_ls != null ? sum.realisasi_ls : totRealLS;
   const footSisa = sum.sisa != null ? sum.sisa : totSisa;
   const footPct = sum.pct != null ? Number(sum.pct).toFixed(1) : (footAng ? ((footReal / footAng) * 100).toFixed(1) : '0.0');
   if (tfoot) {
@@ -7167,6 +7191,8 @@ function renderAdminRekapTable() {
       <td colspan="${colSpan + 1}" class="text-end fw-bold">JUMLAH</td>
       <td class="text-end fw-bold sao-rekap-col-pagu">${formatRupiah(footAng)}</td>
       <td class="text-end fw-bold sao-rekap-col-real">${formatRupiah(footReal)}</td>
+      <td class="text-end fw-bold sao-rekap-col-up">${formatRupiah(footRealUP)}</td>
+      <td class="text-end fw-bold sao-rekap-col-ls">${formatRupiah(footRealLS)}</td>
       <td class="text-end fw-bold">${formatRupiah(footSisa)}</td>
       <td class="text-end fw-bold">${totTrx}</td>
       <td class="text-end fw-bold">${footPct}%</td>
@@ -7284,7 +7310,7 @@ async function downloadAdminRekapExcel() {
   else if (mode === 'sub') headers.push('Kegiatan', 'Sub Kegiatan');
   else if (mode === 'pekerjaan') headers.push('Kegiatan', 'Sub Kegiatan', 'Pekerjaan', 'Kode Rekening');
   else if (mode === 'pptk') headers.push('PPTK');
-  headers.push('Pagu (Rp)', 'Realisasi (Rp)', 'Sisa (Rp)', 'Jumlah Trx', 'Pajak (Rp)', '% Realisasi');
+  headers.push('Pagu (Rp)', 'Realisasi (Rp)', 'Realisasi UP (Rp)', 'Realisasi LS (Rp)', 'Sisa (Rp)', 'Jumlah Trx', 'Pajak (Rp)', '% Realisasi');
 
   const dataRows = rows.map((r, i) => {
     const base = [i + 1, r.portal_label || r.portal_id];
@@ -7292,7 +7318,7 @@ async function downloadAdminRekapExcel() {
     else if (mode === 'sub') base.push(r.kegiatan || '', r.sub_kegiatan || '');
     else if (mode === 'pekerjaan') base.push(r.kegiatan || '', r.sub_kegiatan || '', r.pekerjaan || '', r.kode_rekening || '');
     else if (mode === 'pptk') base.push(r.pptk || '');
-    base.push(r.anggaran || 0, r.realisasi || 0, r.sisa ?? ((r.anggaran || 0) - (r.realisasi || 0)), r.count || 0, r.pajak || 0, Number(r.pct || 0));
+    base.push(r.anggaran || 0, r.realisasi || 0, r.realisasi_up || 0, r.realisasi_ls || 0, r.sisa ?? ((r.anggaran || 0) - (r.realisasi || 0)), r.count || 0, r.pajak || 0, Number(r.pct || 0));
     return base;
   });
 
@@ -8179,17 +8205,22 @@ const DORAEMON_RUNNER_ASSET_VER = '3';
 const NARUTO_SMP_RUNNER_ASSET_VER = '3';
 const FROZEN_RUNNER_ASSET_VER = '3';
 
-function getPptkRunnerSet() {
-  if (selectedPortalApp === 'paud') {
+function getPptkRunnerSetForPortal(portalId) {
+  const id = portalId || 'sekretariat';
+  if (id === 'paud') {
     return { chars: FROZEN_RUNNER_CHARACTERS, base: '/assets/frozen-runners/', ver: FROZEN_RUNNER_ASSET_VER };
   }
-  if (selectedPortalApp === 'sd') {
+  if (id === 'sd') {
     return { chars: DORAEMON_RUNNER_CHARACTERS, base: '/assets/doraemon-runners/', ver: DORAEMON_RUNNER_ASSET_VER };
   }
-  if (selectedPortalApp === 'smp') {
+  if (id === 'smp') {
     return { chars: NARUTO_SMP_RUNNER_CHARACTERS, base: '/assets/naruto-smp-runners/', ver: NARUTO_SMP_RUNNER_ASSET_VER };
   }
   return { chars: OP_RUNNER_CHARACTERS, base: '/assets/op-runners/', ver: OP_RUNNER_ASSET_VER };
+}
+
+function getPptkRunnerSet() {
+  return getPptkRunnerSetForPortal(selectedPortalApp);
 }
 
 const RACE_THEME_BY_APP = {
@@ -8219,13 +8250,13 @@ function pptkRunnerHash(pptkName) {
 }
 
 /** Satu ikon tokoh hanya untuk satu PPTK; urutan alfabet menentukan prioritas jika bentrok hash. */
-function buildUniqueRunnerAssignments(pptkNames) {
+function buildUniqueRunnerAssignments(pptkNames, portalId) {
   const names = [...new Set(pptkNames.filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'id', { sensitivity: 'base' })
   );
   const taken = new Set();
   const map = new Map();
-  const runnerSet = getPptkRunnerSet();
+  const runnerSet = getPptkRunnerSetForPortal(portalId || selectedPortalApp);
   const n = runnerSet.chars.length;
   for (const name of names) {
     let idx = pptkRunnerHash(name) % n;
@@ -8242,6 +8273,44 @@ function buildUniqueRunnerAssignments(pptkNames) {
     }
   }
   return map;
+}
+
+function buildPortalPptkAssignmentMaps(rows) {
+  const byPortal = new Map();
+  for (const row of rows) {
+    const portalId = row.portal_id || 'sekretariat';
+    if (!byPortal.has(portalId)) byPortal.set(portalId, []);
+    byPortal.get(portalId).push(row.pptk);
+  }
+  const result = new Map();
+  for (const [portalId, names] of byPortal) {
+    result.set(portalId, {
+      runnerSet: getPptkRunnerSetForPortal(portalId),
+      map: buildUniqueRunnerAssignments(names, portalId),
+    });
+  }
+  return result;
+}
+
+function portalRunnerImg(portalId, charIndex) {
+  if (charIndex == null || charIndex < 0) {
+    return '<span class="op-runner-fallback" aria-hidden="true"><i class="bi bi-person-walking"></i></span>';
+  }
+  const set = getPptkRunnerSetForPortal(portalId);
+  const c = set.chars[charIndex];
+  if (!c) {
+    return '<span class="op-runner-fallback" aria-hidden="true"><i class="bi bi-person-walking"></i></span>';
+  }
+  return `<img class="op-runner-img" src="${set.base}${c.file}?v=${set.ver}" alt="${escHtml(c.label)}" draggable="false" />`;
+}
+
+function portalRunnerClass(portalId, charIndex) {
+  if (portalId !== 'smp' || charIndex == null || charIndex < 0) return '';
+  const c = getPptkRunnerSetForPortal('smp').chars[charIndex];
+  if (!c) return '';
+  if (c.label === 'Naruto') return ' is-naruto';
+  if (c.label === 'Sasuke') return ' is-sasuke';
+  return '';
 }
 
 function opRunnerImg(charIndex) {
@@ -8337,86 +8406,15 @@ function renderOpPptkRaceChart(pptkStats) {
   });
 }
 
-function getAdminRekapRunnerSet() {
-  const chars = [];
-  const push = (list, base, ver) => {
-    (list || []).forEach(c => chars.push({ label: c.label, file: c.file, base, ver }));
-  };
-  // Naruto/Sasuke di depan agar selalu tampil di lintasan rekap Command Center
-  if (typeof NARUTO_SMP_RUNNER_CHARACTERS !== 'undefined') push(NARUTO_SMP_RUNNER_CHARACTERS, '/assets/naruto-smp-runners/', NARUTO_SMP_RUNNER_ASSET_VER || '3');
-  if (typeof OP_RUNNER_CHARACTERS !== 'undefined') push(OP_RUNNER_CHARACTERS, '/assets/op-runners/', OP_RUNNER_ASSET_VER || '6');
-  if (typeof FROZEN_RUNNER_CHARACTERS !== 'undefined') push(FROZEN_RUNNER_CHARACTERS, '/assets/frozen-runners/', FROZEN_RUNNER_ASSET_VER || '3');
-  if (typeof DORAEMON_RUNNER_CHARACTERS !== 'undefined') push(DORAEMON_RUNNER_CHARACTERS, '/assets/doraemon-runners/', DORAEMON_RUNNER_ASSET_VER || '3');
-  push([
-    { label: 'Kirito', file: 'avatar-kirito.svg' },
-    { label: 'Asuna', file: 'avatar-asuna.svg' },
-    { label: 'Yui', file: 'avatar-yui.svg' },
-    { label: 'Crystal', file: 'crystal.svg' },
-    { label: 'Sword', file: 'sword.svg' },
-  ], '/assets/sao-icons/', '1');
-  return chars.length ? chars : [{ label: 'Runner', file: 'avatar-kirito.svg', base: '/assets/sao-icons/', ver: '1' }];
-}
-
-function adminRekapRunnerImg(charMeta) {
-  if (!charMeta) {
-    return '<span class="op-runner-fallback" aria-hidden="true"><i class="bi bi-person-walking"></i></span>';
-  }
-  return `<img class="op-runner-img" src="${charMeta.base}${charMeta.file}?v=${charMeta.ver}" alt="${escHtml(charMeta.label)}" draggable="false" />`;
-}
-
-function buildAdminRekapRunnerAssignments(pptkNames, sortedByRealisasi) {
-  const names = [...new Set(pptkNames.filter(Boolean))].sort((a, b) =>
-    a.localeCompare(b, 'id', { sensitivity: 'base' })
-  );
-  const chars = getAdminRekapRunnerSet();
-  const n = chars.length;
-  const taken = new Set();
-  const map = new Map();
-  const narutoIdx = chars.findIndex(c => c.label === 'Naruto');
-  const sasukeIdx = chars.findIndex(c => c.label === 'Sasuke');
-  const priority = (sortedByRealisasi || []).map(p => p.pptk).filter(Boolean);
-  if (priority[0] && narutoIdx >= 0) {
-    map.set(priority[0], narutoIdx);
-    taken.add(narutoIdx);
-  }
-  if (priority[1] && sasukeIdx >= 0 && priority[1] !== priority[0]) {
-    map.set(priority[1], sasukeIdx);
-    taken.add(sasukeIdx);
-  }
-  for (const name of names) {
-    if (map.has(name)) continue;
-    let idx = pptkRunnerHash(name) % n;
-    let attempts = 0;
-    while (taken.has(idx) && attempts < n) {
-      idx = (idx + 1) % n;
-      attempts++;
-    }
-    if (!taken.has(idx)) {
-      taken.add(idx);
-      map.set(name, idx);
-    } else {
-      map.set(name, -1);
-    }
-  }
-  return map;
-}
-
-function adminRekapRunnerClass(charMeta) {
-  if (!charMeta) return '';
-  if (charMeta.label === 'Naruto') return ' is-naruto';
-  if (charMeta.label === 'Sasuke') return ' is-sasuke';
-  return '';
-}
-
 function renderAdminRekapPptkRace() {
   const wrap = document.getElementById('sao-rekap-pptk-race');
   const legend = document.getElementById('sao-rekap-pptk-legend');
   if (!wrap) return;
   const stats = adminRekapCache.pptk_stats || [];
-  const runnerChars = getAdminRekapRunnerSet();
 
   const enriched = stats.map(p => ({
     pptk: p.pptk,
+    portal_id: p.portal_id || 'sekretariat',
     portal: (p.portal_label || p.portal_id || '').replace('SIPKEU ', ''),
     pagu: p.anggaran || 0,
     realisasi: p.realisasi || 0,
@@ -8431,14 +8429,7 @@ function renderAdminRekapPptkRace() {
     return;
   }
 
-  const assignmentMap = buildAdminRekapRunnerAssignments(sorted.map(p => p.pptk), sorted);
-  const ownerByChar = new Map();
-  assignmentMap.forEach((idx, pptk) => {
-    if (idx >= 0) ownerByChar.set(idx, pptk);
-  });
-  const narutoBlockLen = typeof NARUTO_SMP_RUNNER_CHARACTERS !== 'undefined'
-    ? NARUTO_SMP_RUNNER_CHARACTERS.length
-    : 8;
+  const assignmentMaps = buildPortalPptkAssignmentMaps(sorted);
 
   wrap.innerHTML = sorted.map((p, i) => {
     const pct = p.pagu > 0
@@ -8447,8 +8438,8 @@ function renderAdminRekapPptkRace() {
     const shortName = p.pptk.length > 26 ? p.pptk.slice(0, 24) + '…' : p.pptk;
     const sisa = Math.max(0, p.pagu - p.realisasi);
     const pctLabel = p.pagu > 0 ? ((p.realisasi / p.pagu) * 100).toFixed(1) + '%' : '—';
-    const runnerIdx = assignmentMap.get(p.pptk);
-    const runnerMeta = runnerIdx >= 0 ? runnerChars[runnerIdx] : null;
+    const portalAssign = assignmentMaps.get(p.portal_id);
+    const runnerIdx = portalAssign?.map.get(p.pptk) ?? -1;
     return `<div class="op-race-lane" style="--lane-delay:${i * 0.06}s;--progress:${pct.toFixed(1)}%">
       <div class="op-race-label">
         <div class="op-wanted">${escHtml(p.portal)}</div>
@@ -8466,8 +8457,8 @@ function renderAdminRekapPptkRace() {
         </div>
         <div class="op-race-track">
           <div class="op-race-fill"></div>
-          <div class="op-race-runner${adminRekapRunnerClass(runnerMeta)}" tabindex="0" role="button" aria-label="Detail pagu ${escHtml(p.pptk)}">
-            ${adminRekapRunnerImg(runnerMeta)}<span class="op-race-dust" style="left:-6px;animation-delay:${i * 0.08}s"></span>
+          <div class="op-race-runner${portalRunnerClass(p.portal_id, runnerIdx)}" tabindex="0" role="button" aria-label="Detail pagu ${escHtml(p.pptk)}">
+            ${portalRunnerImg(p.portal_id, runnerIdx)}<span class="op-race-dust" style="left:-6px;animation-delay:${i * 0.08}s"></span>
           </div>
         </div>
       </div>
@@ -8475,15 +8466,21 @@ function renderAdminRekapPptkRace() {
   }).join('');
 
   if (legend) {
-    const legendChars = runnerChars.slice(0, narutoBlockLen);
-    legend.innerHTML = legendChars.map((c, i) => {
-      const owner = ownerByChar.get(i);
-      const shortOwner = owner && owner.length > 18 ? owner.slice(0, 16) + '…' : owner;
-      const cls = owner ? 'is-assigned' : 'is-free';
-      const title = owner ? `Dipakai: ${escHtml(owner)}` : 'Belum dipakai';
-      const fx = c.label === 'Naruto' ? ' 🍥' : c.label === 'Sasuke' ? ' ⚡' : '';
-      return `<span class="${cls}" title="${title}"><img src="${c.base}${c.file}?v=${c.ver}" alt="${escHtml(c.label)}" style="width:26px;height:26px;object-fit:contain;vertical-align:middle" /> ${escHtml(c.label)}${fx}${owner ? ` · ${escHtml(shortOwner)}` : ''}</span>`;
-    }).join('') + `<span style="margin-left:auto;opacity:.85">${sorted.length} PPTK · Naruto &amp; Sasuke = realisasi tertinggi · arahkan kursor ke pelari</span>`;
+    const portalsInData = [...new Set(sorted.map(p => p.portal_id))];
+    legend.innerHTML = portalsInData.map(portalId => {
+      const portalLabel = SETTINGS_PORTAL_LABELS[portalId] || portalId;
+      const { runnerSet, map } = assignmentMaps.get(portalId) || { runnerSet: getPptkRunnerSetForPortal(portalId), map: new Map() };
+      const ownerByIdx = new Map();
+      map.forEach((idx, pptk) => { if (idx >= 0) ownerByIdx.set(idx, pptk); });
+      const charsHtml = runnerSet.chars.map((c, i) => {
+        const owner = ownerByIdx.get(i);
+        const shortOwner = owner && owner.length > 18 ? owner.slice(0, 16) + '…' : owner;
+        const cls = owner ? 'is-assigned' : 'is-free';
+        const title = owner ? `Dipakai: ${escHtml(owner)}` : 'Belum dipakai';
+        return `<span class="${cls}" title="${title}"><img src="${runnerSet.base}${c.file}?v=${runnerSet.ver}" alt="${escHtml(c.label)}" style="width:26px;height:26px;object-fit:contain;vertical-align:middle" /> ${escHtml(c.label)}${owner ? ` · ${escHtml(shortOwner)}` : ''}</span>`;
+      }).join('');
+      return `<span class="sao-rekap-legend-group"><strong>${escHtml(portalLabel)}:</strong> ${charsHtml}</span>`;
+    }).join('') + `<span style="margin-left:auto;opacity:.85">${sorted.length} PPTK · ikon sesuai portal SIPKEU · arahkan kursor ke pelari</span>`;
   }
 
   requestAnimationFrame(() => {

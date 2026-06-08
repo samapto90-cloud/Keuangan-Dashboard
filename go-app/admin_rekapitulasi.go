@@ -20,8 +20,12 @@ type adminRekapRow struct {
 	PPTK         string  `json:"pptk,omitempty"`
 	Anggaran     float64 `json:"anggaran"`
 	Realisasi    float64 `json:"realisasi"`
+	RealisasiUP  float64 `json:"realisasi_up"`
+	RealisasiLS  float64 `json:"realisasi_ls"`
 	Sisa         float64 `json:"sisa"`
 	Count        int     `json:"count"`
+	CountUP      int     `json:"count_up"`
+	CountLS      int     `json:"count_ls"`
 	Pajak        float64 `json:"pajak"`
 	Pct          float64 `json:"pct"`
 }
@@ -31,7 +35,8 @@ type rekapAgg struct {
 	kegiatan, sub, pekerjaan, kode string
 	pptk                           string
 	anggaran, realisasi, pajak     float64
-	count                          int
+	realisasiUP, realisasiLS       float64
+	count, countUP, countLS        int
 }
 
 type adminRekapPPTKStat struct {
@@ -432,6 +437,13 @@ func applyRekapTransaction(mod *SipkeuModule, mode, from, to string, t Transacti
 		return
 	}
 	a.realisasi += t.Nilai
+	if inferJenisTransaksiGo(t) == "LS" {
+		a.realisasiLS += t.Nilai
+		a.countLS++
+	} else {
+		a.realisasiUP += t.Nilai
+		a.countUP++
+	}
 	a.pajak += t.Pajak
 	a.count++
 }
@@ -493,8 +505,12 @@ func buildAdminRekap(portals []string, mode, from, to string) []adminRekapRow {
 			PPTK:         a.pptk,
 			Anggaran:     a.anggaran,
 			Realisasi:    a.realisasi,
+			RealisasiUP:  a.realisasiUP,
+			RealisasiLS:  a.realisasiLS,
 			Sisa:         sisa,
 			Count:        a.count,
+			CountUP:      a.countUP,
+			CountLS:      a.countLS,
 			Pajak:        a.pajak,
 			Pct:          rekapPct(a.realisasi, a.anggaran),
 		})
@@ -526,21 +542,29 @@ func buildAdminRekapPPTKStats(portals []string, from, to string) []adminRekapPPT
 }
 
 func adminRekapSummary(rows []adminRekapRow) map[string]interface{} {
-	var totAng, totReal, totPajak float64
-	var totTrx int
+	var totAng, totReal, totRealUP, totRealLS, totPajak float64
+	var totTrx, totTrxUP, totTrxLS int
 	for _, row := range rows {
 		totAng += row.Anggaran
 		totReal += row.Realisasi
+		totRealUP += row.RealisasiUP
+		totRealLS += row.RealisasiLS
 		totPajak += row.Pajak
 		totTrx += row.Count
+		totTrxUP += row.CountUP
+		totTrxLS += row.CountLS
 	}
 	return map[string]interface{}{
-		"anggaran":  totAng,
-		"realisasi": totReal,
-		"sisa":      totAng - totReal,
-		"pajak":     totPajak,
-		"count":     totTrx,
-		"pct":       rekapPct(totReal, totAng),
+		"anggaran":     totAng,
+		"realisasi":    totReal,
+		"realisasi_up": totRealUP,
+		"realisasi_ls": totRealLS,
+		"sisa":         totAng - totReal,
+		"pajak":        totPajak,
+		"count":        totTrx,
+		"count_up":     totTrxUP,
+		"count_ls":     totTrxLS,
+		"pct":          rekapPct(totReal, totAng),
 	}
 }
 
