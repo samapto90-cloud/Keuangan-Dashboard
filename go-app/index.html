@@ -4396,6 +4396,59 @@ function onNilaiBrutoInput() {
   window.dispatchEvent(new CustomEvent('sipkeu:bruto-input'));
   updatePaguRekeningUI();
 }
+
+function isManualNumericZero(el, val) {
+  if (val === '' || val == null) return true;
+  if (el.classList.contains('kas-input')) return parseKasNumber(val) === 0;
+  if (el.classList.contains('potongan-tarif')) {
+    const t = parseTarifInput(val);
+    return t == null || t === 0;
+  }
+  return (parseFloat(String(val).replace(/\./g, '').replace(',', '.')) || 0) === 0;
+}
+
+function onManualNumericFocus(el) {
+  if (!el || el.readOnly || el.disabled) return;
+  if (el.classList.contains('pagu-locked') || el.classList.contains('kas-input-locked')) return;
+  requestAnimationFrame(() => {
+    if (document.activeElement !== el) return;
+    if (isManualNumericZero(el, el.value)) {
+      el.value = '';
+    } else {
+      el.select();
+    }
+  });
+}
+
+function onManualNumericBlur(el) {
+  if (!el) return;
+  const empty = el.value === '' || el.value == null;
+  if (empty) {
+    if (el.classList.contains('kas-input')) {
+      el.value = formatKasAmount(0);
+      recalcKasAllTables();
+    } else if (el.type === 'number' || el.classList.contains('potongan-nilai')) {
+      el.value = 0;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    return;
+  }
+  if (el.classList.contains('kas-input')) {
+    el.value = formatKasAmount(parseKasNumber(el.value));
+    recalcKasAllTables();
+  }
+}
+
+function initManualNumericInputUX() {
+  if (document.documentElement.dataset.manualNumericUx) return;
+  document.documentElement.dataset.manualNumericUx = '1';
+  document.addEventListener('focusin', (e) => {
+    if (e.target?.matches?.('.manual-numeric')) onManualNumericFocus(e.target);
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target?.matches?.('.manual-numeric')) onManualNumericBlur(e.target);
+  });
+}
 </script>
 
 <!-- ═══════════════ SIDEBAR ═══════════════ -->
@@ -4640,7 +4693,7 @@ function onNilaiBrutoInput() {
           <!-- Baris 7: Nilai Bruto + ringkasan potongan -->
           <div class="col-md-4">
             <label class="form-label">Nilai Bruto / DPP (Rp) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control pagu-locked" id="f-nilai" placeholder="0" min="0" value="0" readonly required oninput="onNilaiBrutoInput()" />
+            <input type="number" class="form-control pagu-locked manual-numeric" id="f-nilai" placeholder="0" min="0" value="0" readonly required oninput="onNilaiBrutoInput()" />
             <div id="f-nilai-hint" class="form-text text-warning" style="font-size:11px">Pilih kegiatan, sub kegiatan, dan pekerjaan terlebih dahulu.</div>
           </div>
           <div class="col-md-4">
@@ -11086,7 +11139,7 @@ function addPotonganFormRow(preset, idx, opts) {
       <input type="text" class="form-control form-control-sm potongan-jenis-custom mt-1" placeholder="Nama pajak/potongan" style="display:${isCustom ? '' : 'none'}" value="${isCustom ? (preset?.jenis || '') : ''}" oninput="onPotonganCustomJenisInput(${rowIdx})" />
     </div>
     <div>
-      <input type="text" class="form-control form-control-sm potongan-tarif" placeholder="—" value="${preset?.tarif ? formatTarifPct(preset.tarif) : (catalog?.tarif != null ? formatTarifPct(catalog.tarif) : '')}" ${catalog?.tarif != null && !isCustom ? 'readonly' : ''} oninput="onPotonganTarifInput(${rowIdx})" />
+      <input type="text" class="form-control form-control-sm potongan-tarif manual-numeric" placeholder="—" value="${preset?.tarif ? formatTarifPct(preset.tarif) : (catalog?.tarif != null ? formatTarifPct(catalog.tarif) : '')}" ${catalog?.tarif != null && !isCustom ? 'readonly' : ''} oninput="onPotonganTarifInput(${rowIdx})" />
     </div>
     <div>
       <select class="form-select form-select-sm potongan-kategori" onchange="onPotonganKategoriChange(${rowIdx})">
@@ -11095,7 +11148,7 @@ function addPotonganFormRow(preset, idx, opts) {
       </select>
     </div>
     <div>
-      <input type="number" class="form-control form-control-sm potongan-nilai" placeholder="0" min="0" step="1" value="${preset?.nilai || ''}" oninput="onPotonganNilaiInput(${rowIdx})" />
+      <input type="number" class="form-control form-control-sm potongan-nilai manual-numeric" placeholder="0" min="0" step="1" value="${preset?.nilai || ''}" oninput="onPotonganNilaiInput(${rowIdx})" />
     </div>
     <div>
       <button type="button" class="btn btn-remove-row" title="Hapus baris" onclick="removePotonganFormRow(${rowIdx})"><i class="bi bi-trash"></i></button>
@@ -13348,7 +13401,7 @@ function kasRealisasiCellHtml(kode, value, editable, locked, extraClass) {
   const ro = locked ? ' readonly' : '';
   const cls = extraClass || ' kas-realisasi-main-input';
   if (editable) {
-    return `<input type="text" class="kas-input kas-realisasi-input${cls}${lockCls}" data-kode="${kode}" value="${formatKasAmount(value)}" oninput="recalcKasAllTables()"${ro} title="Input manual realisasi" />`;
+    return `<input type="text" class="kas-input kas-realisasi-input manual-numeric${cls}${lockCls}" data-kode="${kode}" value="${formatKasAmount(value)}" oninput="recalcKasAllTables()"${ro} title="Input manual realisasi" />`;
   }
   return `<span class="kas-realisasi-calc" data-kode="${kode}" title="Dihitung otomatis (rumus penjumlahan)">${formatKasAmount(value)}</span>`;
 }
@@ -14567,6 +14620,7 @@ window.addEventListener('resize', () => {
 })();
 window.addEventListener('DOMContentLoaded', () => {
   initPwdToggleButtons();
+  initManualNumericInputUX();
   initPotonganFormListeners();
   initSettingsNav();
   syncBattleProjLayout();
