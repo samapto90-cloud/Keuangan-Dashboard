@@ -4613,7 +4613,7 @@ function onNilaiBrutoInput() {
                 <span>Jenis</span><span>Tarif (%)</span><span>Kategori</span><span>Nilai (Rp)</span><span></span>
               </div>
               <div id="potongan-rows"></div>
-              <div class="text-muted mt-1" style="font-size:11px">Tarif otomatis dihitung dari nilai bruto. Nilai dapat diubah manual jika diperlukan.</div>
+              <div class="text-muted mt-1" style="font-size:11px">PPN dihitung dari nilai bruto. PPh dihitung dari (bruto − PPN). Netto = bruto − PPN − PPh − potongan lain.</div>
             </div>
           </div>
 
@@ -4621,10 +4621,6 @@ function onNilaiBrutoInput() {
           <div class="col-md-4" id="row-ntpn" style="display:none">
             <label class="form-label">NTPN <small class="text-muted">(16 digit)</small></label>
             <input type="text" class="form-control" id="f-ntpn" placeholder="0000000000000000" maxlength="16" />
-          </div>
-          <div class="col-md-4" id="row-kbilling" style="display:none">
-            <label class="form-label">Kode Billing <small class="text-muted">(15 digit)</small></label>
-            <input type="text" class="form-control" id="f-kbilling" placeholder="000000000000000" maxlength="15" />
           </div>
           <div class="col-md-4" id="row-ntb" style="display:none">
             <label class="form-label">NTB <small class="text-muted">(Nomor Transaksi Bendahara)</small></label>
@@ -7749,7 +7745,7 @@ function hasTrxFormInput() {
   if (v('f-penerima') || v('f-nobast') || v('f-nokontrak') || v('f-uraian')) return true;
   if (v('f-kegiatan') || v('f-subkegiatan') || v('f-pekerjaan')) return true;
   if ((parseFloat(document.getElementById('f-nilai')?.value) || 0) > 0) return true;
-  if (v('f-ntpn') || v('f-kbilling') || v('f-ntb')) return true;
+  if (v('f-ntpn') || v('f-ntb')) return true;
   return Array.from(document.querySelectorAll('#potongan-rows .potongan-row')).some(row => {
     const j = row.querySelector('.potongan-jenis')?.value;
     return !!j;
@@ -7808,7 +7804,7 @@ function initTrxFormBpkListeners() {
   form.addEventListener('input', e => {
     if (editingId != null) return;
     const id = e.target?.id || '';
-    if (['f-penerima', 'f-nobast', 'f-nokontrak', 'f-uraian', 'f-nilai', 'f-ntpn', 'f-kbilling', 'f-ntb'].includes(id)) {
+    if (['f-penerima', 'f-nobast', 'f-nokontrak', 'f-uraian', 'f-nilai', 'f-ntpn', 'f-ntb'].includes(id)) {
       updateNoBPK();
     }
   });
@@ -8686,7 +8682,7 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     pajak: taxLegacy.pajak,
     nilai_potongan: taxLegacy.nilai_potongan,
     ntpn: document.getElementById('f-ntpn').value,
-    kode_billing: document.getElementById('f-kbilling').value,
+    kode_billing: potonganItems.filter(i => i.kategori === 'pajak' && i.id_billing).map(i => i.id_billing).join('; '),
     ntb: document.getElementById('f-ntb').value,
     pengguna_anggaran: DB.pa.nama,
     pptk: pptkFinal,
@@ -8760,9 +8756,8 @@ function resetForm() {
   if (typeof refreshKegiatanDropdown === 'function') refreshKegiatanDropdown(false);
   clearPotonganFormRows();
   document.getElementById('f-ntpn').value = '';
-  document.getElementById('f-kbilling').value = '';
   document.getElementById('f-ntb').value = '';
-  ['row-ntpn','row-kbilling','row-ntb'].forEach(id => {
+  ['row-ntpn','row-ntb'].forEach(id => {
     const row = document.getElementById(id);
     if (row) row.style.display = 'none';
   });
@@ -8811,7 +8806,6 @@ function editTrx(id) {
   document.getElementById('f-nonp2d').value = t.no_np2d||'';
   loadPotonganToForm(t);
   document.getElementById('f-ntpn').value = t.ntpn||'';
-  document.getElementById('f-kbilling').value = t.kode_billing||'';
   document.getElementById('f-ntb').value = t.ntb||'';
   syncTaxFieldVisibility();
 
@@ -10625,6 +10619,8 @@ const PAJAK_POTONGAN_CATALOG = [
   { id: 'pph42-175-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 1,75% (Konstruksi, Usaha Kecil)', tarif: 0.0175, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
   { id: 'pph42-265-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 2,65% (Konstruksi, Usaha Menengah)', tarif: 0.0265, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
   { id: 'pph42-35-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 3,5% (Konstruksi, Usaha Besar)', tarif: 0.035, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
+  { id: 'pph42-35-konsultansi-perencana', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 3,5% (Jasa Konsultansi Perencanaan Konstruksi)', tarif: 0.035, kategori: 'pajak', base: 'bruto', kap: '411128-410' },
+  { id: 'pph42-35-pengawasan', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 3,5% (Pengawasan Konstruksi)', tarif: 0.035, kategori: 'pajak', base: 'bruto', kap: '411128-410' },
   { id: 'pph42-4-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 4% (Konstruksi, Tanpa Kualifikasi)', tarif: 0.04, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
   { id: 'pph42-6-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 6% (Konstruksi, Tanpa Kualifikasi)', tarif: 0.06, kategori: 'pajak', base: 'bruto', kap: '411128-409' },
   { id: 'pph42-25-konstruksi', group: 'PPh Final Pasal 4(2) · Konstruksi', label: 'PPh 4(2) — 2,5% (Konstruksi / Perencana Pengawas)', tarif: 0.025, kategori: 'pajak', base: 'bruto', kap: '411128-410' },
@@ -10760,7 +10756,7 @@ const KODE_MAP_DEFAULT_BY_ID = {
   'pph23-2': '411124-104', 'pph23-4': '411124-104', 'pph23-15': '411124-101',
   'pph42-10-sewa': '411128-403', 'pph42-25-sewa': '411128-403',
   'pph42-175-konstruksi': '411128-409', 'pph42-265-konstruksi': '411128-409',
-  'pph42-35-konstruksi': '411128-409', 'pph42-4-konstruksi': '411128-409',
+  'pph42-35-konstruksi': '411128-409', 'pph42-35-konsultansi-perencana': '411128-410', 'pph42-35-pengawasan': '411128-410', 'pph42-4-konstruksi': '411128-409',
   'pph42-6-konstruksi': '411128-409', 'pph42-25-konstruksi': '411128-410',
   'pph21-asn-honor': '411121-402', 'pph21-ter-honor': '411121-100', 'pph21-hadiah': '411121-100',
   'pph21-5': '411121-100', 'pph21-25': '411121-100', 'pph21-15': '411121-100',
@@ -10895,19 +10891,25 @@ function resolveCatalogIdFromItem(item) {
   return item.kategori === 'potongan' ? 'custom-potongan' : 'custom-pajak';
 }
 
-function calcPotonganNilai(bruto, catalogItem, tarifOverride) {
+function isPpnCatalog(catalogItem) {
+  return catalogItem?.base === 'dpp';
+}
+
+function calcPotonganNilai(bruto, catalogItem, tarifOverride, opts) {
   if (!catalogItem || catalogItem.base === 'manual') return null;
   const tarif = tarifOverride != null ? tarifOverride : catalogItem.tarif;
   if (tarif == null) return null;
+  const ppnTotal = (opts && opts.ppnTotal) || 0;
   if (catalogItem.base === 'dpp') {
     const dpp = bruto / (1 + tarif);
     return Math.round(dpp * tarif);
   }
+  const pphBase = ppnTotal > 0 ? Math.max(0, bruto - ppnTotal) : bruto;
   if (catalogItem.base === 'exclude_ppn') {
-    const net = bruto / 1.11;
+    const net = ppnTotal > 0 ? pphBase : bruto / 1.11;
     return Math.round(net * tarif);
   }
-  return Math.round(bruto * tarif);
+  return Math.round(pphBase * tarif);
 }
 
 function formatTarifPct(tarif) {
@@ -10979,7 +10981,7 @@ function addPotonganFormRow(preset, idx) {
       <div class="ptd-grid">
         <div class="ptd-kodemap"><label class="form-label">Kode MAP / KAP</label>${buildKodeMapControl(catalogId, preset?.kode_map)}</div>
         <div><label class="form-label">Masa Pajak</label>${buildMasaControl(preset?.masa_pajak)}</div>
-        <div><label class="form-label">ID Billing</label><input type="text" class="form-control form-control-sm potongan-idbilling" placeholder="ID Billing pajak" value="${preset?.id_billing || ''}" /></div>
+        <div><label class="form-label">ID Billing</label><input type="text" class="form-control form-control-sm potongan-idbilling" placeholder="15 digit" maxlength="15" value="${preset?.id_billing || ''}" /></div>
       </div>
     </div>`;
   wrap.appendChild(row);
@@ -11054,14 +11056,17 @@ function onPotonganTarifInput(idx) {
 
 function onPotonganNilaiInput(idx) {
   potonganManualFlags[idx] = true;
-  updatePotonganSummaryDisplay();
+  const row = getPotonganRowEl(idx);
+  const catalog = getCatalogItem(row?.querySelector('.potongan-jenis')?.value);
+  if (isPpnCatalog(catalog)) recalcAllPotonganRows();
+  else updatePotonganSummaryDisplay();
 }
 
 function removePotonganFormRow(idx) {
   getPotonganRowEl(idx)?.remove();
   delete potonganManualFlags[idx];
   reindexPotonganRows();
-  updatePotonganSummaryDisplay();
+  recalcAllPotonganRows();
   syncTaxFieldVisibility();
   updateNoBPK();
 }
@@ -11084,26 +11089,47 @@ function reindexPotonganRows() {
 }
 
 function recalcPotonganRow(idx, force) {
-  const row = getPotonganRowEl(idx);
-  if (!row) return;
-  if (potonganManualFlags[idx] && !force) {
-    updatePotonganSummaryDisplay();
-    return;
-  }
-  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
-  const catalogId = row.querySelector('.potongan-jenis').value;
-  const catalog = getCatalogItem(catalogId);
-  const tarif = parseTarifInput(row.querySelector('.potongan-tarif').value);
-  const nilai = calcPotonganNilai(bruto, catalog, tarif);
-  if (nilai != null) row.querySelector('.potongan-nilai').value = nilai;
-  updatePotonganSummaryDisplay();
+  recalcAllPotonganRows();
 }
 
 function recalcAllPotonganRows() {
-  document.querySelectorAll('#potongan-rows .potongan-row').forEach(row => {
+  const bruto = parseFloat(document.getElementById('f-nilai')?.value) || 0;
+  const rows = Array.from(document.querySelectorAll('#potongan-rows .potongan-row'));
+  const ppnRows = [];
+  const otherRows = [];
+  rows.forEach(row => {
     const idx = row.dataset.idx;
-    recalcPotonganRow(idx, !potonganManualFlags[idx]);
+    const catalogId = row.querySelector('.potongan-jenis')?.value;
+    const catalog = getCatalogItem(catalogId);
+    const kategori = row.querySelector('.potongan-kategori')?.value || 'pajak';
+    const tarif = parseTarifInput(row.querySelector('.potongan-tarif')?.value);
+    const nilaiEl = row.querySelector('.potongan-nilai');
+    const isPpn = isPpnCatalog(catalog) && kategori === 'pajak';
+    const entry = { row, idx, catalog, tarif, kategori, nilaiEl, isManual: !!potonganManualFlags[idx] };
+    if (isPpn) ppnRows.push(entry);
+    else otherRows.push(entry);
   });
+
+  let totalPPN = 0;
+  ppnRows.forEach(entry => {
+    if (entry.isManual) {
+      totalPPN += parseFloat(entry.nilaiEl?.value) || 0;
+      return;
+    }
+    const nilai = calcPotonganNilai(bruto, entry.catalog, entry.tarif);
+    if (nilai != null && entry.nilaiEl) {
+      entry.nilaiEl.value = nilai;
+      totalPPN += nilai;
+    }
+  });
+
+  otherRows.forEach(entry => {
+    if (entry.isManual) return;
+    if (entry.kategori === 'potongan' || entry.catalog?.base === 'manual') return;
+    const nilai = calcPotonganNilai(bruto, entry.catalog, entry.tarif, { ppnTotal: totalPPN });
+    if (nilai != null && entry.nilaiEl) entry.nilaiEl.value = nilai;
+  });
+
   updatePotonganSummaryDisplay();
 }
 
@@ -11160,12 +11186,12 @@ function updatePotonganSummaryDisplay() {
 function syncTaxFieldVisibility() {
   const items = collectPotonganFromForm();
   const hasPajak = items.some(i => i.kategori === 'pajak' && (i.jenis || i.nilai));
-  ['row-ntpn', 'row-kbilling', 'row-ntb'].forEach(id => {
+  ['row-ntpn', 'row-ntb'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = hasPajak ? '' : 'none';
   });
   if (!hasPajak) {
-    ['f-ntpn', 'f-kbilling', 'f-ntb'].forEach(id => {
+    ['f-ntpn', 'f-ntb'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -11182,6 +11208,10 @@ function clearPotonganFormRows() {
 
 function loadPotonganToForm(t) {
   const items = getPotonganItemsFromTransaction(t);
+  if (t.kode_billing && items.length) {
+    const firstPajak = items.find(i => i.kategori === 'pajak');
+    if (firstPajak && !firstPajak.id_billing) firstPajak.id_billing = t.kode_billing;
+  }
   renderPotonganFormRows(items);
 }
 
