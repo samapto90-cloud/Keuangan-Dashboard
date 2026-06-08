@@ -1547,10 +1547,11 @@
 
     /* ── Login ── */
     #login-screen {
-      position: fixed; inset: 0; z-index: 5;
+      position: fixed; inset: 0; z-index: 7;
       display: flex; align-items: center; justify-content: center;
       padding: 24px;
       background: transparent;
+      pointer-events: auto;
     }
     #login-screen.hidden { display: none !important; pointer-events: none !important; }
 
@@ -1711,7 +1712,7 @@
       width: 100vw;
       height: 100vh;
       z-index: 6;
-      pointer-events: none;
+      pointer-events: none !important;
     }
     .portal-battle-hero .portal-hero-copy,
     .portal-battle-hero .portal-hero-copy h1,
@@ -2661,13 +2662,38 @@
       color: #e2e8f0; font-size: 22px; margin: 0 0 4px; font-weight: 700;
     }
     .login-brand p { font-size: 12px; color: var(--text-muted); margin: 0; }
-    .pwd-toggle-wrap { position: relative; }
-    .pwd-toggle-wrap .form-control { padding-right: 2.75rem; }
+    .pwd-toggle-wrap { position: relative; display: block; }
+    .pwd-toggle-wrap .form-control {
+      padding-right: 2.85rem;
+      position: relative;
+      z-index: 1;
+    }
     .pwd-toggle-btn {
-      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-      border: none; background: transparent; color: #94a3b8; padding: 4px 8px; cursor: pointer; line-height: 1;
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      padding: 0;
+      cursor: pointer;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
     }
     .pwd-toggle-btn:hover { color: #e2e8f0; }
+    .pwd-toggle-btn:focus-visible {
+      outline: 2px solid rgba(255, 107, 0, 0.45);
+      outline-offset: 1px;
+      border-radius: 8px;
+    }
+    .pwd-toggle-btn i { font-size: 1.05rem; pointer-events: none; }
     .login-error {
       display: none; font-size: 12px; padding: 10px 12px; border-radius: 8px;
       background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.3); color: #f87171;
@@ -2681,7 +2707,7 @@
     #settings-app-shell { display: none !important; pointer-events: none !important; }
     #settings-app-shell.visible {
       display: block !important; pointer-events: auto !important; min-height: 100vh;
-      position: relative; z-index: 5; isolation: isolate;
+      position: relative; z-index: 7; isolation: isolate;
       color: #e2e8f0;
       background:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.14), transparent),
@@ -4112,8 +4138,8 @@
       <div class="mb-4">
         <label class="form-label">Password</label>
         <div class="pwd-toggle-wrap">
-          <input type="password" class="form-control" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
-          <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisible('login-password', this)" aria-label="Tampilkan password"><i class="bi bi-eye"></i></button>
+          <input type="password" class="form-control pwd-field" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="pwd-toggle-btn" data-pwd-target="login-password" aria-label="Tampilkan password" aria-pressed="false"><i class="bi bi-eye"></i></button>
         </div>
       </div>
       <button type="submit" class="btn btn-primary w-100 py-2" id="btn-login">
@@ -5211,8 +5237,8 @@ function onNilaiBrutoInput() {
             <div><label class="form-label text-light">Username (NIP)</label><input type="text" class="form-control" id="sys-settings-user"></div>
             <div><label class="form-label text-light">Password Baru</label>
               <div class="pwd-toggle-wrap">
-                <input type="password" class="form-control" id="sys-settings-pass" placeholder="Kosongkan jika tidak diubah">
-                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisible('sys-settings-pass', this)" aria-label="Tampilkan password"><i class="bi bi-eye"></i></button>
+                <input type="password" class="form-control pwd-field" id="sys-settings-pass" placeholder="Kosongkan jika tidak diubah">
+                <button type="button" class="pwd-toggle-btn" data-pwd-target="sys-settings-pass" aria-label="Tampilkan password" aria-pressed="false"><i class="bi bi-eye"></i></button>
               </div>
             </div>
             <div class="settings-form-grid" style="grid-column:1/-1"><div><label class="form-label text-light">Nama Lengkap</label><input type="text" class="form-control" id="sys-settings-name"></div></div>
@@ -6495,7 +6521,21 @@ function showLogin(appKey) {
   currentUser = null;
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
   document.getElementById('login-error')?.classList.remove('show');
+  resetPwdField('login-password');
   stopAllPortalFx();
+}
+
+function resetPwdField(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.type = 'password';
+  const btn = document.querySelector(`.pwd-toggle-btn[data-pwd-target="${inputId}"]`);
+  if (btn) {
+    const icon = btn.querySelector('i');
+    if (icon) icon.className = 'bi bi-eye';
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Tampilkan password');
+  }
 }
 
 function openPortalApp(appKey) {
@@ -6681,21 +6721,33 @@ let sysActivePermPortal = 'sekretariat';
 
 function togglePwdVisible(inputId, btn) {
   const input = document.getElementById(inputId);
-  if (!input) return;
-  const show = input.type === 'password';
-  input.type = show ? 'text' : 'password';
-  const icon = btn?.querySelector('i');
-  if (icon) {
-    icon.classList.toggle('bi-eye', !show);
-    icon.classList.toggle('bi-eye-slash', show);
-  }
-  btn?.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+  if (!input || !btn) return;
+  const reveal = input.type === 'password';
+  input.type = reveal ? 'text' : 'password';
+  input.classList.toggle('pwd-field', true);
+  const icon = btn.querySelector('i');
+  if (icon) icon.className = reveal ? 'bi bi-eye-slash' : 'bi bi-eye';
+  btn.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+  btn.setAttribute('aria-label', reveal ? 'Sembunyikan password' : 'Tampilkan password');
+}
+
+function initPwdToggleButtons() {
+  if (window.__pwdToggleBound) return;
+  window.__pwdToggleBound = true;
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pwd-toggle-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const inputId = btn.dataset.pwdTarget || btn.closest('.pwd-toggle-wrap')?.querySelector('input')?.id;
+    if (inputId) togglePwdVisible(inputId, btn);
+  });
 }
 
 function pwdFieldHtml(inputId, placeholder) {
   return `<div class="pwd-toggle-wrap">
-    <input type="password" class="form-control" id="${inputId}" placeholder="${placeholder || ''}">
-    <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisible('${inputId}', this)" aria-label="Tampilkan password"><i class="bi bi-eye"></i></button>
+    <input type="password" class="form-control pwd-field" id="${inputId}" placeholder="${placeholder || ''}">
+    <button type="button" class="pwd-toggle-btn" data-pwd-target="${inputId}" aria-label="Tampilkan password" aria-pressed="false"><i class="bi bi-eye"></i></button>
   </div>`;
 }
 
@@ -14263,6 +14315,7 @@ window.addEventListener('resize', () => {
   if (portal) portal.addEventListener('scroll', syncBattleProjLayout, { passive: true });
 })();
 window.addEventListener('DOMContentLoaded', () => {
+  initPwdToggleButtons();
   initPotonganFormListeners();
   initSettingsNav();
   syncBattleProjLayout();
