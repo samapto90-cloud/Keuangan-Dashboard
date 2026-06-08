@@ -67,4 +67,6 @@ deploy/hostinger-web/.env.production
 deploy/hostinger-web/node_modules/
 deploy/hostinger-web/package-lock.json
 deploy/hostinger-web/package.json
+deploy/hostinger-web/logs/
+backups/
 *.exe

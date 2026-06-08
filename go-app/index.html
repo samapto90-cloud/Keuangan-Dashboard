@@ -1541,9 +1541,11 @@
     #f-nilai.pagu-locked {
       opacity: .65;
       cursor: not-allowed;
-      background: rgba(248, 113, 113, .08);
-      border-color: rgba(248, 113, 113, .35);
+      background: rgba(148, 163, 184, .08);
+      border-color: rgba(148, 163, 184, .35);
+      pointer-events: none;
     }
+    #f-nilai-hint.text-danger { color: #f87171 !important; }
 
     /* ── Login ── */
     #login-screen {
@@ -4290,6 +4292,18 @@ function getSisaPaguFormInfo() {
   return { ...sel, pagu, realisasi, sisa: pagu - realisasi };
 }
 
+function setNilaiBrutoFieldState(nilaiEl, locked, title, hintText, hintClass) {
+  nilaiEl.readOnly = locked;
+  nilaiEl.classList.toggle('pagu-locked', locked);
+  nilaiEl.title = title || '';
+  const nilaiHint = document.getElementById('f-nilai-hint');
+  if (nilaiHint) {
+    nilaiHint.textContent = hintText || '';
+    nilaiHint.className = 'form-text ' + (hintClass || (locked ? 'text-warning' : 'text-muted'));
+    nilaiHint.style.fontSize = '11px';
+  }
+}
+
 function updatePaguRekeningUI() {
   const wrap = document.getElementById('f-pagu-info-wrap');
   const box = document.getElementById('f-pagu-info');
@@ -4297,12 +4311,25 @@ function updatePaguRekeningUI() {
   const hint = document.getElementById('f-pagu-hint');
   if (!wrap || !box || !nilaiEl) return;
 
-  const info = getSisaPaguFormInfo();
-  if (!info || !info.kode_rekening) {
+  const sel = getRakSelectionFromForm();
+  if (!sel || !sel.kode_rekening) {
     wrap.style.display = 'none';
-    nilaiEl.readOnly = false;
-    nilaiEl.classList.remove('pagu-locked');
-    nilaiEl.title = '';
+    nilaiEl.value = 0;
+    setNilaiBrutoFieldState(
+      nilaiEl, true, '',
+      'Pilih kegiatan, sub kegiatan, dan pekerjaan terlebih dahulu.'
+    );
+    return;
+  }
+
+  const info = getSisaPaguFormInfo();
+  if (!info) {
+    wrap.style.display = 'none';
+    nilaiEl.value = 0;
+    setNilaiBrutoFieldState(
+      nilaiEl, true, '',
+      'Pilih kegiatan, sub kegiatan, dan pekerjaan terlebih dahulu.'
+    );
     return;
   }
 
@@ -4317,36 +4344,55 @@ function updatePaguRekeningUI() {
   box.classList.toggle('pagu-habis', habis);
 
   if (info.pagu <= 0) {
-    hint.textContent = 'Pagu untuk baris RAK ini belum tersedia di Anggaran.xlsx.';
-    nilaiEl.readOnly = false;
-    nilaiEl.classList.remove('pagu-locked');
-    nilaiEl.title = '';
+    hint.textContent = 'Anggaran belum tersedia untuk baris RAK ini.';
+    nilaiEl.value = 0;
+    setNilaiBrutoFieldState(
+      nilaiEl, true, 'Anggaran belum tersedia',
+      'Anggaran belum tersedia — nilai bruto tidak dapat diinput.'
+    );
     return;
   }
 
   if (habis) {
     hint.textContent = 'Sisa pagu habis — nilai bruto tidak dapat diinput.';
     nilaiEl.value = 0;
-    nilaiEl.readOnly = true;
-    nilaiEl.classList.add('pagu-locked');
-    nilaiEl.title = 'Sisa pagu anggaran habis';
-  } else {
-    hint.textContent = `Maksimal nilai bruto: ${formatRupiah(info.sisa)}`;
-    nilaiEl.readOnly = false;
-    nilaiEl.classList.remove('pagu-locked');
-    nilaiEl.title = `Sisa pagu: ${formatRupiah(info.sisa)}`;
+    setNilaiBrutoFieldState(
+      nilaiEl, true, 'Sisa pagu anggaran habis',
+      'Sisa pagu habis — nilai bruto tidak dapat diinput.'
+    );
+    return;
   }
+
+  hint.textContent = `Maksimal nilai bruto: ${formatRupiah(info.sisa)}`;
+  setNilaiBrutoFieldState(
+    nilaiEl, false, `Sisa pagu: ${formatRupiah(info.sisa)}`,
+    `Maksimal nilai bruto: ${formatRupiah(info.sisa)}`, 'text-muted'
+  );
 }
 
 function onNilaiBrutoInput() {
   const nilaiEl = document.getElementById('f-nilai');
   const info = getSisaPaguFormInfo();
-  if (info && info.pagu > 0 && info.sisa > 0) {
-    let v = parseFloat(nilaiEl.value) || 0;
-    if (v > info.sisa) nilaiEl.value = Math.floor(info.sisa);
-  } else if (info && info.pagu > 0 && info.sisa <= 0) {
+
+  if (!info || info.pagu <= 0 || info.sisa <= 0) {
     nilaiEl.value = 0;
+    updatePaguRekeningUI();
+    return;
   }
+
+  const v = parseFloat(nilaiEl.value) || 0;
+  if (v > info.sisa) {
+    nilaiEl.value = 0;
+    updatePaguRekeningUI();
+    setNilaiBrutoFieldState(
+      nilaiEl, false, `Sisa pagu: ${formatRupiah(info.sisa)}`,
+      `Nilai melebihi sisa pagu (${formatRupiah(info.sisa)}) — dikembalikan ke 0.`,
+      'text-danger'
+    );
+    window.dispatchEvent(new CustomEvent('sipkeu:bruto-input'));
+    return;
+  }
+
   window.dispatchEvent(new CustomEvent('sipkeu:bruto-input'));
   updatePaguRekeningUI();
 }
@@ -4594,7 +4640,8 @@ function onNilaiBrutoInput() {
           <!-- Baris 7: Nilai Bruto + ringkasan potongan -->
           <div class="col-md-4">
             <label class="form-label">Nilai Bruto / DPP (Rp) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="f-nilai" placeholder="0" min="0" required oninput="onNilaiBrutoInput()" />
+            <input type="number" class="form-control pagu-locked" id="f-nilai" placeholder="0" min="0" value="0" readonly required oninput="onNilaiBrutoInput()" />
+            <div id="f-nilai-hint" class="form-text text-warning" style="font-size:11px">Pilih kegiatan, sub kegiatan, dan pekerjaan terlebih dahulu.</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" id="lbl-f-pa">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
@@ -7910,6 +7957,7 @@ function onKegiatanChange() {
   pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  document.getElementById('f-nilai').value = 0;
   updatePaguRekeningUI();
   subSel.disabled = !keg;
   pkSel.disabled = true;
@@ -7926,6 +7974,7 @@ function onSubKegiatanChange() {
   pkSel.innerHTML = '<option value="">— Pilih Pekerjaan —</option>';
   document.getElementById('f-koderek').value = '';
   document.getElementById('f-pptk').value = '';
+  document.getElementById('f-nilai').value = 0;
   updatePaguRekeningUI();
   pkSel.disabled = !sub;
 
@@ -7936,6 +7985,7 @@ function onSubKegiatanChange() {
 }
 
 function onPekerjaanChange() {
+  document.getElementById('f-nilai').value = 0;
   const val = document.getElementById('f-pekerjaan').value;
   if (!val) {
     document.getElementById('f-koderek').value = '';
@@ -8781,7 +8831,7 @@ function resetForm() {
   document.getElementById('f-nobast').value = '';
   document.getElementById('f-nokontrak').value = '';
   document.getElementById('f-uraian').value = '';
-  document.getElementById('f-nilai').value = '';
+  document.getElementById('f-nilai').value = 0;
   document.getElementById('f-no-rekening').value = '';
   document.getElementById('f-npwp').value = '';
   document.getElementById('f-nonp2d').value = '';
