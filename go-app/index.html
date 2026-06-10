@@ -4834,6 +4834,20 @@ function initManualNumericInputUX() {
           <button class="btn btn-sm btn-outline-danger" data-perm="delete_all" onclick="confirmHapusSemua()" title="Hapus semua transaksi"><i class="bi bi-trash3 me-1"></i>Hapus Semua</button>
         </div>
       </div>
+      <div class="register-filter-bar trx-filter-bar">
+        <div class="filter-item filter-period">
+          <label>Periode Tanggal</label>
+          <div class="register-period-range">
+            <input type="date" class="form-control form-control-sm" id="trx-filter-dari-tgl" onchange="onTrxDateFilterChange()" title="Dari tanggal" />
+            <span class="register-period-sep">s/d</span>
+            <input type="date" class="form-control form-control-sm" id="trx-filter-sampai-tgl" onchange="onTrxDateFilterChange()" title="Sampai tanggal" />
+          </div>
+        </div>
+        <div class="filter-item" style="flex:0 0 auto">
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetTrxDateFilter()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+        </div>
+      </div>
       <div class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke kiri/kanan untuk melihat semua kolom</div>
       <div class="table-wrapper">
         <table class="table table-hover trx-table-fire">
@@ -8614,8 +8628,10 @@ async function reviewTransaction(id, action) {
 function getFilteredTransactions() {
   const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
   const statusFilter = (document.getElementById('trx-status-filter')?.value || '').trim();
+  const { start, end } = getTrxDateFilterBounds();
   return sortTransactionsNewestFirst((allTransactions || []).filter(t => {
     if (statusFilter && trxEffectiveStatus(t) !== statusFilter) return false;
+    if (!trxMatchesRegisterPeriod(t, start, end)) return false;
     if (!q) return true;
     return (t.kegiatan||'').toLowerCase().includes(q) ||
     (t.penerima||'').toLowerCase().includes(q) ||
@@ -8680,7 +8696,12 @@ function renderTable() {
   const tbody = document.getElementById('trx-tbody');
   let totalN = 0, totalP = 0, totalPot = 0;
   if (!data || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="23"><div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada data. Tambah lewat form di atas.</p></div></td></tr>`;
+    const { start, end } = getTrxDateFilterBounds();
+    const hasDateFilter = start || end;
+    const emptyMsg = hasDateFilter
+      ? 'Tidak ada transaksi pada periode tanggal yang dipilih.'
+      : 'Belum ada data. Tambah lewat form di atas.';
+    tbody.innerHTML = `<tr><td colspan="23"><div class="empty-state"><i class="bi bi-inbox"></i><p>${emptyMsg}</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
@@ -8818,6 +8839,35 @@ async function doHapusTerpilih(ids) {
 function filterTable() {
   trxPage = 1;
   renderTable();
+}
+
+function normalizeTrxDateRangeFilter() {
+  const dariEl = document.getElementById('trx-filter-dari-tgl');
+  const sampaiEl = document.getElementById('trx-filter-sampai-tgl');
+  if (!dariEl || !sampaiEl) return;
+  if (dariEl.value && sampaiEl.value && dariEl.value > sampaiEl.value) {
+    sampaiEl.value = dariEl.value;
+  }
+}
+
+function getTrxDateFilterBounds() {
+  normalizeTrxDateRangeFilter();
+  return {
+    start: document.getElementById('trx-filter-dari-tgl')?.value || '',
+    end: document.getElementById('trx-filter-sampai-tgl')?.value || '',
+  };
+}
+
+function onTrxDateFilterChange() {
+  filterTable();
+}
+
+function resetTrxDateFilter() {
+  const dariEl = document.getElementById('trx-filter-dari-tgl');
+  const sampaiEl = document.getElementById('trx-filter-sampai-tgl');
+  if (dariEl) dariEl.value = '';
+  if (sampaiEl) sampaiEl.value = '';
+  filterTable();
 }
 
 // ── Form CRUD ────────────────────────────────────────────────────────────
