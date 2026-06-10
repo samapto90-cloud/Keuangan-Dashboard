@@ -4625,8 +4625,8 @@ function initManualNumericInputUX() {
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Penerima / Dibayar Kepada <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima / vendor" required />
+            <label class="form-label">Penerima / Dibayar Kepada</label>
+            <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima / vendor (opsional)" />
           </div>
           <div class="col-md-3">
             <label class="form-label">No. BPK <span class="auto-badge">otomatis</span></label>
@@ -9126,9 +9126,10 @@ function cetakKwitansi(id) {
   document.getElementById('kw-subkegiatan').textContent = t.sub_kegiatan || '—';
   document.getElementById('kw-nilai-num').textContent = formatKwitansiAmount(t.nilai);
   renderKwitansiPotongan(t);
-  document.getElementById('kw-penerima').innerHTML = '<strong>' + (t.penerima || '—') + '</strong>';
+  const penerima = trxPenerimaNama(t);
+  document.getElementById('kw-penerima').innerHTML = penerima ? '<strong>' + escHtml(penerima) + '</strong>' : '';
   document.getElementById('kw-yaitu').textContent = yaitu;
-  document.getElementById('kw-penerima-ttd').textContent = t.penerima || '—';
+  document.getElementById('kw-penerima-ttd').textContent = penerima;
   document.getElementById('kw-penerima-nip').innerHTML = '&nbsp;';
   document.getElementById('kw-bayar-tgl').textContent = tgl;
   document.getElementById('kw-pptk-subkeg').textContent = t.sub_kegiatan || '—';
@@ -9145,7 +9146,7 @@ function cetakKwitansi(id) {
   document.getElementById('kw-terbilang').textContent = capitalizeTerbilang(tb) + ' Rupiah';
 
   const bpkSlug = (t.no_bpk || 'BPK-' + t.id).replace(/[\\/:*?"<>|]/g, '_');
-  const penerimaSlug = (t.penerima || 'Penerima').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+  const penerimaSlug = (trxPenerimaNama(t) || 'TanpaPenerima').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
   kwitansiFilenameBase = `Kwitansi_${bpkSlug}_${penerimaSlug}`;
 
   const sheet = document.querySelector('#kwitansi-print .kw-a4-sheet');
@@ -9537,6 +9538,11 @@ function npSetTxt(id, val) {
   if (el) el.textContent = (val == null || val === '') ? '—' : val;
 }
 
+function npSetOptional(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = String(val ?? '').trim();
+}
+
 function cetakNP2D(id) {
   syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
@@ -9567,8 +9573,8 @@ function cetakNP2D(id) {
   npSetTxt('np-total-num', formatKwitansiAmount(bruto));
   npSetTxt('np-terbilang', capitalizeTerbilang(terbilang(Math.round(bruto))));
   npSetTxt('np-keperluan', keperluan);
-  npSetTxt('np-penerima', t.penerima);
-  npSetTxt('np-nama-rekening', t.nama_rekening || t.penerima);
+  npSetOptional('np-penerima', trxPenerimaNama(t));
+  npSetOptional('np-nama-rekening', t.nama_rekening);
   npSetTxt('np-no-rekening', t.no_rekening);
   npSetTxt('np-bank', t.bank);
   npSetTxt('np-koderek', t.kode_rekening);
@@ -9581,7 +9587,7 @@ function cetakNP2D(id) {
   if (pajakItems.length && totalPajakLegacy > 0) {
     sec2.style.display = '';
     npSetTxt('np-npwp', t.npwp || '-');
-    npSetTxt('np-nama-wp', t.nama_wp || t.penerima || '-');
+    npSetOptional('np-nama-wp', t.nama_wp);
     document.getElementById('np-pajak-rows').innerHTML = pajakItems.map((it, i) => {
       const artikel = taxArticleLabel(it);
       const uraianPajak = artikel ? `${artikel} - ${keperluan}` : keperluan;
@@ -9609,7 +9615,7 @@ function cetakNP2D(id) {
   npSetTxt('np-pptk-nip', pptkNip || '—');
 
   const slug = (t.no_np2d || ('NP2D-' + t.id)).replace(/[\\/:*?"<>|]/g, '_');
-  const penerimaSlug = (t.penerima || 'Penerima').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+  const penerimaSlug = (trxPenerimaNama(t) || 'TanpaPenerima').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
   np2dFilenameBase = `NP2D_${slug}_${penerimaSlug}`;
 
   const sheet = document.querySelector('#np2d-print .kw-a4-sheet');
@@ -11647,14 +11653,8 @@ function findRakRowForImport(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
   return null;
 }
 
-function defaultImportPenerima(t) {
-  const fromCol = String(t.penerima || '').trim();
-  if (fromCol) return fromCol.slice(0, 120);
-  const fromPekerjaan = String(t.pekerjaan || '').trim();
-  if (fromPekerjaan) return fromPekerjaan.slice(0, 120);
-  const fromUraian = String(t.uraian || '').trim();
-  if (fromUraian) return fromUraian.slice(0, 120);
-  return 'Realisasi Anggaran';
+function trxPenerimaNama(t) {
+  return String(t?.penerima ?? '').trim();
 }
 
 function enrichImportTransactionRow(t, format) {
@@ -11664,6 +11664,7 @@ function enrichImportTransactionRow(t, format) {
   t.jenis_transaksi = normalizeJenisTransaksi(t.jenis_transaksi || 'UP');
   t.nilai = parseImportNumber(t.nilai);
   t.kode_rekening = String(t.kode_rekening || '').trim();
+  t.penerima = String(t.penerima || '').trim();
   const rak = findRakRowForImport(t.kegiatan, t.sub_kegiatan, t.kode_rekening, t.pekerjaan);
   if (rak) {
     if (rak.kegiatan && !t.kegiatan) t.kegiatan = rak.kegiatan;
@@ -11673,11 +11674,6 @@ function enrichImportTransactionRow(t, format) {
     if (rak.pptk && !t.pptk) t.pptk = rak.pptk;
     if (rak.pptk_nip && !t.pptk_nip) t.pptk_nip = rak.pptk_nip;
   }
-  if (format === 'realisasi' || !t.penerima) {
-    t.penerima = defaultImportPenerima(t);
-  }
-  if (!t.nama_rekening) t.nama_rekening = t.penerima;
-  if (!t.nama_wp) t.nama_wp = t.penerima;
   if (!t.pengguna_anggaran) t.pengguna_anggaran = cfg.defaultPa?.nama || DB.pa?.nama || '';
   if (!t.bendahara) t.bendahara = cfg.defaultBendahara?.nama || DB.bendahara?.nama || '';
   return t;
