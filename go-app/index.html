@@ -5829,7 +5829,7 @@ function initManualNumericInputUX() {
         <div class="mb-3">
           <label class="form-label fw-bold">Pilih File Excel (.xlsx, .xls) atau CSV (.csv)</label>
           <input type="file" id="import-file" class="form-control" accept=".xlsx,.xls,.csv" onchange="previewImpor(event)" />
-          <div class="form-text">Kolom wajib: Tanggal, Penerima, Nilai. Kolom opsional termasuk <strong>No BPK</strong> dan <strong>No NP2D / NPD</strong> (kosongkan agar diisi otomatis sesuai portal aktif). Data dengan kode BPK/NP2D portal lain akan ditolak. <a href="#" onclick="downloadTemplate();return false">Download template</a></div>
+          <div class="form-text">Format <strong>Realisasi</strong>: Nama Kegiatan, Kode/Nama Sub Kegiatan, Kode/Nama Rekening, Jenis Transaksi, Tanggal Dokumen, Keterangan Dokumen, Nilai Realisasi, Penerima (opsional). <strong>No BPK</strong> dan <strong>No NP2D</strong> diisi otomatis jika kosong. <a href="#" onclick="downloadTemplate();return false">Download template Realisasi</a></div>
         </div>
         <div id="import-preview" style="display:none">
           <div class="alert py-2 mb-2" id="import-alert" style="font-size:12px"></div>
@@ -11490,13 +11490,64 @@ const IMPORT_COL_ALIASES = {
   no_bpk: ['nomor bpk', 'bpk'],
   jenis_transaksi: ['jenis trx', 'jenis transaksi', 'tipe transaksi'],
   no_np2d: ['no np2d', 'np2d', 'npd', 'no npd', 'nomor np2d', 'nomor npd', 'no np2d pptk', 'np2d pptk', 'np2d-pptk'],
+  kegiatan: ['nama kegiatan'],
+  sub_kegiatan: ['nama sub kegiatan', 'sub kegiatan'],
+  kode_rekening: ['kode rekening'],
+  pekerjaan: ['nama rekening', 'pekerjaan'],
+  tanggal: ['tanggal dokumen', 'tgl dokumen'],
+  uraian: ['keterangan dokumen', 'keterangan', 'uraian pembayaran'],
+  nilai: ['nilai realisasi', 'realisasi'],
+};
+
+const IMPORT_REALISASI_COLS = [
+  { key: 'kegiatan', labels: ['nama kegiatan', 'kegiatan'] },
+  { key: 'kode_sub_kegiatan', labels: ['kode sub kegiatan'] },
+  { key: 'sub_kegiatan', labels: ['nama sub kegiatan', 'sub kegiatan'] },
+  { key: 'kode_rekening', labels: ['kode rekening'] },
+  { key: 'pekerjaan', labels: ['nama rekening', 'pekerjaan'] },
+  { key: 'jenis_transaksi', labels: ['jenis transaksi', 'jenis trx', 'tipe transaksi'] },
+  { key: 'tanggal', labels: ['tanggal dokumen', 'tanggal'] },
+  { key: 'uraian', labels: ['keterangan dokumen', 'uraian', 'keterangan'] },
+  { key: 'nilai', labels: ['nilai realisasi', 'nilai'], type: 'number' },
+  { key: 'penerima', labels: ['penerima', 'vendor', 'nama penerima'] },
+  { key: 'tanggal_simpan', labels: ['tanggal simpan'] },
+  { key: 'no_bpk', labels: ['no bpk', 'nomor bpk', 'bpk'] },
+  { key: 'no_np2d', labels: ['no np2d', 'np2d', 'npd', 'nomor np2d', 'nomor npd'] },
+];
+
+const ID_IMPORT_MONTHS = {
+  januari: '01', februari: '02', maret: '03', april: '04', mei: '05', juni: '06',
+  juli: '07', agustus: '08', september: '09', oktober: '10', november: '11', desember: '12',
 };
 
 function normImportHeader(h) {
   return String(h || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function detectImportFormat(headers) {
+  const norms = headers.map(normImportHeader);
+  if (norms.includes('nilai realisasi') || (norms.includes('nama kegiatan') && norms.includes('keterangan dokumen'))) {
+    return 'realisasi';
+  }
+  return 'legacy';
+}
+
+function buildColMapFromDefs(headers, defs) {
+  const colMap = {};
+  const norms = headers.map(normImportHeader);
+  defs.forEach(c => {
+    const want = (c.labels || []).map(normImportHeader);
+    const idx = norms.findIndex(h => want.includes(h));
+    if (idx >= 0) colMap[c.key] = idx;
+  });
+  return colMap;
+}
+
 function buildImportColMap(headers) {
+  const format = detectImportFormat(headers);
+  if (format === 'realisasi') {
+    return { format, map: buildColMapFromDefs(headers, IMPORT_REALISASI_COLS) };
+  }
   const colMap = {};
   const norms = headers.map(normImportHeader);
   EXPORT_COLS.forEach(c => {
@@ -11504,7 +11555,178 @@ function buildImportColMap(headers) {
     const idx = norms.findIndex(h => want.includes(h));
     if (idx >= 0) colMap[c.key] = idx;
   });
-  return colMap;
+  return { format: 'legacy', map: colMap };
+}
+
+function parseImportDate(v) {
+  if (v instanceof Date && !isNaN(v.getTime())) return v.toISOString().slice(0, 10);
+  const s = String(v || '').trim();
+  if (!s) return '';
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const idMatch = s.match(/^(\d{1,2})\s+([A-Za-zÀ-ÿ]+)\s+(\d{4})$/);
+  if (idMatch) {
+    const mon = ID_IMPORT_MONTHS[idMatch[2].toLowerCase()];
+    if (mon) return `${idMatch[3]}-${mon}-${String(idMatch[1]).padStart(2, '0')}`;
+  }
+  const slash = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (slash) return `${slash[3]}-${String(slash[2]).padStart(2, '0')}-${String(slash[1]).padStart(2, '0')}`;
+  const parsed = Date.parse(s);
+  if (!isNaN(parsed)) return new Date(parsed).toISOString().slice(0, 10);
+  return s;
+}
+
+function parseImportNumber(v) {
+  if (typeof v === 'number' && isFinite(v)) return v;
+  return parseFloat(String(v || '').replace(/[^\d.-]/g, '')) || 0;
+}
+
+function normImportText(v) {
+  return String(v || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function findRakRowForImport(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
+  const keg = normImportText(kegiatan);
+  const sub = normImportText(subKegiatan);
+  const kode = String(kodeRekening || '').trim();
+  const pk = normImportText(pekerjaan);
+  const rak = appSettings.rak || [];
+  const match = (pred) => rak.find(pred) || null;
+  if (kode && pk) {
+    const exact = match(r =>
+      normImportText(r.kegiatan) === keg &&
+      normImportText(r.sub_kegiatan) === sub &&
+      String(r.kode_rekening || '').trim() === kode &&
+      normImportText(r.pekerjaan) === pk
+    );
+    if (exact) return exact;
+  }
+  if (kode && sub) {
+    const bySub = match(r =>
+      normImportText(r.kegiatan) === keg &&
+      normImportText(r.sub_kegiatan) === sub &&
+      String(r.kode_rekening || '').trim() === kode
+    );
+    if (bySub) return bySub;
+  }
+  if (kode) {
+    const byKode = match(r => String(r.kode_rekening || '').trim() === kode);
+    if (byKode) return byKode;
+  }
+  if (pk) {
+    return match(r =>
+      normImportText(r.kegiatan) === keg &&
+      normImportText(r.sub_kegiatan) === sub &&
+      normImportText(r.pekerjaan) === pk
+    );
+  }
+  return null;
+}
+
+function defaultImportPenerima(t) {
+  const fromCol = String(t.penerima || '').trim();
+  if (fromCol) return fromCol.slice(0, 120);
+  const fromPekerjaan = String(t.pekerjaan || '').trim();
+  if (fromPekerjaan) return fromPekerjaan.slice(0, 120);
+  const fromUraian = String(t.uraian || '').trim();
+  if (fromUraian) return fromUraian.slice(0, 120);
+  return 'Realisasi Anggaran';
+}
+
+function enrichImportTransactionRow(t, format) {
+  const cfg = getPortalAppConfig();
+  t.tanggal = parseImportDate(t.tanggal);
+  if (t.tanggal_simpan) t.tanggal_simpan = parseImportDate(t.tanggal_simpan);
+  t.jenis_transaksi = normalizeJenisTransaksi(t.jenis_transaksi || 'UP');
+  t.nilai = parseImportNumber(t.nilai);
+  t.kode_rekening = String(t.kode_rekening || '').trim();
+  const rak = findRakRowForImport(t.kegiatan, t.sub_kegiatan, t.kode_rekening, t.pekerjaan);
+  if (rak) {
+    if (rak.kegiatan && !t.kegiatan) t.kegiatan = rak.kegiatan;
+    if (rak.sub_kegiatan && !t.sub_kegiatan) t.sub_kegiatan = rak.sub_kegiatan;
+    if (rak.kode_rekening && !t.kode_rekening) t.kode_rekening = rak.kode_rekening;
+    if (rak.pekerjaan && !t.pekerjaan) t.pekerjaan = rak.pekerjaan;
+    if (rak.pptk && !t.pptk) t.pptk = rak.pptk;
+    if (rak.pptk_nip && !t.pptk_nip) t.pptk_nip = rak.pptk_nip;
+  }
+  if (format === 'realisasi' || !t.penerima) {
+    t.penerima = defaultImportPenerima(t);
+  }
+  if (!t.nama_rekening) t.nama_rekening = t.penerima;
+  if (!t.nama_wp) t.nama_wp = t.penerima;
+  if (!t.pengguna_anggaran) t.pengguna_anggaran = cfg.defaultPa?.nama || DB.pa?.nama || '';
+  if (!t.bendahara) t.bendahara = cfg.defaultBendahara?.nama || DB.bendahara?.nama || '';
+  return t;
+}
+
+function importRowHasData(t) {
+  return (parseImportNumber(t.nilai) > 0) || t.kegiatan || t.uraian || t.tanggal || t.penerima;
+}
+
+function parseImportSheetRows(headers, dataRows, colMapInfo) {
+  const { format, map: colMap } = colMapInfo;
+  const defs = format === 'realisasi'
+    ? IMPORT_REALISASI_COLS
+    : EXPORT_COLS.map(c => ({
+        key: c.key,
+        labels: [c.label, ...(IMPORT_COL_ALIASES[c.key] || [])],
+        type: c.type,
+      }));
+  return dataRows.map(row => {
+    const t = {};
+    defs.forEach(c => {
+      if (colMap[c.key] === undefined) return;
+      let v = row[colMap[c.key]];
+      if (c.type === 'number') {
+        t[c.key] = parseImportNumber(v);
+      } else if (c.key === 'tanggal' || c.key === 'tanggal_simpan') {
+        t[c.key] = parseImportDate(v);
+      } else {
+        t[c.key] = String(v ?? '').trim();
+      }
+    });
+    return enrichImportTransactionRow(t, format);
+  }).filter(importRowHasData);
+}
+
+function assignImportDocNumbers(rows) {
+  const cfg = getPortalAppConfig();
+  let maxSeqUp = 0, maxSeqLs = 0, maxNp2dUp = 0, maxNp2dLs = 0;
+  for (const t of (allTransactions || [])) {
+    const j = inferJenisTransaksi(t);
+    if (j === 'LS') {
+      maxSeqLs = Math.max(maxSeqLs, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'LS'));
+      maxNp2dLs = Math.max(maxNp2dLs, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'LS'));
+    } else {
+      maxSeqUp = Math.max(maxSeqUp, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'UP'));
+      maxNp2dUp = Math.max(maxNp2dUp, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'UP'));
+    }
+  }
+  return rows.map(t => {
+    const jenis = inferJenisTransaksi(t);
+    let noBpk = String(t.no_bpk || '').trim();
+    let noNp2d = String(t.no_np2d || '').trim();
+    const tanggal = parseImportDate(t.tanggal);
+    const [year, month] = String(tanggal || '').split('-');
+    if (!noBpk && year && month) {
+      if (jenis === 'LS') {
+        maxSeqLs += 1;
+        noBpk = `${String(maxSeqLs).padStart(4, '0')}/BPK/LS/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+      } else {
+        maxSeqUp += 1;
+        noBpk = `${String(maxSeqUp).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+      }
+    }
+    if (!noNp2d && year && month) {
+      if (jenis === 'LS') {
+        maxNp2dLs += 1;
+        noNp2d = `${String(maxNp2dLs).padStart(4, '0')}/${np2dDocPath('LS')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+      } else {
+        maxNp2dUp += 1;
+        noNp2d = `${String(maxNp2dUp).padStart(4, '0')}/${np2dDocPath('UP')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
+      }
+    }
+    return { ...t, tanggal, jenis_transaksi: jenis, no_bpk: noBpk, no_np2d: noNp2d };
+  });
 }
 
 function importRowValidForPortal(t, bpkCode) {
@@ -11561,24 +11783,24 @@ async function doEkspor() {
 // ── Template Download ─────────────────────────────────────────────────────
 async function downloadTemplate() {
   await ensureXlsx();
-  const cfg = getPortalAppConfig();
-  const header = EXPORT_COLS.map(c => c.label);
-  const bpkExample = `0001/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
-  const np2dExample = `0001/${np2dDocPath('UP')}/${BPK_UNIT}/${cfg.bpkCode}/01/2026`;
+  const header = [
+    'Nama Kegiatan', 'Kode Sub Kegiatan', 'Nama Sub Kegiatan', 'Kode Rekening', 'Nama Rekening',
+    'Jenis Transaksi', 'Tanggal Dokumen', 'Keterangan Dokumen', 'Nilai Realisasi', 'Penerima',
+  ];
   const example = [
-    '2026-01-10', 'Administrasi Keuangan Perangkat Daerah', 'Penyediaan Administrasi Pelaksanaan Tugas ASN', '5.1.02.02.001.00080',
-    'CV. Contoh Maju', 'UP', bpkExample, '0001/BAST/DISDIK/I/2026', '', 'Belanja ATK', 'Pengadaan ATK bulan Januari 2026',
-    'PPh 22 — 1,5% (Pembelian Barang NPWP)', 'Iuran Wajib Pegawai (IWP)', 1000000, 15000, 10000,
-    '1234567890123456', '820260100000001', 'BND2026010001',
-    cfg.defaultPa.nama, 'RAMA WARNI, MM', cfg.defaultBendahara.nama,
-    'Rekening Contoh', '1234567890', 'Bank Nagari', '01.234.567.8-901.000', 'CV. Contoh Maju',
-    np2dExample,
+    'Pengelolaan Pendidikan Anak Usia Dini (PAUD)', '1.01.02.2.03.0015',
+    'Penyediaan Pendidik dan Tenaga Kependidikan bagi Satuan PAUD',
+    '5.1.02.02.001.00086',
+    'Belanja jasa Pegawai Pemerintah dengan Perjanjian Kerja (PPPK) Paruh Waktu pada jabatan tenaga teknis',
+    'UP', '20 Januari 2026',
+    'Belanja jasa Pegawai PPPK Paruh Waktu pada jabatan tenaga teknis PAUD bulan Januari 2026, Terlampir',
+    5600000, '',
   ];
   const ws = XLSX.utils.aoa_to_sheet([header, example]);
-  ws['!cols'] = EXPORT_COLS.map((_, i) => ({ wch: [6,40,40,20,30,32,24,24,40,50,12,14,14,14,14,18,16,14,14,30,30,25][i] || 15 }));
+  ws['!cols'] = [42, 18, 42, 22, 48, 14, 18, 48, 16, 24].map(wch => ({ wch }));
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Template');
-  XLSX.writeFile(wb, 'SIPKEU_Template_Import.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, 'Data Realisasi Dokumen');
+  XLSX.writeFile(wb, 'SIPKEU_Template_Import_Realisasi.xlsx');
 }
 
 // ── Impor ─────────────────────────────────────────────────────────────────
@@ -11594,6 +11816,12 @@ function showModalImpor() {
   new bootstrap.Modal(document.getElementById('modalImpor')).show();
 }
 
+function pickImportWorksheet(wb) {
+  const names = wb.SheetNames || [];
+  const preferred = names.find(n => /realisasi/i.test(String(n)));
+  return wb.Sheets[preferred || names[0]];
+}
+
 function previewImpor(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -11602,7 +11830,7 @@ function previewImpor(event) {
     try {
       await ensureXlsx();
       const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
-      const ws = wb.Sheets[wb.SheetNames[0]];
+      const ws = pickImportWorksheet(wb);
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
       if (rows.length < 2) {
         showImportAlert('File kosong atau hanya memiliki header.', 'warning');
@@ -11610,49 +11838,38 @@ function previewImpor(event) {
       }
       const headers = rows[0].map(h => String(h).trim());
       const dataRows = rows.slice(1).filter(r => r.some(v => v !== ''));
-
-      const colMap = buildImportColMap(headers);
-      const cfg = getPortalAppConfig();
-
-      importData = dataRows.map(row => {
-        const t = {};
-        EXPORT_COLS.forEach(c => {
-          if (colMap[c.key] !== undefined) {
-            let v = row[colMap[c.key]];
-            if (c.type === 'number') {
-              v = parseFloat(String(v).replace(/[^\d.-]/g,'')) || 0;
-            } else {
-              if (v instanceof Date) {
-                v = v.toISOString().slice(0,10);
-              } else {
-                v = String(v || '').trim();
-              }
-            }
-            t[c.key] = v;
-          }
-        });
-        return t;
-      });
+      const colMapInfo = buildImportColMap(headers);
+      importData = parseImportSheetRows(headers, dataRows, colMapInfo);
 
       if (!importData.length) {
-        showImportAlert('Tidak ada baris data yang bisa dibaca. Pastikan nama kolom sesuai template.', 'warning');
+        showImportAlert('Tidak ada baris data yang bisa dibaca. Pastikan nama kolom sesuai template Realisasi atau legacy.', 'warning');
         return;
       }
 
-      const validRows = importData.filter(t => importRowValidForPortal(t, cfg.bpkCode));
-      const rejectedPortal = importData.length - validRows.length;
+      const cfg = getPortalAppConfig();
+      const previewRows = assignImportDocNumbers(importData);
+      const validRows = previewRows.filter(t => importRowValidForPortal(t, cfg.bpkCode));
+      const rejectedPortal = previewRows.length - validRows.length;
+      const formatLabel = colMapInfo.format === 'realisasi' ? 'Realisasi' : 'Legacy';
 
       const head = document.getElementById('import-thead');
       const tbody = document.getElementById('import-tbody');
-      const previewCols = ['tanggal','penerima','jenis_transaksi','no_bpk','no_np2d','kegiatan','pekerjaan','nilai'];
-      const previewLabels = ['Tanggal','Penerima','No BPK','No NP2D/NPD','Kegiatan','Pekerjaan','Nilai'];
+      const previewCols = colMapInfo.format === 'realisasi'
+        ? ['tanggal','jenis_transaksi','kode_rekening','penerima','no_bpk','no_np2d','pptk','nilai']
+        : ['tanggal','jenis_transaksi','penerima','no_bpk','no_np2d','kegiatan','pekerjaan','nilai'];
+      const previewLabels = colMapInfo.format === 'realisasi'
+        ? ['Tanggal','Jenis','Kode Rek.','Penerima','No BPK','No NP2D/NPD','PPTK','Nilai']
+        : ['Tanggal','Jenis','Penerima','No BPK','No NP2D/NPD','Kegiatan','Pekerjaan','Nilai'];
       if (head) head.innerHTML = '<tr>' + previewLabels.map(l => `<th>${l}</th>`).join('') + '</tr>';
-      if (tbody) tbody.innerHTML = importData.slice(0, 20).map(t => {
+      if (tbody) tbody.innerHTML = previewRows.slice(0, 20).map(t => {
         const ok = importRowValidForPortal(t, cfg.bpkCode);
         const rowStyle = ok ? '' : ' style="background:#fff3cd" title="Kode BPK/NP2D tidak sesuai portal ' + cfg.bpkCode + '"';
-        return '<tr' + rowStyle + '>' + previewCols.map(k =>
-          `<td style="font-size:11px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis">${k === 'nilai' ? formatRupiah(t[k] || 0) : (t[k] || '-')}</td>`
-        ).join('') + '</tr>';
+        return '<tr' + rowStyle + '>' + previewCols.map(k => {
+          let val = t[k] || '-';
+          if (k === 'nilai') val = formatRupiah(t[k] || 0);
+          else if (k === 'no_bpk' || k === 'no_np2d') val = val || '<span class="text-muted">(otomatis)</span>';
+          return `<td style="font-size:11px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis">${val}</td>`;
+        }).join('') + '</tr>';
       }).join('');
 
       const countEl = document.getElementById('import-count');
@@ -11668,7 +11885,7 @@ function previewImpor(event) {
         showImportAlert(`<i class="bi bi-x-circle me-1"></i>Tidak ada baris valid untuk portal ${cfg.bpkCode}. Periksa kolom No BPK / No NP2D (NPD).`, 'danger');
         return;
       }
-      let alertMsg = `<i class="bi bi-check-circle me-1"></i>${validRows.length} baris siap diimpor ke portal ${cfg.bpkCode}${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}.`;
+      let alertMsg = `<i class="bi bi-check-circle me-1"></i>Format <strong>${formatLabel}</strong>: ${validRows.length} baris siap diimpor ke portal ${cfg.bpkCode}. No BPK &amp; NP2D kosong akan diisi otomatis.${importData.length > 20 ? ' (preview 20 baris pertama)' : ''}`;
       if (rejectedPortal) {
         alertMsg += ` <strong>${rejectedPortal} baris ditolak</strong> (kode BPK/NP2D portal lain).`;
       }
@@ -11697,51 +11914,11 @@ async function doImpor() {
   btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
   try {
     const cfg = getPortalAppConfig();
-    // Nomor BPK lanjut dari urutan tertinggi transaksi yang sudah ada (impor menambah, tidak menghapus).
-    let maxSeqUp = 0, maxSeqLs = 0, maxNp2dUp = 0, maxNp2dLs = 0;
-    for (const t of (allTransactions || [])) {
-      const j = inferJenisTransaksi(t);
-      if (j === 'LS') {
-        maxSeqLs = Math.max(maxSeqLs, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'LS'));
-        maxNp2dLs = Math.max(maxNp2dLs, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'LS'));
-      } else {
-        maxSeqUp = Math.max(maxSeqUp, parseBpkSeq(t.no_bpk, cfg.bpkCode, 'UP'));
-        maxNp2dUp = Math.max(maxNp2dUp, parseNp2dSeq(t.no_np2d, cfg.bpkCode, 'UP'));
-      }
-    }
-    const payload = importData.map(t => {
-      const jenis = inferJenisTransaksi(t);
-      let noBpk = String(t.no_bpk || '').trim();
-      let noNp2d = String(t.no_np2d || '').trim();
-      if (!noBpk && t.tanggal) {
-        const [year, month] = String(t.tanggal).split('-');
-        if (year && month) {
-          if (jenis === 'LS') {
-            maxSeqLs += 1;
-            noBpk = `${String(maxSeqLs).padStart(4, '0')}/BPK/LS/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
-          } else {
-            maxSeqUp += 1;
-            noBpk = `${String(maxSeqUp).padStart(4, '0')}/BPK/UP/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
-          }
-        }
-      }
-      if (!noNp2d && t.tanggal) {
-        const [year, month] = String(t.tanggal).split('-');
-        if (year && month) {
-          if (jenis === 'LS') {
-            maxNp2dLs += 1;
-            noNp2d = `${String(maxNp2dLs).padStart(4, '0')}/${np2dDocPath('LS')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
-          } else {
-            maxNp2dUp += 1;
-            noNp2d = `${String(maxNp2dUp).padStart(4, '0')}/${np2dDocPath('UP')}/${BPK_UNIT}/${cfg.bpkCode}/${month}/${year}`;
-          }
-        }
-      }
-      const base = { ...t, jenis_transaksi: jenis, no_bpk: noBpk, no_np2d: noNp2d };
-      const items = getPotonganItemsFromTransaction(base);
-      if (!items.length) return base;
+    const payload = assignImportDocNumbers(importData).map(t => {
+      const items = getPotonganItemsFromTransaction(t);
+      if (!items.length) return t;
       const legacy = syncLegacyTaxFieldsFromItems(items);
-      return { ...base, potongan_pajak: items, ...legacy };
+      return { ...t, potongan_pajak: items, ...legacy };
     }).filter(t => importRowValidForPortal(t, cfg.bpkCode));
     if (!payload.length) {
       alert('Tidak ada transaksi valid untuk portal ' + cfg.bpkCode + '. Pastikan No BPK/NP2D sesuai portal aktif atau kosongkan agar diisi otomatis.');
