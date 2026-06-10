@@ -4188,18 +4188,66 @@ const DB = {
   rak: [] // dimuat dari server via Anggaran.xlsx
 };
 
+// Portal pemilik kegiatan — selaras dengan kegiatan_portal.go (backend)
+function kegiatanOwnerPortal(kegiatan) {
+  const k = String(kegiatan || '').trim().toLowerCase();
+  if (!k) return '';
+  if (k.includes('pemerataan') && (k.includes('pendidik') || k.includes('tenaga kependidikan'))) {
+    return 'sekretariat';
+  }
+  if (k.includes('pengelolaan pendidikan anak usia dini') ||
+      k.includes('pengelolaan pendidikan nonformal') ||
+      k.includes('penetapan kurikulum muatan lokal pendidikan anak usia dini') ||
+      k.includes('penerbitan izin paud')) {
+    return 'paud';
+  }
+  if (k.includes('menengah perta') || k.includes('smp') || k.includes('sltp')) {
+    return 'smp';
+  }
+  if (k.includes('sekolah dasar') || k.includes('pendidikan dasar')) {
+    return 'sd';
+  }
+  if (k.includes('administrasi keuangan') ||
+      k.includes('administrasi umum') ||
+      k.includes('penyediaan jasa penunjang') ||
+      k.includes('pemeliharaan barang milik daerah') ||
+      k.includes('pengadaan barang milik daerah') ||
+      k.includes('perencanaan, penganggaran') ||
+      k.includes('perencanaan penganggaran')) {
+    return 'sekretariat';
+  }
+  return '';
+}
+
+function moduleOwnsKegiatan(portalID, kegiatan) {
+  const owner = kegiatanOwnerPortal(kegiatan);
+  if (!owner) return true;
+  return owner === portalID;
+}
+
+function kegiatanForCurrentPortal(kegiatan) {
+  const portal = selectedPortalApp;
+  if (!portal || portal === 'kas-belanja' || portal === 'pengaturan') return true;
+  return moduleOwnsKegiatan(portal, kegiatan);
+}
+
+function addPortalKegiatan(set, kegiatan) {
+  const k = String(kegiatan || '').trim();
+  if (k && kegiatanForCurrentPortal(k)) set.add(k);
+}
+
 // Helper: get unique kegiatan list (RAK → anggaran → transaksi existing)
 function dbKegiatan() {
   const set = new Set();
-  (DB.rak || []).forEach(r => { if (r && r[0]) set.add(String(r[0]).trim()); });
-  (appSettings.rak || []).forEach(r => { if (r?.kegiatan) set.add(String(r.kegiatan).trim()); });
-  Object.keys(appSettings.anggaran_kegiatan || {}).forEach(k => { if (k) set.add(String(k).trim()); });
-  (allTransactions || []).forEach(t => { if (t?.kegiatan) set.add(String(t.kegiatan).trim()); });
+  (DB.rak || []).forEach(r => { if (r && r[0]) addPortalKegiatan(set, r[0]); });
+  (appSettings.rak || []).forEach(r => { if (r?.kegiatan) addPortalKegiatan(set, r.kegiatan); });
+  Object.keys(appSettings.anggaran_kegiatan || {}).forEach(k => addPortalKegiatan(set, k));
+  (allTransactions || []).forEach(t => { if (t?.kegiatan) addPortalKegiatan(set, t.kegiatan); });
   return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id'));
 }
 // Helper: get sub kegiatan for given kegiatan
 function dbSubKegiatan(keg) {
-  if (!keg) return [];
+  if (!keg || !kegiatanForCurrentPortal(keg)) return [];
   const set = new Set();
   (DB.rak || []).filter(r => r[0] === keg).forEach(r => { if (r[1]) set.add(String(r[1]).trim()); });
   (appSettings.rak || []).filter(r => r.kegiatan === keg).forEach(r => { if (r.sub_kegiatan) set.add(String(r.sub_kegiatan).trim()); });
@@ -4208,7 +4256,7 @@ function dbSubKegiatan(keg) {
 }
 // Helper: get pekerjaan rows for given kegiatan + sub kegiatan
 function dbPekerjaan(keg, sub) {
-  if (!keg || !sub) return [];
+  if (!keg || !sub || !kegiatanForCurrentPortal(keg)) return [];
   const fromRak = (DB.rak || []).filter(r => r[0] === keg && r[1] === sub)
     .map(r => ({ kode: r[2], pekerjaan: r[3], pptk: r[4] }));
   if (fromRak.length) return fromRak;
@@ -9051,8 +9099,14 @@ function editTrx(id) {
 
   // Re-populate cascading dropdowns
   const kegSel = document.getElementById('f-kegiatan');
-  kegSel.value = t.kegiatan||'';
+  refreshKegiatanDropdown(false);
   if (t.kegiatan) {
+    if (kegiatanForCurrentPortal(t.kegiatan) && ![...kegSel.options].some(o => o.value === t.kegiatan)) {
+      kegSel.add(new Option(t.kegiatan, t.kegiatan));
+    }
+    kegSel.value = kegiatanForCurrentPortal(t.kegiatan) ? (t.kegiatan || '') : '';
+  }
+  if (t.kegiatan && kegSel.value === t.kegiatan) {
     const subSel = document.getElementById('f-subkegiatan');
     subSel.innerHTML = '<option value="">— Pilih Sub Kegiatan —</option>';
     dbSubKegiatan(t.kegiatan).forEach(s => subSel.add(new Option(s, s)));
@@ -11666,6 +11720,7 @@ function normImportText(v) {
 }
 
 function findRakRowForImport(kegiatan, subKegiatan, kodeRekening, pekerjaan) {
+  if (!kegiatanForCurrentPortal(kegiatan)) return null;
   const keg = normImportText(kegiatan);
   const sub = normImportText(subKegiatan);
   const kode = String(kodeRekening || '').trim();
@@ -11816,7 +11871,9 @@ function showModalEkspor() {
   // Populate kegiatan filter
   const sel = document.getElementById('export-kegiatan');
   sel.innerHTML = '<option value="">— Semua Kegiatan —</option>';
-  [...new Set(allTransactions.map(t => t.kegiatan).filter(Boolean))].sort()
+  [...new Set(allTransactions.map(t => t.kegiatan).filter(Boolean))]
+    .filter(k => kegiatanForCurrentPortal(k))
+    .sort()
     .forEach(k => sel.add(new Option(k.length > 60 ? k.slice(0,60)+'…' : k, k)));
   new bootstrap.Modal(document.getElementById('modalEkspor')).show();
 }
