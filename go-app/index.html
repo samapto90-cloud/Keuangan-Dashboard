@@ -5561,7 +5561,7 @@ function initManualNumericInputUX() {
       <div class="kw-line">
         <span class="kw-lbl">Sudah Terima Dari</span>
         <span class="kw-sep">:</span>
-        <span class="kw-val"><strong>BENDAHARA PENGELUARAN<br>DINAS PENDIDIKAN KOTA BATAM</strong></span>
+        <span class="kw-val" id="kw-terima-dari"><strong>BENDAHARA PENGELUARAN<br>DINAS PENDIDIKAN KOTA BATAM</strong></span>
       </div>
       <div class="kw-line kw-line-amount">
         <span class="kw-lbl">Uang Sebanyak</span>
@@ -6296,6 +6296,7 @@ const SIPKEU_PORTAL_PROFILE = {
     bpkCode: 'B01',
     paLabel: 'Pengguna Anggaran',
     bendaharaLabel: 'Bendahara Pengeluaran',
+    kwitansiTerimaDari: ['BENDAHARA PENGELUARAN', 'DINAS PENDIDIKAN KOTA BATAM'],
     defaultPa: { nama: 'HENDRI ARULAN, S.Pd', nip: 'NIP. 19670119 199103 1 009' },
     defaultBendahara: { nama: 'ELDINA SRIDHANTY, SE', nip: 'NIP. 19810610 201001 2 002' },
     theme: 'onepiece',
@@ -6305,6 +6306,10 @@ const SIPKEU_PORTAL_PROFILE = {
     bpkCode: 'B02',
     paLabel: 'Kuasa Pengguna Anggaran',
     bendaharaLabel: 'Bendahara Pembantu Pengeluaran',
+    kwitansiTerimaDari: [
+      'BENDAHARA PEMBANTU PENGELUARAN BIDANG PEMBINAAN PAUD DAN KESETARAAN',
+      'DINAS PENDIDIKAN KOTA BATAM',
+    ],
     defaultPa: { nama: 'Sularno, S.Pd., M.Si', nip: 'NIP. 19690408 199303 1 010' },
     defaultBendahara: { nama: 'LIONI ASMIRELDA', nip: 'NIP. 19981102 202203 2 002' },
     theme: 'frozen',
@@ -6314,6 +6319,10 @@ const SIPKEU_PORTAL_PROFILE = {
     bpkCode: 'B03',
     paLabel: 'Kuasa Pengguna Anggaran',
     bendaharaLabel: 'Bendahara Pengeluaran Pembantu',
+    kwitansiTerimaDari: [
+      'BENDAHARA PEMBANTU PENGELUARAN BIDANG PEMBINAAN SEKOLAH DASAR',
+      'DINAS PENDIDIKAN KOTA BATAM',
+    ],
     defaultPa: { nama: 'Yusal, S.Pd., M.M', nip: 'NIP. 19700809 199304 1 002' },
     defaultBendahara: { nama: 'JULIA ARSIA NAFHASYA, S.Pd', nip: 'NIP. 19920716 201903 2 001' },
     theme: 'doraemon',
@@ -6323,6 +6332,10 @@ const SIPKEU_PORTAL_PROFILE = {
     bpkCode: 'B04',
     paLabel: 'Kuasa Pengguna Anggaran',
     bendaharaLabel: 'Bendahara Pengeluaran',
+    kwitansiTerimaDari: [
+      'BENDAHARA PEMBANTU PENGELUARAN BIDANG PEMBINAAN SMP',
+      'DINAS PENDIDIKAN KOTA BATAM',
+    ],
     defaultPa: { nama: 'Joni Satria Putra, S.Pd., M.Si', nip: 'NIP. 19730101 200502 1 006' },
     defaultBendahara: { nama: 'SHINTA WIDYASTATI', nip: 'NIP. 19790303 200502 2 005' },
     theme: 'naruto',
@@ -6332,6 +6345,16 @@ const SIPKEU_PORTAL_PROFILE = {
 
 function getPortalAppConfig() {
   return SIPKEU_PORTAL_PROFILE[selectedPortalApp] || SIPKEU_PORTAL_PROFILE.sekretariat;
+}
+
+function getKwitansiTerimaDariHtml(cfg) {
+  const lines = cfg?.kwitansiTerimaDari || SIPKEU_PORTAL_PROFILE.sekretariat.kwitansiTerimaDari;
+  return '<strong>' + lines.map(l => String(l || '').trim()).filter(Boolean).join('<br>') + '</strong>';
+}
+
+function applyKwitansiTerimaDari(cfg) {
+  const el = document.getElementById('kw-terima-dari');
+  if (el) el.innerHTML = getKwitansiTerimaDariHtml(cfg || getPortalAppConfig());
 }
 
 function pejabatNameMatches(a, b) {
@@ -9083,6 +9106,7 @@ document.getElementById('btn-confirm-hapus-semua')?.addEventListener('click', as
 // ── Kwitansi ──────────────────────────────────────────────────────────────
 function cetakKwitansi(id) {
   syncPortalPejabat();
+  applyKwitansiTerimaDari(getPortalAppConfig());
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
   if (!trxIsApproved(t)) {
@@ -9804,6 +9828,7 @@ function applyPejabatUI() {
   const kwBendTitle = document.getElementById('kw-bend-title');
   if (kwPaRole) kwPaRole.textContent = cfg.paLabel;
   if (kwBendTitle) kwBendTitle.textContent = cfg.bendaharaLabel;
+  applyKwitansiTerimaDari(cfg);
   const rkPaJab = document.getElementById('rk-pa-jabatan');
   const rkBendJab = document.getElementById('rk-bend-jabatan');
   if (rkPaJab) rkPaJab.textContent = cfg.paLabel + ',';
