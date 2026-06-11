@@ -1,6 +1,7 @@
 # Deploy SIPKEU ke Hostinger Web Hosting
-# Jalankan di PowerShell: .\deploy\hostinger-web\deploy.ps1
-# Akan meminta password SSH Hostinger (dari hPanel → SSH Access)
+# CARA TERMUDAH: double-click deploy.bat (tidak perlu ubah Execution Policy)
+# Atau di CMD: deploy\hostinger-web\deploy.bat
+# PowerShell langsung: powershell -ExecutionPolicy Bypass -File .\deploy\hostinger-web\deploy.ps1
 
 $ErrorActionPreference = "Stop"
 

@@ -1,6 +1,8 @@
 import { Client } from "ssh2";
 import fs from "fs";
 import path from "path";
+import readline from "readline";
+import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -10,11 +12,6 @@ const goApp = path.join(root, "go-app");
 const host = "145.79.14.155";
 const port = 65002;
 const username = "u657726332";
-const password = process.env.SSH_PASSWORD;
-if (!password) {
-  console.error("Set SSH_PASSWORD environment variable");
-  process.exit(1);
-}
 
 const uploads = [
   { local: path.join(goApp, "keuangan-linux-amd64"), remote: "/home/u657726332/sipkeu/keuangan.new", mode: 0o755 },
@@ -49,54 +46,89 @@ function upload(sftp, local, remote, mode) {
   });
 }
 
-const conn = new Client();
-conn.on("keyboard-interactive", (_name, _instructions, _lang, prompts, finish) => {
-  finish(prompts.map(() => password));
-});
-conn
-  .on("ready", async () => {
-    try {
-      console.log("==> Connected");
-      await exec(conn, "mkdir -p ~/sipkeu ~/sipkeu-data ~/hostinger-web ~/domains/sakubijak.com/public_html");
-      await exec(conn, "pkill -x keuangan || pkill -f sipkeu/keuangan || true");
-      await new Promise((r) => setTimeout(r, 2000));
-      await new Promise((resolve, reject) => {
-        conn.sftp((err, sftp) => {
-          if (err) return reject(err);
-          (async () => {
-            for (const u of uploads) {
-              if (!fs.existsSync(u.local)) {
-                console.log(`==> Skip (missing): ${path.basename(u.local)}`);
-                continue;
-              }
-              console.log(`==> Upload ${path.basename(u.local)}`);
-              await upload(sftp, u.local, u.remote, u.mode);
-            }
-            sftp.end();
-            resolve();
-          })().catch(reject);
-        });
-      });
-      await exec(conn, "mv -f ~/sipkeu/keuangan.new ~/sipkeu/keuangan && chmod +x ~/sipkeu/keuangan");
-      await exec(conn, "for f in ~/hostinger-web/start-remote.sh ~/hostinger-web/keepalive.sh ~/hostinger-web/.env; do [ -f \"$f\" ] && perl -pi -e 's/\\r\\n/\\n/g' \"$f\" 2>/dev/null || sed -i 's/\\r$//' \"$f\" 2>/dev/null || true; done");
-      console.log("==> Install keepalive cron (tiap 2 menit, jika crontab tersedia)");
-      await exec(conn, "command -v crontab >/dev/null 2>&1 && ((crontab -l 2>/dev/null | grep -v 'sipkeu keepalive'; echo '*/2 * * * * bash $HOME/hostinger-web/keepalive.sh # sipkeu keepalive') | crontab - && echo cron-ok) || echo 'cron-skip: pasang via hPanel/MCP -> */2 * * * * bash $HOME/hostinger-web/keepalive.sh'");
-      console.log("==> Verify public_html proxy");
-      const pub = "~/domains/sakubijak.com/public_html";
-      await exec(conn, `[ -f ${pub}/index.php ] || (echo "ERROR: ${pub}/index.php hilang — jangan taruh git clone di public_html" && exit 1)`);
-      await exec(conn, `[ -f ${pub}/.htaccess ] || (echo "ERROR: ${pub}/.htaccess hilang" && exit 1)`);
-      console.log("==> Start SIPKEU");
-      await exec(conn, "bash ~/hostinger-web/start-remote.sh");
-      console.log("\nDeploy OK: https://sakubijak.com:8888");
-      conn.end();
-    } catch (e) {
-      console.error("Deploy failed:", e.message);
-      conn.end();
-      process.exit(1);
-    }
-  })
-  .on("error", (e) => {
-    console.error("SSH error:", e.message);
+function askPassword() {
+  if (process.env.SSH_PASSWORD) return Promise.resolve(process.env.SSH_PASSWORD);
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question("Password SSH Hostinger (hPanel > SSH Access): ", (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
+function ensureBinary() {
+  const bin = path.join(goApp, "keuangan-linux-amd64");
+  if (fs.existsSync(bin)) return bin;
+  console.log("==> Binary belum ada, build Linux...");
+  const r = spawnSync("go", ["build", "-ldflags=-s -w -X main.buildSHA=manual", "-o", "keuangan-linux-amd64", "."], {
+    cwd: goApp,
+    env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },
+    stdio: "inherit",
+    shell: true,
+  });
+  if (r.status !== 0) {
+    console.error("Build gagal. Pastikan Go terinstall.");
     process.exit(1);
-  })
-  .connect({ host, port, username, password, tryKeyboardInteractive: true, readyTimeout: 20000 });
+  }
+  return bin;
+}
+
+async function deploy(password) {
+  if (!password) {
+    console.error("Password SSH kosong.");
+    process.exit(1);
+  }
+  ensureBinary();
+
+  const conn = new Client();
+  conn.on("keyboard-interactive", (_name, _instructions, _lang, prompts, finish) => {
+    finish(prompts.map(() => password));
+  });
+
+  await new Promise((resolve, reject) => {
+    conn
+      .on("ready", async () => {
+        try {
+          console.log("==> Connected");
+          await exec(conn, "mkdir -p ~/sipkeu ~/sipkeu-data ~/hostinger-web ~/domains/sakubijak.com/public_html");
+          await exec(conn, "pkill -x keuangan || pkill -f sipkeu/keuangan || true");
+          await new Promise((r) => setTimeout(r, 2000));
+          await new Promise((res, rej) => {
+            conn.sftp((err, sftp) => {
+              if (err) return rej(err);
+              (async () => {
+                for (const u of uploads) {
+                  if (!fs.existsSync(u.local)) {
+                    console.log(`==> Skip (missing): ${path.basename(u.local)}`);
+                    continue;
+                  }
+                  console.log(`==> Upload ${path.basename(u.local)}`);
+                  await upload(sftp, u.local, u.remote, u.mode);
+                }
+                sftp.end();
+                res();
+              })().catch(rej);
+            });
+          });
+          await exec(conn, "mv -f ~/sipkeu/keuangan.new ~/sipkeu/keuangan && chmod +x ~/sipkeu/keuangan");
+          await exec(conn, "for f in ~/hostinger-web/start-remote.sh ~/hostinger-web/keepalive.sh ~/hostinger-web/.env; do [ -f \"$f\" ] && perl -pi -e 's/\\r\\n/\\n/g' \"$f\" 2>/dev/null || sed -i 's/\\r$//' \"$f\" 2>/dev/null || true; done");
+          console.log("==> Start SIPKEU");
+          await exec(conn, "bash ~/hostinger-web/start-remote.sh");
+          console.log("\nDeploy OK: https://sakubijak.com:8888");
+          console.log("Cek versi: https://sakubijak.com:8888/health");
+          conn.end();
+          resolve();
+        } catch (e) {
+          console.error("Deploy failed:", e.message);
+          conn.end();
+          reject(e);
+        }
+      })
+      .on("error", (e) => reject(new Error(`SSH error: ${e.message}`)))
+      .connect({ host, port, username, password, tryKeyboard: true, tryKeyboardInteractive: true, readyTimeout: 30000 });
+  });
+}
+
+const password = await askPassword();
+await deploy(password);

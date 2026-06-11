@@ -125,9 +125,24 @@ git clone https://github.com/samapto90-cloud/Keuangan-Dashboard.git ~/sipkeu-src
 bash ~/sipkeu-src/deploy/hostinger-web/update.sh
 ```
 
-### Opsi B — Upload binary baru (disarankan)
+### Opsi C — Upload binary baru (disarankan jika Actions belum ada secret)
 
-Setiap ada update di GitHub:
+**Cara termudah (Windows):** double-click file:
+
+`deploy\hostinger-web\deploy.bat`
+
+Atau di **Command Prompt** (bukan PowerShell):
+
+```cmd
+cd d:\Keuangan-Dashboard\Keuangan-Dashboard\deploy\hostinger-web
+deploy.bat
+```
+
+Script akan build binary, minta **password SSH Hostinger**, upload, dan restart otomatis.
+
+> Jika `deploy.ps1` error *running scripts is disabled*, jangan pakai PowerShell langsung — gunakan **deploy.bat** saja.
+
+Setiap ada update di GitHub (manual):
 
 1. Build ulang binary Linux di komputer (Langkah 2)
 2. Upload: `scp -P 65002 keuangan u657726332@145.79.14.155:~/sipkeu/`
