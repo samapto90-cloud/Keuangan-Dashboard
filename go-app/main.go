@@ -55,6 +55,9 @@ var dsKasRunnersFS embed.FS
 //go:embed assets/sao-icons/*
 var saoIconsFS embed.FS
 
+// buildSHA is injected at compile time: -ldflags "-X main.buildSHA=abc1234"
+var buildSHA = "dev"
+
 type PotonganItem struct {
 	Jenis     string  `json:"jenis"`
 	Tarif     float64 `json:"tarif"`
@@ -812,7 +815,10 @@ func main() {
                 w.Header().Set("Content-Type", "application/json")
                 w.Header().Set("Cache-Control", "no-store")
                 w.WriteHeader(http.StatusOK)
-                w.Write([]byte(`{"status":"ok"}`))
+                _ = json.NewEncoder(w).Encode(map[string]string{
+                        "status": "ok",
+                        "build":  buildSHA,
+                })
         })
 
         mux.HandleFunc("/", serveIndexHTML)

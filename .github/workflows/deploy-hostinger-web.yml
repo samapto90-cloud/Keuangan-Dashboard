@@ -1,0 +1,38 @@
+name: Deploy to Hostinger Web (8888)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go-app/go.mod
+
+      - name: Build Linux binary
+        working-directory: go-app
+        run: |
+          SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w -X main.buildSHA=${SHA}" -o keuangan-linux-amd64 .
+
+      - name: Install deploy dependencies
+        run: npm install ssh2 --no-save --prefix deploy/hostinger-web
+
+      - name: Deploy to sakubijak.com:8888
+        working-directory: deploy/hostinger-web
+        env:
+          SSH_PASSWORD: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+        run: node deploy-node.mjs
+
+      - name: Verify production build
+        run: |
+          sleep 5
+          BODY=$(curl -sf --max-time 30 "https://sakubijak.com:8888/health" || true)
+          echo "health: $BODY"
+          echo "$BODY" | grep -q '"status":"ok"' || echo "::warning::Health check failed or port 8888 unreachable from GitHub runner"

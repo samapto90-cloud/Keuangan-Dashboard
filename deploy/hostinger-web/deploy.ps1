@@ -17,7 +17,7 @@ Push-Location $GoApp
 $env:GOOS = "linux"
 $env:GOARCH = "amd64"
 $env:CGO_ENABLED = "0"
-go build -ldflags="-s -w" -o keuangan-linux-amd64 .
+go build -ldflags="-s -w -X main.buildSHA=local" -o keuangan-linux-amd64 .
 Pop-Location
 
 if (-not (Test-Path $Binary)) { throw "Build gagal: $Binary tidak ditemukan" }

@@ -101,7 +101,23 @@ Buka browser: **https://sakubijak.com:8888**
 
 ## Langkah 5 — Sinkronisasi dengan GitHub (update otomatis)
 
-### Opsi A — Git pull + rebuild (jika Go tersedia di server)
+### Opsi A — GitHub Actions ke port 8888 (disarankan)
+
+Setiap push ke `main`, workflow **Deploy to Hostinger Web (8888)** meng-upload binary ke server SSH.
+
+**Sekali saja:** GitHub → Settings → Secrets → Actions → tambahkan:
+
+| Secret | Nilai |
+|--------|-------|
+| `HOSTINGER_SSH_PASSWORD` | Password SSH dari hPanel → SSH Access |
+
+Workflow memakai `deploy/hostinger-web/deploy-node.mjs` (sama seperti deploy manual).
+
+> **Penting:** Workflow **Deploy to Hostinger** (Docker VPS) **tidak** meng-update `https://sakubijak.com:8888`. Production SIPKEU di port 8888 memakai binary di `~/sipkeu/keuangan` pada web hosting SSH.
+
+Verifikasi setelah deploy: buka `https://sakubijak.com:8888/health` — harus ada `"build":"abc1234"`.
+
+### Opsi B — Git pull + rebuild (jika Go tersedia di server)
 
 ```bash
 cd ~/sipkeu-src   # clone repo sekali

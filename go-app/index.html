@@ -15885,7 +15885,19 @@ async function bootGajiApp(fromRestore = true) {
   initGajiBulanPicker();
   gajiActiveGrup = 'gaji';
   showGajiPage('dashboard', document.getElementById('gaji-nav-dashboard'));
+  loadGajiBuildLabel();
   await loadGajiData();
+}
+
+async function loadGajiBuildLabel() {
+  try {
+    const res = await fetch(API.replace('/data', '') + '/health', { cache: 'no-store' });
+    const data = await res.json();
+    const badge = document.querySelector('#gaji-sidebar .gaji-tech-badge');
+    if (badge && data.build && data.build !== 'dev') {
+      badge.innerHTML = `<i class="bi bi-android2"></i> Material Light · build ${escHtml(data.build)}`;
+    }
+  } catch (_) { /* ignore */ }
 }
 
 function showGajiPage(page, navEl, grup) {
