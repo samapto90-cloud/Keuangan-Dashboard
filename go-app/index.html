@@ -4404,7 +4404,26 @@
     }
     .gaji-rek-summary .chip strong { color: #0369a1 !important; font-family: 'JetBrains Mono', monospace !important; }
 
-    /* ── Layout fix: sidebar nav + topbar (override konflik CSS lama) ── */
+    .gaji-dash-charts {
+      display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 20px;
+    }
+    .gaji-chart-card {
+      background: #fff; border: 1px solid rgba(14,165,233,.1); border-radius: 16px;
+      padding: 18px 20px; box-shadow: 0 4px 16px rgba(15,23,42,.05);
+    }
+    .gaji-chart-head h6 { margin: 0 0 4px; font-size: 14px; font-weight: 800; color: #0f172a; }
+    .gaji-chart-head small { font-size: 11px; color: #64748b; }
+    .gaji-chart-canvas { position: relative; height: 240px; margin-top: 12px; }
+    .gaji-chart-canvas-donut { height: 220px; }
+    .gaji-dash-charts .gaji-chart-card:last-child { grid-column: 1 / -1; }
+
+    @media (max-width: 1100px) {
+      .gaji-dash-charts { grid-template-columns: 1fr; }
+      .gaji-chart-card.gaji-chart-wide { grid-column: span 1; }
+    }
+
+    /* ── Layout rapi: sidebar, topbar, kartu, tabel ── */
+    #gaji-app-shell { line-height: 1.5; }
     #gaji-app-shell #gaji-sidebar {
       position: fixed !important; top: 0; left: 0; height: 100vh !important;
       display: flex !important; flex-direction: column !important;
@@ -4412,121 +4431,198 @@
     }
     #gaji-app-shell #gaji-sidebar .gaji-pro-brand,
     #gaji-app-shell #gaji-sidebar .kas-sidebar-brand {
-      display: flex !important; align-items: flex-start !important; gap: 14px !important;
-      flex-shrink: 0 !important; min-height: 0 !important;
+      display: flex !important; align-items: center !important; gap: 12px !important;
+      flex-shrink: 0 !important; padding: 18px 16px !important;
     }
-    #gaji-app-shell #gaji-sidebar .gaji-pro-brand > div:last-child { flex: 1; min-width: 0; }
-    #gaji-app-shell #gaji-sidebar .gaji-pro-brand h6,
-    #gaji-app-shell #gaji-sidebar .kas-sidebar-brand h6 {
-      margin: 0 !important; line-height: 1.3 !important; white-space: nowrap;
+    #gaji-app-shell #gaji-sidebar .gaji-brand-orb { flex-shrink: 0; width: 44px !important; height: 44px !important; }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand > div:last-child { flex: 1; min-width: 0; overflow: hidden; }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand h6 {
+      margin: 0 !important; font-size: 14px !important; white-space: nowrap;
       overflow: hidden; text-overflow: ellipsis;
     }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand small { display: block; font-size: 10px !important; margin-top: 2px; }
     #gaji-app-shell #gaji-sidebar .gaji-tech-badge {
-      display: inline-flex !important; max-width: 100%; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
+      display: none !important;
     }
     #gaji-app-shell #gaji-sidebar .kas-sidebar-nav,
     #gaji-app-shell #gaji-sidebar .gaji-pro-nav {
       flex: 1 1 auto !important; min-height: 0 !important;
       overflow-y: auto !important; overflow-x: hidden !important;
-      padding: 8px 8px 12px !important;
-      scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.3) transparent;
+      padding: 6px 10px 10px !important;
     }
-    #gaji-app-shell #gaji-sidebar .kas-nav-section { margin-bottom: 14px !important; }
+    #gaji-app-shell #gaji-sidebar .kas-nav-section { margin-bottom: 12px !important; }
+    #gaji-app-shell #gaji-sidebar .kas-nav-section-title {
+      padding: 0 10px 6px !important; margin-bottom: 2px !important;
+      font-size: 9px !important; font-weight: 800 !important;
+      text-transform: uppercase !important; letter-spacing: .12em !important;
+      color: #475569 !important;
+    }
     #gaji-app-shell #gaji-sidebar .kas-nav-link,
     #gaji-app-shell #gaji-sidebar .gaji-nav-3d {
-      display: flex !important; align-items: center !important; gap: 12px !important;
-      width: calc(100% - 8px) !important; box-sizing: border-box !important;
+      display: flex !important; align-items: center !important; gap: 10px !important;
+      width: 100% !important; box-sizing: border-box !important;
+      margin: 2px 0 !important; padding: 9px 12px !important;
+      min-height: 40px !important; max-height: none !important;
       text-decoration: none !important; position: relative !important;
-      min-height: 48px !important; flex-shrink: 0 !important;
+      flex-shrink: 0 !important; transform: none !important;
     }
+    #gaji-app-shell #gaji-sidebar .gaji-nav-3d:hover { transform: none !important; }
+    #gaji-app-shell #gaji-sidebar .gaji-nav-3d.active { transform: none !important; }
     #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-icon {
-      width: 36px !important; height: 36px !important; flex-shrink: 0 !important;
-      display: grid !important; place-items: center !important;
+      width: 32px !important; height: 32px !important; flex-shrink: 0 !important;
+      display: grid !important; place-items: center !important; font-size: 14px !important;
+      transform: none !important;
     }
     #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-text {
-      flex: 1 1 auto !important; min-width: 0 !important; line-height: 1.3 !important;
-      display: block !important;
-    }
-    #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-desc {
-      display: block !important; margin-top: 2px !important;
+      flex: 1 !important; min-width: 0 !important;
+      font-size: 13px !important; font-weight: 600 !important;
       white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
-      max-width: 100% !important;
+      display: block !important; line-height: 1.2 !important;
     }
+    #gaji-app-shell #gaji-sidebar .kas-nav-desc { display: none !important; }
     #gaji-app-shell #gaji-sidebar .kas-sidebar-footer {
-      flex-shrink: 0 !important; margin-top: auto !important;
+      flex-shrink: 0 !important; padding: 12px 14px 14px !important;
     }
     #gaji-app-shell #gaji-sidebar .kas-user-card {
       display: flex !important; align-items: center !important; gap: 10px !important;
+      padding: 10px !important; margin-bottom: 8px !important;
     }
-    /* Topbar dua baris */
+    #gaji-app-shell #gaji-sidebar .kas-user-name { font-size: 12px !important; }
+    #gaji-app-shell #gaji-sidebar .kas-user-meta { font-size: 10px !important; }
+    #gaji-app-shell #gaji-sidebar .kas-dev-credit { font-size: 9px !important; margin-top: 8px !important; text-align: center; }
+
+    /* Topbar satu baris rapi */
     #gaji-app-shell .gaji-topbar-wrap {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(20px);
+      background: #fff;
       border-bottom: 1px solid rgba(14,165,233,.12);
-      box-shadow: 0 4px 24px rgba(15,23,42,.06);
+      box-shadow: 0 2px 12px rgba(15,23,42,.04);
     }
     #gaji-app-shell .gaji-topbar-main {
       display: flex !important; align-items: center !important; gap: 16px !important;
-      padding: 12px 24px !important; border-bottom: none !important;
-      background: transparent !important; box-shadow: none !important;
-      flex-wrap: wrap !important;
+      padding: 12px 24px !important; flex-wrap: wrap !important;
     }
-    #gaji-app-shell .gaji-topbar-title-block { flex: 1; min-width: 180px; }
-    #gaji-app-shell .gaji-topbar-sub {
-      padding: 0 24px 12px;
-      display: flex; justify-content: flex-end;
+    #gaji-app-shell .gaji-topbar-title-block { flex: 1 1 200px; min-width: 0; }
+    #gaji-app-shell .gaji-topbar-title-block .page-title {
+      font-size: 17px !important; font-weight: 800 !important; margin: 0 !important;
+      line-height: 1.3 !important; color: #0f172a !important;
+    }
+    #gaji-app-shell .gaji-topbar-title-block .breadcrumb {
+      font-size: 11px !important; margin-top: 2px !important;
+    }
+    #gaji-app-shell .gaji-topbar-actions {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      flex: 1 1 420px; justify-content: flex-end;
     }
     #gaji-app-shell .gaji-bulan-dropdown {
-      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
     #gaji-app-shell .gaji-bulan-label {
-      display: flex; align-items: center; gap: 6px; margin: 0;
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      display: flex; align-items: center; gap: 5px; margin: 0;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
       letter-spacing: .06em; color: #64748b; white-space: nowrap;
     }
-    #gaji-app-shell .gaji-bulan-label i { color: #0ea5e9; font-size: 15px; }
+    #gaji-app-shell .gaji-bulan-label i { color: #0ea5e9; font-size: 14px; }
     #gaji-app-shell .gaji-bulan-select {
-      min-width: 148px; padding: 9px 36px 9px 14px;
-      border: 1.5px solid rgba(14,165,233,.25); border-radius: 12px;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230369a1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 12px center;
-      appearance: none; -webkit-appearance: none;
-      font-family: 'Inter', system-ui, sans-serif;
-      font-size: 13px; font-weight: 700; color: #0369a1;
-      cursor: pointer; transition: border-color .2s, box-shadow .2s;
-      box-shadow: 0 2px 8px rgba(14,165,233,.08);
-    }
-    #gaji-app-shell .gaji-bulan-select:hover {
-      border-color: rgba(14,165,233,.45);
+      min-width: 130px; padding: 8px 32px 8px 12px;
+      border: 1px solid #cbd5e1; border-radius: 10px;
+      background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230369a1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 10px center;
+      appearance: none; font-size: 13px; font-weight: 600; color: #0369a1; cursor: pointer;
     }
     #gaji-app-shell .gaji-bulan-select:focus {
-      outline: none; border-color: #0ea5e9;
-      box-shadow: 0 0 0 3px rgba(14,165,233,.15);
+      outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.12);
     }
     #gaji-app-shell .gaji-pegawai-strip {
-      margin-left: 0 !important; width: auto !important;
-      max-width: 100%; flex-wrap: wrap;
+      display: flex !important; align-items: center !important; gap: 8px !important;
+      padding: 6px 10px !important; border-radius: 12px !important;
+      background: #f8fafc !important; border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important; flex-wrap: nowrap !important;
     }
-    /* Dashboard charts */
-    .gaji-dash-charts {
-      display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 20px;
+    #gaji-app-shell .gaji-peg-chip {
+      display: flex !important; align-items: center !important; gap: 6px !important;
+      padding: 0 !important; background: transparent !important; border: none !important;
     }
-    .gaji-chart-card {
-      background: #fff; border: 1px solid rgba(14,165,233,.1); border-radius: 20px;
-      padding: 18px 20px; box-shadow: 0 8px 32px rgba(15,23,42,.06);
+    #gaji-app-shell .gaji-peg-chip .lbl {
+      font-size: 10px !important; font-weight: 700 !important; color: #64748b !important;
+      min-width: 32px !important;
     }
-    .gaji-chart-card.gaji-chart-wide { grid-column: span 1; }
-    .gaji-chart-head h6 { margin: 0 0 4px; font-size: 14px; font-weight: 800; color: #0f172a; }
-    .gaji-chart-head small { font-size: 11px; color: #64748b; }
-    .gaji-chart-canvas { position: relative; height: 240px; margin-top: 12px; }
-    .gaji-chart-canvas-donut { height: 220px; }
-    .gaji-dash-charts .gaji-chart-card:last-child { grid-column: 1 / -1; }
-    @media (max-width: 1100px) {
-      .gaji-dash-charts { grid-template-columns: 1fr; }
-      .gaji-chart-card.gaji-chart-wide { grid-column: span 1; }
-      #gaji-app-shell .gaji-topbar-sub { justify-content: stretch; }
-      #gaji-app-shell .gaji-pegawai-strip { width: 100% !important; justify-content: center; }
+    #gaji-app-shell .gaji-peg-chip input {
+      width: 56px !important; padding: 5px 6px !important; font-size: 13px !important;
+      border: 1px solid #cbd5e1 !important; border-radius: 8px !important;
+      background: #fff !important; text-align: center !important;
+    }
+    #gaji-app-shell .gaji-peg-total { padding: 0 4px !important; min-width: 44px !important; text-align: center; }
+    #gaji-app-shell .gaji-peg-total .num { font-size: 14px !important; }
+    #gaji-app-shell .gaji-peg-total .sub { font-size: 8px !important; }
+    #gaji-app-shell .gaji-peg-save {
+      padding: 6px 12px !important; font-size: 11px !important; white-space: nowrap;
+    }
+
+    /* Konten & kartu */
+    #gaji-app-shell .kas-content { padding: 20px 24px 32px !important; }
+    #gaji-app-shell .gaji-page + .gaji-page { margin-top: 0; }
+    #gaji-app-shell .gaji-pro-card,
+    #gaji-app-shell .kas-card {
+      padding: 20px 22px !important; margin-bottom: 16px !important;
+    }
+    #gaji-app-shell .gaji-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+      padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;
+    }
+    #gaji-app-shell .gaji-card-header h6 {
+      margin: 0 0 4px !important; font-size: 15px !important;
+    }
+    #gaji-app-shell .gaji-card-header p {
+      margin: 0; font-size: 12px; color: #64748b; line-height: 1.4;
+    }
+    #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 14px !important; margin-bottom: 20px !important;
+    }
+    #gaji-app-shell .kas-stat {
+      padding: 16px 18px !important; min-height: 100px;
+      display: flex !important; flex-direction: column !important;
+    }
+    #gaji-app-shell .kas-stat .lbl {
+      font-size: 10px !important; text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 6px !important; color: #64748b !important;
+    }
+    #gaji-app-shell .kas-stat .val {
+      font-size: 16px !important; line-height: 1.35 !important;
+      word-break: break-word !important;
+    }
+    #gaji-app-shell .kas-stat .sub {
+      font-size: 10px !important; margin-top: auto !important; padding-top: 8px !important;
+      color: #94a3b8 !important; line-height: 1.35 !important;
+    }
+    #gaji-app-shell .gaji-dash-hero { margin-bottom: 16px; }
+    #gaji-app-shell .gaji-dash-categories { margin-bottom: 16px; }
+    #gaji-app-shell .gaji-dash-charts { margin-bottom: 16px; }
+    #gaji-app-shell .gaji-matrix-legend {
+      padding: 8px 12px; margin-bottom: 12px; border-radius: 10px;
+      background: #f8fafc; border: 1px solid #e2e8f0;
+    }
+    #gaji-app-shell .gaji-matrix-grup-tabs { gap: 4px; }
+    #gaji-app-shell .gaji-grup-tab { padding: 5px 12px; font-size: 11px; }
+    #gaji-app-shell .gaji-rek-summary { gap: 8px; margin: 12px 0 14px; }
+    #gaji-app-shell .gaji-rek-summary .chip {
+      min-width: 100px; padding: 10px 14px !important;
+    }
+    #gaji-app-shell .kas-table-wrap { margin-top: 0 !important; }
+    #gaji-app-shell .kas-table th,
+    #gaji-app-shell .kas-table td { padding: 8px 10px !important; vertical-align: middle !important; }
+    #gaji-app-shell .kas-toolbar { margin-bottom: 14px !important; gap: 12px; }
+    #gaji-app-shell .kas-toolbar h6 { margin-bottom: 4px !important; }
+    #gaji-app-shell .kas-toolbar small { display: block; line-height: 1.4; color: #64748b; }
+    @media (max-width: 992px) {
+      #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      #gaji-app-shell .gaji-topbar-actions { justify-content: flex-start; width: 100%; }
+    }
+    @media (max-width: 576px) {
+      #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid { grid-template-columns: 1fr !important; }
+      #gaji-app-shell .gaji-pegawai-strip { flex-wrap: wrap !important; }
     }
 
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
@@ -6144,52 +6240,52 @@ function initManualNumericInputUX() {
     </div>
     <nav class="kas-sidebar-nav gaji-pro-nav">
       <div class="kas-nav-section">
-        <div class="kas-nav-section-title"><i class="bi bi-grid-1x2-fill me-1"></i> Command Center</div>
+        <div class="kas-nav-section-title">Menu Utama</div>
         <a href="#" class="kas-nav-link gaji-nav-3d active" id="gaji-nav-dashboard" onclick="showGajiPage('dashboard',this);return false">
           <span class="kas-nav-icon"><i class="bi bi-speedometer2"></i></span>
-          <span class="kas-nav-text">Dashboard<span class="kas-nav-desc">Intelijen anggaran &amp; realisasi</span></span>
+          <span class="kas-nav-text">Dashboard</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-matrix" onclick="showGajiPage('matrix',this,'gaji');return false">
           <span class="kas-nav-icon"><i class="bi bi-calendar3-range"></i></span>
-          <span class="kas-nav-text">Matrix Rekening<span class="kas-nav-desc">Pegawai · realisasi per bulan</span></span>
+          <span class="kas-nav-text">Matrix Rekening</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-anggaran" onclick="showGajiPage('anggaran',this);return false">
           <span class="kas-nav-icon"><i class="bi bi-cloud-upload"></i></span>
-          <span class="kas-nav-text">Anggaran RAK<span class="kas-nav-desc">Templet Anggaran Gaji.xlsx</span></span>
+          <span class="kas-nav-text">Anggaran RAK</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-kebutuhan" onclick="showGajiPage('kebutuhan',this);return false">
           <span class="kas-nav-icon"><i class="bi bi-graph-up-arrow"></i></span>
-          <span class="kas-nav-text">Kebutuhan TA<span class="kas-nav-desc">Proyeksi sisa &amp; accrual 2,5%</span></span>
+          <span class="kas-nav-text">Kebutuhan TA</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-rekap" onclick="showGajiPage('rekap',this);return false">
           <span class="kas-nav-icon"><i class="bi bi-table"></i></span>
-          <span class="kas-nav-text">Rekap Periodik<span class="kas-nav-desc">Gabungan semua komponen</span></span>
+          <span class="kas-nav-text">Rekap Periodik</span>
         </a>
       </div>
       <div class="kas-nav-section">
-        <div class="kas-nav-section-title"><i class="bi bi-pencil-square me-1"></i> Realisasi per Rekening</div>
+        <div class="kas-nav-section-title">Realisasi</div>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-gaji" onclick="showGajiPage('realisasi',this,'gaji');return false">
           <span class="kas-nav-icon"><i class="bi bi-wallet2"></i></span>
-          <span class="kas-nav-text">Gaji ASN<span class="kas-nav-desc">Gaji pokok &amp; tunjangan</span></span>
+          <span class="kas-nav-text">Gaji ASN</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-tpp" onclick="showGajiPage('realisasi',this,'tpp');return false">
           <span class="kas-nav-icon"><i class="bi bi-cash-stack"></i></span>
-          <span class="kas-nav-text">TPP<span class="kas-nav-desc">Tunjangan penghasilan</span></span>
+          <span class="kas-nav-text">TPP</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-tpg" onclick="showGajiPage('realisasi',this,'tpg');return false">
           <span class="kas-nav-icon"><i class="bi bi-mortarboard"></i></span>
-          <span class="kas-nav-text">TPG &amp; Tamsil<span class="kas-nav-desc">Tunjangan profesi guru</span></span>
+          <span class="kas-nav-text">TPG &amp; Tamsil</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-potongan" onclick="showGajiPage('realisasi',this,'potongan');return false">
           <span class="kas-nav-icon"><i class="bi bi-scissors"></i></span>
-          <span class="kas-nav-text">Potongan<span class="kas-nav-desc">PPh, BPJS, iuran</span></span>
+          <span class="kas-nav-text">Potongan</span>
         </a>
       </div>
       <div class="kas-nav-section">
-        <div class="kas-nav-section-title">Navigasi</div>
+        <div class="kas-nav-section-title">Sistem</div>
         <a href="#" class="kas-nav-link gaji-nav-3d" onclick="backToPortal();return false">
           <span class="kas-nav-icon"><i class="bi bi-grid-3x3-gap"></i></span>
-          <span class="kas-nav-text">Portal Aplikasi<span class="kas-nav-desc">Kembali ke beranda SIPKEU</span></span>
+          <span class="kas-nav-text">Portal Aplikasi</span>
         </a>
       </div>
     </nav>
@@ -6207,44 +6303,30 @@ function initManualNumericInputUX() {
   </div>
   <div id="gaji-main">
     <div class="gaji-topbar-wrap">
-    <div class="kas-topbar gaji-topbar-main">
-      <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('gaji')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
-      <div class="gaji-topbar-title-block">
-        <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
-        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
-      </div>
-      <div class="gaji-bulan-dropdown" id="gaji-bulan-picker">
-        <label for="gaji-bulan-select" class="gaji-bulan-label">
-          <i class="bi bi-calendar-event"></i>
-          <span>Bulan</span>
-        </label>
-        <select id="gaji-bulan-select" class="gaji-bulan-select" onchange="onGajiBulanChange()" aria-label="Pilih bulan periode">
-          <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
-          <option value="april">April</option><option value="mei">Mei</option><option value="juni">Juni</option>
-          <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
-          <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
-        </select>
-      </div>
-    </div>
-    <div class="gaji-topbar-sub">
-      <div class="gaji-pegawai-strip" id="gaji-pegawai-strip" title="Input jumlah pegawai — berlaku semua menu &amp; periode">
-        <div class="gaji-peg-chip">
-          <i class="bi bi-person-badge-fill"></i>
-          <span class="lbl">PNS</span>
-          <input type="number" id="gaji-peg-pns" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PNS" />
+      <div class="gaji-topbar-main">
+        <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('gaji')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+        <div class="gaji-topbar-title-block">
+          <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
+          <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
         </div>
-        <div class="gaji-peg-chip">
-          <i class="bi bi-person-vcard-fill"></i>
-          <span class="lbl">PPPK</span>
-          <input type="number" id="gaji-peg-pppk" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PPPK" />
+        <div class="gaji-topbar-actions">
+          <div class="gaji-bulan-dropdown" id="gaji-bulan-picker">
+            <label for="gaji-bulan-select" class="gaji-bulan-label"><i class="bi bi-calendar-event"></i><span>Bulan</span></label>
+            <select id="gaji-bulan-select" class="gaji-bulan-select" onchange="onGajiBulanChange()" aria-label="Pilih bulan periode">
+              <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
+              <option value="april">April</option><option value="mei">Mei</option><option value="juni">Juni</option>
+              <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
+              <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
+            </select>
+          </div>
+          <div class="gaji-pegawai-strip" id="gaji-pegawai-strip">
+            <div class="gaji-peg-chip"><span class="lbl">PNS</span><input type="number" id="gaji-peg-pns" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PNS" placeholder="0" /></div>
+            <div class="gaji-peg-chip"><span class="lbl">PPPK</span><input type="number" id="gaji-peg-pppk" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PPPK" placeholder="0" /></div>
+            <div class="gaji-peg-total"><span class="num" id="gaji-peg-total">0</span><span class="sub">Total</span></div>
+            <button type="button" class="gaji-peg-save" onclick="saveGajiPegawai()"><i class="bi bi-check2"></i> Simpan</button>
+          </div>
         </div>
-        <div class="gaji-peg-total">
-          <span class="num" id="gaji-peg-total">0</span>
-          <span class="sub">Total ASN</span>
-        </div>
-        <button type="button" class="gaji-peg-save" onclick="saveGajiPegawai()"><i class="bi bi-check2-circle me-1"></i>Simpan</button>
       </div>
-    </div>
     </div>
     <div class="kas-content">
       <div id="gaji-page-dashboard" class="gaji-page kas-page active">
@@ -6260,12 +6342,12 @@ function initManualNumericInputUX() {
           </div>
         </div>
         <div class="kas-stat-grid gaji-pro-stat-grid" id="gaji-stat-grid">
-          <div class="kas-stat"><div class="lbl">Pagu Anggaran TA</div><div class="val" id="gaji-stat-pagu" style="font-size:16px">Rp 0</div><div class="sub">Total pagu semua komponen</div></div>
-          <div class="kas-stat"><div class="lbl">Realisasi s/d Bulan</div><div class="val" id="gaji-stat-realisasi-sd" style="font-size:16px">Rp 0</div><div class="sub">Sesuai kolom Total Realisasi template</div></div>
-          <div class="kas-stat"><div class="lbl">Kebutuhan s/d Des</div><div class="val" id="gaji-stat-kebutuhan" style="font-size:16px">Rp 0</div><div class="sub">Realisasi + kebutuhan sisa tahun</div></div>
-          <div class="kas-stat"><div class="lbl">Pegawai ASN</div><div class="val" id="gaji-stat-pegawai" style="font-size:16px">0</div><div class="gaji-peg-stat-row" id="gaji-stat-pegawai-badges"></div><div class="sub">Satu input di bar atas · berlaku semua menu</div></div>
-          <div class="kas-stat"><div class="lbl">Sisa Anggaran</div><div class="val" id="gaji-stat-sisa" style="font-size:16px">Rp 0</div><div class="sub">Pagu − Realisasi s/d bulan</div></div>
-          <div class="kas-stat"><div class="lbl">+/- Anggaran</div><div class="val" id="gaji-stat-selisih" style="font-size:16px">Rp 0</div><div class="sub">Pagu − Kebutuhan tahun (±)</div></div>
+          <div class="kas-stat"><div class="lbl">Pagu Anggaran TA</div><div class="val" id="gaji-stat-pagu">Rp 0</div><div class="sub">Total pagu semua komponen</div></div>
+          <div class="kas-stat"><div class="lbl">Realisasi s/d Bulan</div><div class="val" id="gaji-stat-realisasi-sd">Rp 0</div><div class="sub">Total realisasi template</div></div>
+          <div class="kas-stat"><div class="lbl">Kebutuhan s/d Des</div><div class="val" id="gaji-stat-kebutuhan">Rp 0</div><div class="sub">Realisasi + kebutuhan sisa</div></div>
+          <div class="kas-stat"><div class="lbl">Pegawai ASN</div><div class="val" id="gaji-stat-pegawai">0</div><div class="gaji-peg-stat-row" id="gaji-stat-pegawai-badges"></div><div class="sub">Input di bar atas</div></div>
+          <div class="kas-stat"><div class="lbl">Sisa Anggaran</div><div class="val" id="gaji-stat-sisa">Rp 0</div><div class="sub">Pagu − Realisasi s/d bulan</div></div>
+          <div class="kas-stat"><div class="lbl">+/- Anggaran</div><div class="val" id="gaji-stat-selisih">Rp 0</div><div class="sub">Pagu − Kebutuhan tahun</div></div>
         </div>
         <div class="gaji-dash-categories" id="gaji-dash-categories"></div>
         <div class="gaji-dash-charts">
@@ -6302,10 +6384,10 @@ function initManualNumericInputUX() {
       </div>
       <div id="gaji-page-matrix" class="gaji-page kas-page">
         <div class="kas-card gaji-pro-card">
-          <div class="kas-toolbar justify-content-between flex-wrap mb-2">
-            <div>
-              <h6 class="mb-0"><i class="bi bi-calendar3-range me-2"></i>Matrix Rekening · <span id="gaji-matrix-grup-label">Gaji ASN</span></h6>
-              <small>Pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> × bulan kalender (RAK BELANJA)</small>
+          <div class="gaji-card-header">
+            <div class="gaji-card-header-text">
+              <h6><i class="bi bi-calendar3-range me-2"></i>Matrix Rekening · <span id="gaji-matrix-grup-label">Gaji ASN</span></h6>
+              <p>Pegawai, anggaran &amp; realisasi per kode rekening × bulan</p>
             </div>
             <div class="gaji-matrix-grup-tabs" id="gaji-matrix-grup-tabs">
               <button type="button" class="gaji-grup-tab active" data-grup="gaji" onclick="switchGajiMatrixGrup('gaji',this)">Gaji</button>
@@ -6317,7 +6399,7 @@ function initManualNumericInputUX() {
           <div class="gaji-matrix-legend">
             <span><i class="gaji-heat-dot gaji-heat-ok"></i> Realisasi</span>
             <span><i class="gaji-heat-dot gaji-heat-peg"></i> Pegawai</span>
-            <span class="text-muted">Kolom aktif = bulan terpilih di bar atas</span>
+            <span class="text-muted">Kolom aktif = bulan terpilih</span>
           </div>
           <div class="kas-table-wrap gaji-matrix-wrap">
             <table class="kas-table gaji-matrix-table" id="gaji-matrix-table">
