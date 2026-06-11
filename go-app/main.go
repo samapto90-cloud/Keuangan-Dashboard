@@ -189,22 +189,26 @@ func normalizeTransactionTax(t *Transaction) {
         t.JenisPotongan = strings.Join(jenisPotonganParts, "; ")
 }
 
-var allowedOrigin string
+var allowedOrigins []string
 
 func cors(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
                 origin := strings.TrimSpace(r.Header.Get("Origin"))
-                if allowedOrigin != "" {
-                        if origin != "" && origin != allowedOrigin {
+                if len(allowedOrigins) > 0 {
+                        if origin != "" && !originAllowed(origin, allowedOrigins, r) {
                                 if r.Method == http.MethodOptions {
                                         w.WriteHeader(http.StatusForbidden)
                                         return
                                 }
-                                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Origin tidak diizinkan"})
+                                jsonResponse(w, http.StatusForbidden, map[string]string{
+                                        "error": "Origin tidak diizinkan. Buka aplikasi lewat alamat resmi (https://sakubijak.com) atau hubungi admin untuk akses lokal.",
+                                })
                                 return
                         }
-                        w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-                        w.Header().Set("Vary", "Origin")
+                        if allow := corsAllowOriginHeader(origin, allowedOrigins, r); allow != "" {
+                                w.Header().Set("Access-Control-Allow-Origin", allow)
+                                w.Header().Set("Vary", "Origin")
+                        }
                 }
                 w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
@@ -797,7 +801,7 @@ func main() {
         if port == "" {
                 port = "3000"
         }
-        allowedOrigin = strings.TrimSpace(os.Getenv("ALLOWED_ORIGIN"))
+        allowedOrigins = parseAllowedOrigins(os.Getenv("ALLOWED_ORIGIN"))
         initAuth()
         initSecurity()
         initIndexCache()
