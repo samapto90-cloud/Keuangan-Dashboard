@@ -42,6 +42,8 @@ type GajiTunjanganState struct {
 	Tahun           int                                 `json:"tahun"`
 	Pagu            map[string]float64                  `json:"pagu,omitempty"`
 	Pegawai         map[string]int                      `json:"pegawai,omitempty"`
+	Rekening        []GajiRekeningDef                   `json:"rekening,omitempty"`
+	RekeningCells   map[string]map[string]GajiMonthCell `json:"rekening_cells,omitempty"`
 	Cells           map[string]map[string]GajiMonthCell `json:"cells"`
 	RealisasiLocked map[string]bool                     `json:"realisasi_locked"`
 	ImportedAt      string                              `json:"imported_at"`
@@ -101,6 +103,8 @@ var (
 		Tahun:           2026,
 		Pagu:            map[string]float64{},
 		Pegawai:         map[string]int{},
+		Rekening:        []GajiRekeningDef{},
+		RekeningCells:   map[string]map[string]GajiMonthCell{},
 		Cells:           map[string]map[string]GajiMonthCell{},
 		RealisasiLocked: map[string]bool{},
 	}
@@ -298,6 +302,10 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		reportingMonth = currentBulanKey()
 	}
 	category := strings.TrimSpace(r.URL.Query().Get("category"))
+	grup := strings.TrimSpace(r.URL.Query().Get("grup"))
+	if grup == "" && category != "" {
+		grup = gajiGrupFromCategory(category)
+	}
 
 	gajiMu.RLock()
 	state := gajiState
@@ -309,19 +317,29 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]interface{}{
-		"tahun":           state.Tahun,
-		"imported_at":     state.ImportedAt,
-		"version":         state.Version,
-		"version_label":   state.VersionLabel,
-		"bulan":           reportingMonth,
-		"bulan_list":      bulanKeys,
-		"categories":      gajiCategories,
-		"period_defs":     periodDefs,
-		"pagu":            state.Pagu,
-		"pegawai":         state.Pegawai,
-		"dashboard":       buildGajiDashboard(state, reportingMonth),
-		"kebutuhan":       buildGajiKebutuhan(state, reportingMonth),
-		"rekap":           buildGajiRekap(state),
+		"tahun":         state.Tahun,
+		"imported_at":   state.ImportedAt,
+		"version":       state.Version,
+		"version_label": state.VersionLabel,
+		"bulan":         reportingMonth,
+		"bulan_list":    bulanKeys,
+		"categories":    gajiCategories,
+		"grup_list":     gajiGrupOrder,
+		"grup_labels":   gajiGrupLabels,
+		"period_defs":   periodDefs,
+		"pagu":          state.Pagu,
+		"pegawai":       state.Pegawai,
+		"rekening":      state.Rekening,
+		"dashboard":     buildGajiDashboard(state, reportingMonth),
+		"kebutuhan":     buildGajiKebutuhan(state, reportingMonth),
+		"rekap":         buildGajiRekap(state),
+		"potongan":      buildGajiPotonganDashboard(state, reportingMonth),
+	}
+	if grup != "" && isValidGajiGrup(grup) {
+		rows, summary := buildGajiRekeningReport(state, grup, reportingMonth)
+		resp["grup"] = grup
+		resp["rekening_report"] = rows
+		resp["rekening_summary"] = summary
 	}
 	if category != "" && isValidGajiCategory(category) {
 		resp["category"] = category
@@ -344,8 +362,10 @@ func handleGajiImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		Version      string `json:"version"`
 		VersionLabel string `json:"version_label"`
 		Pagu         map[string]float64                  `json:"pagu"`
-		Pegawai      map[string]int                      `json:"pegawai"`
-		Cells        map[string]map[string]GajiMonthCell `json:"cells"`
+		Pegawai       map[string]int                      `json:"pegawai"`
+		Rekening      []GajiRekeningDef                   `json:"rekening"`
+		RekeningCells map[string]map[string]GajiMonthCell `json:"rekening_cells"`
+		Cells         map[string]map[string]GajiMonthCell `json:"cells"`
 		Rows         []struct {
 			Category      string  `json:"category"`
 			Bulan         string  `json:"bulan"`
@@ -358,7 +378,7 @@ func handleGajiImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		return
 	}
-	if len(payload.Rows) == 0 && len(payload.Cells) == 0 && len(payload.Pagu) == 0 {
+	if len(payload.Rows) == 0 && len(payload.Cells) == 0 && len(payload.Pagu) == 0 && len(payload.Rekening) == 0 {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data anggaran kosong"})
 		return
 	}
@@ -377,6 +397,9 @@ func handleGajiImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		for k, v := range payload.Pegawai {
 			gajiState.Pegawai[k] = v
 		}
+	}
+	if len(payload.Rekening) > 0 || len(payload.RekeningCells) > 0 {
+		gajiMergeRekeningImport(&gajiState, payload.Rekening, payload.RekeningCells)
 	}
 	if payload.Cells != nil {
 		for cat, periods := range payload.Cells {
@@ -427,6 +450,7 @@ func handleGajiImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		gajiState.VersionLabel = vl
 	}
 	gajiState.ImportedAt = time.Now().Format("2006-01-02 15:04:05")
+	gajiSyncCategoryFromRekening(&gajiState)
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
@@ -446,8 +470,11 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
+		Grup     string `json:"grup"`
 		Category string `json:"category"`
+		Bulan    string `json:"bulan"`
 		Rows     []struct {
+			Kode          string  `json:"kode"`
 			Bulan         string  `json:"bulan"`
 			JumlahPegawai int     `json:"jumlah_pegawai"`
 			Realisasi     float64 `json:"realisasi"`
@@ -457,9 +484,16 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		return
 	}
-	category := strings.TrimSpace(payload.Category)
-	if !isValidGajiCategory(category) {
-		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Kategori tidak valid"})
+	grup := strings.TrimSpace(payload.Grup)
+	if grup == "" {
+		grup = gajiGrupFromCategory(strings.TrimSpace(payload.Category))
+	}
+	bulan := normalizeBulanKey(payload.Bulan)
+	if bulan == "" {
+		bulan = currentBulanKey()
+	}
+	if !isValidGajiGrup(grup) {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Grup realisasi tidak valid"})
 		return
 	}
 	if len(payload.Rows) == 0 {
@@ -468,38 +502,42 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gajiMu.Lock()
-	ensureGajiCells(&gajiState)
+	ensureGajiRekening(&gajiState)
+	lockKey := gajiRekeningLockKey(grup, bulan)
+	if gajiState.RealisasiLocked != nil && gajiState.RealisasiLocked[lockKey] {
+		gajiMu.Unlock()
+		jsonResponse(w, http.StatusForbidden, map[string]string{
+			"error": "Realisasi bulan ini terkunci. Klik Perbaiki terlebih dahulu.",
+		})
+		return
+	}
 	for _, row := range payload.Rows {
-		period := normalizeGajiPeriod(category, row.Bulan)
-		if period == "" {
+		kode := strings.TrimSpace(row.Kode)
+		if kode == "" {
 			continue
 		}
-		key := gajiLockKey(category, period)
-		if gajiState.RealisasiLocked != nil && gajiState.RealisasiLocked[key] {
-			gajiMu.Unlock()
-			label := gajiPeriodLabel(category, period)
-			jsonResponse(w, http.StatusForbidden, map[string]string{
-				"error": "Realisasi " + label + " terkunci. Klik Perbaiki terlebih dahulu.",
-			})
-			return
+		if gajiState.RekeningCells[kode] == nil {
+			gajiState.RekeningCells[kode] = map[string]GajiMonthCell{}
 		}
-		cell := gajiState.Cells[category][period]
+		cell := gajiState.RekeningCells[kode][bulan]
 		if row.JumlahPegawai > 0 {
 			cell.JumlahPegawai = row.JumlahPegawai
 		}
 		cell.Realisasi = row.Realisasi
-		gajiState.Cells[category][period] = cell
-		if gajiState.RealisasiLocked == nil {
-			gajiState.RealisasiLocked = map[string]bool{}
-		}
-		gajiState.RealisasiLocked[key] = true
+		gajiState.RekeningCells[kode][bulan] = cell
 	}
-	report := buildGajiCategoryReport(gajiState, category, currentBulanKey())
+	if gajiState.RealisasiLocked == nil {
+		gajiState.RealisasiLocked = map[string]bool{}
+	}
+	gajiState.RealisasiLocked[lockKey] = true
+	gajiSyncCategoryFromRekening(&gajiState)
+	rows, summary := buildGajiRekeningReport(gajiState, grup, bulan)
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"message":         "Realisasi disimpan",
-		"category_report": report,
+		"message":          "Realisasi per rekening disimpan",
+		"rekening_report":  rows,
+		"rekening_summary": summary,
 	})
 }
 
@@ -513,6 +551,7 @@ func handleGajiUnlockRealisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
+		Grup     string `json:"grup"`
 		Category string `json:"category"`
 		Bulan    string `json:"bulan"`
 	}
@@ -520,20 +559,62 @@ func handleGajiUnlockRealisasi(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		return
 	}
-	category := strings.TrimSpace(payload.Category)
-	period := normalizeGajiPeriod(category, payload.Bulan)
-	if !isValidGajiCategory(category) || period == "" {
-		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Kategori dan periode wajib diisi"})
+	grup := strings.TrimSpace(payload.Grup)
+	if grup == "" {
+		grup = gajiGrupFromCategory(strings.TrimSpace(payload.Category))
+	}
+	bulan := normalizeBulanKey(payload.Bulan)
+	if !isValidGajiGrup(grup) || bulan == "" {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Grup dan bulan wajib diisi"})
 		return
 	}
 	gajiMu.Lock()
 	if gajiState.RealisasiLocked == nil {
 		gajiState.RealisasiLocked = map[string]bool{}
 	}
-	delete(gajiState.RealisasiLocked, gajiLockKey(category, period))
+	delete(gajiState.RealisasiLocked, gajiRekeningLockKey(grup, bulan))
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"message": "Mode perbaiki aktif — data realisasi dapat diubah",
+	})
+}
+
+func handleGajiSavePegawai(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid"})
+		return
+	}
+	var payload struct {
+		PNS  int `json:"pns"`
+		PPPK int `json:"pppk"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+		return
+	}
+	if payload.PNS <= 0 && payload.PPPK <= 0 {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Jumlah pegawai PNS atau PPPK wajib diisi"})
+		return
+	}
+	gajiMu.Lock()
+	if gajiState.Pegawai == nil {
+		gajiState.Pegawai = map[string]int{}
+	}
+	if payload.PNS > 0 {
+		gajiState.Pegawai["pns"] = payload.PNS
+	}
+	if payload.PPPK > 0 {
+		gajiState.Pegawai["pppk"] = payload.PPPK
+	}
+	gajiMu.Unlock()
+	persistGajiState()
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"message": "Data pegawai berhasil disimpan",
+		"pegawai": gajiState.Pegawai,
 	})
 }
