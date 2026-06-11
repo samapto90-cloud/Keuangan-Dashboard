@@ -4404,6 +4404,105 @@
     }
     .gaji-rek-summary .chip strong { color: #0369a1 !important; font-family: 'JetBrains Mono', monospace !important; }
 
+    /* ── Layout fix: sidebar nav + topbar (override konflik CSS lama) ── */
+    #gaji-app-shell #gaji-sidebar {
+      position: fixed !important; top: 0; left: 0; height: 100vh !important;
+      display: flex !important; flex-direction: column !important;
+      z-index: 1000 !important;
+    }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand,
+    #gaji-app-shell #gaji-sidebar .kas-sidebar-brand {
+      display: flex !important; align-items: flex-start !important; gap: 14px !important;
+      flex-shrink: 0 !important; min-height: 0 !important;
+    }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand > div:last-child { flex: 1; min-width: 0; }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand h6,
+    #gaji-app-shell #gaji-sidebar .kas-sidebar-brand h6 {
+      margin: 0 !important; line-height: 1.3 !important; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #gaji-app-shell #gaji-sidebar .gaji-tech-badge {
+      display: inline-flex !important; max-width: 100%; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-sidebar-nav,
+    #gaji-app-shell #gaji-sidebar .gaji-pro-nav {
+      flex: 1 1 auto !important; min-height: 0 !important;
+      overflow-y: auto !important; overflow-x: hidden !important;
+      padding: 8px 8px 12px !important;
+      scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.3) transparent;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-nav-section { margin-bottom: 14px !important; }
+    #gaji-app-shell #gaji-sidebar .kas-nav-link,
+    #gaji-app-shell #gaji-sidebar .gaji-nav-3d {
+      display: flex !important; align-items: center !important; gap: 12px !important;
+      width: calc(100% - 8px) !important; box-sizing: border-box !important;
+      text-decoration: none !important; position: relative !important;
+      min-height: 48px !important; flex-shrink: 0 !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-icon {
+      width: 36px !important; height: 36px !important; flex-shrink: 0 !important;
+      display: grid !important; place-items: center !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-text {
+      flex: 1 1 auto !important; min-width: 0 !important; line-height: 1.3 !important;
+      display: block !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-nav-link .kas-nav-desc {
+      display: block !important; margin-top: 2px !important;
+      white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+      max-width: 100% !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-sidebar-footer {
+      flex-shrink: 0 !important; margin-top: auto !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-user-card {
+      display: flex !important; align-items: center !important; gap: 10px !important;
+    }
+    /* Topbar dua baris */
+    #gaji-app-shell .gaji-topbar-wrap {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(14,165,233,.12);
+      box-shadow: 0 4px 24px rgba(15,23,42,.06);
+    }
+    #gaji-app-shell .gaji-topbar-main {
+      display: flex !important; align-items: center !important; gap: 16px !important;
+      padding: 12px 24px !important; border-bottom: none !important;
+      background: transparent !important; box-shadow: none !important;
+      flex-wrap: wrap !important;
+    }
+    #gaji-app-shell .gaji-topbar-title-block { flex: 1; min-width: 180px; }
+    #gaji-app-shell .gaji-topbar-sub {
+      padding: 0 24px 12px;
+      display: flex; justify-content: flex-end;
+    }
+    #gaji-app-shell .gaji-pegawai-strip {
+      margin-left: 0 !important; width: auto !important;
+      max-width: 100%; flex-wrap: wrap;
+    }
+    /* Dashboard charts */
+    .gaji-dash-charts {
+      display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 20px;
+    }
+    .gaji-chart-card {
+      background: #fff; border: 1px solid rgba(14,165,233,.1); border-radius: 20px;
+      padding: 18px 20px; box-shadow: 0 8px 32px rgba(15,23,42,.06);
+    }
+    .gaji-chart-card.gaji-chart-wide { grid-column: span 1; }
+    .gaji-chart-head h6 { margin: 0 0 4px; font-size: 14px; font-weight: 800; color: #0f172a; }
+    .gaji-chart-head small { font-size: 11px; color: #64748b; }
+    .gaji-chart-canvas { position: relative; height: 240px; margin-top: 12px; }
+    .gaji-chart-canvas-donut { height: 220px; }
+    .gaji-dash-charts .gaji-chart-card:last-child { grid-column: 1 / -1; }
+    @media (max-width: 1100px) {
+      .gaji-dash-charts { grid-template-columns: 1fr; }
+      .gaji-chart-card.gaji-chart-wide { grid-column: span 1; }
+      #gaji-app-shell .gaji-topbar-sub { justify-content: stretch; }
+      #gaji-app-shell .gaji-pegawai-strip { width: 100% !important; justify-content: center; }
+    }
+
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
     @page { size: A4 portrait; margin: 0; }
     @media print {
@@ -6081,9 +6180,10 @@ function initManualNumericInputUX() {
     </div>
   </div>
   <div id="gaji-main">
-    <div class="kas-topbar">
+    <div class="gaji-topbar-wrap">
+    <div class="kas-topbar gaji-topbar-main">
       <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('gaji')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
-      <div>
+      <div class="gaji-topbar-title-block">
         <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
       </div>
@@ -6102,6 +6202,8 @@ function initManualNumericInputUX() {
           <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
         </select>
       </div>
+    </div>
+    <div class="gaji-topbar-sub">
       <div class="gaji-pegawai-strip" id="gaji-pegawai-strip" title="Input jumlah pegawai — berlaku semua menu &amp; periode">
         <div class="gaji-peg-chip">
           <i class="bi bi-person-badge-fill"></i>
@@ -6119,6 +6221,7 @@ function initManualNumericInputUX() {
         </div>
         <button type="button" class="gaji-peg-save" onclick="saveGajiPegawai()"><i class="bi bi-check2-circle me-1"></i>Simpan</button>
       </div>
+    </div>
     </div>
     <div class="kas-content">
       <div id="gaji-page-dashboard" class="gaji-page kas-page active">
@@ -6142,6 +6245,29 @@ function initManualNumericInputUX() {
           <div class="kas-stat"><div class="lbl">+/- Anggaran</div><div class="val" id="gaji-stat-selisih" style="font-size:16px">Rp 0</div><div class="sub">Pagu − Kebutuhan tahun (±)</div></div>
         </div>
         <div class="gaji-dash-categories" id="gaji-dash-categories"></div>
+        <div class="gaji-dash-charts">
+          <div class="gaji-chart-card gaji-chart-wide">
+            <div class="gaji-chart-head">
+              <h6><i class="bi bi-graph-up me-2"></i>Tren Realisasi Bulanan</h6>
+              <small>Anggaran vs realisasi per bulan · TA 2026</small>
+            </div>
+            <div class="gaji-chart-canvas"><canvas id="gaji-chart-monthly"></canvas></div>
+          </div>
+          <div class="gaji-chart-card">
+            <div class="gaji-chart-head">
+              <h6><i class="bi bi-pie-chart me-2"></i>Komposisi Realisasi</h6>
+              <small>Proporsi per komponen s/d bulan</small>
+            </div>
+            <div class="gaji-chart-canvas gaji-chart-canvas-donut"><canvas id="gaji-chart-doughnut"></canvas></div>
+          </div>
+          <div class="gaji-chart-card gaji-chart-wide">
+            <div class="gaji-chart-head">
+              <h6><i class="bi bi-bar-chart-line me-2"></i>Pagu vs Realisasi Kategori</h6>
+              <small>Perbandingan pagu dan realisasi s/d bulan aktif</small>
+            </div>
+            <div class="gaji-chart-canvas"><canvas id="gaji-chart-category"></canvas></div>
+          </div>
+        </div>
         <div class="kas-card gaji-pro-card">
           <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Modul Gaji ASN</h6>
           <small>
@@ -15893,6 +16019,9 @@ GAJI_CATEGORIES.forEach(c => {
 
 let gajiStateCache = null;
 let gajiActiveGrup = 'gaji';
+let gajiChartMonthly = null;
+let gajiChartDoughnut = null;
+let gajiChartCategory = null;
 let gajiUnlockBulan = '';
 let gajiAnggaranImportRows = [];
 let gajiRakImportData = null;
@@ -16158,6 +16287,133 @@ function renderGajiDashboard() {
         <div class="bar"><span style="width:${p.toFixed(0)}%"></span></div>
       </div>`;
     }).join('') : '<div class="text-muted" style="font-size:12px;padding:8px">Upload template anggaran untuk melihat ringkasan kategori</div>';
+  }
+  renderGajiDashboardCharts();
+}
+
+async function renderGajiDashboardCharts() {
+  if (!document.getElementById('gaji-page-dashboard')?.classList.contains('active')) return;
+  try { await loadScript(SIPKEU_SCRIPTS.chart); } catch (_) { return; }
+  if (typeof Chart === 'undefined') return;
+
+  const rekap = gajiStateCache?.rekap || [];
+  const cats = gajiStateCache?.dashboard?.category_summaries || [];
+  const GAJI_CHART_BLUE = { line: '#0ea5e9', fill: 'rgba(14,165,233,.12)', bar: 'rgba(14,165,233,.85)', border: '#0369a1' };
+  const GAJI_CHART_CYAN = { line: '#22d3ee', fill: 'rgba(34,211,238,.1)', bar: 'rgba(6,182,212,.75)', border: '#0891b2' };
+  const GAJI_PALETTE = ['#0ea5e9', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
+
+  const monthLabels = rekap.length
+    ? rekap.map(r => (r.label_bulan || r.bulan || '').slice(0, 3))
+    : GAJI_BULAN_LIST.map(b => GAJI_BULAN_LABELS[b].slice(0, 3));
+  const monthReal = rekap.length ? rekap.map(r => r.total_realisasi || 0) : GAJI_BULAN_LIST.map(() => 0);
+  const monthAng = rekap.length ? rekap.map(r => r.total_anggaran || 0) : GAJI_BULAN_LIST.map(() => 0);
+
+  if (gajiChartMonthly) { gajiChartMonthly.destroy(); gajiChartMonthly = null; }
+  const monthlyEl = document.getElementById('gaji-chart-monthly');
+  if (monthlyEl) {
+    gajiChartMonthly = new Chart(monthlyEl, {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Realisasi',
+            data: monthReal,
+            borderColor: GAJI_CHART_BLUE.line,
+            backgroundColor: GAJI_CHART_BLUE.fill,
+            fill: true, tension: 0.38, borderWidth: 3, pointRadius: 4,
+            pointBackgroundColor: '#fff', pointBorderColor: GAJI_CHART_BLUE.line, pointBorderWidth: 2,
+          },
+          {
+            label: 'Anggaran',
+            data: monthAng,
+            borderColor: GAJI_CHART_CYAN.line,
+            backgroundColor: 'transparent',
+            borderDash: [6, 4], tension: 0.38, borderWidth: 2, pointRadius: 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { color: '#475569', boxWidth: 14, padding: 12, font: { size: 11, weight: '600' } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}` } },
+        },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.06)' } },
+          y: { ticks: { color: '#64748b', callback: v => formatGajiMatrixAmt(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
+        },
+      },
+    });
+  }
+
+  const catWithReal = cats.filter(c => (c.realisasi_sd || 0) > 0 || (c.pagu || 0) > 0);
+  const catLabels = catWithReal.map(c => c.label);
+  const catRealVals = catWithReal.map(c => c.realisasi_sd || 0);
+
+  if (gajiChartDoughnut) { gajiChartDoughnut.destroy(); gajiChartDoughnut = null; }
+  const doughnutEl = document.getElementById('gaji-chart-doughnut');
+  if (doughnutEl) {
+    gajiChartDoughnut = new Chart(doughnutEl, {
+      type: 'doughnut',
+      data: {
+        labels: catLabels.length ? catLabels : ['Belum ada data'],
+        datasets: [{
+          data: catRealVals.length ? catRealVals : [1],
+          backgroundColor: catRealVals.length ? GAJI_PALETTE.slice(0, catLabels.length) : ['#e2e8f0'],
+          borderColor: '#fff', borderWidth: 3, hoverOffset: 8,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#475569', boxWidth: 10, padding: 8, font: { size: 10 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatRupiah(ctx.raw || 0)}` } },
+        },
+      },
+    });
+  }
+
+  const catPagu = catWithReal.map(c => c.pagu || 0);
+  const catReal = catWithReal.map(c => c.realisasi_sd || 0);
+
+  if (gajiChartCategory) { gajiChartCategory.destroy(); gajiChartCategory = null; }
+  const catEl = document.getElementById('gaji-chart-category');
+  if (catEl) {
+    gajiChartCategory = new Chart(catEl, {
+      type: 'bar',
+      data: {
+        labels: catLabels.length ? catLabels : ['Belum ada data'],
+        datasets: [
+          {
+            label: 'Pagu',
+            data: catPagu.length ? catPagu : [0],
+            backgroundColor: 'rgba(148,163,184,.35)',
+            borderColor: '#94a3b8', borderWidth: 1, borderRadius: 6,
+            barPercentage: 0.65, categoryPercentage: 0.7,
+          },
+          {
+            label: 'Realisasi s/d Bulan',
+            data: catReal.length ? catReal : [0],
+            backgroundColor: GAJI_CHART_BLUE.bar,
+            borderColor: GAJI_CHART_BLUE.border, borderWidth: 1, borderRadius: 6,
+            barPercentage: 0.65, categoryPercentage: 0.7,
+          },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#475569', boxWidth: 14, font: { size: 11, weight: '600' } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}` } },
+        },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 35, font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: '#64748b', callback: v => formatGajiMatrixAmt(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
+        },
+      },
+    });
   }
 }
 
