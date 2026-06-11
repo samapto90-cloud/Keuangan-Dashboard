@@ -4624,6 +4624,43 @@
       #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid { grid-template-columns: 1fr !important; }
       #gaji-app-shell .gaji-pegawai-strip { flex-wrap: wrap !important; }
     }
+    /* Kebutuhan per rekening */
+    #gaji-app-shell .gaji-keb-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 14px; margin-bottom: 14px; padding: 12px 14px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+    }
+    #gaji-app-shell .gaji-keb-period { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    #gaji-app-shell .gaji-keb-lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      color: #64748b; margin: 0; display: flex; align-items: center; gap: 4px;
+    }
+    #gaji-app-shell .gaji-keb-select {
+      padding: 7px 28px 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+      font-size: 12px; font-weight: 600; color: #0369a1; background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%230369a1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center;
+    }
+    #gaji-app-shell .gaji-keb-checks { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+    #gaji-app-shell .gaji-keb-check {
+      display: inline-flex; align-items: center; gap: 6px; margin: 0;
+      font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;
+      padding: 4px 10px; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0;
+    }
+    #gaji-app-shell .gaji-keb-check input { accent-color: #0ea5e9; }
+    #gaji-app-shell .gaji-keb-table-wrap { max-height: calc(100vh - 340px); overflow: auto; }
+    #gaji-app-shell .gaji-keb-table { font-size: 11px; }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-kode {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #0369a1; white-space: nowrap;
+    }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-kegiatan { max-width: 160px; font-size: 10px; color: #475569; }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-sub { max-width: 180px; font-size: 10px; color: #64748b; }
+    #gaji-app-shell .gaji-keb-input {
+      width: 110px; text-align: right; font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 8px;
+    }
+    #gaji-app-shell .gaji-keb-input:focus { border-color: #0ea5e9; outline: none; box-shadow: 0 0 0 2px rgba(14,165,233,.12); }
 
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
     @page { size: A4 portrait; margin: 0; }
@@ -6467,15 +6504,45 @@ function initManualNumericInputUX() {
       </div>
       <div id="gaji-page-kebutuhan" class="gaji-page kas-page">
         <div class="kas-card gaji-pro-card">
-          <h6><i class="bi bi-graph-up-arrow me-2 text-warning"></i>Kebutuhan Gaji dan Tunjangan ASN</h6>
-          <small class="d-block mb-3">Sesuai sheet <em>Kebutuhan Gaji dan Tunjangan</em>: Pagu · Realisasi s/d bulan · Kebutuhan sisa · Total + Accrual 2,5%</small>
-          <div class="kas-table-wrap">
-            <table class="kas-table"><thead><tr>
-              <th>Komponen</th><th class="kas-num">Pegawai</th><th class="kas-num">Pagu Anggaran</th><th class="kas-num">Realisasi s/d Bulan</th>
-              <th class="kas-num">Kebutuhan Sisa</th><th class="kas-num">Total Kebutuhan TA</th>
-              <th class="kas-num">Accrual 2,5%</th><th class="kas-num">Total + Accrual</th>
-              <th class="kas-num">Sisa Anggaran</th><th class="kas-num">+/- Anggaran</th><th class="kas-num">Pegawai</th>
-            </tr></thead><tbody id="gaji-kebutuhan-body"></tbody></table>
+          <div class="gaji-card-header">
+            <div class="gaji-card-header-text">
+              <h6><i class="bi bi-graph-up-arrow me-2"></i>Kebutuhan per Kode Rekening</h6>
+              <p>Kegiatan · Sub kegiatan · kode rekening · anggaran · kebutuhan (input manual) · surplus</p>
+            </div>
+            <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiKebutuhan()"><i class="bi bi-save me-1"></i>Simpan Kebutuhan</button>
+          </div>
+          <div class="gaji-keb-toolbar">
+            <div class="gaji-keb-period">
+              <label class="gaji-keb-lbl"><i class="bi bi-calendar3"></i> Tahun</label>
+              <select id="gaji-keb-tahun" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
+              <label class="gaji-keb-lbl">Bulan</label>
+              <select id="gaji-keb-bulan" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
+            </div>
+            <div class="gaji-keb-checks" id="gaji-keb-checks">
+              <label class="gaji-keb-check"><input type="checkbox" value="gaji_pns" checked onchange="onGajiKebFilterChange()"> Gaji PNS</label>
+              <label class="gaji-keb-check"><input type="checkbox" value="gaji_pppk" checked onchange="onGajiKebFilterChange()"> Gaji PPPK</label>
+              <label class="gaji-keb-check"><input type="checkbox" value="tpp" checked onchange="onGajiKebFilterChange()"> TPP</label>
+              <label class="gaji-keb-check"><input type="checkbox" value="tpg" checked onchange="onGajiKebFilterChange()"> TPG</label>
+              <label class="gaji-keb-check"><input type="checkbox" value="tamsil" checked onchange="onGajiKebFilterChange()"> Tamsil</label>
+            </div>
+          </div>
+          <div class="gaji-rek-summary" id="gaji-keb-summary"></div>
+          <div class="kas-table-wrap gaji-keb-table-wrap">
+            <table class="kas-table gaji-keb-table">
+              <thead><tr>
+                <th>Kegiatan</th>
+                <th>Sub Kegiatan</th>
+                <th>Kode Rekening</th>
+                <th>Uraian Rekening</th>
+                <th class="kas-num">Pagu TA</th>
+                <th class="kas-num">Anggaran Bulan</th>
+                <th class="kas-num">Realisasi s/d</th>
+                <th class="kas-num">Kebutuhan</th>
+                <th class="kas-num">Surplus</th>
+              </tr></thead>
+              <tbody id="gaji-kebutuhan-body"></tbody>
+              <tfoot id="gaji-kebutuhan-foot"></tfoot>
+            </table>
           </div>
         </div>
       </div>
@@ -16221,7 +16288,8 @@ function showGajiPage(page, navEl, grup) {
     syncGajiMatrixTabs();
     loadGajiData();
   } else if (page === 'kebutuhan') {
-    renderGajiKebutuhan();
+    initGajiKebutuhanControls();
+    loadGajiKebutuhanData();
   } else if (page === 'rekap') {
     renderGajiRekap();
   } else if (page === 'dashboard') {
@@ -16232,7 +16300,12 @@ function showGajiPage(page, navEl, grup) {
 
 async function loadGajiData() {
   const bulan = getGajiBulan();
-  const grupQ = gajiActiveGrup ? '&grup=' + encodeURIComponent(gajiActiveGrup) : '';
+  let grupQ = gajiActiveGrup ? '&grup=' + encodeURIComponent(gajiActiveGrup) : '';
+  if (document.getElementById('gaji-page-kebutuhan')?.classList.contains('active')) {
+    grupQ = '';
+    const kf = getGajiKebFilterQuery();
+    if (kf) grupQ += '&keb_filter=' + encodeURIComponent(kf);
+  }
   try {
     const res = await apiFetch(API + '/gaji-tunjangan?bulan=' + encodeURIComponent(bulan) + grupQ);
     const data = await res.json();
@@ -16576,26 +16649,172 @@ function gajiSelisihClass(v) {
   return '';
 }
 
+function getGajiKebFilterQuery() {
+  const checks = document.querySelectorAll('#gaji-keb-checks input[type=checkbox]:checked');
+  const vals = Array.from(checks).map(c => c.value).filter(Boolean);
+  return vals.join(',');
+}
+
+function initGajiKebutuhanControls() {
+  const tahunSel = document.getElementById('gaji-keb-tahun');
+  const bulanSel = document.getElementById('gaji-keb-bulan');
+  if (tahunSel && !tahunSel.dataset.bound) {
+    tahunSel.dataset.bound = '1';
+    const cur = gajiStateCache?.tahun || new Date().getFullYear();
+    for (let y = cur - 1; y <= cur + 2; y++) {
+      tahunSel.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+    tahunSel.value = String(cur);
+  }
+  if (bulanSel && !bulanSel.dataset.bound) {
+    bulanSel.dataset.bound = '1';
+    bulanSel.innerHTML = GAJI_BULAN_LIST.map(b =>
+      `<option value="${b}">${GAJI_BULAN_LABELS[b]}</option>`
+    ).join('');
+  }
+  if (bulanSel) bulanSel.value = getGajiKebBulan();
+  if (tahunSel && gajiStateCache?.tahun) tahunSel.value = String(gajiStateCache.tahun);
+}
+
+function getGajiKebBulan() {
+  const sel = document.getElementById('gaji-keb-bulan');
+  if (sel?.value) return sel.value;
+  return getGajiBulan();
+}
+
+function getGajiKebTahun() {
+  const sel = document.getElementById('gaji-keb-tahun');
+  return parseInt(sel?.value, 10) || gajiStateCache?.tahun || new Date().getFullYear();
+}
+
+function onGajiKebPeriodChange() {
+  const bulan = getGajiKebBulan();
+  const topSel = document.getElementById('gaji-bulan-select');
+  if (topSel) topSel.value = bulan;
+  loadGajiKebutuhanData();
+}
+
+function onGajiKebFilterChange() {
+  loadGajiKebutuhanData();
+}
+
+async function loadGajiKebutuhanData() {
+  const bulan = getGajiKebBulan();
+  const kf = getGajiKebFilterQuery();
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan?bulan=' + encodeURIComponent(bulan) + '&keb_filter=' + encodeURIComponent(kf || 'gaji_pns,gaji_pppk,tpp,tpg,tamsil'));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat kebutuhan');
+    gajiStateCache = { ...gajiStateCache, ...data };
+    renderGajiKebutuhan();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 function renderGajiKebutuhan() {
   const tb = document.getElementById('gaji-kebutuhan-body');
+  const foot = document.getElementById('gaji-kebutuhan-foot');
+  const summaryEl = document.getElementById('gaji-keb-summary');
   if (!tb) return;
-  const rows = gajiStateCache?.kebutuhan || [];
+  const rows = gajiStateCache?.kebutuhan_rekening || [];
+  const bulanLabel = GAJI_BULAN_LABELS[getGajiKebBulan()] || getGajiKebBulan();
+  const tahun = getGajiKebTahun();
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="10" class="text-muted text-center">Belum ada data — upload template Perhitungan Gaji terlebih dahulu</td></tr>';
+    tb.innerHTML = '<tr><td colspan="9" class="text-muted text-center py-4">Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK, lalu centang filter komponen di atas</td></tr>';
+    if (foot) foot.innerHTML = '';
+    if (summaryEl) summaryEl.innerHTML = '';
     return;
   }
-  tb.innerHTML = rows.map(r => `<tr>
-    <td>${escHtml(r.label)}</td>
-    <td class="kas-num">${gajiPegawaiBadge(r.category_id, r.pegawai)}</td>
-    <td class="kas-num">${formatRupiah(r.pagu || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.realisasi_sd || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.kebutuhan_sisa || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.kebutuhan_tahun || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.accrual_25 || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.total_dengan_accrual || 0)}</td>
-    <td class="kas-num">${formatRupiah(r.sisa_anggaran || 0)}</td>
-    <td class="kas-num ${gajiSelisihClass(r.selisih_pagu)}">${formatRupiah(r.selisih_pagu || 0)}</td>
-  </tr>`).join('');
+  let totPagu = 0, totAng = 0, totRea = 0, totKeb = 0, totSur = 0;
+  tb.innerHTML = rows.map(r => {
+    totPagu += r.pagu || 0;
+    totAng += r.anggaran || 0;
+    totRea += r.realisasi_sd || 0;
+    totKeb += r.kebutuhan || 0;
+    totSur += r.surplus || 0;
+    const surCls = gajiSelisihClass(r.surplus);
+    return `<tr data-kode="${escHtml(r.kode)}" data-anggaran="${r.anggaran || 0}">
+      <td class="gaji-keb-kegiatan" title="${escHtml(r.kegiatan)}">${escHtml(r.kegiatan)}</td>
+      <td class="gaji-keb-sub" title="${escHtml(r.sub_kegiatan)}">${escHtml(r.sub_kegiatan)}</td>
+      <td class="gaji-keb-kode">${escHtml(r.kode)}</td>
+      <td>${escHtml(r.nama)}</td>
+      <td class="kas-num">${formatRupiah(r.pagu || 0)}</td>
+      <td class="kas-num">${formatRupiah(r.anggaran || 0)}</td>
+      <td class="kas-num">${formatRupiah(r.realisasi_sd || 0)}</td>
+      <td class="kas-num">
+        <input type="text" class="gaji-keb-input manual-numeric gaji-keb-rea" data-kode="${escHtml(r.kode)}"
+          value="${formatKasAmount(r.kebutuhan || 0)}" aria-label="Kebutuhan ${escHtml(r.kode)}" />
+      </td>
+      <td class="kas-num ${surCls} gaji-keb-surplus" data-kode="${escHtml(r.kode)}">${formatRupiah(r.surplus || 0)}</td>
+    </tr>`;
+  }).join('');
+  if (foot) {
+    foot.innerHTML = `<tr style="background:#f0f9ff;font-weight:700">
+      <td colspan="4">TOTAL · ${bulanLabel} ${tahun}</td>
+      <td class="kas-num">${formatRupiah(totPagu)}</td>
+      <td class="kas-num">${formatRupiah(totAng)}</td>
+      <td class="kas-num">${formatRupiah(totRea)}</td>
+      <td class="kas-num">${formatRupiah(totKeb)}</td>
+      <td class="kas-num">${formatRupiah(totSur)}</td>
+    </tr>`;
+  }
+  if (summaryEl) {
+    summaryEl.innerHTML = [
+      `<div class="chip"><span class="text-muted">Periode</span><strong>${bulanLabel} ${tahun}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Baris</span><strong>${rows.length}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatRupiah(totAng)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Total Kebutuhan</span><strong>${formatRupiah(totKeb)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Total Surplus</span><strong>${formatRupiah(totSur)}</strong></div>`,
+    ].join('');
+  }
+  tb.querySelectorAll('.gaji-keb-rea').forEach(inp => {
+    if (inp.dataset.bound) return;
+    inp.dataset.bound = '1';
+    inp.addEventListener('input', () => {
+      const tr = inp.closest('tr');
+      const ang = parseFloat(tr?.dataset.anggaran || '0') || 0;
+      const keb = parseKasNumber(inp.value);
+      const sur = ang - keb;
+      const surEl = tr?.querySelector('.gaji-keb-surplus');
+      if (surEl) {
+        surEl.textContent = formatRupiah(sur);
+        surEl.classList.remove('gaji-kebutuhan-negatif', 'gaji-kebutuhan-positif');
+        if (sur < 0) surEl.classList.add('gaji-kebutuhan-negatif');
+        else if (sur > 0) surEl.classList.add('gaji-kebutuhan-positif');
+      }
+    });
+  });
+}
+
+async function saveGajiKebutuhan() {
+  const tb = document.getElementById('gaji-kebutuhan-body');
+  if (!tb) return;
+  const rows = [];
+  tb.querySelectorAll('tr[data-kode]').forEach(tr => {
+    const kode = tr.dataset.kode;
+    const inp = tr.querySelector('.gaji-keb-rea');
+    if (!kode || !inp) return;
+    rows.push({ kode, kebutuhan: parseKasNumber(inp.value) });
+  });
+  if (!rows.length) return alert('Tidak ada baris kebutuhan untuk disimpan.');
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan/kebutuhan', {
+      method: 'PUT',
+      body: JSON.stringify({
+        tahun: getGajiKebTahun(),
+        bulan: getGajiKebBulan(),
+        rows,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal simpan kebutuhan');
+    if (data.kebutuhan_rekening) gajiStateCache.kebutuhan_rekening = data.kebutuhan_rekening;
+    renderGajiKebutuhan();
+    alert(data.message || 'Kebutuhan disimpan');
+  } catch (err) {
+    alert(err.message || 'Gagal simpan kebutuhan');
+  }
 }
 
 function renderGajiRekap() {
@@ -16797,6 +17016,7 @@ function findGajiRakHeaderIndices(rows) {
       return -1;
     };
     const iNama = idx('NAMA REKENING');
+    const iKeg = idx('NAMA KEGIATAN');
     const iSub = idx('NAMA SUB KEGIATAN');
     const iAnggaran = idx('ANGGARAN');
     const bulanCols = {};
@@ -16805,7 +17025,7 @@ function findGajiRakHeaderIndices(rows) {
       if (i >= 0) bulanCols[b.toLowerCase()] = i;
     });
     if (iAnggaran >= 0 && Object.keys(bulanCols).length >= 6) {
-      return { headerRow: ri, iKode, iNama, iSub, iAnggaran, bulanCols };
+      return { headerRow: ri, iKode, iNama, iKeg, iSub, iAnggaran, bulanCols };
     }
   }
   return null;
@@ -16890,7 +17110,11 @@ function parseGajiRakAnggaranWorkbook(wb) {
     const cat = grup === 'potongan' ? '' : classifyGajiRakCategory(kode, nama);
     const paguVal = parseKasNumber(row[hdr.iAnggaran]);
     urut++;
-    rekening.push({ kode, nama, grup, jenis, pagu: paguVal, urut });
+    rekening.push({
+      kode, nama, grup, jenis, pagu: paguVal, urut,
+      kegiatan: hdr.iKeg >= 0 ? get(row, hdr.iKeg) : '',
+      sub_kegiatan: hdr.iSub >= 0 ? get(row, hdr.iSub) : '',
+    });
     rekeningCells[kode] = {};
     for (const [bk, ci] of Object.entries(hdr.bulanCols)) {
       const ang = parseKasNumber(row[ci]);

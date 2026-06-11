@@ -44,6 +44,7 @@ type GajiTunjanganState struct {
 	Pegawai         map[string]int                      `json:"pegawai,omitempty"`
 	Rekening        []GajiRekeningDef                   `json:"rekening,omitempty"`
 	RekeningCells   map[string]map[string]GajiMonthCell `json:"rekening_cells,omitempty"`
+	KebutuhanManual map[string]map[string]float64       `json:"kebutuhan_manual,omitempty"`
 	Cells           map[string]map[string]GajiMonthCell `json:"cells"`
 	RealisasiLocked map[string]bool                     `json:"realisasi_locked"`
 	ImportedAt      string                              `json:"imported_at"`
@@ -301,6 +302,7 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 	if reportingMonth == "" {
 		reportingMonth = currentBulanKey()
 	}
+	kebFilters := parseGajiKebutuhanFilters(r.URL.Query().Get("keb_filter"))
 	category := strings.TrimSpace(r.URL.Query().Get("category"))
 	grup := strings.TrimSpace(r.URL.Query().Get("grup"))
 	if grup == "" && category != "" {
@@ -331,8 +333,11 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		"pegawai":       state.Pegawai,
 		"rekening":      state.Rekening,
 		"dashboard":     buildGajiDashboard(state, reportingMonth),
-		"kebutuhan":     buildGajiKebutuhan(state, reportingMonth),
-		"rekap":         buildGajiRekap(state),
+		"kebutuhan":           buildGajiKebutuhan(state, reportingMonth),
+		"kebutuhan_rekening":  buildGajiKebutuhanRekening(state, reportingMonth, kebFilters),
+		"keb_filter_labels":   gajiKebutuhanFilterLabels,
+		"keb_filter_keys":     gajiKebutuhanFilterKeys(),
+		"rekap":               buildGajiRekap(state),
 		"potongan":      buildGajiPotonganDashboard(state, reportingMonth),
 	}
 	if grup != "" && isValidGajiGrup(grup) {

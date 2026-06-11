@@ -6,12 +6,14 @@ import (
 )
 
 type GajiRekeningDef struct {
-	Kode  string  `json:"kode"`
-	Nama  string  `json:"nama"`
-	Grup  string  `json:"grup"`
-	Jenis string  `json:"jenis"`
-	Pagu  float64 `json:"pagu"`
-	Urut  int     `json:"urut"`
+	Kode        string  `json:"kode"`
+	Nama        string  `json:"nama"`
+	Kegiatan    string  `json:"kegiatan,omitempty"`
+	SubKegiatan string  `json:"sub_kegiatan,omitempty"`
+	Grup        string  `json:"grup"`
+	Jenis       string  `json:"jenis"`
+	Pagu        float64 `json:"pagu"`
+	Urut        int     `json:"urut"`
 }
 
 type GajiRekeningRow struct {
@@ -170,6 +172,12 @@ func gajiMergeRekeningImport(state *GajiTunjanganState, lines []GajiRekeningDef,
 		def := gajiUpsertRekeningDef(state, line.Kode, line.Nama, line.Pagu, line.Urut)
 		if def.Urut == 0 && line.Urut > 0 {
 			def.Urut = line.Urut
+		}
+		if v := strings.TrimSpace(line.Kegiatan); v != "" {
+			def.Kegiatan = v
+		}
+		if v := strings.TrimSpace(line.SubKegiatan); v != "" {
+			def.SubKegiatan = v
 		}
 	}
 	for kode, months := range cells {

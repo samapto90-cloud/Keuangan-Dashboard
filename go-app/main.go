@@ -888,6 +888,7 @@ func main() {
         mux.HandleFunc("/data/gaji-tunjangan/realisasi", cors(requireAuth(requireAdmin(handleGajiSaveRealisasi))))
         mux.HandleFunc("/data/gaji-tunjangan/realisasi/unlock", cors(requireAuth(requireAdmin(handleGajiUnlockRealisasi))))
         mux.HandleFunc("/data/gaji-tunjangan/pegawai", cors(requireAuth(requireAdmin(handleGajiSavePegawai))))
+        mux.HandleFunc("/data/gaji-tunjangan/kebutuhan", cors(requireAuth(requireAdmin(handleGajiSaveKebutuhan))))
 
         initSipkeuModules()
         initStorage()
