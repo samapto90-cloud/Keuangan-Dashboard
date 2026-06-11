@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eu
 
 APP_DIR="$HOME/sipkeu"
 DATA_DIR="$HOME/sipkeu-data"
