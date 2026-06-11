@@ -4478,6 +4478,32 @@
       padding: 0 24px 12px;
       display: flex; justify-content: flex-end;
     }
+    #gaji-app-shell .gaji-bulan-dropdown {
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    #gaji-app-shell .gaji-bulan-label {
+      display: flex; align-items: center; gap: 6px; margin: 0;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: #64748b; white-space: nowrap;
+    }
+    #gaji-app-shell .gaji-bulan-label i { color: #0ea5e9; font-size: 15px; }
+    #gaji-app-shell .gaji-bulan-select {
+      min-width: 148px; padding: 9px 36px 9px 14px;
+      border: 1.5px solid rgba(14,165,233,.25); border-radius: 12px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230369a1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 12px center;
+      appearance: none; -webkit-appearance: none;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 700; color: #0369a1;
+      cursor: pointer; transition: border-color .2s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(14,165,233,.08);
+    }
+    #gaji-app-shell .gaji-bulan-select:hover {
+      border-color: rgba(14,165,233,.45);
+    }
+    #gaji-app-shell .gaji-bulan-select:focus {
+      outline: none; border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14,165,233,.15);
+    }
     #gaji-app-shell .gaji-pegawai-strip {
       margin-left: 0 !important; width: auto !important;
       max-width: 100%; flex-wrap: wrap;
@@ -6187,15 +6213,12 @@ function initManualNumericInputUX() {
         <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
         <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
       </div>
-      <div class="kas-bulan-picker" id="gaji-bulan-picker">
-        <button type="button" class="kas-bulan-pill" id="gaji-bulan-btn" onclick="toggleGajiBulanMenu(event)">
+      <div class="gaji-bulan-dropdown" id="gaji-bulan-picker">
+        <label for="gaji-bulan-select" class="gaji-bulan-label">
           <i class="bi bi-calendar-event"></i>
-          <span class="lbl">Periode</span>
-          <span class="val" id="gaji-bulan-display">—</span>
-          <i class="bi bi-chevron-down"></i>
-        </button>
-        <div class="kas-bulan-menu" id="gaji-bulan-menu"></div>
-        <select id="gaji-bulan-select" onchange="onGajiBulanChange()" style="display:none" aria-hidden="true">
+          <span>Bulan</span>
+        </label>
+        <select id="gaji-bulan-select" class="gaji-bulan-select" onchange="onGajiBulanChange()" aria-label="Pilih bulan periode">
           <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
           <option value="april">April</option><option value="mei">Mei</option><option value="juni">Juni</option>
           <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
@@ -16059,61 +16082,22 @@ function getGajiBulan() {
   return document.getElementById('gaji-bulan-select')?.value || 'januari';
 }
 
-function updateGajiBulanDisplay(bulan) {
-  const el = document.getElementById('gaji-bulan-display');
-  if (el) el.textContent = GAJI_BULAN_LABELS[bulan] || bulan;
-}
-
-function initGajiBulanPicker() {
-  const menu = document.getElementById('gaji-bulan-menu');
-  if (!menu || menu.dataset.bound) return;
-  menu.dataset.bound = '1';
-  menu.innerHTML = GAJI_BULAN_LIST.map(b =>
-    `<button type="button" class="kas-bulan-opt" data-bulan="${b}" onclick="selectGajiBulan('${b}')">${GAJI_BULAN_LABELS[b]}</button>`
-  ).join('');
-}
-
-function toggleGajiBulanMenu(ev) {
-  ev?.stopPropagation();
-  document.getElementById('gaji-bulan-menu')?.classList.toggle('open');
-}
-
-function selectGajiBulan(bulan) {
-  const sel = document.getElementById('gaji-bulan-select');
-  if (sel) sel.value = bulan;
-  updateGajiBulanDisplay(bulan);
-  document.querySelectorAll('#gaji-bulan-menu .kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
-  document.getElementById('gaji-bulan-menu')?.classList.remove('open');
-  onGajiBulanChange();
-}
-
 function setDefaultGajiBulan() {
   const now = new Date();
   const bulan = GAJI_BULAN_LIST[now.getMonth()] || 'januari';
   const sel = document.getElementById('gaji-bulan-select');
   if (sel) sel.value = bulan;
-  updateGajiBulanDisplay(bulan);
-  document.querySelectorAll('#gaji-bulan-menu .kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
 }
 
 function onGajiBulanChange() {
-  const bulan = getGajiBulan();
-  updateGajiBulanDisplay(bulan);
   loadGajiData();
 }
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('#gaji-bulan-picker')) {
-    document.getElementById('gaji-bulan-menu')?.classList.remove('open');
-  }
-});
 
 async function bootGajiApp(fromRestore = true) {
   if (!fromRestore) markInAppSession();
   resetPortalLocalState();
   showGajiApp();
   setDefaultGajiBulan();
-  initGajiBulanPicker();
   gajiActiveGrup = 'gaji';
   showGajiPage('dashboard', document.getElementById('gaji-nav-dashboard'));
   loadGajiBuildLabel();
