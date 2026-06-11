@@ -337,9 +337,12 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 	}
 	if grup != "" && isValidGajiGrup(grup) {
 		rows, summary := buildGajiRekeningReport(state, grup, reportingMonth)
+		matrixRows, matrixSummary := buildGajiRekeningMatrix(state, grup, reportingMonth)
 		resp["grup"] = grup
 		resp["rekening_report"] = rows
 		resp["rekening_summary"] = summary
+		resp["rekening_matrix"] = matrixRows
+		resp["rekening_matrix_summary"] = matrixSummary
 	}
 	if category != "" && isValidGajiCategory(category) {
 		resp["category"] = category

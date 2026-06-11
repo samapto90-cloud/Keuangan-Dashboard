@@ -40,6 +40,30 @@ type GajiRekeningSummary struct {
 	Locked         bool    `json:"locked"`
 }
 
+type GajiRekeningMatrixCell struct {
+	Pegawai   int     `json:"pegawai"`
+	Anggaran  float64 `json:"anggaran"`
+	Realisasi float64 `json:"realisasi"`
+	Sisa      float64 `json:"sisa"`
+}
+
+type GajiRekeningMatrixRow struct {
+	Kode         string                              `json:"kode"`
+	Nama         string                              `json:"nama"`
+	Grup         string                              `json:"grup"`
+	Jenis        string                              `json:"jenis"`
+	Pagu         float64                             `json:"pagu"`
+	RealisasiSD  float64                             `json:"realisasi_sd"`
+	KebutuhanSisa float64                            `json:"kebutuhan_sisa"`
+	Bulan        map[string]GajiRekeningMatrixCell   `json:"bulan"`
+}
+
+type GajiRekeningMatrixSummary struct {
+	Grup    string                           `json:"grup"`
+	Label   string                           `json:"label"`
+	Bulan   map[string]GajiRekeningMatrixCell `json:"bulan"`
+}
+
 var gajiGrupLabels = map[string]string{
 	"gaji":     "Realisasi Gaji",
 	"tpp":      "Realisasi TPP",
@@ -204,14 +228,7 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			continue
 		}
 		cell := gajiGetRekeningCell(state, def.Kode, bulan)
-		pegawai := cell.JumlahPegawai
-		if pegawai == 0 {
-			if def.Jenis == "pppk" {
-				pegawai = state.Pegawai["pppk"]
-			} else {
-				pegawai = state.Pegawai["pns"]
-			}
-		}
+		pegawai := gajiRekeningPegawaiFallback(state, def, cell)
 		if def.Jenis == "pppk" && pegawai > maxPPPK {
 			maxPPPK = pegawai
 		} else if def.Jenis != "pppk" && pegawai > maxPNS {
@@ -240,6 +257,74 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		summary.TotalSisa += sisa
 	}
 	summary.TotalPegawai = maxPNS + maxPPPK
+	sort.Slice(rows, func(i, j int) bool { return rows[i].Kode < rows[j].Kode })
+	return rows, summary
+}
+
+func gajiRekeningPegawaiFallback(state GajiTunjanganState, def GajiRekeningDef, cell GajiMonthCell) int {
+	pegawai := cell.JumlahPegawai
+	if pegawai == 0 {
+		if def.Jenis == "pppk" {
+			pegawai = state.Pegawai["pppk"]
+		} else {
+			pegawai = state.Pegawai["pns"]
+		}
+	}
+	return pegawai
+}
+
+func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]GajiRekeningMatrixRow, GajiRekeningMatrixSummary) {
+	sdBulan = normalizeBulanKey(sdBulan)
+	endIdx := gajiBulanIndex(sdBulan)
+	summary := GajiRekeningMatrixSummary{
+		Grup:  grup,
+		Label: gajiGrupLabels[grup],
+		Bulan: map[string]GajiRekeningMatrixCell{},
+	}
+	for _, b := range bulanKeys {
+		summary.Bulan[b] = GajiRekeningMatrixCell{}
+	}
+
+	var rows []GajiRekeningMatrixRow
+	for _, def := range state.Rekening {
+		if def.Grup != grup {
+			continue
+		}
+		row := GajiRekeningMatrixRow{
+			Kode:  def.Kode,
+			Nama:  def.Nama,
+			Grup:  def.Grup,
+			Jenis: def.Jenis,
+			Pagu:  def.Pagu,
+			Bulan: map[string]GajiRekeningMatrixCell{},
+		}
+		for i, b := range bulanKeys {
+			cell := gajiGetRekeningCell(state, def.Kode, b)
+			pegawai := gajiRekeningPegawaiFallback(state, def, cell)
+			sisa := cell.Anggaran - cell.Realisasi
+			mc := GajiRekeningMatrixCell{
+				Pegawai:   pegawai,
+				Anggaran:  cell.Anggaran,
+				Realisasi: cell.Realisasi,
+				Sisa:      sisa,
+			}
+			row.Bulan[b] = mc
+			sum := summary.Bulan[b]
+			sum.Pegawai += pegawai
+			sum.Anggaran += cell.Anggaran
+			sum.Realisasi += cell.Realisasi
+			sum.Sisa += sisa
+			summary.Bulan[b] = sum
+			if endIdx >= 0 && i <= endIdx {
+				row.RealisasiSD += cell.Realisasi
+			}
+		}
+		row.KebutuhanSisa = row.Pagu - row.RealisasiSD
+		if row.KebutuhanSisa < 0 {
+			row.KebutuhanSisa = 0
+		}
+		rows = append(rows, row)
+	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].Kode < rows[j].Kode })
 	return rows, summary
 }
