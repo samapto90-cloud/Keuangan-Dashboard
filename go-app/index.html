@@ -1095,21 +1095,23 @@
     .table-scroll-hint i { color: var(--water); }
 
     @media (max-width: 991px) {
-      #sidebar, #kas-sidebar {
+      #sidebar, #kas-sidebar, #gaji-sidebar {
         transform: translateX(-105%);
         transition: transform .28s cubic-bezier(.4,0,.2,1);
         box-shadow: 8px 0 40px rgba(0,0,0,.5);
       }
       body.sidebar-open #sidebar,
-      body.kas-sidebar-open #kas-sidebar {
+      body.kas-sidebar-open #kas-sidebar,
+      body.gaji-sidebar-open #gaji-sidebar {
         transform: translateX(0);
         z-index: 1050;
       }
       body.sidebar-open .sidebar-backdrop[data-for="main"],
-      body.kas-sidebar-open .sidebar-backdrop[data-for="kas"] { display: block; }
-      body.sidebar-open, body.kas-sidebar-open { overflow: hidden; }
+      body.kas-sidebar-open .sidebar-backdrop[data-for="kas"],
+      body.gaji-sidebar-open .sidebar-backdrop[data-for="gaji"] { display: block; }
+      body.sidebar-open, body.kas-sidebar-open, body.gaji-sidebar-open { overflow: hidden; }
 
-      #main, #kas-main { margin-left: 0 !important; }
+      #main, #kas-main, #gaji-main { margin-left: 0 !important; }
       .mobile-nav-btn { display: inline-flex; }
 
       .topbar, #kas-main .kas-topbar {
@@ -2117,8 +2119,68 @@
       width: 100%; height: 100%; object-fit: contain; border-radius: 14px;
       filter: drop-shadow(0 4px 12px rgba(147,51,234,.35));
     }
+    .portal-app-card.portal-theme-gaji .portal-app-icon {
+      border-color: rgba(52,211,153,.55); box-shadow: 0 0 24px rgba(16,185,129,.35);
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(6,78,59,.45), rgba(15,23,42,.9));
+    }
+    .portal-app-card.portal-theme-gaji .portal-app-icon i { font-size: 42px; color: #6ee7b7; }
+    .portal-app-card.portal-theme-gaji {
+      border-color: rgba(52,211,153,.35);
+      background: linear-gradient(145deg, rgba(6,95,70,.28) 0%, rgba(15,23,42,.92) 55%, rgba(4,47,46,.22) 100%);
+    }
+    .portal-app-card.portal-theme-gaji:hover {
+      border-color: rgba(110,231,183,.55);
+      box-shadow: 0 12px 40px rgba(16,185,129,.25);
+    }
+    .portal-app-card.portal-theme-gaji .portal-app-action { color: #6ee7b7; }
+    .portal-app-card.portal-theme-gaji h3 { text-shadow: 0 0 20px rgba(52,211,153,.3); }
 
-    /* ── Tema Demon Slayer (Realisasi Kas Belanja) ── */
+    /* ── Tema Gaji ASN ── */
+    body.theme-gaji {
+      --gaji-emerald: #10b981;
+      --gaji-emerald-light: #6ee7b7;
+      background: linear-gradient(165deg, #020617 0%, #0c1917 45%, #0f172a 100%);
+    }
+    body.theme-gaji .login-card { border-color: rgba(52,211,153,.25); }
+    body.theme-gaji .login-brand h4 { color: #6ee7b7; }
+    body.theme-gaji .login-app-label { color: #34d399; }
+    body.theme-gaji .btn-primary, body.theme-gaji #btn-login.btn-primary {
+      background: linear-gradient(135deg, #059669, #047857); border: none;
+    }
+    body.theme-gaji .text-warning { color: #6ee7b7 !important; }
+    body.theme-gaji .btn-warning {
+      background: linear-gradient(135deg, #10b981, #059669); border: none; color: #022c22;
+    }
+    #gaji-app-shell { display: none; min-height: 100vh; position: relative; z-index: 2; }
+    #gaji-app-shell.visible { display: block; }
+    #gaji-sidebar {
+      position: fixed; top: 0; left: 0; width: var(--kas-sidebar-width); height: 100vh;
+      background: linear-gradient(180deg, #061210 0%, #0f172a 48%, #111827 100%);
+      border-right: 1px solid rgba(52,211,153,.14);
+      box-shadow: 4px 0 40px rgba(0,0,0,.45);
+      display: flex; flex-direction: column; z-index: 1000; color: #94a3b8;
+    }
+    #gaji-sidebar::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #059669, #34d399, #6ee7b7, transparent);
+    }
+    #gaji-main {
+      margin-left: var(--kas-sidebar-width); min-height: 100vh;
+      background: linear-gradient(180deg, rgba(6,20,18,.6) 0%, rgba(15,23,42,.95) 100%);
+    }
+    body.theme-gaji #gaji-sidebar .kas-nav-link.active {
+      background: linear-gradient(135deg, rgba(5,150,105,.2), rgba(16,185,129,.08));
+      border-color: rgba(52,211,153,.3);
+    }
+    body.theme-gaji #gaji-sidebar .kas-nav-link.active::before {
+      background: linear-gradient(180deg, #059669, #34d399);
+    }
+    .gaji-kebutuhan-positif { color: #6ee7b7; font-weight: 700; }
+    .gaji-kebutuhan-negatif { color: #f87171; font-weight: 700; }
+    .gaji-page { display: none; }
+    .gaji-page.active { display: block; }
+
     body.theme-gundam {
       --ds-wisteria: #9333ea;
       --ds-wisteria-light: #c4b5fd;
@@ -2706,6 +2768,8 @@
     #app-shell.visible { display: block; }
     #kas-app-shell { display: none; }
     #kas-app-shell.visible { display: block; }
+    #gaji-app-shell { display: none; }
+    #gaji-app-shell.visible { display: block; }
     #settings-app-shell { display: none !important; pointer-events: none !important; }
     #settings-app-shell.visible {
       display: block !important; pointer-events: auto !important; min-height: 100vh;
@@ -4111,6 +4175,16 @@
         </div>
       </div>
 
+      <div class="portal-app-card portal-theme-gaji portal-active" data-portal-id="gaji-asn" onclick="openPortalApp('gaji-asn')">
+        <div class="portal-app-icon"><i class="bi bi-wallet2" aria-hidden="true"></i></div>
+        <h3>Gaji dan Tunjangan ASN</h3>
+        <p>Anggaran gaji, realisasi PNS/PPPK, TPP, TPG, Tamsil, kebutuhan &amp; rekap · TA 2026.</p>
+        <div class="portal-app-foot">
+          <span class="portal-badge portal-badge-live">Aktif</span>
+          <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+
       <div class="portal-app-card portal-theme-settings portal-active" onclick="openPortalApp('pengaturan')">
         <div class="portal-app-icon sao-portal-icon"><img src="/assets/sao-icons/crystal.svg?v=1" alt="SAO Command Center" loading="lazy" /></div>
         <h3>SAO Command Center</h3>
@@ -4227,7 +4301,7 @@ function moduleOwnsKegiatan(portalID, kegiatan) {
 
 function kegiatanForCurrentPortal(kegiatan) {
   const portal = selectedPortalApp;
-  if (!portal || portal === 'kas-belanja' || portal === 'pengaturan') return true;
+  if (!portal || portal === 'kas-belanja' || portal === 'gaji-asn' || portal === 'pengaturan') return true;
   return moduleOwnsKegiatan(portal, kegiatan);
 }
 
@@ -5332,6 +5406,205 @@ function initManualNumericInputUX() {
   </div><!-- /kas-main -->
 </div><!-- /kas-app-shell -->
 
+<!-- ═══════════════ GAJI DAN TUNJANGAN ASN ═══════════════ -->
+<div id="gaji-app-shell">
+  <div class="sidebar-backdrop" data-for="gaji" onclick="closeMobileSidebar()"></div>
+  <div id="gaji-sidebar">
+    <div class="kas-sidebar-brand">
+      <div class="brand-icon" style="display:grid;place-items:center;background:rgba(16,185,129,.15)"><i class="bi bi-wallet2" style="font-size:28px;color:#6ee7b7"></i></div>
+      <div>
+        <h6>Gaji &amp; Tunjangan ASN</h6>
+        <small id="gaji-version-label">TA 2026 · APBD</small>
+        <div class="brand-sub">Dinas Pendidikan Kota Batam</div>
+      </div>
+    </div>
+    <nav class="kas-sidebar-nav">
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Menu Utama</div>
+        <a href="#" class="kas-nav-link active" id="gaji-nav-dashboard" onclick="showGajiPage('dashboard',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-speedometer2"></i></span>
+          <span class="kas-nav-text">Dashboard<span class="kas-nav-desc">Ringkasan anggaran &amp; realisasi</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-anggaran" onclick="showGajiPage('anggaran',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-cloud-upload"></i></span>
+          <span class="kas-nav-text">Anggaran Gaji<span class="kas-nav-desc">Upload anggaran per bulan</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-kebutuhan" onclick="showGajiPage('kebutuhan',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-graph-up-arrow"></i></span>
+          <span class="kas-nav-text">Kebutuhan<span class="kas-nav-desc">Estimasi lebih/kurang setahun</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-rekap" onclick="showGajiPage('rekap',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-table"></i></span>
+          <span class="kas-nav-text">Rekap Realisasi<span class="kas-nav-desc">Gabungan semua komponen</span></span>
+        </a>
+      </div>
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Realisasi</div>
+        <a href="#" class="kas-nav-link" id="gaji-nav-gaji_pns" onclick="showGajiPage('realisasi',this,'gaji_pns');return false">
+          <span class="kas-nav-icon"><i class="bi bi-person-badge"></i></span>
+          <span class="kas-nav-text">Gaji PNS<span class="kas-nav-desc">Input realisasi bulanan</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-gaji_pppk" onclick="showGajiPage('realisasi',this,'gaji_pppk');return false">
+          <span class="kas-nav-icon"><i class="bi bi-person-check"></i></span>
+          <span class="kas-nav-text">Gaji PPPK<span class="kas-nav-desc">Input realisasi bulanan</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-tpp_pns" onclick="showGajiPage('realisasi',this,'tpp_pns');return false">
+          <span class="kas-nav-icon"><i class="bi bi-cash-stack"></i></span>
+          <span class="kas-nav-text">TPP PNS<span class="kas-nav-desc">Tunjangan kinerja PNS</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-tpp_pppk" onclick="showGajiPage('realisasi',this,'tpp_pppk');return false">
+          <span class="kas-nav-icon"><i class="bi bi-cash"></i></span>
+          <span class="kas-nav-text">TPP PPPK<span class="kas-nav-desc">Tunjangan kinerja PPPK</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-tpg" onclick="showGajiPage('realisasi',this,'tpg');return false">
+          <span class="kas-nav-icon"><i class="bi bi-mortarboard"></i></span>
+          <span class="kas-nav-text">TPG<span class="kas-nav-desc">Tunjangan profesi guru</span></span>
+        </a>
+        <a href="#" class="kas-nav-link" id="gaji-nav-tamsil" onclick="showGajiPage('realisasi',this,'tamsil');return false">
+          <span class="kas-nav-icon"><i class="bi bi-gift"></i></span>
+          <span class="kas-nav-text">Tamsil<span class="kas-nav-desc">Tunjangan khusus</span></span>
+        </a>
+      </div>
+      <div class="kas-nav-section">
+        <div class="kas-nav-section-title">Navigasi</div>
+        <a href="#" class="kas-nav-link" onclick="backToPortal();return false">
+          <span class="kas-nav-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+          <span class="kas-nav-text">Portal Aplikasi<span class="kas-nav-desc">Kembali ke beranda SIPKEU</span></span>
+        </a>
+      </div>
+    </nav>
+    <div class="kas-sidebar-footer">
+      <div class="kas-user-card">
+        <div class="kas-user-avatar" id="gaji-user-avatar">AD</div>
+        <div>
+          <div class="kas-user-name" id="gaji-sidebar-user">Administrator</div>
+          <div class="kas-user-meta">Modul Gaji ASN</div>
+        </div>
+      </div>
+      <button type="button" class="btn-kas-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Keluar Aplikasi</button>
+      <div class="kas-dev-credit fire-glow-text">Developer by Keuangan Dinas Pendidikan Kota Batam</div>
+    </div>
+  </div>
+  <div id="gaji-main">
+    <div class="kas-topbar">
+      <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('gaji')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+      <div>
+        <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
+      </div>
+      <div class="kas-bulan-picker" id="gaji-bulan-picker">
+        <button type="button" class="kas-bulan-pill" id="gaji-bulan-btn" onclick="toggleGajiBulanMenu(event)">
+          <i class="bi bi-calendar3" style="color:#34d399"></i>
+          <span class="lbl">Periode</span>
+          <span class="val" id="gaji-bulan-display">—</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="kas-bulan-menu" id="gaji-bulan-menu"></div>
+        <select id="gaji-bulan-select" onchange="onGajiBulanChange()" style="display:none" aria-hidden="true">
+          <option value="januari">Januari</option><option value="februari">Februari</option><option value="maret">Maret</option>
+          <option value="april">April</option><option value="mei">Mei</option><option value="juni">Juni</option>
+          <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
+          <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
+        </select>
+      </div>
+    </div>
+    <div class="kas-content">
+      <div id="gaji-page-dashboard" class="gaji-page kas-page active">
+        <div class="kas-stat-grid" id="gaji-stat-grid">
+          <div class="kas-stat"><div class="lbl">Pagu Anggaran TA</div><div class="val" id="gaji-stat-pagu" style="font-size:16px">Rp 0</div><div class="sub">Total pagu semua komponen</div></div>
+          <div class="kas-stat"><div class="lbl">Realisasi s/d Bulan</div><div class="val" id="gaji-stat-realisasi-sd" style="font-size:16px">Rp 0</div><div class="sub">Sesuai kolom Total Realisasi template</div></div>
+          <div class="kas-stat"><div class="lbl">Kebutuhan s/d Des</div><div class="val" id="gaji-stat-kebutuhan" style="font-size:16px">Rp 0</div><div class="sub">Realisasi + kebutuhan sisa tahun</div></div>
+          <div class="kas-stat"><div class="lbl">Pegawai PNS / PPPK</div><div class="val" id="gaji-stat-pegawai" style="font-size:16px">0 / 0</div><div class="sub">Data catatan template</div></div>
+          <div class="kas-stat"><div class="lbl">Sisa Anggaran</div><div class="val" id="gaji-stat-sisa" style="font-size:16px">Rp 0</div><div class="sub">Pagu − Realisasi s/d bulan</div></div>
+          <div class="kas-stat"><div class="lbl">+/- Anggaran</div><div class="val" id="gaji-stat-selisih" style="font-size:16px">Rp 0</div><div class="sub">Pagu − Kebutuhan tahun (±)</div></div>
+        </div>
+        <div class="kas-card">
+          <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Modul Gaji ASN</h6>
+          <small>
+            <strong>1.</strong> Upload <em>Templet Anggaran Gaji.xlsx</em> (RAK BELANJA — pagu &amp; anggaran kas bulanan) atau <em>Perhitungan Gaji TA 2026.xls</em> (realisasi + pagu).<br>
+            <strong>2.</strong> Periode realisasi mengikuti template: Gaji (Jan–Jun + THR + Gaji 13 + Jul–Des), TPP (THR, TPP 13), TPG/Tamsil (TW I–IV).<br>
+            <strong>3.</strong> Menu <strong>Kebutuhan</strong> = Realisasi s/d bulan + Kebutuhan sisa + Accrual 2,5% · <strong>Rekap</strong> gabungan semua komponen.
+          </small>
+        </div>
+      </div>
+      <div id="gaji-page-anggaran" class="gaji-page kas-page">
+        <div class="kas-card">
+          <div class="kas-toolbar justify-content-between flex-wrap mb-2">
+            <div><h6 class="mb-0"><i class="bi bi-cloud-upload me-2 text-warning"></i>Upload Anggaran &amp; Realisasi</h6><small>Template <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA), <strong>Perhitungan Gaji TA 2026.xls</strong>, atau format sederhana</small></div>
+            <button type="button" class="btn btn-outline-warning btn-sm" onclick="downloadGajiTemplate()"><i class="bi bi-download me-1"></i>Template Sederhana</button>
+          </div>
+          <div class="kas-upload-zone mt-2">
+            <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:#34d399"></i>
+            <p class="mt-2 mb-2" style="font-size:13px">Pilih <strong>Templet Anggaran Gaji.xlsx</strong> (RAK), <strong>Perhitungan Gaji .xls</strong>, atau <strong>.xlsx</strong> format sederhana</p>
+            <input type="file" id="gaji-anggaran-file" class="form-control" accept=".xlsx,.xls" onchange="onGajiFileSelected(event)" style="max-width:420px;margin:0 auto" />
+          </div>
+          <div id="gaji-template-import-actions" class="mt-3 text-center" style="display:none">
+            <div class="alert alert-info py-2" id="gaji-template-alert" style="font-size:12px"></div>
+            <button class="btn btn-warning" onclick="doGajiImportTemplate()"><i class="bi bi-check-circle me-1"></i>Import Template Perhitungan</button>
+          </div>
+          <div id="gaji-anggaran-preview" class="mt-3" style="display:none">
+            <div class="alert alert-success py-2" id="gaji-anggaran-alert" style="font-size:12px"></div>
+            <div class="kas-table-wrap" style="max-height:360px">
+              <table class="kas-table"><thead><tr><th>Kategori</th><th>Bulan</th><th class="kas-num">Pegawai</th><th class="kas-num">Anggaran</th></tr></thead><tbody id="gaji-anggaran-preview-body"></tbody></table>
+            </div>
+            <button class="btn btn-warning mt-3" id="btn-gaji-import-anggaran" onclick="doGajiImportAnggaran()"><i class="bi bi-check-circle me-1"></i>Import Anggaran</button>
+          </div>
+        </div>
+      </div>
+      <div id="gaji-page-realisasi" class="gaji-page kas-page">
+        <div class="kas-card">
+          <div class="kas-toolbar justify-content-between flex-wrap">
+            <div>
+              <h6 class="mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>Realisasi <span id="gaji-realisasi-title">—</span></h6>
+              <small>Periode mengikuti template Excel · baris hijau = realisasi s/d · baris biru = kebutuhan sisa tahun</small>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-warning btn-sm" id="btn-gaji-unlock" onclick="unlockGajiRealisasiBulan()" disabled><i class="bi bi-unlock me-1"></i>Perbaiki Bulan</button>
+              <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
+            </div>
+          </div>
+          <div class="kas-table-wrap">
+            <table class="kas-table" id="gaji-realisasi-table">
+              <thead><tr>
+                <th>Periode</th><th class="kas-num">Pegawai</th><th class="kas-num">Realisasi</th>
+                <th class="kas-num">Kumulatif</th><th class="kas-num">Sisa Pagu</th>
+                <th class="kas-num">± Pagu</th><th>Status</th>
+              </tr></thead>
+              <tbody id="gaji-realisasi-body"></tbody>
+              <tfoot id="gaji-realisasi-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="gaji-page-kebutuhan" class="gaji-page kas-page">
+        <div class="kas-card">
+          <h6><i class="bi bi-graph-up-arrow me-2 text-warning"></i>Kebutuhan Gaji dan Tunjangan ASN</h6>
+          <small class="d-block mb-3">Sesuai sheet <em>Kebutuhan Gaji dan Tunjangan</em>: Pagu · Realisasi s/d bulan · Kebutuhan sisa · Total + Accrual 2,5%</small>
+          <div class="kas-table-wrap">
+            <table class="kas-table"><thead><tr>
+              <th>Komponen</th><th class="kas-num">Pagu Anggaran</th><th class="kas-num">Realisasi s/d Bulan</th>
+              <th class="kas-num">Kebutuhan Sisa</th><th class="kas-num">Total Kebutuhan TA</th>
+              <th class="kas-num">Accrual 2,5%</th><th class="kas-num">Total + Accrual</th>
+              <th class="kas-num">Sisa Anggaran</th><th class="kas-num">+/- Anggaran</th><th class="kas-num">Pegawai</th>
+            </tr></thead><tbody id="gaji-kebutuhan-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+      <div id="gaji-page-rekap" class="gaji-page kas-page">
+        <div class="kas-card">
+          <div class="kas-toolbar justify-content-between flex-wrap mb-2">
+            <div><h6 class="mb-0"><i class="bi bi-table me-2 text-warning"></i>Rekap Realisasi Semua Komponen</h6><small>Per bulan: pegawai, anggaran, realisasi, sisa — total semua komponen</small></div>
+            <button type="button" class="btn btn-outline-warning btn-sm" onclick="exportGajiRekapExcel()"><i class="bi bi-download me-1"></i>Excel</button>
+          </div>
+          <div class="kas-table-wrap" style="overflow:auto">
+            <table class="kas-table" id="gaji-rekap-table"><thead id="gaji-rekap-head"></thead><tbody id="gaji-rekap-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /gaji-app-shell -->
+
 <!-- ═══════════════ SAO COMMAND CENTER (Super Admin) ═══════════════ -->
 <div id="settings-app-shell">
   <div class="sao-layout">
@@ -6346,6 +6619,11 @@ const PORTAL_APPS = {
     desc: 'Modul realisasi anggaran kas belanja · upload RAK, input realisasi, laporan Angkas · TA 2026',
     available: true,
   },
+  'gaji-asn': {
+    label: 'Gaji dan Tunjangan ASN',
+    desc: 'Anggaran gaji ASN · realisasi PNS/PPPK, TPP, TPG, Tamsil · kebutuhan &amp; rekap · TA 2026',
+    available: true,
+  },
   pengaturan: {
     label: 'SAO Command Center',
     desc: 'Super Admin · Kendali penuh portal SIPKEU, keamanan &amp; hak akses',
@@ -6524,8 +6802,8 @@ function endPortalSession() {
 
 function resolvePortalApp(serverModule) {
   const stored = sessionStorage.getItem('sipkeu_app');
-  if (stored === 'kas-belanja' || stored === 'pengaturan' || (stored && PORTAL_APPS[stored]?.available)) return stored;
-  const valid = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja', 'pengaturan'];
+  if (stored === 'kas-belanja' || stored === 'gaji-asn' || stored === 'pengaturan' || (stored && PORTAL_APPS[stored]?.available)) return stored;
+  const valid = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja', 'gaji-asn', 'pengaturan'];
   if (serverModule && valid.includes(serverModule)) return serverModule;
   return 'sekretariat';
 }
@@ -6543,6 +6821,7 @@ function resetAllShells() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
   document.body.classList.remove('role-admin', 'role-operator', 'perms-applied');
@@ -6690,14 +6969,17 @@ function applyPortalStatusUI() {
   });
 }
 
-const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings', 'theme-sao'];
+const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-gaji', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings', 'theme-sao'];
+function isAdminOnlyPortal(id) {
+  return id === 'kas-belanja' || id === 'gaji-asn';
+}
 function clearPortalThemes(el) {
   if (el) el.classList.remove(...PORTAL_THEME_CLASSES);
 }
 function portalThemeClass(appKey) {
   if (appKey === 'pengaturan') return 'theme-sao';
   const prof = SIPKEU_PORTAL_PROFILE[appKey];
-  const theme = prof?.theme || (appKey === 'kas-belanja' ? 'gundam' : '');
+  const theme = prof?.theme || (appKey === 'kas-belanja' ? 'gundam' : appKey === 'gaji-asn' ? 'gaji' : '');
   return theme ? 'theme-' + theme : '';
 }
 function applyPortalTheme(el, appKey) {
@@ -6723,6 +7005,7 @@ function showLogin(appKey) {
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
   resetAppPageUI();
@@ -6775,7 +7058,7 @@ function authHeaders(extra = {}) {
   const h = { ...extra };
   const token = sessionStorage.getItem('sipkeu_token');
   if (token) h['Authorization'] = 'Bearer ' + token;
-  if (selectedPortalApp && selectedPortalApp !== 'kas-belanja') {
+  if (selectedPortalApp && !isAdminOnlyPortal(selectedPortalApp)) {
     h['X-SIPKEU-App'] = selectedPortalApp;
   }
   return h;
@@ -6858,6 +7141,7 @@ function showApp() {
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.add('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   stopAllPortalFx();
   applyPortalTheme(document.body, selectedPortalApp);
@@ -6869,6 +7153,7 @@ function showKasApp() {
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.add('visible');
   clearPortalThemes(document.body);
@@ -6882,12 +7167,32 @@ function showKasApp() {
   }
 }
 
+function showGajiApp() {
+  stopAllPortalFx();
+  document.getElementById('portal-screen')?.classList.add('hidden');
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('app-shell')?.classList.remove('visible');
+  document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('settings-app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.add('visible');
+  clearPortalThemes(document.body);
+  document.body.classList.add('theme-gaji');
+  if (currentUser) {
+    const parts = (currentUser.name || 'AD').split(/\s+/);
+    const av = document.getElementById('gaji-user-avatar');
+    if (av) av.textContent = (parts[0]?.[0] || 'A') + (parts[1]?.[0] || 'D');
+    const el = document.getElementById('gaji-sidebar-user');
+    if (el) el.textContent = `${currentUser.name} · Administrator`;
+  }
+}
+
 function showSettingsApp() {
   closeSettingsMobileSidebar();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
+  document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.add('visible');
   document.getElementById('ds-loader')?.classList.add('hidden');
   stopAllPortalFx();
@@ -6897,7 +7202,7 @@ function showSettingsApp() {
   if (el && currentUser) el.textContent = (currentUser.name || '—') + ' · Super Admin';
 }
 
-const SETTINGS_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja'];
+const SETTINGS_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja', 'gaji-asn'];
 const SETTINGS_PERM_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp'];
 const SETTINGS_PORTAL_LABELS = {
   sekretariat: 'Sekretariat',
@@ -6905,6 +7210,7 @@ const SETTINGS_PORTAL_LABELS = {
   sd: 'SD',
   smp: 'SMP',
   'kas-belanja': 'Kas Belanja',
+  'gaji-asn': 'Gaji ASN',
 };
 const OPERATOR_PERM_DEFS = [
   { key: 'view_dashboard', label: 'Lihat Dashboard' },
@@ -6979,12 +7285,12 @@ function initDefaultSystemSettingsCache() {
   SETTINGS_PORTAL_IDS.forEach(id => {
     systemSettingsCache.portals[id] = {
       admin_username: 'admin', admin_password: '********', admin_name: 'Administrator SIPKEU',
-      operator_username: id === 'kas-belanja' ? '' : 'operator',
-      operator_password: id === 'kas-belanja' ? '' : '********',
-      operator_name: id === 'kas-belanja' ? '' : 'Operator SIPKEU',
+      operator_username: isAdminOnlyPortal(id) ? '' : 'operator',
+      operator_password: isAdminOnlyPortal(id) ? '' : '********',
+      operator_name: isAdminOnlyPortal(id) ? '' : 'Operator SIPKEU',
     };
     systemSettingsCache.portal_status[id] = { enabled: true };
-    if (id !== 'kas-belanja') {
+    if (!isAdminOnlyPortal(id)) {
       systemSettingsCache.operator_perms[id] = { ...defaultPerms };
     }
   });
@@ -7555,13 +7861,15 @@ async function loadSystemSettings() {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Gagal memuat pengaturan');
   systemSettingsCache = data;
-  if (systemSettingsCache?.operator_perms) delete systemSettingsCache.operator_perms['kas-belanja'];
-  if (systemSettingsCache?.portals?.['kas-belanja']) {
-    const k = systemSettingsCache.portals['kas-belanja'];
-    k.operator_username = '';
-    k.operator_password = '';
-    k.operator_name = '';
-  }
+  ['kas-belanja', 'gaji-asn'].forEach(pid => {
+    if (systemSettingsCache?.operator_perms) delete systemSettingsCache.operator_perms[pid];
+    if (systemSettingsCache?.portals?.[pid]) {
+      const k = systemSettingsCache.portals[pid];
+      k.operator_username = '';
+      k.operator_password = '';
+      k.operator_name = '';
+    }
+  });
   applySystemSettingsToForm();
   if (!systemSettingsCache.portal_status) {
     systemSettingsCache.portal_status = {};
@@ -7587,13 +7895,13 @@ function renderSysPortalAuthForm() {
   const el = document.getElementById('sys-portal-auth-form');
   if (!el || !systemSettingsCache) return;
   const p = systemSettingsCache.portals?.[sysActivePortalTab] || {};
-  const isKas = sysActivePortalTab === 'kas-belanja';
+  const isAdminOnly = isAdminOnlyPortal(sysActivePortalTab);
   el.innerHTML = `
     <div class="settings-form-grid">
       <div><label class="form-label text-light">Username Admin</label><input type="text" class="form-control" id="sys-admin-user" value="${escHtml(p.admin_username || '')}"></div>
       <div><label class="form-label text-light">Password Admin</label>${pwdFieldHtml('sys-admin-pass', 'Kosongkan jika tidak diubah')}</div>
       <div><label class="form-label text-light">Nama Admin</label><input type="text" class="form-control" id="sys-admin-name" value="${escHtml(p.admin_name || '')}"></div>
-      ${isKas ? `<div style="grid-column:1/-1;font-size:12px" class="text-muted"><i class="bi bi-info-circle me-1"></i>Modul Kas Belanja hanya memiliki akun Admin (tanpa operator).</div>` : `
+      ${isAdminOnly ? `<div style="grid-column:1/-1;font-size:12px" class="text-muted"><i class="bi bi-info-circle me-1"></i>Modul ini hanya memiliki akun Admin (tanpa operator).</div>` : `
       <div></div>
       <div><label class="form-label text-light">Username Operator</label><input type="text" class="form-control" id="sys-op-user" value="${escHtml(p.operator_username || '')}"></div>
       <div><label class="form-label text-light">Password Operator</label>${pwdFieldHtml('sys-op-pass', 'Kosongkan jika tidak diubah')}</div>
@@ -7637,7 +7945,7 @@ function collectPortalAuthFromForm() {
     operator_password: cur.operator_password || '********',
     operator_name: cur.operator_name || '',
   };
-  if (id !== 'kas-belanja') {
+  if (!isAdminOnlyPortal(id)) {
     const opPass = document.getElementById('sys-op-pass')?.value || '';
     entry.operator_username = document.getElementById('sys-op-user')?.value.trim() || cur.operator_username;
     entry.operator_password = opPass || cur.operator_password || '********';
@@ -7664,7 +7972,10 @@ async function saveSystemSettings() {
   try {
     collectPortalAuthFromForm();
     collectPermFromForm();
-    if (systemSettingsCache?.operator_perms) delete systemSettingsCache.operator_perms['kas-belanja'];
+    if (systemSettingsCache?.operator_perms) {
+      delete systemSettingsCache.operator_perms['kas-belanja'];
+      delete systemSettingsCache.operator_perms['gaji-asn'];
+    }
     const payload = {
       settings_portal_username: document.getElementById('sys-settings-user').value.trim(),
       settings_portal_password: document.getElementById('sys-settings-pass').value,
@@ -7745,6 +8056,7 @@ async function tryRestoreSession() {
     sessionStorage.setItem('sipkeu_app', selectedPortalApp);
     resetPortalLocalState();
     if (selectedPortalApp === 'kas-belanja') await bootKasApp(true);
+    else if (selectedPortalApp === 'gaji-asn') await bootGajiApp(true);
     else await bootApp(true);
   } catch {
     clearTimeout(timer);
@@ -7782,6 +8094,7 @@ async function doLogin(e) {
     resetPortalLocalState();
     currentUser = data;
     if (selectedPortalApp === 'kas-belanja') await bootKasApp(false);
+    else if (selectedPortalApp === 'gaji-asn') await bootGajiApp(false);
     else if (selectedPortalApp === 'pengaturan') await bootSettingsApp(false);
     else await bootApp(false);
   } catch (err) {
@@ -7893,16 +8206,19 @@ function playBreathSlash() {
 }
 
 function closeMobileSidebar() {
-  document.body.classList.remove('sidebar-open', 'kas-sidebar-open');
+  document.body.classList.remove('sidebar-open', 'kas-sidebar-open', 'gaji-sidebar-open');
 }
 
 function toggleMobileSidebar(which) {
   if (which === 'kas') {
     document.body.classList.toggle('kas-sidebar-open');
-    document.body.classList.remove('sidebar-open');
+    document.body.classList.remove('sidebar-open', 'gaji-sidebar-open');
+  } else if (which === 'gaji') {
+    document.body.classList.toggle('gaji-sidebar-open');
+    document.body.classList.remove('sidebar-open', 'kas-sidebar-open');
   } else {
     document.body.classList.toggle('sidebar-open');
-    document.body.classList.remove('kas-sidebar-open');
+    document.body.classList.remove('kas-sidebar-open', 'gaji-sidebar-open');
   }
 }
 
@@ -14886,6 +15202,813 @@ async function exportKasExcel() {
   XLSX.writeFile(wb, kasPdfFilename().replace('.pdf', '.xlsx'));
 }
 
+  XLSX.writeFile(wb, kasPdfFilename().replace('.pdf', '.xlsx'));
+}
+
+// ── Gaji dan Tunjangan ASN ───────────────────────────────────────────────
+const GAJI_CATEGORIES = [
+  { id: 'gaji_pns', label: 'Gaji PNS' },
+  { id: 'gaji_pppk', label: 'Gaji PPPK' },
+  { id: 'tpp_pns', label: 'TPP PNS' },
+  { id: 'tpp_pppk', label: 'TPP PPPK' },
+  { id: 'tpg', label: 'TPG' },
+  { id: 'tamsil', label: 'Tamsil' },
+];
+const GAJI_BULAN_LIST = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+const GAJI_BULAN_LABELS = {
+  januari:'Januari', februari:'Februari', maret:'Maret', april:'April', mei:'Mei', juni:'Juni',
+  juli:'Juli', agustus:'Agustus', september:'September', oktober:'Oktober', november:'November', desember:'Desember',
+};
+const GAJI_LABEL_TO_ID = {};
+GAJI_CATEGORIES.forEach(c => {
+  GAJI_LABEL_TO_ID[c.label.toLowerCase()] = c.id;
+  GAJI_LABEL_TO_ID[c.id] = c.id;
+  GAJI_LABEL_TO_ID[c.label.toLowerCase().replace(/\s+/g, '_')] = c.id;
+});
+
+let gajiStateCache = null;
+let gajiActiveCategory = 'gaji_pns';
+let gajiUnlockBulan = '';
+let gajiAnggaranImportRows = [];
+let gajiRakImportData = null;
+let gajiTemplateFileBuffer = null;
+let gajiTemplateFileName = '';
+const GAJI_TW_QUARTERS = [
+  { key: 'tw1', label: 'TW I', months: ['januari', 'februari', 'maret'] },
+  { key: 'tw2', label: 'TW II', months: ['april', 'mei', 'juni'] },
+  { key: 'tw3', label: 'TW III', months: ['juli', 'agustus', 'september'] },
+  { key: 'tw4', label: 'TW IV', months: ['oktober', 'november', 'desember'] },
+];
+
+function gajiCategoryLabel(id) {
+  return GAJI_CATEGORIES.find(c => c.id === id)?.label || id;
+}
+
+function parseGajiCategoryKey(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (GAJI_LABEL_TO_ID[s]) return GAJI_LABEL_TO_ID[s];
+  if (GAJI_LABEL_TO_ID[s.replace(/\s+/g, '_')]) return GAJI_LABEL_TO_ID[s.replace(/\s+/g, '_')];
+  return '';
+}
+
+function parseGajiBulanKey(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (GAJI_BULAN_LIST.includes(s)) return s;
+  const idx = GAJI_BULAN_LIST.findIndex(b => GAJI_BULAN_LABELS[b].toLowerCase() === s);
+  if (idx >= 0) return GAJI_BULAN_LIST[idx];
+  const n = parseInt(s, 10);
+  if (n >= 1 && n <= 12) return GAJI_BULAN_LIST[n - 1];
+  return '';
+}
+
+function getGajiBulan() {
+  return document.getElementById('gaji-bulan-select')?.value || 'januari';
+}
+
+function updateGajiBulanDisplay(bulan) {
+  const el = document.getElementById('gaji-bulan-display');
+  if (el) el.textContent = GAJI_BULAN_LABELS[bulan] || bulan;
+}
+
+function initGajiBulanPicker() {
+  const menu = document.getElementById('gaji-bulan-menu');
+  if (!menu || menu.dataset.bound) return;
+  menu.dataset.bound = '1';
+  menu.innerHTML = GAJI_BULAN_LIST.map(b =>
+    `<button type="button" class="kas-bulan-opt" data-bulan="${b}" onclick="selectGajiBulan('${b}')">${GAJI_BULAN_LABELS[b]}</button>`
+  ).join('');
+}
+
+function toggleGajiBulanMenu(ev) {
+  ev?.stopPropagation();
+  document.getElementById('gaji-bulan-menu')?.classList.toggle('open');
+}
+
+function selectGajiBulan(bulan) {
+  const sel = document.getElementById('gaji-bulan-select');
+  if (sel) sel.value = bulan;
+  updateGajiBulanDisplay(bulan);
+  document.querySelectorAll('#gaji-bulan-menu .kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
+  document.getElementById('gaji-bulan-menu')?.classList.remove('open');
+  onGajiBulanChange();
+}
+
+function setDefaultGajiBulan() {
+  const now = new Date();
+  const bulan = GAJI_BULAN_LIST[now.getMonth()] || 'januari';
+  const sel = document.getElementById('gaji-bulan-select');
+  if (sel) sel.value = bulan;
+  updateGajiBulanDisplay(bulan);
+  document.querySelectorAll('#gaji-bulan-menu .kas-bulan-opt').forEach(b => b.classList.toggle('active', b.dataset.bulan === bulan));
+}
+
+function onGajiBulanChange() {
+  const bulan = getGajiBulan();
+  updateGajiBulanDisplay(bulan);
+  loadGajiData();
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#gaji-bulan-picker')) {
+    document.getElementById('gaji-bulan-menu')?.classList.remove('open');
+  }
+});
+
+async function bootGajiApp(fromRestore = true) {
+  if (!fromRestore) markInAppSession();
+  resetPortalLocalState();
+  showGajiApp();
+  setDefaultGajiBulan();
+  initGajiBulanPicker();
+  gajiActiveCategory = 'gaji_pns';
+  showGajiPage('dashboard', document.getElementById('gaji-nav-dashboard'));
+  await loadGajiData();
+}
+
+function showGajiPage(page, navEl, category) {
+  if (category) gajiActiveCategory = category;
+  document.querySelectorAll('#gaji-app-shell .gaji-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('gaji-page-' + page)?.classList.add('active');
+  document.querySelectorAll('#gaji-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard Gaji ASN',
+    anggaran: 'Anggaran Gaji',
+    realisasi: 'Realisasi ' + gajiCategoryLabel(gajiActiveCategory),
+    kebutuhan: 'Kebutuhan Anggaran',
+    rekap: 'Rekap Realisasi',
+  };
+  document.getElementById('gaji-topbar-title').textContent = titles[page] || 'Gaji ASN';
+  document.getElementById('gaji-topbar-crumb').textContent = titles[page] || page;
+  if (page === 'realisasi') {
+    const t = document.getElementById('gaji-realisasi-title');
+    if (t) t.textContent = gajiCategoryLabel(gajiActiveCategory);
+    loadGajiData();
+  } else if (page === 'kebutuhan') {
+    renderGajiKebutuhan();
+  } else if (page === 'rekap') {
+    renderGajiRekap();
+  } else if (page === 'dashboard') {
+    renderGajiDashboard();
+  }
+  closeMobileSidebar();
+}
+
+async function loadGajiData() {
+  const bulan = getGajiBulan();
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan?bulan=' + encodeURIComponent(bulan) + '&category=' + encodeURIComponent(gajiActiveCategory));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat data');
+    gajiStateCache = data;
+    const vl = document.getElementById('gaji-version-label');
+    if (vl) vl.textContent = data.version_label ? ('TA ' + (data.tahun || 2026) + ' · ' + data.version_label) : ('TA ' + (data.tahun || 2026) + ' · APBD');
+    renderGajiDashboard();
+    if (document.getElementById('gaji-page-realisasi')?.classList.contains('active')) renderGajiRealisasiTable();
+    if (document.getElementById('gaji-page-kebutuhan')?.classList.contains('active')) renderGajiKebutuhan();
+    if (document.getElementById('gaji-page-rekap')?.classList.contains('active')) renderGajiRekap();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderGajiDashboard() {
+  const d = gajiStateCache?.dashboard || {};
+  document.getElementById('gaji-stat-pagu').textContent = formatRupiah(d.total_pagu || 0);
+  document.getElementById('gaji-stat-realisasi-sd').textContent = formatRupiah(d.total_realisasi_sd || 0);
+  document.getElementById('gaji-stat-kebutuhan').textContent = formatRupiah(d.total_kebutuhan_tahun || 0);
+  const pns = d.pegawai_pns || 0;
+  const pppk = d.pegawai_pppk || 0;
+  document.getElementById('gaji-stat-pegawai').textContent = pns + ' / ' + pppk;
+  document.getElementById('gaji-stat-sisa').textContent = formatRupiah(d.total_sisa_anggaran || 0);
+  const selisih = d.total_selisih_pagu || 0;
+  const el = document.getElementById('gaji-stat-selisih');
+  if (el) {
+    el.textContent = formatRupiah(Math.abs(selisih)) + (selisih < 0 ? ' (kurang)' : selisih > 0 ? ' (sisa)' : '');
+    el.style.color = selisih < 0 ? '#f87171' : '#6ee7b7';
+  }
+}
+
+function gajiSelisihClass(v) {
+  if (v < 0) return 'gaji-kebutuhan-negatif';
+  if (v > 0) return 'gaji-kebutuhan-positif';
+  return '';
+}
+
+function renderGajiKebutuhan() {
+  const tb = document.getElementById('gaji-kebutuhan-body');
+  if (!tb) return;
+  const rows = gajiStateCache?.kebutuhan || [];
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="10" class="text-muted text-center">Belum ada data — upload template Perhitungan Gaji terlebih dahulu</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => `<tr>
+    <td>${escHtml(r.label)}</td>
+    <td class="kas-num">${formatRupiah(r.pagu || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.realisasi_sd || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.kebutuhan_sisa || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.kebutuhan_tahun || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.accrual_25 || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.total_dengan_accrual || 0)}</td>
+    <td class="kas-num">${formatRupiah(r.sisa_anggaran || 0)}</td>
+    <td class="kas-num ${gajiSelisihClass(r.selisih_pagu)}">${formatRupiah(r.selisih_pagu || 0)}</td>
+    <td class="kas-num">${r.pegawai || 0}</td>
+  </tr>`).join('');
+}
+
+function renderGajiRekap() {
+  const head = document.getElementById('gaji-rekap-head');
+  const tb = document.getElementById('gaji-rekap-body');
+  if (!head || !tb) return;
+  const rekap = gajiStateCache?.rekap || [];
+  head.innerHTML = `<tr><th rowspan="2">Bulan</th>${GAJI_CATEGORIES.map(c => `<th colspan="4" class="text-center">${escHtml(c.label)}</th>`).join('')}<th colspan="4" class="text-center">TOTAL</th></tr>
+  <tr>${GAJI_CATEGORIES.map(() => '<th class="kas-num">Peg</th><th class="kas-num">Anggaran</th><th class="kas-num">Realisasi</th><th class="kas-num">Sisa</th>').join('')}<th class="kas-num">Peg</th><th class="kas-num">Anggaran</th><th class="kas-num">Realisasi</th><th class="kas-num">Sisa</th></tr>`;
+  tb.innerHTML = rekap.map(row => {
+    let cells = `<td>${escHtml(row.label_bulan || row.bulan)}</td>`;
+    GAJI_CATEGORIES.forEach(c => {
+      const cell = row.categories?.[c.id] || {};
+      const sisa = (cell.anggaran || 0) - (cell.realisasi || 0);
+      cells += `<td class="kas-num">${cell.jumlah_pegawai || 0}</td><td class="kas-num">${formatKasAmount(cell.anggaran || 0)}</td><td class="kas-num">${formatKasAmount(cell.realisasi || 0)}</td><td class="kas-num">${formatKasAmount(sisa)}</td>`;
+    });
+    cells += `<td class="kas-num"><strong>${row.total_pegawai || 0}</strong></td><td class="kas-num"><strong>${formatKasAmount(row.total_anggaran || 0)}</strong></td><td class="kas-num"><strong>${formatKasAmount(row.total_realisasi || 0)}</strong></td><td class="kas-num"><strong>${formatKasAmount(row.total_sisa || 0)}</strong></td>`;
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+function renderGajiRealisasiTable() {
+  const tb = document.getElementById('gaji-realisasi-body');
+  const foot = document.getElementById('gaji-realisasi-foot');
+  if (!tb) return;
+  const report = gajiStateCache?.category_report || [];
+  const pagu = (gajiStateCache?.pagu || {})[gajiActiveCategory] || 0;
+  if (!report.length) {
+    tb.innerHTML = '<tr><td colspan="7" class="text-muted text-center">Belum ada data — upload template Perhitungan Gaji</td></tr>';
+    if (foot) foot.innerHTML = '';
+    return;
+  }
+  let totRea = 0;
+  tb.innerHTML = report.map(r => {
+    totRea += r.realisasi || 0;
+    const locked = !!r.realisasi_locked;
+    const pegVal = r.jumlah_pegawai || 0;
+    const reaVal = r.realisasi || 0;
+    const rowCls = r.is_kebutuhan_period ? 'table-info' : 'table-success';
+    const pegInput = locked
+      ? `<span>${pegVal}</span>`
+      : `<input type="number" min="0" class="kas-input gaji-peg-input manual-numeric" data-bulan="${r.bulan}" value="${pegVal}" style="width:70px" />`;
+    const reaInput = locked
+      ? `<span>${formatKasAmount(reaVal)}</span>`
+      : `<input type="text" class="kas-input gaji-rea-input manual-numeric" data-bulan="${r.bulan}" value="${formatKasAmount(reaVal)}" style="width:120px" />`;
+    const status = locked ? '<span class="badge bg-success">Terkunci</span>' : '<span class="badge bg-secondary">Draft</span>';
+    const unlockBtn = locked ? `<button type="button" class="btn btn-link btn-sm p-0 ms-1" onclick="gajiPickUnlockBulan('${r.bulan}')" title="Perbaiki"><i class="bi bi-unlock"></i></button>` : '';
+    const sisaPagu = pagu - totRea;
+    const selisihCls = (r.kekurangan_setahun || 0) < 0 ? 'gaji-kebutuhan-negatif' : 'gaji-kebutuhan-positif';
+    return `<tr data-bulan="${r.bulan}" class="${gajiUnlockBulan === r.bulan ? 'table-warning' : rowCls}">
+      <td>${escHtml(r.label_bulan)}${unlockBtn}</td>
+      <td class="kas-num">${pegInput}</td>
+      <td class="kas-num">${reaInput}</td>
+      <td class="kas-num">${formatKasAmount(totRea)}</td>
+      <td class="kas-num">${formatKasAmount(sisaPagu)}</td>
+      <td class="kas-num ${selisihCls}">${formatRupiah(r.kekurangan_setahun || 0)}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+  if (foot) {
+    foot.innerHTML = `<tr class="fw-bold"><td>TOTAL · Pagu ${formatRupiah(pagu)}</td><td colspan="2" class="kas-num">${formatKasAmount(totRea)}</td><td class="kas-num">${formatKasAmount(totRea)}</td><td class="kas-num">${formatKasAmount(pagu - totRea)}</td><td colspan="2"></td></tr>`;
+  }
+  const unlockBtn = document.getElementById('btn-gaji-unlock');
+  if (unlockBtn) unlockBtn.disabled = !gajiUnlockBulan;
+}
+
+function gajiPickUnlockBulan(bulan) {
+  gajiUnlockBulan = bulan;
+  renderGajiRealisasiTable();
+}
+
+async function unlockGajiRealisasiBulan() {
+  if (!gajiUnlockBulan) return alert('Klik ikon gembok pada baris bulan yang ingin diperbaiki.');
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan/realisasi/unlock', {
+      method: 'POST',
+      body: JSON.stringify({ category: gajiActiveCategory, bulan: gajiUnlockBulan }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal unlock');
+    gajiUnlockBulan = '';
+    await loadGajiData();
+    alert(data.message || 'Mode perbaiki aktif');
+  } catch (err) {
+    alert(err.message || 'Gagal unlock');
+  }
+}
+
+async function saveGajiRealisasi() {
+  const rows = [];
+  document.querySelectorAll('#gaji-realisasi-body tr[data-bulan]').forEach(tr => {
+    const bulan = tr.dataset.bulan;
+    const pegInp = tr.querySelector('.gaji-peg-input');
+    const reaInp = tr.querySelector('.gaji-rea-input');
+    if (!pegInp && !reaInp) return;
+    rows.push({
+      bulan,
+      jumlah_pegawai: pegInp ? parseInt(pegInp.value, 10) || 0 : undefined,
+      realisasi: reaInp ? parseKasNumber(reaInp.value) : 0,
+    });
+  });
+  const editable = rows.filter(r => {
+    const tr = document.querySelector(`#gaji-realisasi-body tr[data-bulan="${r.bulan}"]`);
+    return tr && (tr.querySelector('.gaji-peg-input') || tr.querySelector('.gaji-rea-input'));
+  });
+  if (!editable.length) return alert('Tidak ada baris yang dapat disimpan. Unlock bulan terlebih dahulu jika terkunci.');
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan/realisasi', {
+      method: 'PUT',
+      body: JSON.stringify({ category: gajiActiveCategory, rows: editable }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal simpan');
+    gajiUnlockBulan = '';
+    await loadGajiData();
+    alert(data.message || 'Realisasi disimpan');
+  } catch (err) {
+    alert(err.message || 'Gagal simpan');
+  }
+}
+
+async function downloadGajiTemplate() {
+  await ensureXlsx();
+  const header = ['Kategori', 'Bulan', 'Jumlah Pegawai', 'Anggaran'];
+  const sample = [
+    ['Gaji PNS', 'Januari', 150, 500000000],
+    ['Gaji PPPK', 'Januari', 25, 80000000],
+    ['TPP PNS', 'Januari', 150, 120000000],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([header, ...sample]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Anggaran Gaji');
+  XLSX.writeFile(wb, 'Template_Anggaran_Gaji_ASN.xlsx');
+}
+
+async function doGajiImportTemplate() {
+  if (!gajiTemplateFileBuffer) return alert('Pilih file template .xls/.xlsx terlebih dahulu.');
+  try {
+    await ensureXlsx();
+    const wb = XLSX.read(gajiTemplateFileBuffer, { type: 'array', cellDates: false });
+    const parsed = parseGajiTemplateWorkbook(wb);
+    if (!parsed || !Object.keys(parsed.cells || {}).length) {
+      throw new Error('Tidak ada data valid — pastikan sheet Realisasi Gaji/TPP ada.');
+    }
+    const res = await apiFetch(API + '/gaji-tunjangan/import-anggaran', {
+      method: 'POST',
+      body: JSON.stringify({
+        tahun: 2026,
+        version: 'template-perhitungan',
+        version_label: 'Template Perhitungan Gaji TA 2026',
+        pagu: parsed.pagu,
+        pegawai: parsed.pegawai,
+        cells: parsed.cells,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal import');
+    gajiTemplateFileBuffer = null;
+    const fileEl = document.getElementById('gaji-anggaran-file');
+    if (fileEl) fileEl.value = '';
+    document.getElementById('gaji-template-import-actions').style.display = 'none';
+    await loadGajiData();
+    alert(data.message || 'Template berhasil diimpor');
+  } catch (err) {
+    alert(err.message || 'Gagal import template');
+  }
+}
+
+function findGajiRakHeaderIndices(rows) {
+  for (let ri = 0; ri < Math.min(rows.length, 12); ri++) {
+    const header = (rows[ri] || []).map(h => String(h || '').trim().toUpperCase());
+    const iKode = header.findIndex(h => h === 'KODE REKENING' || h.includes('KODE REKENING'));
+    if (iKode < 0) continue;
+    const idx = (...names) => {
+      for (const n of names) {
+        const i = header.indexOf(String(n).toUpperCase());
+        if (i >= 0) return i;
+      }
+      return -1;
+    };
+    const iNama = idx('NAMA REKENING');
+    const iSub = idx('NAMA SUB KEGIATAN');
+    const iAnggaran = idx('ANGGARAN');
+    const bulanCols = {};
+    ['JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'].forEach(b => {
+      const i = idx(b);
+      if (i >= 0) bulanCols[b.toLowerCase()] = i;
+    });
+    if (iAnggaran >= 0 && Object.keys(bulanCols).length >= 6) {
+      return { headerRow: ri, iKode, iNama, iSub, iAnggaran, bulanCols };
+    }
+  }
+  return null;
+}
+
+function classifyGajiRakCategory(kode, nama) {
+  const k = String(kode || '').trim();
+  const n = String(nama || '').toUpperCase();
+  if (!k.startsWith('5.1.01.')) return '';
+  if (k.startsWith('5.1.01.02.006')) {
+    if (n.includes('TPG')) return 'tpg';
+    if (n.includes('TAMSIL')) return 'tamsil';
+    return '';
+  }
+  if (k.startsWith('5.1.01.02.')) {
+    if (n.includes('PPPK')) return 'tpp_pppk';
+    if (n.includes('PNS')) return 'tpp_pns';
+    return '';
+  }
+  if (n.includes('PPPK')) return 'gaji_pppk';
+  if (n.includes('PNS')) return 'gaji_pns';
+  return '';
+}
+
+function isGajiRakAnggaranWorkbook(wb) {
+  const sn = wb.SheetNames.find(n => String(n).toUpperCase().includes('RAK'));
+  if (!sn) return false;
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '' });
+  const hdr = findGajiRakHeaderIndices(rows);
+  if (!hdr) return false;
+  for (let ri = hdr.headerRow + 1; ri < rows.length; ri++) {
+    const kode = String(rows[ri]?.[hdr.iKode] || '').trim();
+    if (kode.startsWith('5.1.01.')) return true;
+  }
+  return false;
+}
+
+function parseGajiRakAnggaranWorkbook(wb) {
+  const sheetName = wb.SheetNames.find(n => String(n).toUpperCase().includes('RAK')) || wb.SheetNames[0];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+  const hdr = findGajiRakHeaderIndices(rows);
+  if (!hdr) throw new Error('Format RAK tidak dikenali — kolom KODE REKENING / bulan tidak ditemukan.');
+  const pagu = {};
+  const bulanAgg = {};
+  GAJI_CATEGORIES.forEach(c => {
+    pagu[c.id] = 0;
+    bulanAgg[c.id] = {};
+    GAJI_BULAN_LIST.forEach(b => { bulanAgg[c.id][b] = 0; });
+  });
+  const get = (row, i) => (i < 0 || i >= row.length ? '' : String(row[i] ?? '').trim());
+  let lineCount = 0;
+  for (let ri = hdr.headerRow + 1; ri < rows.length; ri++) {
+    const row = rows[ri];
+    const kode = get(row, hdr.iKode);
+    if (!kode.startsWith('5.1.01.')) continue;
+    const subKeg = hdr.iSub >= 0 ? get(row, hdr.iSub).toUpperCase() : '';
+    if (subKeg && !subKeg.includes('PENYEDIAAN GAJI') && !subKeg.includes('GAJI DAN TUNJANGAN')) continue;
+    const cat = classifyGajiRakCategory(kode, get(row, hdr.iNama));
+    if (!cat) continue;
+    lineCount++;
+    pagu[cat] += parseKasNumber(row[hdr.iAnggaran]);
+    for (const [bk, ci] of Object.entries(hdr.bulanCols)) {
+      bulanAgg[cat][bk] += parseKasNumber(row[ci]);
+    }
+  }
+  if (!lineCount) throw new Error('Tidak ada baris rekening gaji/tunjangan (5.1.01.*) di sheet RAK BELANJA.');
+  const cells = {};
+  GAJI_CATEGORIES.forEach(c => { cells[c.id] = {}; });
+  GAJI_CATEGORIES.forEach(c => {
+    if (c.id === 'tpg' || c.id === 'tamsil') {
+      GAJI_TW_QUARTERS.forEach(q => {
+        const amt = q.months.reduce((s, m) => s + (bulanAgg[c.id][m] || 0), 0);
+        if (amt > 0) cells[c.id][q.key] = { jumlah_pegawai: 0, anggaran: amt, realisasi: 0 };
+      });
+      return;
+    }
+    GAJI_BULAN_LIST.forEach(b => {
+      const amt = bulanAgg[c.id][b] || 0;
+      if (amt > 0) cells[c.id][b] = { jumlah_pegawai: 0, anggaran: amt, realisasi: 0 };
+    });
+  });
+  return { pagu, cells, sheetName, lineCount };
+}
+
+function gajiNormPeriod(category, raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  const maps = {
+    gaji_pns: { jan: 'januari', feb: 'februari', mar: 'maret', thr: 'thr', april: 'april', apr: 'april', mei: 'mei', jun: 'juni', juni: 'juni', 'gaji 13': 'gaji_13', gaji13: 'gaji_13', jul: 'juli', juli: 'juli', agu: 'agustus', agustus: 'agustus', sep: 'september', okt: 'oktober', nov: 'november', des: 'desember', desember: 'desember' },
+    tpp_pns: { jan: 'januari', feb: 'februari', thr: 'thr', mar: 'maret', maret: 'maret', apr: 'april', april: 'april', mei: 'mei', jun: 'juni', juni: 'juni', 'tpp 13': 'tpp_13', tpp13: 'tpp_13', jul: 'juli', agu: 'agustus', sep: 'september', sept: 'september', okt: 'oktober', nov: 'november', des: 'desember' },
+  };
+  const catMap = maps[category] || maps.gaji_pns;
+  if (catMap[s]) return catMap[s];
+  if (GAJI_BULAN_LIST.includes(s)) return s;
+  return '';
+}
+
+function parseGajiTemplateWorkbook(wb) {
+  const cells = {};
+  GAJI_CATEGORIES.forEach(c => { cells[c.id] = {}; });
+  const pagu = {};
+  const pegawai = {};
+
+  function sheetRows(namePart) {
+    const sn = wb.SheetNames.find(n => String(n).toUpperCase().includes(namePart));
+    if (!sn) return [];
+    return XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '' });
+  }
+
+  function num(v) {
+    if (typeof v === 'number') return v;
+    const s = String(v || '').replace(/\./g, '').replace(',', '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // REALISASI GAJI — agregat baris PNS/PPPK per kolom periode
+  const gajiRows = sheetRows('REALISASI GAJI');
+  let gajiColMap = {};
+  for (const row of gajiRows) {
+    const joined = row.map(c => String(c).toUpperCase()).join(' ');
+    if (joined.includes('JAN') && joined.includes('THR')) {
+      row.forEach((c, i) => {
+        const k = gajiNormPeriod('gaji_pns', c);
+        if (k) gajiColMap[i] = k;
+      });
+      continue;
+    }
+    const uraian = String(row[0] || '').toUpperCase();
+    if (!uraian || uraian.startsWith('TOTAL') || uraian === 'URAIAN') continue;
+    let cat = '';
+    if (uraian.includes('PPPK')) cat = 'gaji_pppk';
+    else if (uraian.includes('PNS')) cat = 'gaji_pns';
+    if (!cat) continue;
+    Object.entries(gajiColMap).forEach(([col, period]) => {
+      const v = num(row[+col]);
+      if (!v) return;
+      cells[cat][period] = cells[cat][period] || { jumlah_pegawai: 0, anggaran: 0, realisasi: 0 };
+      cells[cat][period].realisasi = (cells[cat][period].realisasi || 0) + v;
+    });
+  }
+
+  // REALISASI TPP — baris TOTAL PNS / TOTAL PPPK
+  const tppRows = sheetRows('REALISASI TPP');
+  let tppColMap = {};
+  for (const row of tppRows) {
+    const joined = row.map(c => String(c).toUpperCase()).join(' ');
+    if (joined.includes('JAN') && (joined.includes('THR') || joined.includes('TPP 13'))) {
+      row.forEach((c, i) => {
+        const k = gajiNormPeriod('tpp_pns', c);
+        if (k) tppColMap[i] = k;
+      });
+      continue;
+    }
+    const uraian = String(row[0] || '').toUpperCase().trim();
+    if (uraian === 'TOTAL PNS') {
+      Object.entries(tppColMap).forEach(([col, period]) => {
+        const v = num(row[+col]);
+        cells.tpp_pns[period] = { jumlah_pegawai: 0, anggaran: 0, realisasi: v };
+      });
+    } else if (uraian === 'TOTAL PPPK') {
+      Object.entries(tppColMap).forEach(([col, period]) => {
+        const v = num(row[+col]);
+        cells.tpp_pppk[period] = { jumlah_pegawai: 0, anggaran: 0, realisasi: v };
+      });
+    }
+  }
+
+  // PERHITUNGAN — pagu per kode rekening
+  const perRows = sheetRows('PERHITUNGAN');
+  let paguGajiPNS = 0, paguGajiPPPK = 0, paguTPPPNS = 0, paguTPPPPPK = 0, paguTPG = 0, paguTamsil = 0;
+  for (const row of perRows) {
+    const u = String(row[1] || row[0] || '').toLowerCase();
+    const p = num(row[2]);
+    if (!p) continue;
+    if (u.includes('5.1.01.') && u.includes('pppk')) paguGajiPPPK += p;
+    else if (u.includes('5.1.01.') && u.includes('pns')) paguGajiPNS += p;
+    else if (u.includes('5.1.02.') && u.includes('pppk')) paguTPPPPPK += p;
+    else if (u.includes('5.1.02.') && u.includes('pns')) paguTPPPNS += p;
+    else if (u.includes('tpg') && u.includes('pns')) paguTPG += p;
+    else if (u.includes('tpg') && u.includes('pppk')) paguTPG += p;
+    else if (u.includes('tamsil') && u.includes('pns')) paguTamsil += p;
+    else if (u.includes('tamsil') && u.includes('pppk')) paguTamsil += p;
+    const label0 = String(row[0] || '').toUpperCase();
+    if (label0.includes('PEGAWAI') && !label0.includes('PENGGUNA')) {
+      const pns = parseInt(num(row[1]), 10);
+      const pppk = parseInt(num(row[2]), 10);
+      if (pns > 0) pegawai.pns = pns;
+      if (pppk > 0) pegawai.pppk = pppk;
+    }
+  }
+  pagu.gaji_pns = paguGajiPNS;
+  pagu.gaji_pppk = paguGajiPPPK;
+  pagu.tpp_pns = paguTPPPNS;
+  pagu.tpp_pppk = paguTPPPPPK;
+  pagu.tpg = paguTPG;
+  pagu.tamsil = paguTamsil;
+
+  return { cells, pagu, pegawai };
+}
+
+async function onGajiFileSelected(ev) {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  const name = (file.name || '').toLowerCase();
+  document.getElementById('gaji-anggaran-preview').style.display = 'none';
+  document.getElementById('gaji-template-import-actions').style.display = 'none';
+  gajiAnggaranImportRows = [];
+  gajiRakImportData = null;
+  gajiTemplateFileBuffer = null;
+  await ensureXlsx();
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array', cellDates: false });
+  if (isGajiRakAnggaranWorkbook(wb)) {
+    return previewGajiRakAnggaran(wb, file.name);
+  }
+  const isPerhitungan = wb.SheetNames.some(n => {
+    const u = String(n).toUpperCase();
+    return u.includes('REALISASI GAJI') || u.includes('PERHITUNGAN GAJI');
+  });
+  if (isPerhitungan || (name.endsWith('.xls') && !name.includes('anggaran'))) {
+    gajiTemplateFileBuffer = buf;
+    gajiTemplateFileName = file.name;
+    const el = document.getElementById('gaji-template-import-actions');
+    const alertEl = document.getElementById('gaji-template-alert');
+    if (el) el.style.display = 'block';
+    if (alertEl) alertEl.textContent = 'File template terdeteksi: ' + file.name + ' — klik Import untuk membaca sheet Realisasi Gaji, TPP, dan Pagu (format Perhitungan Gaji TA 2026).';
+    return;
+  }
+  await previewGajiAnggaranFromWorkbook(wb);
+}
+
+function previewGajiRakAnggaran(wb, fileName) {
+  try {
+    const parsed = parseGajiRakAnggaranWorkbook(wb);
+    gajiRakImportData = parsed;
+    const preview = document.getElementById('gaji-anggaran-preview');
+    const alertEl = document.getElementById('gaji-anggaran-alert');
+    const body = document.getElementById('gaji-anggaran-preview-body');
+    const rows = [];
+    GAJI_CATEGORIES.forEach(c => {
+      const p = parsed.pagu[c.id] || 0;
+      if (p > 0) rows.push({ label: c.label, bulan: 'Pagu TA', pegawai: '—', anggaran: p });
+      const cellMap = parsed.cells[c.id] || {};
+      if (c.id === 'tpg' || c.id === 'tamsil') {
+        GAJI_TW_QUARTERS.forEach(q => {
+          const amt = cellMap[q.key]?.anggaran || 0;
+          if (amt > 0) rows.push({ label: c.label, bulan: q.label, pegawai: '—', anggaran: amt });
+        });
+      } else {
+        GAJI_BULAN_LIST.forEach(b => {
+          const amt = cellMap[b]?.anggaran || 0;
+          if (amt > 0) rows.push({ label: c.label, bulan: GAJI_BULAN_LABELS[b], pegawai: '—', anggaran: amt });
+        });
+      }
+    });
+    if (preview) preview.style.display = 'block';
+    if (alertEl) {
+      alertEl.className = 'alert alert-success py-2';
+      alertEl.textContent = `Template RAK Anggaran: ${fileName} — ${parsed.lineCount} baris rekening · sheet ${parsed.sheetName}. Pagu & RAK bulanan siap diimpor.`;
+    }
+    if (body) {
+      body.innerHTML = rows.slice(0, 60).map(r =>
+        `<tr><td>${escHtml(r.label)}</td><td>${escHtml(r.bulan)}</td><td class="kas-num">${r.pegawai}</td><td class="kas-num">${formatRupiah(r.anggaran)}</td></tr>`
+      ).join('') + (rows.length > 60 ? `<tr><td colspan="4" class="text-muted">… dan ${rows.length - 60} baris lainnya</td></tr>` : '');
+    }
+  } catch (err) {
+    gajiRakImportData = null;
+    alert(err.message || 'Gagal membaca template RAK anggaran');
+  }
+}
+
+async function previewGajiAnggaran(ev) {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  await ensureXlsx();
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+  await previewGajiAnggaranFromWorkbook(wb);
+}
+
+async function previewGajiAnggaranFromWorkbook(wb) {
+  gajiRakImportData = null;
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+  gajiAnggaranImportRows = [];
+  let start = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    const h0 = String(rows[i]?.[0] || '').toLowerCase();
+    if (h0.includes('kategori')) { start = i + 1; break; }
+  }
+  for (let i = start; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r.length) continue;
+    const cat = parseGajiCategoryKey(r[0]);
+    const bulan = parseGajiBulanKey(r[1]);
+    if (!cat || !bulan) continue;
+    gajiAnggaranImportRows.push({
+      category: cat,
+      bulan,
+      jumlah_pegawai: parseInt(String(r[2] || '0').replace(/\D/g, ''), 10) || 0,
+      anggaran: parseKasNumber(r[3]),
+      label: gajiCategoryLabel(cat),
+      label_bulan: GAJI_BULAN_LABELS[bulan],
+    });
+  }
+  const preview = document.getElementById('gaji-anggaran-preview');
+  const alertEl = document.getElementById('gaji-anggaran-alert');
+  const body = document.getElementById('gaji-anggaran-preview-body');
+  if (!gajiAnggaranImportRows.length) {
+    if (preview) preview.style.display = 'none';
+    alert('Tidak ada baris valid. Pastikan kolom: Kategori, Bulan, Jumlah Pegawai, Anggaran.');
+    return;
+  }
+  if (preview) preview.style.display = 'block';
+  if (alertEl) alertEl.textContent = `Ditemukan ${gajiAnggaranImportRows.length} baris siap diimpor.`;
+  if (body) {
+    body.innerHTML = gajiAnggaranImportRows.slice(0, 50).map(r =>
+      `<tr><td>${escHtml(r.label)}</td><td>${escHtml(r.label_bulan)}</td><td class="kas-num">${r.jumlah_pegawai}</td><td class="kas-num">${formatRupiah(r.anggaran)}</td></tr>`
+    ).join('') + (gajiAnggaranImportRows.length > 50 ? `<tr><td colspan="4" class="text-muted">… dan ${gajiAnggaranImportRows.length - 50} baris lainnya</td></tr>` : '');
+  }
+}
+
+async function doGajiImportAnggaran() {
+  if (gajiRakImportData) return doGajiImportRakAnggaran();
+  if (!gajiAnggaranImportRows.length) return alert('Tidak ada data untuk diimpor.');
+  try {
+    const res = await apiFetch(API + '/gaji-tunjangan/import-anggaran', {
+      method: 'POST',
+      body: JSON.stringify({
+        tahun: gajiStateCache?.tahun || 2026,
+        rows: gajiAnggaranImportRows.map(r => ({
+          category: r.category,
+          bulan: r.bulan,
+          jumlah_pegawai: r.jumlah_pegawai,
+          anggaran: r.anggaran,
+        })),
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal import');
+    gajiAnggaranImportRows = [];
+    const fileEl = document.getElementById('gaji-anggaran-file');
+    if (fileEl) fileEl.value = '';
+    document.getElementById('gaji-anggaran-preview').style.display = 'none';
+    await loadGajiData();
+    alert(data.message || 'Anggaran berhasil diimpor');
+  } catch (err) {
+    alert(err.message || 'Gagal import');
+  }
+}
+
+async function doGajiImportRakAnggaran() {
+  if (!gajiRakImportData) return alert('Tidak ada data RAK untuk diimpor.');
+  try {
+    const parsed = gajiRakImportData;
+    const res = await apiFetch(API + '/gaji-tunjangan/import-anggaran', {
+      method: 'POST',
+      body: JSON.stringify({
+        tahun: gajiStateCache?.tahun || 2026,
+        version: 'template-rak-anggaran',
+        version_label: 'Template Anggaran Penyediaan Gaji dan Tunjangan (RAK BELANJA)',
+        pagu: parsed.pagu,
+        cells: parsed.cells,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal import');
+    gajiRakImportData = null;
+    const fileEl = document.getElementById('gaji-anggaran-file');
+    if (fileEl) fileEl.value = '';
+    document.getElementById('gaji-anggaran-preview').style.display = 'none';
+    await loadGajiData();
+    alert(data.message || 'Anggaran RAK berhasil diimpor');
+  } catch (err) {
+    alert(err.message || 'Gagal import RAK anggaran');
+  }
+}
+
+async function exportGajiRekapExcel() {
+  await ensureXlsx();
+  const rekap = gajiStateCache?.rekap || [];
+  const header1 = ['Bulan'];
+  const header2 = [''];
+  GAJI_CATEGORIES.forEach(c => {
+    header1.push(c.label, '', '', '');
+    header2.push('Pegawai', 'Anggaran', 'Realisasi', 'Sisa');
+  });
+  header1.push('TOTAL', '', '', '');
+  header2.push('Pegawai', 'Anggaran', 'Realisasi', 'Sisa');
+  const dataRows = rekap.map(row => {
+    const r = [row.label_bulan || row.bulan];
+    GAJI_CATEGORIES.forEach(c => {
+      const cell = row.categories?.[c.id] || {};
+      r.push(cell.jumlah_pegawai || 0, cell.anggaran || 0, cell.realisasi || 0, (cell.anggaran || 0) - (cell.realisasi || 0));
+    });
+    r.push(row.total_pegawai || 0, row.total_anggaran || 0, row.total_realisasi || 0, row.total_sisa || 0);
+    return r;
+  });
+  const ws = XLSX.utils.aoa_to_sheet([header1, header2, ...dataRows]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekap Gaji ASN');
+  XLSX.writeFile(wb, `Rekap_Gaji_ASN_${gajiStateCache?.tahun || 2026}.xlsx`);
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────
 function sipkeuHideLoader() {
   document.getElementById('ds-loader')?.classList.add('hidden');
@@ -14897,11 +16020,13 @@ function sipkeuRecoverFromStuck() {
   const login = document.getElementById('login-screen');
   const app = document.getElementById('app-shell');
   const kas = document.getElementById('kas-app-shell');
+  const gaji = document.getElementById('gaji-app-shell');
   const settings = document.getElementById('settings-app-shell');
   const anyVisible = portal && !portal.classList.contains('hidden')
     || login && !login.classList.contains('hidden')
     || app?.classList.contains('visible')
     || kas?.classList.contains('visible')
+    || gaji?.classList.contains('visible')
     || settings?.classList.contains('visible');
   if (!anyVisible && typeof showPortal === 'function') showPortal();
 }
@@ -14924,6 +16049,7 @@ window.addEventListener('pageshow', (ev) => {
   const app = sessionStorage.getItem('sipkeu_app') || selectedPortalApp;
   selectedPortalApp = app;
   if (app === 'kas-belanja') bootKasApp(true);
+  else if (app === 'gaji-asn') bootGajiApp(true);
   else if (app === 'pengaturan') bootSettingsApp(true);
   else bootApp(true);
 });

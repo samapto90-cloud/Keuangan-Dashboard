@@ -12,7 +12,7 @@ import (
 
 const passwordMask = "********"
 
-var sipkeuPortalIDs = []string{"sekretariat", "paud", "sd", "smp", "kas-belanja"}
+var sipkeuPortalIDs = []string{"sekretariat", "paud", "sd", "smp", "kas-belanja", "gaji-asn"}
 
 type PortalAuthConfig struct {
 	AdminUsername    string `json:"admin_username"`
@@ -87,19 +87,29 @@ func clearOperatorAuth(cfg *PortalAuthConfig) {
 	cfg.OperatorName = ""
 }
 
-func sanitizeKasBelanjaSettings(s *SystemSettings) {
+func isAdminOnlyPortal(id string) bool {
+	return id == "kas-belanja" || id == "gaji-asn"
+}
+
+func sanitizeAdminOnlyPortals(s *SystemSettings) {
 	if s == nil {
 		return
 	}
-	if s.OperatorPerms != nil {
-		delete(s.OperatorPerms, "kas-belanja")
-	}
-	if s.Portals != nil {
-		if cfg, ok := s.Portals["kas-belanja"]; ok {
-			clearOperatorAuth(&cfg)
-			s.Portals["kas-belanja"] = cfg
+	for _, id := range []string{"kas-belanja", "gaji-asn"} {
+		if s.OperatorPerms != nil {
+			delete(s.OperatorPerms, id)
+		}
+		if s.Portals != nil {
+			if cfg, ok := s.Portals[id]; ok {
+				clearOperatorAuth(&cfg)
+				s.Portals[id] = cfg
+			}
 		}
 	}
+}
+
+func sanitizeKasBelanjaSettings(s *SystemSettings) {
+	sanitizeAdminOnlyPortals(s)
 }
 
 func defaultSystemSettings() SystemSettings {
@@ -109,12 +119,12 @@ func defaultSystemSettings() SystemSettings {
 	auth := defaultPortalAuth()
 	for _, id := range sipkeuPortalIDs {
 		p := auth
-		if id == "kas-belanja" {
+		if isAdminOnlyPortal(id) {
 			clearOperatorAuth(&p)
 		}
 		portals[id] = p
 		status[id] = PortalStatusConfig{Enabled: true}
-		if id != "kas-belanja" {
+		if !isAdminOnlyPortal(id) {
 			perms[id] = defaultOperatorPerms()
 		}
 	}
@@ -185,7 +195,7 @@ func mergeSystemSettings(s *SystemSettings) {
 		if _, ok := s.PortalStatus[id]; !ok {
 			s.PortalStatus[id] = PortalStatusConfig{Enabled: true}
 		}
-		if id != "kas-belanja" {
+		if !isAdminOnlyPortal(id) {
 			if _, ok := s.OperatorPerms[id]; !ok {
 				s.OperatorPerms[id] = def.OperatorPerms[id]
 			}
@@ -276,7 +286,7 @@ func authenticatePortalUser(username, password, appModule string) (UserAccount, 
 			Name:     firstNonEmpty(cfg.AdminName, "Administrator"),
 		}, true
 	}
-	if appModule != "kas-belanja" &&
+	if !isAdminOnlyPortal(appModule) &&
 		username == strings.ToLower(strings.TrimSpace(cfg.OperatorUsername)) &&
 		passwordMatches(cfg.OperatorPassword, password) {
 		return UserAccount{
@@ -476,7 +486,7 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 				if strings.TrimSpace(p.AdminName) != "" {
 					existing.AdminName = strings.TrimSpace(p.AdminName)
 				}
-				if id == "kas-belanja" {
+				if isAdminOnlyPortal(id) {
 					clearOperatorAuth(&existing)
 				} else {
 					if strings.TrimSpace(p.OperatorUsername) != "" {
@@ -493,7 +503,7 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 
 		if incoming.OperatorPerms != nil {
 			for id, p := range incoming.OperatorPerms {
-				if containsPortalID(id) && id != "kas-belanja" {
+				if containsPortalID(id) && !isAdminOnlyPortal(id) {
 					cur.OperatorPerms[id] = p
 				}
 			}

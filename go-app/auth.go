@@ -62,7 +62,7 @@ func envOr(key, fallback string) string {
 
 func isValidAppModule(id string) bool {
 	switch id {
-	case "sekretariat", "paud", "sd", "smp", "kas-belanja", "pengaturan":
+	case "sekretariat", "paud", "sd", "smp", "kas-belanja", "gaji-asn", "pengaturan":
 		return true
 	default:
 		return false

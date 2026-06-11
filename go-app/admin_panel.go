@@ -25,6 +25,7 @@ func portalLabel(id string) string {
 		"sd":          "SIPKEU SD",
 		"smp":         "SIPKEU SMP",
 		"kas-belanja": "Realisasi Kas Belanja",
+		"gaji-asn":    "Gaji dan Tunjangan ASN",
 		"pengaturan":  "Command Center",
 	}
 	if l, ok := labels[id]; ok {

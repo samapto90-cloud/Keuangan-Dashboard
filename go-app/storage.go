@@ -35,6 +35,10 @@ func kasDataPath() string {
 	return filepath.Join(dataDir, "kas-belanja.json")
 }
 
+func gajiDataPath() string {
+	return filepath.Join(dataDir, "gaji-tunjangan.json")
+}
+
 func writeJSONAtomic(path string, v any) error {
 	tmp := path + ".tmp"
 	f, err := os.Create(tmp)
@@ -167,6 +171,42 @@ func persistKasState() {
 	kasMu.RUnlock()
 	if err := writeJSONAtomic(kasDataPath(), state); err != nil {
 		log.Printf("Gagal simpan kas belanja: %v", err)
+	}
+}
+
+func loadGajiFromDisk() bool {
+	raw, err := os.ReadFile(gajiDataPath())
+	if err != nil {
+		return false
+	}
+	var state GajiTunjanganState
+	if err := json.Unmarshal(raw, &state); err != nil {
+		log.Printf("Peringatan: file gaji tunjangan rusak: %v", err)
+		return false
+	}
+	gajiMu.Lock()
+	gajiState = state
+	ensureGajiCells(&gajiState)
+	if gajiState.RealisasiLocked == nil {
+		gajiState.RealisasiLocked = map[string]bool{}
+	}
+	if gajiState.Pagu == nil {
+		gajiState.Pagu = map[string]float64{}
+	}
+	if gajiState.Pegawai == nil {
+		gajiState.Pegawai = map[string]int{}
+	}
+	gajiMu.Unlock()
+	log.Printf("Data gaji tunjangan dimuat dari %s", gajiDataPath())
+	return true
+}
+
+func persistGajiState() {
+	gajiMu.RLock()
+	state := gajiState
+	gajiMu.RUnlock()
+	if err := writeJSONAtomic(gajiDataPath(), state); err != nil {
+		log.Printf("Gagal simpan gaji tunjangan: %v", err)
 	}
 }
 

@@ -877,6 +877,10 @@ func main() {
         mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))
         mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(requireAdmin(handleKasUnlockRealisasi))))
+        mux.HandleFunc("/data/gaji-tunjangan", cors(requireAuth(handleGajiTunjangan)))
+        mux.HandleFunc("/data/gaji-tunjangan/import-anggaran", cors(requireAuth(requireAdmin(handleGajiImportAnggaran))))
+        mux.HandleFunc("/data/gaji-tunjangan/realisasi", cors(requireAuth(requireAdmin(handleGajiSaveRealisasi))))
+        mux.HandleFunc("/data/gaji-tunjangan/realisasi/unlock", cors(requireAuth(requireAdmin(handleGajiUnlockRealisasi))))
 
         initSipkeuModules()
         initStorage()
@@ -884,6 +888,7 @@ func main() {
         loadAllModulesFromDisk()
         repairAllModulesIsolation()
         loadKasFromDisk()
+        loadGajiFromDisk()
 
         sek := sipkeuModules["sekretariat"]
 
