@@ -2484,7 +2484,42 @@
       font-family: 'Roboto Mono', monospace; font-size: 11px;
       color: var(--gaji-primary); white-space: nowrap; font-weight: 500;
     }
-    .gaji-rek-table td.nama { font-size: 12px; max-width: 280px; color: var(--gaji-text); }
+    .gaji-rek-table td.nama { font-size: 12px; max-width: none; color: var(--gaji-text); line-height: 1.35; }
+    .gaji-realisasi-table-wrap {
+      width: 100%; overflow-x: auto; border-radius: 14px;
+      border: 1px solid var(--gaji-outline); background: #fff;
+    }
+    .gaji-rek-table { width: 100%; table-layout: auto; margin: 0; }
+    .gaji-rek-table thead th {
+      background: #f8fafc; font-size: 11px; font-weight: 700; color: #475569;
+      padding: 10px 12px; border-bottom: 1px solid var(--gaji-outline); white-space: nowrap;
+    }
+    .gaji-rek-table tbody td { padding: 10px 12px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+    .gaji-rek-table tfoot td {
+      padding: 12px; background: #f8fafc; border-top: 2px solid var(--gaji-outline);
+      font-size: 12px; color: var(--gaji-primary);
+    }
+    .gaji-rek-table .kas-input {
+      border-radius: 8px; border: 1px solid #cbd5e1; padding: 4px 8px;
+      font-size: 12px; font-family: 'Roboto Mono', monospace; background: #fff;
+    }
+    .gaji-rek-table .kas-input:focus { border-color: var(--gaji-primary); box-shadow: 0 0 0 2px rgba(0,100,148,.12); }
+    .gaji-rek-table .gaji-rek-peg { width: 72px; text-align: center; }
+    .gaji-rek-table .gaji-rek-rea { width: 128px; text-align: right; }
+    .gaji-rek-table .gaji-rek-readonly {
+      font-family: 'Roboto Mono', monospace; font-size: 12px; color: #334155;
+    }
+    .gaji-rek-table tr.gaji-rek-section td {
+      background: linear-gradient(90deg, rgba(0,100,148,.08), transparent);
+      color: var(--gaji-primary); font-weight: 700; font-size: 11px;
+      padding: 8px 12px; letter-spacing: .04em; text-transform: uppercase;
+      border-bottom: 1px solid rgba(0,100,148,.12);
+    }
+    .gaji-rek-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .06); }
+    .gaji-rek-table tr.gaji-rek-potongan td.nama { padding-left: 28px; }
+    .gaji-rek-table tr.gaji-rek-potongan td.nama::before {
+      content: '↳'; margin-right: 6px; color: #b45309; font-weight: 700;
+    }
     .gaji-rek-table .gaji-jenis-badge {
       display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 700;
       background: var(--gaji-primary-light); color: var(--gaji-primary); border: 1px solid rgba(0,100,148,.12);
@@ -2497,6 +2532,11 @@
       display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
       font-size: 9px; font-weight: 700; background: rgba(251, 191, 36, .15); color: #b45309;
       border: 1px solid rgba(251, 191, 36, .35);
+    }
+    .gaji-rek-table .gaji-jaminan-badge {
+      display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+      font-size: 9px; font-weight: 700; background: rgba(16, 185, 129, .12); color: #047857;
+      border: 1px solid rgba(16, 185, 129, .28);
     }
     .gaji-matrix-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .04); }
     .gaji-rek-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -6482,7 +6522,7 @@ function initManualNumericInputUX() {
           <div class="gaji-card-header">
             <div class="gaji-card-header-text">
               <h6><i class="bi bi-pencil-square me-2"></i><span id="gaji-realisasi-title">Realisasi</span> · <span id="gaji-realisasi-bulan-label">—</span></h6>
-              <p>Input pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> — bulan aktif</p>
+              <p id="gaji-realisasi-desc">Input pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> — bulan aktif</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
               <button type="button" class="btn btn-outline-warning btn-sm" id="btn-gaji-unlock" onclick="unlockGajiRealisasiBulan()" disabled><i class="bi bi-unlock me-1"></i>Perbaiki Bulan</button>
@@ -6490,7 +6530,7 @@ function initManualNumericInputUX() {
             </div>
           </div>
           <div class="gaji-rek-summary" id="gaji-rek-summary"></div>
-          <div class="kas-table-wrap">
+          <div class="kas-table-wrap gaji-realisasi-table-wrap">
             <table class="kas-table gaji-rek-table" id="gaji-realisasi-table">
               <thead><tr>
                 <th style="width:36px">#</th>
@@ -16632,7 +16672,9 @@ function renderGajiMatrix() {
       const ang = cell.anggaran ? `<div class="ang">${formatGajiMatrixAmt(cell.anggaran)}</div>` : '';
       return `<td class="gaji-matrix-cell${cls}">${peg}${rea}${ang}</td>`;
     }).join('');
-    const potBadge = r.potongan ? ' <span class="gaji-potongan-badge">Pot</span>' : '';
+    const potBadge = r.attached || (r.potongan && /jaminan|kesehatan/i.test(r.nama || ''))
+      ? ' <span class="gaji-jaminan-badge">JK</span>'
+      : (r.potongan ? ' <span class="gaji-potongan-badge">Pot</span>' : '');
     return `<tr class="${r.potongan ? 'gaji-rek-potongan' : ''}">
       <td class="gaji-sticky gaji-matrix-kode">${escHtml(r.kode)}</td>
       <td class="gaji-sticky gaji-matrix-nama" title="${escHtml(r.nama)}">${escHtml(r.nama)}${potBadge}</td>
@@ -16850,7 +16892,67 @@ function renderGajiRekap() {
   }).join('');
 }
 
+function updateGajiRealisasiDesc() {
+  const el = document.getElementById('gaji-realisasi-desc');
+  if (!el) return;
+  const g = gajiActiveGrup;
+  if (g === 'tpg' || g === 'tamsil') {
+    el.innerHTML = 'Tunjangan + <strong>Iuran Jaminan Kesehatan</strong> per jenis pegawai (PNS / PPPK) — input per kode rekening';
+  } else {
+    el.innerHTML = 'Input pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> — termasuk potongan PPh, BPJS, iuran';
+  }
+}
+
+function gajiRekRowBadge(r) {
+  if (r.attached || (r.potongan && /jaminan|kesehatan|bpjs/i.test(r.nama || ''))) {
+    return '<span class="gaji-jaminan-badge">Jaminan Kesehatan</span>';
+  }
+  if (r.potongan) return '<span class="gaji-potongan-badge">Potongan</span>';
+  return '';
+}
+
+function renderGajiRekeningTableRows(report, locked) {
+  let lastJenis = null;
+  let idx = 0;
+  const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
+  return report.map(r => {
+    let section = '';
+    const jenisKey = r.jenis || 'pns';
+    if (grouped && jenisKey !== lastJenis) {
+      lastJenis = jenisKey;
+      const lbl = jenisKey === 'pppk' ? 'PPPK' : 'PNS';
+      section = `<tr class="gaji-rek-section"><td colspan="9"><i class="bi bi-person-badge me-1"></i>${lbl}</td></tr>`;
+    }
+    idx++;
+    const jenis = (r.jenis || '').toUpperCase() || '—';
+    const jenisCls = r.jenis === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
+    const pegVal = r.jumlah_pegawai || 0;
+    const reaVal = r.realisasi || 0;
+    const pegInput = locked
+      ? `<span class="gaji-rek-readonly">${pegVal.toLocaleString('id-ID')}</span>`
+      : `<input type="number" min="0" class="kas-input gaji-rek-peg manual-numeric" data-kode="${escHtml(r.kode)}" value="${pegVal || ''}" />`;
+    const reaInput = locked
+      ? `<span class="gaji-rek-readonly">${formatKasAmount(reaVal)}</span>`
+      : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" />`;
+    const pct = r.persen ? r.persen.toFixed(1) + '%' : '—';
+    const badge = gajiRekRowBadge(r);
+    const rowCls = [r.potongan ? 'gaji-rek-potongan' : 'gaji-rek-benefit'].join(' ');
+    return `${section}<tr data-kode="${escHtml(r.kode)}" class="${rowCls}">
+      <td class="text-muted">${idx}</td>
+      <td class="kode">${escHtml(r.kode)}</td>
+      <td class="nama">${escHtml(r.nama)}${badge}</td>
+      <td><span class="${jenisCls}">${jenis}</span></td>
+      <td class="kas-num">${pegInput}</td>
+      <td class="kas-num">${formatKasAmount(r.anggaran || 0)}</td>
+      <td class="kas-num">${reaInput}</td>
+      <td class="kas-num">${formatKasAmount(r.sisa || 0)}</td>
+      <td class="kas-num">${pct}</td>
+    </tr>`;
+  }).join('');
+}
+
 function renderGajiRekeningTable() {
+  updateGajiRealisasiDesc();
   const tb = document.getElementById('gaji-realisasi-body');
   const foot = document.getElementById('gaji-realisasi-foot');
   const summaryEl = document.getElementById('gaji-rek-summary');
@@ -16877,31 +16979,7 @@ function renderGajiRekeningTable() {
     if (unlockBtn) unlockBtn.disabled = true;
     return;
   }
-  tb.innerHTML = report.map((r, i) => {
-    const jenis = (r.jenis || '').toUpperCase() || '—';
-    const jenisCls = r.jenis === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
-    const pegVal = r.jumlah_pegawai || 0;
-    const reaVal = r.realisasi || 0;
-    const pegInput = locked
-      ? `<span>${pegVal.toLocaleString('id-ID')}</span>`
-      : `<input type="number" min="0" class="kas-input gaji-rek-peg manual-numeric" data-kode="${escHtml(r.kode)}" value="${pegVal || ''}" style="width:72px" />`;
-    const reaInput = locked
-      ? `<span>${formatKasAmount(reaVal)}</span>`
-      : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" style="width:120px" />`;
-    const pct = r.persen ? r.persen.toFixed(1) + '%' : '—';
-    const potBadge = r.potongan ? '<span class="gaji-potongan-badge">Potongan</span>' : '';
-    return `<tr data-kode="${escHtml(r.kode)}" class="${locked ? '' : 'table-success'}${r.potongan ? ' gaji-rek-potongan' : ''}">
-      <td class="text-muted">${i + 1}</td>
-      <td class="kode">${escHtml(r.kode)}</td>
-      <td class="nama">${escHtml(r.nama)}${potBadge}</td>
-      <td><span class="${jenisCls}">${jenis}</span></td>
-      <td class="kas-num">${pegInput}</td>
-      <td class="kas-num">${formatKasAmount(r.anggaran || 0)}</td>
-      <td class="kas-num">${reaInput}</td>
-      <td class="kas-num">${formatKasAmount(r.sisa || 0)}</td>
-      <td class="kas-num">${pct}</td>
-    </tr>`;
-  }).join('');
+  tb.innerHTML = renderGajiRekeningTableRows(report, locked);
   if (foot) {
     foot.innerHTML = `<tr class="fw-bold">
       <td colspan="4">TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>

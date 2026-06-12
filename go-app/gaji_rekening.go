@@ -23,6 +23,7 @@ type GajiRekeningRow struct {
 	Grup          string  `json:"grup"`
 	Jenis         string  `json:"jenis"`
 	Potongan      bool    `json:"potongan,omitempty"`
+	Attached      bool    `json:"attached,omitempty"`
 	Pagu          float64 `json:"pagu"`
 	JumlahPegawai int     `json:"jumlah_pegawai"`
 	Anggaran      float64 `json:"anggaran"`
@@ -57,6 +58,7 @@ type GajiRekeningMatrixRow struct {
 	Grup         string                              `json:"grup"`
 	Jenis        string                              `json:"jenis"`
 	Potongan     bool                                `json:"potongan,omitempty"`
+	Attached     bool                                `json:"attached,omitempty"`
 	Pagu         float64                             `json:"pagu"`
 	RealisasiSD  float64                             `json:"realisasi_sd"`
 	KebutuhanSisa float64                            `json:"kebutuhan_sisa"`
@@ -122,6 +124,48 @@ func potonganTargetGrupFromNama(nama string) string {
 		return "tpg"
 	}
 	return "gaji"
+}
+
+func gajiRekeningAttachedJaminanKes(def GajiRekeningDef, grup string) bool {
+	if def.Grup == grup || !def.Potongan || !isJaminanKesehatanPotongan(def.Nama) {
+		return false
+	}
+	switch grup {
+	case "tpg":
+		return def.Jenis == "pns" || def.Jenis == ""
+	case "tamsil":
+		return def.Jenis == "pns" || def.Jenis == "pppk" || def.Jenis == ""
+	default:
+		return false
+	}
+}
+
+func gajiRekeningIncludedInGrup(def GajiRekeningDef, grup string) bool {
+	if def.Grup == grup {
+		return true
+	}
+	return gajiRekeningAttachedJaminanKes(def, grup)
+}
+
+func gajiSortRekeningReportRows(rows []GajiRekeningRow, grup string) {
+	jenisOrder := func(j string) int {
+		if j == "pppk" {
+			return 1
+		}
+		return 0
+	}
+	sort.Slice(rows, func(i, j int) bool {
+		if grup == "tpg" || grup == "tamsil" {
+			ji, jj := jenisOrder(rows[i].Jenis), jenisOrder(rows[j].Jenis)
+			if ji != jj {
+				return ji < jj
+			}
+			if rows[i].Potongan != rows[j].Potongan {
+				return !rows[i].Potongan
+			}
+		}
+		return rows[i].Kode < rows[j].Kode
+	})
 }
 
 func classifyGajiRekening(kode, nama string) (grup, jenis string, potongan bool) {
@@ -307,7 +351,7 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 	var rows []GajiRekeningRow
 	maxPNS, maxPPPK := state.Pegawai["pns"], state.Pegawai["pppk"]
 	for _, def := range state.Rekening {
-		if def.Grup != grup {
+		if !gajiRekeningIncludedInGrup(def, grup) {
 			continue
 		}
 		cell := gajiGetRekeningCell(state, def.Kode, bulan)
@@ -322,12 +366,14 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		if cell.Anggaran > 0 {
 			persen = (cell.Realisasi / cell.Anggaran) * 100
 		}
+		attached := def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup)
 		rows = append(rows, GajiRekeningRow{
 			Kode:          def.Kode,
 			Nama:          def.Nama,
 			Grup:          def.Grup,
 			Jenis:         def.Jenis,
 			Potongan:      def.Potongan,
+			Attached:      attached,
 			Pagu:          def.Pagu,
 			JumlahPegawai: pegawai,
 			Anggaran:      cell.Anggaran,
@@ -341,7 +387,7 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		summary.TotalSisa += sisa
 	}
 	summary.TotalPegawai = maxPNS + maxPPPK
-	sort.Slice(rows, func(i, j int) bool { return rows[i].Kode < rows[j].Kode })
+	gajiSortRekeningReportRows(rows, grup)
 	return rows, summary
 }
 
@@ -371,15 +417,17 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 
 	var rows []GajiRekeningMatrixRow
 	for _, def := range state.Rekening {
-		if def.Grup != grup {
+		if !gajiRekeningIncludedInGrup(def, grup) {
 			continue
 		}
+		attached := def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup)
 		row := GajiRekeningMatrixRow{
 			Kode:     def.Kode,
 			Nama:     def.Nama,
 			Grup:     def.Grup,
 			Jenis:    def.Jenis,
 			Potongan: def.Potongan,
+			Attached: attached,
 			Pagu:     def.Pagu,
 			Bulan:    map[string]GajiRekeningMatrixCell{},
 		}
@@ -410,8 +458,29 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 		}
 		rows = append(rows, row)
 	}
-	sort.Slice(rows, func(i, j int) bool { return rows[i].Kode < rows[j].Kode })
+	gajiSortRekeningMatrixRows(rows, grup)
 	return rows, summary
+}
+
+func gajiSortRekeningMatrixRows(rows []GajiRekeningMatrixRow, grup string) {
+	jenisOrder := func(j string) int {
+		if j == "pppk" {
+			return 1
+		}
+		return 0
+	}
+	sort.Slice(rows, func(i, j int) bool {
+		if grup == "tpg" || grup == "tamsil" {
+			ji, jj := jenisOrder(rows[i].Jenis), jenisOrder(rows[j].Jenis)
+			if ji != jj {
+				return ji < jj
+			}
+			if rows[i].Potongan != rows[j].Potongan {
+				return !rows[i].Potongan
+			}
+		}
+		return rows[i].Kode < rows[j].Kode
+	})
 }
 
 func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
