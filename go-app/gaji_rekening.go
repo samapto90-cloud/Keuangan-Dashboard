@@ -69,11 +69,12 @@ type GajiRekeningMatrixSummary struct {
 var gajiGrupLabels = map[string]string{
 	"gaji":     "Realisasi Gaji",
 	"tpp":      "Realisasi TPP",
-	"tpg":      "TPG & Tamsil",
+	"tpg":      "TPG",
+	"tamsil":   "Tamsil",
 	"potongan": "Potongan",
 }
 
-var gajiGrupOrder = []string{"gaji", "tpp", "tpg", "potongan"}
+var gajiGrupOrder = []string{"gaji", "tpp", "tpg", "tamsil", "potongan"}
 
 func isValidGajiGrup(grup string) bool {
 	_, ok := gajiGrupLabels[grup]
@@ -96,9 +97,9 @@ func classifyGajiRekening(kode, nama string) (grup, jenis string) {
 	n := strings.ToUpper(strings.TrimSpace(nama))
 	jenis = gajiJenisFromNama(nama)
 
-	if strings.Contains(k, "5.1.01.02.006") {
+	if strings.Contains(k, "5.1.01.02.006") || strings.Contains(n, "TPG") || strings.Contains(n, "TAMSIL") {
 		if strings.Contains(n, "TAMSIL") {
-			return "tpg", jenis
+			return "tamsil", jenis
 		}
 		return "tpg", jenis
 	}
@@ -209,6 +210,22 @@ func gajiMergeRekeningImport(state *GajiTunjanganState, lines []GajiRekeningDef,
 		return state.Rekening[i].Urut < state.Rekening[j].Urut
 	})
 	gajiSyncCategoryFromRekening(state)
+}
+
+func normalizeGajiRekeningGrups(state *GajiTunjanganState) {
+	for i := range state.Rekening {
+		grup, jenis := classifyGajiRekening(state.Rekening[i].Kode, state.Rekening[i].Nama)
+		state.Rekening[i].Grup = grup
+		if jenis != "" {
+			state.Rekening[i].Jenis = jenis
+		}
+	}
+	sort.Slice(state.Rekening, func(i, j int) bool {
+		if state.Rekening[i].Grup != state.Rekening[j].Grup {
+			return gajiGrupIndex(state.Rekening[i].Grup) < gajiGrupIndex(state.Rekening[j].Grup)
+		}
+		return state.Rekening[i].Urut < state.Rekening[j].Urut
+	})
 }
 
 func gajiGrupIndex(grup string) int {
@@ -423,13 +440,9 @@ func gajiCategoryFromRekening(def GajiRekeningDef) string {
 		}
 		return "tpp_pns"
 	case "tpg":
-		if strings.Contains(strings.ToUpper(def.Nama), "TAMSIL") {
-			return "tamsil"
-		}
-		if def.Jenis == "pppk" {
-			return "tpg"
-		}
 		return "tpg"
+	case "tamsil":
+		return "tamsil"
 	case "potongan":
 		return "potongan"
 	default:
@@ -475,8 +488,10 @@ func gajiGrupFromCategory(category string) string {
 		return "gaji"
 	case "tpp_pns", "tpp_pppk":
 		return "tpp"
-	case "tpg", "tamsil":
+	case "tpg":
 		return "tpg"
+	case "tamsil":
+		return "tamsil"
 	case "potongan":
 		return "potongan"
 	default:

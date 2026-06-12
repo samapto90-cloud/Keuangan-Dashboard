@@ -196,6 +196,8 @@ func loadGajiFromDisk() bool {
 	if gajiState.Pegawai == nil {
 		gajiState.Pegawai = map[string]int{}
 	}
+	normalizeGajiRekeningGrups(&gajiState)
+	gajiSyncCategoryFromRekening(&gajiState)
 	gajiMu.Unlock()
 	log.Printf("Data gaji tunjangan dimuat dari %s", gajiDataPath())
 	return true

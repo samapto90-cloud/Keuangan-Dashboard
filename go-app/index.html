@@ -6311,7 +6311,11 @@ function initManualNumericInputUX() {
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-tpg" onclick="showGajiPage('realisasi',this,'tpg');return false">
           <span class="kas-nav-icon"><i class="bi bi-mortarboard"></i></span>
-          <span class="kas-nav-text">TPG &amp; Tamsil</span>
+          <span class="kas-nav-text">TPG</span>
+        </a>
+        <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-tamsil" onclick="showGajiPage('realisasi',this,'tamsil');return false">
+          <span class="kas-nav-icon"><i class="bi bi-award"></i></span>
+          <span class="kas-nav-text">Tamsil</span>
         </a>
         <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-potongan" onclick="showGajiPage('realisasi',this,'potongan');return false">
           <span class="kas-nav-icon"><i class="bi bi-scissors"></i></span>
@@ -6430,6 +6434,7 @@ function initManualNumericInputUX() {
               <button type="button" class="gaji-grup-tab active" data-grup="gaji" onclick="switchGajiMatrixGrup('gaji',this)">Gaji</button>
               <button type="button" class="gaji-grup-tab" data-grup="tpp" onclick="switchGajiMatrixGrup('tpp',this)">TPP</button>
               <button type="button" class="gaji-grup-tab" data-grup="tpg" onclick="switchGajiMatrixGrup('tpg',this)">TPG</button>
+              <button type="button" class="gaji-grup-tab" data-grup="tamsil" onclick="switchGajiMatrixGrup('tamsil',this)">Tamsil</button>
               <button type="button" class="gaji-grup-tab" data-grup="potongan" onclick="switchGajiMatrixGrup('potongan',this)">Potongan</button>
             </div>
           </div>
@@ -6472,12 +6477,12 @@ function initManualNumericInputUX() {
       </div>
       <div id="gaji-page-realisasi" class="gaji-page kas-page">
         <div class="kas-card gaji-pro-card">
-          <div class="kas-toolbar justify-content-between flex-wrap">
-            <div>
-              <h6 class="mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i><span id="gaji-realisasi-title">Realisasi</span> · <span id="gaji-realisasi-bulan-label">—</span></h6>
-              <small>Input per <strong>kode rekening</strong> — pegawai, anggaran &amp; realisasi bulan aktif (seperti SIPD, disederhanakan)</small>
+          <div class="gaji-card-header">
+            <div class="gaji-card-header-text">
+              <h6><i class="bi bi-pencil-square me-2"></i><span id="gaji-realisasi-title">Realisasi</span> · <span id="gaji-realisasi-bulan-label">—</span></h6>
+              <p>Input pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> — bulan aktif</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
               <button type="button" class="btn btn-outline-warning btn-sm" id="btn-gaji-unlock" onclick="unlockGajiRealisasiBulan()" disabled><i class="bi bi-unlock me-1"></i>Perbaiki Bulan</button>
               <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
             </div>
@@ -16165,10 +16170,11 @@ async function exportKasExcel() {
 const GAJI_GRUPS = [
   { id: 'gaji', label: 'Gaji ASN', icon: 'wallet2' },
   { id: 'tpp', label: 'TPP', icon: 'cash-stack' },
-  { id: 'tpg', label: 'TPG & Tamsil', icon: 'mortarboard' },
+  { id: 'tpg', label: 'TPG', icon: 'mortarboard' },
+  { id: 'tamsil', label: 'Tamsil', icon: 'award' },
   { id: 'potongan', label: 'Potongan', icon: 'scissors' },
 ];
-const GAJI_GRUP_LABELS = { gaji: 'Gaji ASN', tpp: 'TPP', tpg: 'TPG & Tamsil', potongan: 'Potongan' };
+const GAJI_GRUP_LABELS = { gaji: 'Gaji ASN', tpp: 'TPP', tpg: 'TPG', tamsil: 'Tamsil', potongan: 'Potongan' };
 const GAJI_CATEGORIES = [
   { id: 'gaji_pns', label: 'Gaji PNS' },
   { id: 'gaji_pppk', label: 'Gaji PPPK' },
@@ -17034,9 +17040,12 @@ function findGajiRakHeaderIndices(rows) {
 function classifyGajiRekGrup(kode, nama) {
   const k = String(kode || '');
   const n = String(nama || '').toUpperCase();
-  if (k.includes('5.1.01.02.006')) return 'tpg';
   if (k.includes('.007.') || k.includes('.009.') || k.includes('.010.') || k.includes('.011.') || k.includes('.012.') ||
       n.includes('PPh') || n.includes('IURAN JAMINAN') || n.includes('IURAN SIMPANAN')) return 'potongan';
+  if (k.includes('5.1.01.02.006') || n.includes('TPG') || n.includes('TAMSIL')) {
+    if (n.includes('TAMSIL')) return 'tamsil';
+    return 'tpg';
+  }
   if (k.startsWith('5.1.01.02.')) return 'tpp';
   return 'gaji';
 }

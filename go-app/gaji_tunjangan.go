@@ -20,7 +20,7 @@ var gajiCategories = []GajiCategoryDef{
 	{ID: "tpp_pns", Label: "TPP PNS", Group: "tpp"},
 	{ID: "tpp_pppk", Label: "TPP PPPK", Group: "tpp"},
 	{ID: "tpg", Label: "TPG", Group: "tpg"},
-	{ID: "tamsil", Label: "Tamsil", Group: "tpg"},
+	{ID: "tamsil", Label: "Tamsil", Group: "tamsil"},
 }
 
 var gajiCategoryLabels = map[string]string{
