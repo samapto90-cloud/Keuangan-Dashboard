@@ -2472,7 +2472,7 @@
       background: var(--gaji-surface); box-shadow: var(--gaji-elev-1);
       max-height: calc(100vh - 320px);
     }
-    #gaji-app-shell .kas-table th {
+    #gaji-app-shell .kas-table:not(.gaji-rekap-table):not(.gaji-keb-table) th {
       background: var(--gaji-surface-2); color: var(--gaji-text-muted);
       border-bottom: 2px solid var(--gaji-outline);
       font-weight: 700; letter-spacing: .04em;
@@ -4692,7 +4692,7 @@
       background: #fff !important; border: 1px solid rgba(14,165,233,.1) !important;
       border-radius: 16px !important; box-shadow: 0 4px 16px rgba(15,23,42,.04) !important;
     }
-    #gaji-app-shell .kas-table th { background: #f8fafc !important; color: #475569 !important; font-weight: 700 !important; }
+    #gaji-app-shell .kas-table:not(.gaji-rekap-table):not(.gaji-keb-table) th { background: #f8fafc !important; color: #475569 !important; font-weight: 700 !important; }
     #gaji-app-shell .kas-table td { color: #0f172a !important; }
     #gaji-app-shell .kas-table input.kas-input {
       font-family: 'JetBrains Mono', monospace !important;
@@ -5101,43 +5101,62 @@
     }
     #gaji-app-shell .gaji-rekap-table thead th {
       padding: 10px 8px; font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .04em;
-      border-bottom: 1px solid rgba(255,255,255,.15); white-space: nowrap;
+      text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+      white-space: nowrap; color: #fff !important;
+      text-align: center; vertical-align: middle;
     }
     #gaji-app-shell .gaji-rekap-table thead tr:first-child th {
-      background: #1E3A8A; color: #fff; position: sticky; top: 0; z-index: 3;
+      background: #1E3A8A; position: sticky; top: 0; z-index: 3;
+      padding: 11px 10px; font-size: 10px;
+      border-right: 1px solid rgba(255,255,255,.12);
     }
+    #gaji-app-shell .gaji-rekap-table thead tr:first-child th:last-child { border-right: none; }
     #gaji-app-shell .gaji-rekap-table thead tr:nth-child(2) th {
-      background: #334155; color: rgba(255,255,255,.9);
-      position: sticky; top: 38px; z-index: 2; font-size: 9px; padding: 7px 6px;
+      position: sticky; top: 40px; z-index: 2;
+      font-size: 9px; font-weight: 600; padding: 8px 6px;
+      color: rgba(255,255,255,.95) !important;
+      border-right: 1px solid rgba(255,255,255,.1);
+      letter-spacing: .04em;
     }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pns { background: #1e40af !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pppk { background: #0e7490 !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pns { background: #047857 !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pppk { background: #059669 !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg { background: #7c3aed !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil { background: #b45309 !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-total { background: #172554 !important; }
+    #gaji-app-shell .gaji-rekap-table thead tr:nth-child(2) th.gaji-rekap-sub:nth-child(3n) { border-right: 1px solid rgba(255,255,255,.22); }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pns { background: #1e40af !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pppk { background: #0e7490 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pns { background: #047857 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pppk { background: #059669 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg { background: #7c3aed !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil { background: #b45309 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-total { background: #172554 !important; color: #fff !important; }
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-sticky {
-      position: sticky; left: 0; z-index: 4;
-      background: #1E3A8A !important; min-width: 88px;
-      box-shadow: 2px 0 6px rgba(0,0,0,.08);
+      position: sticky; left: 0; z-index: 10;
+      background: #1E3A8A !important; min-width: 108px; width: 108px; max-width: 108px;
+      box-shadow: 4px 0 12px rgba(15,23,42,.14);
+      color: #fff !important; text-align: left !important;
+      border-right: 2px solid rgba(255,255,255,.2) !important;
+      padding-left: 12px !important; padding-right: 12px !important;
     }
     #gaji-app-shell .gaji-rekap-table thead tr:nth-child(2) th.gaji-rekap-sticky {
-      background: #334155 !important; z-index: 4;
+      background: #1e293b !important; z-index: 10; text-align: left !important;
     }
+    #gaji-app-shell .gaji-rekap-table thead th.kas-num { text-align: center !important; color: rgba(255,255,255,.95) !important; }
     #gaji-app-shell .gaji-rekap-table tbody td {
       padding: 8px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle;
     }
     #gaji-app-shell .gaji-rekap-table tbody tr:nth-child(even) td { background: #FAFBFC; }
     #gaji-app-shell .gaji-rekap-table tbody tr:hover td { background: #EFF6FF; }
     #gaji-app-shell .gaji-rekap-table tbody td.gaji-rekap-sticky {
-      position: sticky; left: 0; z-index: 1;
-      background: inherit; font-weight: 700; color: var(--gaji-primary);
-      box-shadow: 2px 0 6px rgba(0,0,0,.04);
+      position: sticky; left: 0; z-index: 3;
+      background: #fff !important;
+      font-weight: 700; color: var(--gaji-primary);
+      min-width: 108px; width: 108px; max-width: 108px;
+      white-space: nowrap;
+      padding-left: 12px !important; padding-right: 12px !important;
+      box-shadow: 4px 0 12px rgba(15,23,42,.08);
+      border-right: 2px solid #E2E8F0 !important;
+      isolation: isolate;
     }
-    #gaji-app-shell .gaji-rekap-table tbody tr:nth-child(even) td.gaji-rekap-sticky { background: #FAFBFC; }
-    #gaji-app-shell .gaji-rekap-table tbody tr:hover td.gaji-rekap-sticky { background: #EFF6FF; }
+    #gaji-app-shell .gaji-rekap-table tbody tr:nth-child(even) td.gaji-rekap-sticky { background: #FAFBFC !important; }
+    #gaji-app-shell .gaji-rekap-table tbody tr:hover td.gaji-rekap-sticky { background: #EFF6FF !important; }
     #gaji-app-shell .gaji-rekap-table tbody td.kas-num {
       font-family: 'JetBrains Mono', monospace; font-size: 10px;
       text-align: right; white-space: nowrap; min-width: 118px;
@@ -5155,7 +5174,12 @@
       font-family: 'JetBrains Mono', monospace;
     }
     #gaji-app-shell .gaji-rekap-table tfoot td.gaji-rekap-sticky {
-      position: sticky; left: 0; z-index: 1; background: #DBEAFE;
+      position: sticky; left: 0; z-index: 3;
+      background: #DBEAFE !important;
+      min-width: 108px; width: 108px; max-width: 108px;
+      padding-left: 12px !important; padding-right: 12px !important;
+      box-shadow: 4px 0 12px rgba(15,23,42,.08);
+      border-right: 2px solid rgba(30,58,138,.18) !important;
     }
 
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
@@ -6770,7 +6794,7 @@ function initManualNumericInputUX() {
           <span class="gaji-brand-mark">SIPKEU</span>
           <span class="gaji-brand-name">Gaji &amp; Tunjangan ASN</span>
         </h6>
-        <div class="gaji-tech-badge"><i class="bi bi-building"></i> Dinas Pendidikan · Batam</div>
+        <div class="gaji-tech-badge"><i class="bi bi-person-badge"></i> Nurul Fazira</div>
       </div>
     </div>
     <nav class="kas-sidebar-nav gaji-pro-nav">
@@ -16826,15 +16850,9 @@ async function bootGajiApp(fromRestore = true) {
   await loadGajiData();
 }
 
-async function loadGajiBuildLabel() {
-  try {
-    const res = await fetch(API.replace('/data', '') + '/health', { cache: 'no-store' });
-    const data = await res.json();
-    const badge = document.querySelector('#gaji-sidebar .gaji-tech-badge');
-    if (badge && data.build && data.build !== 'dev') {
-      badge.innerHTML = `<i class="bi bi-stars"></i> Finance Pro · build ${escHtml(data.build)}`;
-    }
-  } catch (_) { /* ignore */ }
+function loadGajiBuildLabel() {
+  const badge = document.querySelector('#gaji-sidebar .gaji-tech-badge');
+  if (badge) badge.innerHTML = '<i class="bi bi-person-badge"></i> Nurul Fazira';
 }
 
 function normalizeGajiGrup(grup) {
