@@ -19,17 +19,21 @@ var gajiCategories = []GajiCategoryDef{
 	{ID: "gaji_pppk", Label: "Gaji PPPK", Group: "gaji"},
 	{ID: "tpp_pns", Label: "TPP PNS", Group: "tpp"},
 	{ID: "tpp_pppk", Label: "TPP PPPK", Group: "tpp"},
-	{ID: "tpg", Label: "TPG", Group: "tpg"},
-	{ID: "tamsil", Label: "Tamsil", Group: "tamsil"},
+	{ID: "tpg_pns", Label: "TPG PNS", Group: "tpg"},
+	{ID: "tpg_pppk", Label: "TPG PPPK", Group: "tpg"},
+	{ID: "tamsil_pns", Label: "Tamsil PNS", Group: "tamsil"},
+	{ID: "tamsil_pppk", Label: "Tamsil PPPK", Group: "tamsil"},
 }
 
 var gajiCategoryLabels = map[string]string{
-	"gaji_pns":  "Gaji PNS",
-	"gaji_pppk": "Gaji PPPK",
-	"tpp_pns":   "TPP PNS",
-	"tpp_pppk":  "TPP PPPK",
-	"tpg":       "TPG",
-	"tamsil":    "Tamsil",
+	"gaji_pns":    "Gaji PNS",
+	"gaji_pppk":   "Gaji PPPK",
+	"tpp_pns":     "TPP PNS",
+	"tpp_pppk":    "TPP PPPK",
+	"tpg_pns":     "TPG PNS",
+	"tpg_pppk":    "TPG PPPK",
+	"tamsil_pns":  "Tamsil PNS",
+	"tamsil_pppk": "Tamsil PPPK",
 }
 
 type GajiMonthCell struct {
@@ -211,7 +215,6 @@ func buildGajiCategoryReport(state GajiTunjanganState, category, reportingMonth 
 }
 
 func buildGajiRekap(state GajiTunjanganState) []GajiRekapBulanRow {
-	// Rekap per periode gaji (14 periode) — agregat semua kategori yang punya periode sama
 	periodOrder := gajiRealisasiPeriods
 	out := make([]GajiRekapBulanRow, 0, len(periodOrder))
 	for _, p := range periodOrder {
@@ -221,12 +224,10 @@ func buildGajiRekap(state GajiTunjanganState) []GajiRekapBulanRow {
 			Categories: map[string]GajiMonthCell{},
 		}
 		for _, cat := range gajiCategories {
-			cell := gajiGetCell(state, cat.ID, p.Key)
-			if cell.Realisasi == 0 && cell.Anggaran == 0 {
-				// TPP/TPG pakai periode berbeda — map ke periode setara jika ada
-				if alt := gajiGetCell(state, cat.ID, p.Key); alt.Realisasi > 0 {
-					cell = alt
-				}
+			lookup := gajiRekapLookupPeriod(cat.ID, p.Key)
+			cell := GajiMonthCell{}
+			if lookup != "" {
+				cell = gajiGetCell(state, cat.ID, lookup)
 			}
 			row.Categories[cat.ID] = cell
 			row.TotalAnggaran += cell.Anggaran

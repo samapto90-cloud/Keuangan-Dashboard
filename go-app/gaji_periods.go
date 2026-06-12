@@ -62,10 +62,31 @@ func gajiPeriodsForCategory(category string) []gajiPeriodDef {
 		return gajiRealisasiPeriods
 	case "tpp_pns", "tpp_pppk":
 		return tppRealisasiPeriods
-	case "tpg", "tamsil":
+	case "tpg_pns", "tpg_pppk", "tamsil_pns", "tamsil_pppk":
 		return tpgRealisasiPeriods
 	default:
 		return nil
+	}
+}
+
+// gajiRekapLookupPeriod — baris rekap memakai periode gaji bulanan; TPG/Tamsil disimpan per TW.
+func gajiRekapLookupPeriod(categoryID, rowPeriodKey string) string {
+	switch categoryID {
+	case "tpg_pns", "tpg_pppk", "tamsil_pns", "tamsil_pppk":
+		switch rowPeriodKey {
+		case "januari":
+			return "tw1"
+		case "april":
+			return "tw2"
+		case "juli":
+			return "tw3"
+		case "oktober":
+			return "tw4"
+		default:
+			return ""
+		}
+	default:
+		return rowPeriodKey
 	}
 }
 
@@ -144,7 +165,7 @@ func gajiRealisasiSDEndIndex(category, reportingMonth string) int {
 			return idx
 		}
 		return 6
-	case "tpg", "tamsil":
+	case "tpg_pns", "tpg_pppk", "tamsil_pns", "tamsil_pppk":
 		q := map[string]int{
 			"januari": 0, "februari": 0, "maret": 0,
 			"april": 1, "mei": 1, "juni": 1,
@@ -225,11 +246,11 @@ func gajiGetPagu(state GajiTunjanganState, category string) float64 {
 func gajiPegawaiForCategory(state GajiTunjanganState, category string) int {
 	if state.Pegawai != nil {
 		switch category {
-		case "gaji_pns", "tpp_pns", "tpg":
+		case "gaji_pns", "tpp_pns", "tpg_pns", "tamsil_pns":
 			if v := state.Pegawai["pns"]; v > 0 {
 				return v
 			}
-		case "gaji_pppk", "tpp_pppk", "tamsil":
+		case "gaji_pppk", "tpp_pppk", "tpg_pppk", "tamsil_pppk":
 			if v := state.Pegawai["pppk"]; v > 0 {
 				return v
 			}

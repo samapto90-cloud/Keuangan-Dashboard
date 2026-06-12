@@ -5130,8 +5130,10 @@
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pppk { background: #0e7490 !important; color: #fff !important; }
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pns { background: #047857 !important; color: #fff !important; }
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pppk { background: #059669 !important; color: #fff !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg { background: #7c3aed !important; color: #fff !important; }
-    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil { background: #b45309 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg_pns { background: #7c3aed !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg_pppk { background: #6d28d9 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil_pns { background: #b45309 !important; color: #fff !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil_pppk { background: #92400e !important; color: #fff !important; }
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-total { background: #172554 !important; color: #fff !important; }
     #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-sticky-label {
       position: sticky; left: 0; top: 0; z-index: 12;
@@ -16784,8 +16786,10 @@ const GAJI_CATEGORIES = [
   { id: 'gaji_pppk', label: 'Gaji PPPK' },
   { id: 'tpp_pns', label: 'TPP PNS' },
   { id: 'tpp_pppk', label: 'TPP PPPK' },
-  { id: 'tpg', label: 'TPG' },
-  { id: 'tamsil', label: 'Tamsil' },
+  { id: 'tpg_pns', label: 'TPG PNS' },
+  { id: 'tpg_pppk', label: 'TPG PPPK' },
+  { id: 'tamsil_pns', label: 'Tamsil PNS' },
+  { id: 'tamsil_pppk', label: 'Tamsil PPPK' },
 ];
 const GAJI_BULAN_LIST = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
 const GAJI_BULAN_LABELS = {
@@ -16947,7 +16951,7 @@ function gajiGetPegawaiCounts() {
 }
 
 function gajiPegawaiKindForCategory(categoryId) {
-  if (['gaji_pppk', 'tpp_pppk', 'tamsil'].includes(categoryId)) return 'PPPK';
+  if (['gaji_pppk', 'tpp_pppk', 'tpg_pppk', 'tamsil_pppk'].includes(categoryId)) return 'PPPK';
   return 'PNS';
 }
 
@@ -17942,8 +17946,13 @@ function classifyGajiRakCategory(kode, nama) {
   const n = String(nama || '').toUpperCase();
   if (!k.startsWith('5.1.01.')) return '';
   if (k.startsWith('5.1.01.02.006')) {
-    if (n.includes('TPG')) return 'tpg';
-    if (n.includes('TAMSIL')) return 'tamsil';
+    const jenis = gajiRekJenis(nama, kode);
+    if (n.includes('TPG') || n.includes('TUNJANGAN PROFESI')) {
+      return jenis === 'pppk' ? 'tpg_pppk' : 'tpg_pns';
+    }
+    if (n.includes('TAMSIL')) {
+      return jenis === 'pppk' ? 'tamsil_pppk' : 'tamsil_pns';
+    }
     return '';
   }
   if (k.startsWith('5.1.01.02.')) {
@@ -18016,7 +18025,7 @@ function parseGajiRakAnggaranWorkbook(wb) {
   const cells = {};
   GAJI_CATEGORIES.forEach(c => { cells[c.id] = {}; });
   GAJI_CATEGORIES.forEach(c => {
-    if (c.id === 'tpg' || c.id === 'tamsil') {
+    if (['tpg_pns', 'tpg_pppk', 'tamsil_pns', 'tamsil_pppk'].includes(c.id)) {
       GAJI_TW_QUARTERS.forEach(q => {
         const amt = q.months.reduce((s, m) => s + (bulanAgg[c.id][m] || 0), 0);
         if (amt > 0) cells[c.id][q.key] = { jumlah_pegawai: 0, anggaran: amt, realisasi: 0 };
@@ -18116,7 +18125,8 @@ function parseGajiTemplateWorkbook(wb) {
 
   // PERHITUNGAN — pagu per kode rekening
   const perRows = sheetRows('PERHITUNGAN');
-  let paguGajiPNS = 0, paguGajiPPPK = 0, paguTPPPNS = 0, paguTPPPPPK = 0, paguTPG = 0, paguTamsil = 0;
+  let paguGajiPNS = 0, paguGajiPPPK = 0, paguTPPPNS = 0, paguTPPPPPK = 0;
+  let paguTPGPNS = 0, paguTPGPPPK = 0, paguTamsilPNS = 0, paguTamsilPPPK = 0;
   for (const row of perRows) {
     const u = String(row[1] || row[0] || '').toLowerCase();
     const p = num(row[2]);
@@ -18125,10 +18135,10 @@ function parseGajiTemplateWorkbook(wb) {
     else if (u.includes('5.1.01.') && u.includes('pns')) paguGajiPNS += p;
     else if (u.includes('5.1.02.') && u.includes('pppk')) paguTPPPPPK += p;
     else if (u.includes('5.1.02.') && u.includes('pns')) paguTPPPNS += p;
-    else if (u.includes('tpg') && u.includes('pns')) paguTPG += p;
-    else if (u.includes('tpg') && u.includes('pppk')) paguTPG += p;
-    else if (u.includes('tamsil') && u.includes('pns')) paguTamsil += p;
-    else if (u.includes('tamsil') && u.includes('pppk')) paguTamsil += p;
+    else if (u.includes('tpg') && u.includes('pppk')) paguTPGPPPK += p;
+    else if (u.includes('tpg') && u.includes('pns')) paguTPGPNS += p;
+    else if (u.includes('tamsil') && u.includes('pppk')) paguTamsilPPPK += p;
+    else if (u.includes('tamsil') && u.includes('pns')) paguTamsilPNS += p;
     const label0 = String(row[0] || '').toUpperCase();
     if (label0.includes('PEGAWAI') && !label0.includes('PENGGUNA')) {
       const pns = parseInt(num(row[1]), 10);
@@ -18141,8 +18151,10 @@ function parseGajiTemplateWorkbook(wb) {
   pagu.gaji_pppk = paguGajiPPPK;
   pagu.tpp_pns = paguTPPPNS;
   pagu.tpp_pppk = paguTPPPPPK;
-  pagu.tpg = paguTPG;
-  pagu.tamsil = paguTamsil;
+  pagu.tpg_pns = paguTPGPNS;
+  pagu.tpg_pppk = paguTPGPPPK;
+  pagu.tamsil_pns = paguTamsilPNS;
+  pagu.tamsil_pppk = paguTamsilPPPK;
 
   return { cells, pagu, pegawai };
 }
@@ -18190,7 +18202,7 @@ function previewGajiRakAnggaran(wb, fileName) {
       const p = parsed.pagu[c.id] || 0;
       if (p > 0) rows.push({ label: c.label, bulan: 'Pagu TA', anggaran: p });
       const cellMap = parsed.cells[c.id] || {};
-      if (c.id === 'tpg' || c.id === 'tamsil') {
+      if (['tpg_pns', 'tpg_pppk', 'tamsil_pns', 'tamsil_pppk'].includes(c.id)) {
         GAJI_TW_QUARTERS.forEach(q => {
           const amt = cellMap[q.key]?.anggaran || 0;
           if (amt > 0) rows.push({ label: c.label, bulan: q.label, anggaran: amt });

@@ -38,8 +38,12 @@ func gajiRekeningFilterKey(catID string) string {
 	switch catID {
 	case "tpp_pns", "tpp_pppk":
 		return "tpp"
-	case "tamsil":
+	case "tpg_pns", "tpg_pppk":
+		return "tpg"
+	case "tamsil_pns", "tamsil_pppk":
 		return "tamsil"
+	case "tpg", "tamsil":
+		return catID
 	default:
 		return catID
 	}

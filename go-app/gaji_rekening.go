@@ -531,6 +531,10 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 			state.Cells[catID][b] = cell
 		}
 	}
+	delete(state.Pagu, "tpg")
+	delete(state.Pagu, "tamsil")
+	delete(state.Cells, "tpg")
+	delete(state.Cells, "tamsil")
 }
 
 func gajiCategoryFromRekening(def GajiRekeningDef) string {
@@ -546,9 +550,15 @@ func gajiCategoryFromRekening(def GajiRekeningDef) string {
 		}
 		return "tpp_pns"
 	case "tpg":
-		return "tpg"
+		if def.Jenis == "pppk" {
+			return "tpg_pppk"
+		}
+		return "tpg_pns"
 	case "tamsil":
-		return "tamsil"
+		if def.Jenis == "pppk" {
+			return "tamsil_pppk"
+		}
+		return "tamsil_pns"
 	default:
 		return ""
 	}
@@ -570,10 +580,12 @@ func gajiGrupFromCategory(category string) string {
 		return "gaji"
 	case "tpp_pns", "tpp_pppk":
 		return "tpp"
-	case "tpg":
+	case "tpg_pns", "tpg_pppk":
 		return "tpg"
-	case "tamsil":
+	case "tamsil_pns", "tamsil_pppk":
 		return "tamsil"
+	case "tpg", "tamsil":
+		return category
 	default:
 		return category
 	}
