@@ -4956,6 +4956,22 @@
       white-space: nowrap !important; overflow: visible !important;
       font-size: 13px !important;
     }
+    #gaji-app-shell .gaji-keb-summary-period strong {
+      display: inline !important; white-space: normal !important;
+    }
+    #gaji-app-shell .gaji-keb-period-badges {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+    }
+    #gaji-app-shell .gaji-keb-period-badge {
+      display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px;
+      background: #EFF6FF; border: 1px solid rgba(30,58,138,.22);
+      color: #1E3A8A; font-size: 10px; font-weight: 700;
+      font-family: 'Roboto Mono', monospace; line-height: 1.3;
+    }
+    #gaji-app-shell .gaji-keb-period-year {
+      display: block; margin-top: 6px; color: var(--gaji-primary) !important;
+      font-size: 13px !important; font-family: 'Roboto Mono', monospace !important;
+    }
     #gaji-app-shell .gaji-realisasi-table-wrap { overflow-x: auto !important; overflow-y: visible !important; }
     #gaji-app-shell .gaji-rek-table { min-width: 920px !important; table-layout: auto !important; }
     #gaji-app-shell .gaji-rek-table td.gaji-rek-num,
@@ -17388,11 +17404,53 @@ function getGajiKebBulanList() {
   return [getGajiBulan()];
 }
 
+function gajiKebSortedBulanList(list) {
+  return [...(list || [])].sort((a, b) => GAJI_BULAN_LIST.indexOf(a) - GAJI_BULAN_LIST.indexOf(b));
+}
+
+function gajiKebBulanRanges(list) {
+  const sorted = gajiKebSortedBulanList(list);
+  if (!sorted.length) return [];
+  const ranges = [];
+  let start = sorted[0], prev = sorted[0];
+  let prevIdx = GAJI_BULAN_LIST.indexOf(sorted[0]);
+  for (let i = 1; i < sorted.length; i++) {
+    const m = sorted[i];
+    const idx = GAJI_BULAN_LIST.indexOf(m);
+    if (idx === prevIdx + 1) prev = m;
+    else {
+      ranges.push([start, prev]);
+      start = prev = m;
+    }
+    prevIdx = idx;
+  }
+  ranges.push([start, prev]);
+  return ranges;
+}
+
 function gajiKebBulanLabel(list) {
   if (!list?.length) return '—';
-  if (list.length === 1) return GAJI_BULAN_LABELS[list[0]] || list[0];
-  if (list.length === GAJI_BULAN_LIST.length) return 'Jan–Des ' + getGajiKebTahun();
-  return list.map(b => (GAJI_BULAN_LABELS[b] || b).slice(0, 3)).join(', ');
+  const sorted = gajiKebSortedBulanList(list);
+  if (sorted.length === 1) return GAJI_BULAN_LABELS[sorted[0]] || sorted[0];
+  if (sorted.length === GAJI_BULAN_LIST.length) return 'Jan–Des';
+  return gajiKebBulanRanges(sorted).map(([a, b]) => {
+    const sa = GAJI_BULAN_SHORT[a] || a;
+    const sb = GAJI_BULAN_SHORT[b] || b;
+    return a === b ? sa : `${sa}–${sb}`;
+  }).join(', ');
+}
+
+function gajiKebPeriodSummaryHtml(bulanList, tahun) {
+  if (!bulanList?.length) return '<strong>—</strong>';
+  const sorted = gajiKebSortedBulanList(bulanList);
+  if (sorted.length === 1) {
+    return `<strong>${GAJI_BULAN_LABELS[sorted[0]] || sorted[0]} ${tahun}</strong>`;
+  }
+  if (sorted.length === GAJI_BULAN_LIST.length) {
+    return `<strong>Jan–Des ${tahun}</strong>`;
+  }
+  const badges = sorted.map(b => `<span class="gaji-keb-period-badge">${GAJI_BULAN_SHORT[b] || b}</span>`).join('');
+  return `<div class="gaji-keb-period-badges">${badges}</div><strong class="gaji-keb-period-year">${tahun}</strong>`;
 }
 
 function getGajiKebBulan() {
@@ -17507,8 +17565,7 @@ function renderGajiKebutuhan() {
   }
   if (summaryEl) {
     summaryEl.innerHTML = [
-      `<div class="chip"><span class="text-muted">Periode</span><strong>${bulanLabel} ${tahun}</strong></div>`,
-      `<div class="chip"><span class="text-muted">Baris</span><strong>${rows.length}</strong></div>`,
+      `<div class="chip gaji-keb-summary-period"><span class="text-muted">Periode</span>${gajiKebPeriodSummaryHtml(bulanList, tahun)}</div>`,
       `<div class="chip"><span class="text-muted">Anggaran${multi ? ' Terpilih' : ' Bulan'}</span><strong>${formatRupiah(totAng)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Total Kebutuhan</span><strong>${formatRupiah(totKeb)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Total Surplus</span><strong>${formatRupiah(totSur)}</strong></div>`,
