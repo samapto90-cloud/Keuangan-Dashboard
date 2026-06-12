@@ -4902,6 +4902,7 @@
     #gaji-app-shell .gaji-peg-save {
       padding: 10px 18px !important; font-size: 12px !important; white-space: nowrap;
     }
+    #gaji-app-shell .gaji-pegawai-strip.is-hidden { display: none !important; }
 
     /* Konten & kartu */
     #gaji-app-shell .kas-content { padding: 20px 24px 32px !important; }
@@ -6891,7 +6892,7 @@ function initManualNumericInputUX() {
               <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
             </select>
           </div>
-          <div class="gaji-pegawai-strip" id="gaji-pegawai-strip">
+          <div class="gaji-pegawai-strip is-hidden" id="gaji-pegawai-strip">
             <div class="gaji-peg-chip gaji-peg-chip-pns">
               <span class="lbl"><i class="bi bi-person-badge"></i> PNS</span>
               <input type="number" id="gaji-peg-pns" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PNS" placeholder="0" />
@@ -16873,12 +16874,18 @@ function normalizeGajiGrup(grup) {
   return grup;
 }
 
+function updateGajiTopbarForPage(page) {
+  const pegStrip = document.getElementById('gaji-pegawai-strip');
+  if (pegStrip) pegStrip.classList.toggle('is-hidden', page !== 'realisasi');
+}
+
 function showGajiPage(page, navEl, grup) {
   if (grup) gajiActiveGrup = normalizeGajiGrup(grup);
   document.querySelectorAll('#gaji-app-shell .gaji-page').forEach(p => p.classList.remove('active'));
   document.getElementById('gaji-page-' + page)?.classList.add('active');
   document.querySelectorAll('#gaji-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
+  updateGajiTopbarForPage(page);
   const titles = {
     dashboard: 'Dashboard Gaji & Tunjangan ASN',
     matrix: 'Matrix Rekening · ' + (GAJI_GRUP_LABELS[gajiActiveGrup] || 'Gaji ASN'),
