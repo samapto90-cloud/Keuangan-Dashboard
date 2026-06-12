@@ -109,14 +109,49 @@ func gajiSumRekeningRealisasiSD(state GajiTunjanganState, kode, sdBulan string) 
 	return total
 }
 
+func parseGajiKebutuhanBulanList(raw string) []string {
+	if strings.TrimSpace(raw) == "" {
+		return []string{currentBulanKey()}
+	}
+	seen := map[string]bool{}
+	var out []string
+	for _, p := range strings.Split(raw, ",") {
+		b := normalizeBulanKey(strings.TrimSpace(p))
+		if b == "" || seen[b] {
+			continue
+		}
+		seen[b] = true
+		out = append(out, b)
+	}
+	if len(out) == 0 {
+		return []string{currentBulanKey()}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return gajiBulanIndex(out[i]) < gajiBulanIndex(out[j])
+	})
+	return out
+}
+
+func gajiSumRekeningRealisasiMonths(state GajiTunjanganState, kode string, bulanList []string) float64 {
+	var total float64
+	for _, b := range bulanList {
+		total += gajiGetRekeningCell(state, kode, b).Realisasi
+	}
+	return total
+}
+
 func buildGajiKebutuhanRekening(state GajiTunjanganState, bulan string, filters []string) []GajiKebutuhanRekeningRow {
-	bulan = normalizeBulanKey(bulan)
-	if bulan == "" {
-		bulan = currentBulanKey()
+	return buildGajiKebutuhanRekeningMulti(state, parseGajiKebutuhanBulanList(bulan), filters)
+}
+
+func buildGajiKebutuhanRekeningMulti(state GajiTunjanganState, bulanList []string, filters []string) []GajiKebutuhanRekeningRow {
+	if len(bulanList) == 0 {
+		bulanList = []string{currentBulanKey()}
 	}
 	if len(filters) == 0 {
 		filters = gajiKebutuhanFilterKeys()
 	}
+	multi := len(bulanList) > 1
 	var rows []GajiKebutuhanRekeningRow
 	for _, def := range state.Rekening {
 		if def.Potongan {
@@ -126,9 +161,17 @@ func buildGajiKebutuhanRekening(state GajiTunjanganState, bulan string, filters 
 		if !gajiRekeningMatchesKebutuhanFilter(catID, filters) {
 			continue
 		}
-		cell := gajiGetRekeningCell(state, def.Kode, bulan)
-		kebutuhan := gajiGetKebutuhanManual(state, def.Kode, bulan)
-		anggaran := cell.Anggaran
+		var anggaran, kebutuhan, realisasi float64
+		for _, b := range bulanList {
+			cell := gajiGetRekeningCell(state, def.Kode, b)
+			anggaran += cell.Anggaran
+			kebutuhan += gajiGetKebutuhanManual(state, def.Kode, b)
+		}
+		if multi {
+			realisasi = gajiSumRekeningRealisasiMonths(state, def.Kode, bulanList)
+		} else {
+			realisasi = gajiSumRekeningRealisasiSD(state, def.Kode, bulanList[0])
+		}
 		surplus := anggaran - kebutuhan
 		kegiatan := strings.TrimSpace(def.Kegiatan)
 		subKeg := strings.TrimSpace(def.SubKegiatan)
@@ -148,7 +191,7 @@ func buildGajiKebutuhanRekening(state GajiTunjanganState, bulan string, filters 
 			FilterKey:     gajiRekeningFilterKey(catID),
 			Pagu:          def.Pagu,
 			Anggaran:      anggaran,
-			RealisasiSD:   gajiSumRekeningRealisasiSD(state, def.Kode, bulan),
+			RealisasiSD:   realisasi,
 			Kebutuhan:     kebutuhan,
 			Surplus:       surplus,
 		})
@@ -167,9 +210,10 @@ func handleGajiSaveKebutuhan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
-		Tahun int `json:"tahun"`
-		Bulan string `json:"bulan"`
-		Rows  []struct {
+		Tahun     int      `json:"tahun"`
+		Bulan     string   `json:"bulan"`
+		BulanList []string `json:"bulan_list"`
+		Rows      []struct {
 			Kode      string  `json:"kode"`
 			Kebutuhan float64 `json:"kebutuhan"`
 		} `json:"rows"`
@@ -178,9 +222,9 @@ func handleGajiSaveKebutuhan(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		return
 	}
-	bulan := normalizeBulanKey(payload.Bulan)
-	if bulan == "" {
-		bulan = currentBulanKey()
+	bulanList := payload.BulanList
+	if len(bulanList) == 0 {
+		bulanList = parseGajiKebutuhanBulanList(payload.Bulan)
 	}
 	if len(payload.Rows) == 0 {
 		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data kebutuhan kosong"})
@@ -202,9 +246,24 @@ func handleGajiSaveKebutuhan(w http.ResponseWriter, r *http.Request) {
 		if gajiState.KebutuhanManual[kode] == nil {
 			gajiState.KebutuhanManual[kode] = map[string]float64{}
 		}
-		gajiState.KebutuhanManual[kode][bulan] = row.Kebutuhan
+		var totalAng float64
+		angByBulan := map[string]float64{}
+		for _, b := range bulanList {
+			ang := gajiGetRekeningCell(gajiState, kode, b).Anggaran
+			angByBulan[b] = ang
+			totalAng += ang
+		}
+		for _, b := range bulanList {
+			var share float64
+			if totalAng > 0 {
+				share = row.Kebutuhan * (angByBulan[b] / totalAng)
+			} else if len(bulanList) > 0 {
+				share = row.Kebutuhan / float64(len(bulanList))
+			}
+			gajiState.KebutuhanManual[kode][b] = share
+		}
 	}
-	rows := buildGajiKebutuhanRekening(gajiState, bulan, gajiKebutuhanFilterKeys())
+	rows := buildGajiKebutuhanRekeningMulti(gajiState, bulanList, gajiKebutuhanFilterKeys())
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{

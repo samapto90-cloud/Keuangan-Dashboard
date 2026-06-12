@@ -319,6 +319,10 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		periodDefs[cat.ID] = gajiPeriodsForCategory(cat.ID)
 	}
 
+	kebBulanParam := strings.TrimSpace(r.URL.Query().Get("keb_bulan"))
+	if kebBulanParam == "" {
+		kebBulanParam = reportingMonth
+	}
 	resp := map[string]interface{}{
 		"tahun":         state.Tahun,
 		"imported_at":   state.ImportedAt,
@@ -335,7 +339,7 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		"rekening":      state.Rekening,
 		"dashboard":     buildGajiDashboard(state, reportingMonth),
 		"kebutuhan":           buildGajiKebutuhan(state, reportingMonth),
-		"kebutuhan_rekening":  buildGajiKebutuhanRekening(state, reportingMonth, kebFilters),
+		"kebutuhan_rekening":  buildGajiKebutuhanRekening(state, kebBulanParam, kebFilters),
 		"keb_filter_labels":   gajiKebutuhanFilterLabels,
 		"keb_filter_keys":     gajiKebutuhanFilterKeys(),
 		"rekap":               buildGajiRekap(state),

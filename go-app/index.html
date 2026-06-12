@@ -4985,8 +4985,8 @@
     }
     /* Kebutuhan & Rekap — Modern Government tables */
     #gaji-app-shell .gaji-keb-toolbar {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 14px; margin-bottom: 14px; padding: 12px 16px;
+      display: flex; flex-direction: column; align-items: stretch;
+      gap: 10px; margin-bottom: 14px; padding: 12px 16px;
       background: linear-gradient(180deg, #fff, #F8FAFC);
       border: 1px solid var(--gaji-outline); border-radius: var(--gaji-radius);
       box-shadow: var(--gaji-elev-1);
@@ -5017,6 +5017,30 @@
       box-shadow: 0 2px 8px rgba(30,58,138,.22);
     }
     #gaji-app-shell .gaji-keb-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+    #gaji-app-shell .gaji-keb-months {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      padding: 8px 0 4px; width: 100%;
+    }
+    #gaji-app-shell .gaji-keb-months-lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #64748b; margin-right: 4px; white-space: nowrap;
+    }
+    #gaji-app-shell .gaji-keb-month {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 999px; cursor: pointer;
+      border: 1px solid #CBD5E1; background: #fff;
+      font-size: 11px; font-weight: 600; color: #475569;
+      transition: background .15s, border-color .15s, color .15s;
+      user-select: none;
+    }
+    #gaji-app-shell .gaji-keb-month:has(input:checked) {
+      background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+      border-color: rgba(30,58,138,.35); color: #1E3A8A;
+      box-shadow: 0 1px 4px rgba(30,58,138,.08);
+    }
+    #gaji-app-shell .gaji-keb-month input { accent-color: #1E3A8A; width: 14px; height: 14px; margin: 0; cursor: pointer; }
+    #gaji-app-shell .gaji-topbar-wrap.is-hidden { display: none !important; }
+    #gaji-app-shell.gaji-page-kebutuhan-active .kas-content { padding-top: 12px !important; }
     .gaji-keb-context {
       display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
       margin-bottom: 12px; padding: 10px 14px;
@@ -7121,9 +7145,8 @@ function initManualNumericInputUX() {
             <div class="gaji-keb-period">
               <label class="gaji-keb-lbl"><i class="bi bi-calendar3"></i> Tahun</label>
               <select id="gaji-keb-tahun" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
-              <label class="gaji-keb-lbl">Bulan</label>
-              <select id="gaji-keb-bulan" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
             </div>
+            <div class="gaji-keb-months" id="gaji-keb-months"></div>
             <div class="gaji-keb-checks" id="gaji-keb-checks">
               <label class="gaji-keb-check"><input type="checkbox" value="gaji_pns" checked onchange="onGajiKebFilterChange()"> Gaji PNS</label>
               <label class="gaji-keb-check"><input type="checkbox" value="gaji_pppk" checked onchange="onGajiKebFilterChange()"> Gaji PPPK</label>
@@ -7141,7 +7164,7 @@ function initManualNumericInputUX() {
                 <th>Kode Rekening</th>
                 <th>Uraian Rekening</th>
                 <th class="kas-num gaji-keb-col-amt">Pagu TA</th>
-                <th class="kas-num gaji-keb-col-amt">Anggaran Bulan</th>
+                <th class="kas-num gaji-keb-col-amt" id="gaji-keb-col-anggaran">Anggaran Bulan</th>
                 <th class="kas-num gaji-keb-col-amt">Realisasi s/d</th>
                 <th class="kas-num gaji-keb-col-input">Kebutuhan</th>
                 <th class="kas-num gaji-keb-col-amt">Surplus</th>
@@ -16881,6 +16904,9 @@ function normalizeGajiGrup(grup) {
 function updateGajiTopbarForPage(page) {
   const pegStrip = document.getElementById('gaji-pegawai-strip');
   if (pegStrip) pegStrip.classList.toggle('is-hidden', page !== 'realisasi');
+  const topbar = document.querySelector('#gaji-app-shell .gaji-topbar-wrap');
+  if (topbar) topbar.classList.toggle('is-hidden', page === 'kebutuhan');
+  document.getElementById('gaji-app-shell')?.classList.toggle('gaji-page-kebutuhan-active', page === 'kebutuhan');
 }
 
 function showGajiPage(page, navEl, grup) {
@@ -17317,7 +17343,7 @@ function getGajiKebFilterQuery() {
 
 function initGajiKebutuhanControls() {
   const tahunSel = document.getElementById('gaji-keb-tahun');
-  const bulanSel = document.getElementById('gaji-keb-bulan');
+  const monthsEl = document.getElementById('gaji-keb-months');
   if (tahunSel && !tahunSel.dataset.bound) {
     tahunSel.dataset.bound = '1';
     const cur = gajiStateCache?.tahun || new Date().getFullYear();
@@ -17326,20 +17352,36 @@ function initGajiKebutuhanControls() {
     }
     tahunSel.value = String(cur);
   }
-  if (bulanSel && !bulanSel.dataset.bound) {
-    bulanSel.dataset.bound = '1';
-    bulanSel.innerHTML = GAJI_BULAN_LIST.map(b =>
-      `<option value="${b}">${GAJI_BULAN_LABELS[b]}</option>`
-    ).join('');
+  if (monthsEl && !monthsEl.dataset.bound) {
+    monthsEl.dataset.bound = '1';
+    const defaultBulan = getGajiBulan();
+    monthsEl.innerHTML = [
+      '<span class="gaji-keb-months-lbl"><i class="bi bi-calendar-check"></i> Bulan</span>',
+      ...GAJI_BULAN_LIST.map(b =>
+        `<label class="gaji-keb-month"><input type="checkbox" value="${b}" ${b === defaultBulan ? 'checked' : ''} onchange="onGajiKebPeriodChange()">${GAJI_BULAN_LABELS[b]}</label>`
+      ),
+    ].join('');
   }
-  if (bulanSel) bulanSel.value = getGajiKebBulan();
   if (tahunSel && gajiStateCache?.tahun) tahunSel.value = String(gajiStateCache.tahun);
 }
 
+function getGajiKebBulanList() {
+  const checks = document.querySelectorAll('#gaji-keb-months input[type=checkbox]:checked');
+  const vals = Array.from(checks).map(c => c.value).filter(Boolean);
+  if (vals.length) return vals;
+  return [getGajiBulan()];
+}
+
+function gajiKebBulanLabel(list) {
+  if (!list?.length) return '—';
+  if (list.length === 1) return GAJI_BULAN_LABELS[list[0]] || list[0];
+  if (list.length === GAJI_BULAN_LIST.length) return 'Jan–Des ' + getGajiKebTahun();
+  return list.map(b => (GAJI_BULAN_LABELS[b] || b).slice(0, 3)).join(', ');
+}
+
 function getGajiKebBulan() {
-  const sel = document.getElementById('gaji-keb-bulan');
-  if (sel?.value) return sel.value;
-  return getGajiBulan();
+  const list = getGajiKebBulanList();
+  return list[list.length - 1] || getGajiBulan();
 }
 
 function getGajiKebTahun() {
@@ -17348,9 +17390,10 @@ function getGajiKebTahun() {
 }
 
 function onGajiKebPeriodChange() {
-  const bulan = getGajiKebBulan();
-  const topSel = document.getElementById('gaji-bulan-select');
-  if (topSel) topSel.value = bulan;
+  if (!getGajiKebBulanList().length) {
+    const first = document.querySelector('#gaji-keb-months input[type=checkbox]');
+    if (first) first.checked = true;
+  }
   loadGajiKebutuhanData();
 }
 
@@ -17359,10 +17402,14 @@ function onGajiKebFilterChange() {
 }
 
 async function loadGajiKebutuhanData() {
-  const bulan = getGajiKebBulan();
+  const bulanList = getGajiKebBulanList();
   const kf = getGajiKebFilterQuery();
   try {
-    const res = await apiFetch(API + '/gaji-tunjangan?bulan=' + encodeURIComponent(bulan) + '&keb_filter=' + encodeURIComponent(kf || 'gaji_pns,gaji_pppk,tpp,tpg,tamsil'));
+    const res = await apiFetch(
+      API + '/gaji-tunjangan?bulan=' + encodeURIComponent(getGajiBulan())
+      + '&keb_bulan=' + encodeURIComponent(bulanList.join(','))
+      + '&keb_filter=' + encodeURIComponent(kf || 'gaji_pns,gaji_pppk,tpp,tpg,tamsil')
+    );
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat kebutuhan');
     gajiStateCache = { ...gajiStateCache, ...data };
@@ -17386,8 +17433,12 @@ function renderGajiKebutuhan() {
   const contextEl = document.getElementById('gaji-keb-context');
   if (!tb) return;
   const rows = gajiStateCache?.kebutuhan_rekening || [];
-  const bulanLabel = GAJI_BULAN_LABELS[getGajiKebBulan()] || getGajiKebBulan();
+  const bulanList = getGajiKebBulanList();
+  const bulanLabel = gajiKebBulanLabel(bulanList);
+  const multi = bulanList.length > 1;
   const tahun = getGajiKebTahun();
+  const angCol = document.getElementById('gaji-keb-col-anggaran');
+  if (angCol) angCol.textContent = multi ? 'Anggaran Terpilih' : 'Anggaran Bulan';
   if (!rows.length) {
     tb.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-5"><i class="bi bi-inbox d-block mb-2" style="font-size:28px;opacity:.35"></i>Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK</td></tr>';
     if (foot) foot.innerHTML = '';
@@ -17442,7 +17493,7 @@ function renderGajiKebutuhan() {
     summaryEl.innerHTML = [
       `<div class="chip"><span class="text-muted">Periode</span><strong>${bulanLabel} ${tahun}</strong></div>`,
       `<div class="chip"><span class="text-muted">Baris</span><strong>${rows.length}</strong></div>`,
-      `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatRupiah(totAng)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Anggaran${multi ? ' Terpilih' : ' Bulan'}</span><strong>${formatRupiah(totAng)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Total Kebutuhan</span><strong>${formatRupiah(totKeb)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Total Surplus</span><strong>${formatRupiah(totSur)}</strong></div>`,
     ].join('');
@@ -17482,7 +17533,7 @@ async function saveGajiKebutuhan() {
       method: 'PUT',
       body: JSON.stringify({
         tahun: getGajiKebTahun(),
-        bulan: getGajiKebBulan(),
+        bulan_list: getGajiKebBulanList(),
         rows,
       }),
     });
