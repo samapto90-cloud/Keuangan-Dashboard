@@ -4986,12 +4986,15 @@
     /* Kebutuhan & Rekap — Modern Government tables */
     #gaji-app-shell .gaji-keb-toolbar {
       display: flex; flex-direction: column; align-items: stretch;
-      gap: 10px; margin-bottom: 14px; padding: 12px 16px;
+      gap: 8px; margin-bottom: 14px; padding: 10px 14px;
       background: linear-gradient(180deg, #fff, #F8FAFC);
       border: 1px solid var(--gaji-outline); border-radius: var(--gaji-radius);
       box-shadow: var(--gaji-elev-1);
     }
-    #gaji-app-shell .gaji-keb-period { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    #gaji-app-shell .gaji-keb-period-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%;
+    }
+    #gaji-app-shell .gaji-keb-period { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     #gaji-app-shell .gaji-keb-lbl {
       font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
       color: var(--gaji-text-muted); margin: 0; display: flex; align-items: center; gap: 4px;
@@ -5018,27 +5021,31 @@
     }
     #gaji-app-shell .gaji-keb-check input { position: absolute; opacity: 0; width: 0; height: 0; }
     #gaji-app-shell .gaji-keb-months {
-      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-      padding: 8px 0 4px; width: 100%;
+      display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+      flex: 1 1 320px; min-width: 0; padding: 0;
     }
     #gaji-app-shell .gaji-keb-months-lbl {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .08em; color: #64748b; margin-right: 4px; white-space: nowrap;
+      letter-spacing: .08em; color: #64748b; margin-right: 2px; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
     }
     #gaji-app-shell .gaji-keb-month {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 10px; border-radius: 999px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 7px; border-radius: 999px; cursor: pointer;
       border: 1px solid #CBD5E1; background: #fff;
-      font-size: 11px; font-weight: 600; color: #475569;
+      font-size: 10px; font-weight: 600; color: #475569;
       transition: background .15s, border-color .15s, color .15s;
-      user-select: none;
+      user-select: none; white-space: nowrap;
     }
     #gaji-app-shell .gaji-keb-month:has(input:checked) {
       background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
       border-color: rgba(30,58,138,.35); color: #1E3A8A;
       box-shadow: 0 1px 4px rgba(30,58,138,.08);
     }
-    #gaji-app-shell .gaji-keb-month input { accent-color: #1E3A8A; width: 14px; height: 14px; margin: 0; cursor: pointer; }
+    #gaji-app-shell .gaji-keb-month input { accent-color: #1E3A8A; width: 12px; height: 12px; margin: 0; cursor: pointer; flex-shrink: 0; }
+    #gaji-app-shell .gaji-card-header-actions {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap;
+    }
     #gaji-app-shell .gaji-topbar-wrap.is-hidden { display: none !important; }
     #gaji-app-shell.gaji-page-kebutuhan-active .kas-content { padding-top: 12px !important; }
     .gaji-keb-context {
@@ -7139,14 +7146,19 @@ function initManualNumericInputUX() {
               <h6><i class="bi bi-graph-up-arrow me-2"></i>Kebutuhan per Kode Rekening</h6>
               <p>Kegiatan · Sub kegiatan · kode rekening · anggaran · kebutuhan (input manual) · surplus</p>
             </div>
-            <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiKebutuhan()"><i class="bi bi-save me-1"></i>Simpan Kebutuhan</button>
+            <div class="gaji-card-header-actions">
+              <button type="button" class="btn btn-outline-warning btn-sm" onclick="exportGajiKebutuhanExcel()"><i class="bi bi-download me-1"></i>Excel</button>
+              <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiKebutuhan()"><i class="bi bi-save me-1"></i>Simpan Kebutuhan</button>
+            </div>
           </div>
           <div class="gaji-keb-toolbar">
-            <div class="gaji-keb-period">
-              <label class="gaji-keb-lbl"><i class="bi bi-calendar3"></i> Tahun</label>
-              <select id="gaji-keb-tahun" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
+            <div class="gaji-keb-period-row">
+              <div class="gaji-keb-period">
+                <label class="gaji-keb-lbl"><i class="bi bi-calendar3"></i> Tahun</label>
+                <select id="gaji-keb-tahun" class="gaji-keb-select" onchange="onGajiKebPeriodChange()"></select>
+              </div>
+              <div class="gaji-keb-months" id="gaji-keb-months"></div>
             </div>
-            <div class="gaji-keb-months" id="gaji-keb-months"></div>
             <div class="gaji-keb-checks" id="gaji-keb-checks">
               <label class="gaji-keb-check"><input type="checkbox" value="gaji_pns" checked onchange="onGajiKebFilterChange()"> Gaji PNS</label>
               <label class="gaji-keb-check"><input type="checkbox" value="gaji_pppk" checked onchange="onGajiKebFilterChange()"> Gaji PPPK</label>
@@ -16819,6 +16831,10 @@ const GAJI_BULAN_LABELS = {
   januari:'Januari', februari:'Februari', maret:'Maret', april:'April', mei:'Mei', juni:'Juni',
   juli:'Juli', agustus:'Agustus', september:'September', oktober:'Oktober', november:'November', desember:'Desember',
 };
+const GAJI_BULAN_SHORT = {
+  januari:'Jan', februari:'Feb', maret:'Mar', april:'Apr', mei:'Mei', juni:'Jun',
+  juli:'Jul', agustus:'Agu', september:'Sep', oktober:'Okt', november:'Nov', desember:'Des',
+};
 const GAJI_LABEL_TO_ID = {};
 GAJI_CATEGORIES.forEach(c => {
   GAJI_LABEL_TO_ID[c.label.toLowerCase()] = c.id;
@@ -17358,7 +17374,7 @@ function initGajiKebutuhanControls() {
     monthsEl.innerHTML = [
       '<span class="gaji-keb-months-lbl"><i class="bi bi-calendar-check"></i> Bulan</span>',
       ...GAJI_BULAN_LIST.map(b =>
-        `<label class="gaji-keb-month"><input type="checkbox" value="${b}" ${b === defaultBulan ? 'checked' : ''} onchange="onGajiKebPeriodChange()">${GAJI_BULAN_LABELS[b]}</label>`
+        `<label class="gaji-keb-month" title="${GAJI_BULAN_LABELS[b]}"><input type="checkbox" value="${b}" ${b === defaultBulan ? 'checked' : ''} onchange="onGajiKebPeriodChange()">${GAJI_BULAN_SHORT[b] || b}</label>`
       ),
     ].join('');
   }
@@ -18395,6 +18411,37 @@ async function doGajiImportRakAnggaran() {
   } catch (err) {
     alert(err.message || 'Gagal import RAK anggaran');
   }
+}
+
+async function exportGajiKebutuhanExcel() {
+  await ensureXlsx();
+  const rows = gajiStateCache?.kebutuhan_rekening || [];
+  if (!rows.length) return alert('Tidak ada data kebutuhan untuk diekspor.');
+  const bulanList = getGajiKebBulanList();
+  const periode = gajiKebBulanLabel(bulanList) + ' ' + getGajiKebTahun();
+  const multi = bulanList.length > 1;
+  const angHdr = multi ? 'Anggaran Terpilih' : 'Anggaran Bulan';
+  const header = ['#', 'Kode Rekening', 'Uraian Rekening', 'Jenis', 'Pagu TA', angHdr, 'Realisasi', 'Kebutuhan', 'Surplus'];
+  const dataRows = rows.map((r, i) => {
+    const jenis = gajiRekJenis(r.nama, r.kode);
+    return [
+      i + 1,
+      r.kode,
+      r.nama,
+      jenis === 'pppk' ? 'PPPK' : jenis === 'pns' ? 'PNS' : '',
+      r.pagu || 0,
+      r.anggaran || 0,
+      r.realisasi_sd || 0,
+      r.kebutuhan || 0,
+      r.surplus || 0,
+    ];
+  });
+  const meta = [['Kebutuhan per Kode Rekening'], ['Periode', periode], ['Diekspor', new Date().toLocaleString('id-ID')], []];
+  const ws = XLSX.utils.aoa_to_sheet([...meta, header, ...dataRows]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Kebutuhan');
+  const slug = periode.replace(/[^\w\-]+/g, '_').replace(/_+/g, '_');
+  XLSX.writeFile(wb, `Kebutuhan_Gaji_ASN_${slug}.xlsx`);
 }
 
 async function exportGajiRekapExcel() {
