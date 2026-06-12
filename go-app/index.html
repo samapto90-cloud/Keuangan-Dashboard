@@ -2344,36 +2344,62 @@
 
     /* Pegawai strip — FAB-style card */
     .gaji-pegawai-strip {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-      margin-left: auto; padding: 8px 12px; border-radius: var(--gaji-radius-lg);
-      background: var(--gaji-surface);
+      display: flex; align-items: center; gap: 12px; flex-wrap: nowrap;
+      margin-left: auto; padding: 10px 14px; border-radius: 14px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
       border: 1px solid var(--gaji-outline);
       box-shadow: var(--gaji-elev-2);
     }
-    .gaji-peg-chip {
-      display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px;
-      border-radius: 999px; background: var(--gaji-surface-2);
-      border: 1px solid var(--gaji-outline); font-size: 12px; color: var(--gaji-text);
+    .gaji-peg-divider {
+      width: 1px; align-self: stretch; min-height: 32px;
+      background: linear-gradient(180deg, transparent, #e2e8f0, transparent);
+      flex-shrink: 0;
     }
-    .gaji-peg-chip i { font-size: 16px; color: var(--gaji-primary); }
-    .gaji-peg-chip .lbl { font-weight: 700; letter-spacing: .04em; min-width: 36px; color: var(--gaji-text-muted); font-size: 10px; text-transform: uppercase; }
+    .gaji-peg-chip {
+      display: flex; align-items: center; gap: 10px; padding: 0;
+      font-size: 12px; color: var(--gaji-text); flex-shrink: 0;
+    }
+    .gaji-peg-chip .lbl {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-weight: 700; letter-spacing: .04em; min-width: 44px;
+      color: var(--gaji-text-muted); font-size: 10px; text-transform: uppercase;
+    }
+    .gaji-peg-chip .lbl i { font-size: 13px; color: var(--gaji-primary); opacity: .9; }
     .gaji-peg-chip input {
-      width: 76px; border: none; border-radius: 10px; padding: 6px 10px;
-      background: #fff; color: var(--gaji-text); font-weight: 700; font-size: 14px; text-align: center;
-      box-shadow: inset 0 0 0 1.5px var(--gaji-outline);
+      width: 88px; min-height: 38px; line-height: 1.35;
+      border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 10px;
+      background: #fff; color: var(--gaji-text); font-weight: 700; font-size: 14px;
+      text-align: center; box-shadow: none;
       font-family: 'Roboto Mono', monospace;
+      -moz-appearance: textfield; appearance: textfield;
+    }
+    .gaji-peg-chip input::-webkit-outer-spin-button,
+    .gaji-peg-chip input::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
     }
     .gaji-peg-chip input:focus {
-      outline: none; box-shadow: inset 0 0 0 2px var(--gaji-primary), 0 0 0 3px rgba(0,100,148,.12);
+      outline: none; border-color: var(--gaji-primary);
+      box-shadow: 0 0 0 3px rgba(0,100,148,.12);
     }
-    .gaji-peg-total { padding: 0 8px; min-width: 56px; text-align: center; }
-    .gaji-peg-total .num { font-size: 16px; font-weight: 800; color: var(--gaji-primary); font-family: 'Roboto Mono', monospace; }
-    .gaji-peg-total .sub { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--gaji-text-muted); }
+    .gaji-peg-chip input::placeholder { color: #cbd5e1; font-weight: 500; }
+    .gaji-peg-total {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 0 10px; min-width: 72px; flex-shrink: 0;
+    }
+    .gaji-peg-total .sub {
+      font-size: 9px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--gaji-text-muted); font-weight: 700; line-height: 1.2;
+    }
+    .gaji-peg-total .num {
+      font-size: 17px; font-weight: 800; color: var(--gaji-primary);
+      font-family: 'Roboto Mono', monospace; line-height: 1.25; margin-top: 2px;
+    }
     .gaji-peg-save {
-      border: none; border-radius: 999px; padding: 8px 16px; font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 6px;
+      border: none; border-radius: 999px; padding: 10px 18px; font-size: 12px; font-weight: 700;
       background: linear-gradient(135deg, #006494, #0891b2); color: #fff;
       box-shadow: 0 4px 14px rgba(0,100,148,.28);
-      transition: transform .15s ease, box-shadow .15s ease;
+      transition: transform .15s ease, box-shadow .15s ease; flex-shrink: 0;
     }
     .gaji-peg-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,100,148,.35); }
     .gaji-peg-save:active { transform: scale(.98); }
@@ -2630,7 +2656,11 @@
     }
 
     @media (max-width: 991px) {
-      .gaji-pegawai-strip { margin-left: 0; width: 100%; justify-content: center; border-radius: var(--gaji-radius); }
+      .gaji-pegawai-strip {
+        margin-left: 0; width: 100%; justify-content: center;
+        border-radius: var(--gaji-radius); flex-wrap: wrap !important;
+      }
+      .gaji-peg-divider { display: none; }
       #gaji-main .kas-topbar { flex-wrap: wrap; gap: 10px; }
       #gaji-sidebar { box-shadow: var(--gaji-elev-3); }
     }
@@ -4459,10 +4489,12 @@
       border-radius: 20px !important; box-shadow: 0 8px 32px rgba(15,23,42,.06) !important;
     }
     #gaji-app-shell .kas-card h6 { color: #0f172a !important; font-weight: 800 !important; }
-    /* Pegawai strip */
+    /* Pegawai strip — scoped overrides align with base styles */
     .gaji-pegawai-strip {
-      background: #fff !important; border: 1px solid rgba(14,165,233,.15) !important;
-      box-shadow: 0 8px 24px rgba(14,165,233,.1) !important; border-radius: 999px !important;
+      background: linear-gradient(180deg, #fff, #f8fafc) !important;
+      border: 1px solid rgba(14,165,233,.15) !important;
+      box-shadow: 0 6px 20px rgba(14,165,233,.08) !important;
+      border-radius: 14px !important;
     }
     .gaji-peg-chip input { font-family: 'JetBrains Mono', monospace !important; }
     .gaji-peg-save {
@@ -4654,29 +4686,25 @@
       outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.12);
     }
     #gaji-app-shell .gaji-pegawai-strip {
-      display: flex !important; align-items: center !important; gap: 8px !important;
-      padding: 6px 10px !important; border-radius: 12px !important;
-      background: #f8fafc !important; border: 1px solid #e2e8f0 !important;
-      box-shadow: none !important; flex-wrap: nowrap !important;
+      gap: 12px !important; padding: 10px 14px !important;
+      flex-wrap: nowrap !important;
     }
     #gaji-app-shell .gaji-peg-chip {
-      display: flex !important; align-items: center !important; gap: 6px !important;
-      padding: 0 !important; background: transparent !important; border: none !important;
+      gap: 10px !important; padding: 0 !important;
+      background: transparent !important; border: none !important;
     }
-    #gaji-app-shell .gaji-peg-chip .lbl {
-      font-size: 10px !important; font-weight: 700 !important; color: #64748b !important;
-      min-width: 32px !important;
-    }
+    #gaji-app-shell .gaji-peg-chip .lbl { min-width: 44px !important; }
     #gaji-app-shell .gaji-peg-chip input {
-      width: 56px !important; padding: 5px 6px !important; font-size: 13px !important;
-      border: 1px solid #cbd5e1 !important; border-radius: 8px !important;
-      background: #fff !important; text-align: center !important;
+      width: 88px !important; min-height: 38px !important;
+      padding: 8px 10px !important; font-size: 14px !important;
+      line-height: 1.35 !important; border: 1px solid #cbd5e1 !important;
+      border-radius: 10px !important; background: #fff !important;
     }
-    #gaji-app-shell .gaji-peg-total { padding: 0 4px !important; min-width: 44px !important; text-align: center; }
-    #gaji-app-shell .gaji-peg-total .num { font-size: 14px !important; }
-    #gaji-app-shell .gaji-peg-total .sub { font-size: 8px !important; }
+    #gaji-app-shell .gaji-peg-total { min-width: 72px !important; padding: 0 10px !important; }
+    #gaji-app-shell .gaji-peg-total .num { font-size: 17px !important; }
+    #gaji-app-shell .gaji-peg-total .sub { font-size: 9px !important; }
     #gaji-app-shell .gaji-peg-save {
-      padding: 6px 12px !important; font-size: 11px !important; white-space: nowrap;
+      padding: 10px 18px !important; font-size: 12px !important; white-space: nowrap;
     }
 
     /* Konten & kartu */
@@ -6478,9 +6506,20 @@ function initManualNumericInputUX() {
             </select>
           </div>
           <div class="gaji-pegawai-strip" id="gaji-pegawai-strip">
-            <div class="gaji-peg-chip"><span class="lbl">PNS</span><input type="number" id="gaji-peg-pns" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PNS" placeholder="0" /></div>
-            <div class="gaji-peg-chip"><span class="lbl">PPPK</span><input type="number" id="gaji-peg-pppk" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PPPK" placeholder="0" /></div>
-            <div class="gaji-peg-total"><span class="num" id="gaji-peg-total">0</span><span class="sub">Total</span></div>
+            <div class="gaji-peg-chip gaji-peg-chip-pns">
+              <span class="lbl"><i class="bi bi-person-badge"></i> PNS</span>
+              <input type="number" id="gaji-peg-pns" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PNS" placeholder="0" />
+            </div>
+            <div class="gaji-peg-divider" aria-hidden="true"></div>
+            <div class="gaji-peg-chip gaji-peg-chip-pppk">
+              <span class="lbl"><i class="bi bi-person-vcard"></i> PPPK</span>
+              <input type="number" id="gaji-peg-pppk" min="0" step="1" inputmode="numeric" aria-label="Jumlah pegawai PPPK" placeholder="0" />
+            </div>
+            <div class="gaji-peg-divider" aria-hidden="true"></div>
+            <div class="gaji-peg-total">
+              <span class="sub">Total ASN</span>
+              <span class="num" id="gaji-peg-total">0</span>
+            </div>
             <button type="button" class="gaji-peg-save" onclick="saveGajiPegawai()"><i class="bi bi-check2"></i> Simpan</button>
           </div>
         </div>
