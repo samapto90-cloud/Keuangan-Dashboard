@@ -349,18 +349,11 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		Locked:     state.RealisasiLocked != nil && state.RealisasiLocked[gajiRekeningLockKey(grup, bulan)],
 	}
 	var rows []GajiRekeningRow
-	maxPNS, maxPPPK := state.Pegawai["pns"], state.Pegawai["pppk"]
 	for _, def := range state.Rekening {
 		if !gajiRekeningIncludedInGrup(def, grup) {
 			continue
 		}
 		cell := gajiGetRekeningCell(state, def.Kode, bulan)
-		pegawai := gajiRekeningPegawaiFallback(state, def, cell)
-		if def.Jenis == "pppk" && pegawai > maxPPPK {
-			maxPPPK = pegawai
-		} else if def.Jenis != "pppk" && pegawai > maxPNS {
-			maxPNS = pegawai
-		}
 		sisa := cell.Anggaran - cell.Realisasi
 		persen := 0.0
 		if cell.Anggaran > 0 {
@@ -375,7 +368,6 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			Potongan:      def.Potongan,
 			Attached:      attached,
 			Pagu:          def.Pagu,
-			JumlahPegawai: pegawai,
 			Anggaran:      cell.Anggaran,
 			Realisasi:     cell.Realisasi,
 			Sisa:          sisa,
@@ -386,21 +378,16 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		summary.TotalRealisasi += cell.Realisasi
 		summary.TotalSisa += sisa
 	}
-	summary.TotalPegawai = maxPNS + maxPPPK
+	summary.TotalPegawai = state.Pegawai["pns"] + state.Pegawai["pppk"]
 	gajiSortRekeningReportRows(rows, grup)
 	return rows, summary
 }
 
 func gajiRekeningPegawaiFallback(state GajiTunjanganState, def GajiRekeningDef, cell GajiMonthCell) int {
-	pegawai := cell.JumlahPegawai
-	if pegawai == 0 {
-		if def.Jenis == "pppk" {
-			pegawai = state.Pegawai["pppk"]
-		} else {
-			pegawai = state.Pegawai["pns"]
-		}
+	if def.Jenis == "pppk" {
+		return state.Pegawai["pppk"]
 	}
-	return pegawai
+	return state.Pegawai["pns"]
 }
 
 func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]GajiRekeningMatrixRow, GajiRekeningMatrixSummary) {

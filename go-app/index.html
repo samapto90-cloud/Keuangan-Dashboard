@@ -6650,7 +6650,6 @@ function initManualNumericInputUX() {
                 <th style="width:168px">Kode Rekening</th>
                 <th>Nama Rekening</th>
                 <th class="gaji-rek-col-jenis" style="width:72px">Jenis</th>
-                <th class="kas-num" style="width:96px">Pegawai</th>
                 <th class="kas-num" style="width:132px">Anggaran</th>
                 <th class="kas-num" style="width:132px">Realisasi</th>
                 <th class="kas-num" style="width:132px">Sisa</th>
@@ -17010,9 +17009,9 @@ function updateGajiRealisasiDesc() {
   if (!el) return;
   const g = gajiActiveGrup;
   if (g === 'tpg' || g === 'tamsil') {
-    el.innerHTML = 'Tunjangan + <strong>Iuran Jaminan Kesehatan</strong> per jenis pegawai (PNS / PPPK) — input per kode rekening';
+    el.innerHTML = 'Tunjangan + <strong>Iuran Jaminan Kesehatan</strong> per jenis pegawai — jumlah pegawai di <strong>bar atas</strong>, input <strong>realisasi</strong> per rekening';
   } else {
-    el.innerHTML = 'Input pegawai, anggaran &amp; realisasi per <strong>kode rekening</strong> — termasuk potongan PPh, BPJS, iuran';
+    el.innerHTML = 'Input <strong>realisasi</strong> per kode rekening — jumlah pegawai PNS/PPPK di <strong>bar atas</strong>';
   }
 }
 
@@ -17043,7 +17042,7 @@ function renderGajiRekeningTableRows(report, locked) {
   let lastJenis = null;
   let idx = 0;
   const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
-  const colSpan = grouped ? 8 : 9;
+  const colSpan = grouped ? 7 : 8;
   return report.map(r => {
     let section = '';
     const jenisKey = r.jenis || 'pns';
@@ -17057,11 +17056,7 @@ function renderGajiRekeningTableRows(report, locked) {
     const isJaminan = gajiRekIsJaminan(r);
     const jenis = (r.jenis || '').toUpperCase() || '—';
     const jenisCls = r.jenis === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
-    const pegVal = r.jumlah_pegawai || 0;
     const reaVal = r.realisasi || 0;
-    const pegInput = locked
-      ? `<span class="gaji-rek-readonly">${pegVal ? pegVal.toLocaleString('id-ID') : '—'}</span>`
-      : `<input type="number" min="0" class="kas-input gaji-rek-peg manual-numeric" data-kode="${escHtml(r.kode)}" value="${pegVal || ''}" placeholder="0" />`;
     const reaInput = locked
       ? `<span class="gaji-rek-readonly">${formatGajiRekDisplayAmount(reaVal)}</span>`
       : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" placeholder="0,00" />`;
@@ -17078,7 +17073,6 @@ function renderGajiRekeningTableRows(report, locked) {
       <td class="kode">${escHtml(r.kode)}</td>
       <td class="nama"><div class="gaji-rek-nama-main">${escHtml(r.nama)}</div>${namaMeta}</td>
       ${jenisCell}
-      <td class="gaji-rek-input-cell">${pegInput}</td>
       <td class="gaji-rek-num">${formatGajiRekDisplayAmount(r.anggaran || 0)}</td>
       <td class="gaji-rek-rea-cell">${reaInput}</td>
       <td class="gaji-rek-num muted">${formatGajiRekDisplayAmount(r.sisa || 0)}</td>
@@ -17106,8 +17100,9 @@ function renderGajiRekeningTable() {
     ? Math.min(100, ((summary.total_realisasi || 0) / summary.total_anggaran) * 100)
     : 0;
   if (summaryEl) {
+    const { pns, pppk } = gajiGetPegawaiCounts();
     summaryEl.innerHTML = [
-      `<div class="chip"><span class="text-muted">Pegawai</span><strong>${(summary.total_pegawai || 0).toLocaleString('id-ID')}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Pegawai ASN</span><strong>${pns.toLocaleString('id-ID')} PNS · ${pppk.toLocaleString('id-ID')} PPPK</strong></div>`,
       `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Realisasi</span><strong>${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Sisa</span><strong>${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</strong></div>`,
@@ -17117,7 +17112,7 @@ function renderGajiRekeningTable() {
     ].join('');
   }
   if (!report.length) {
-    tb.innerHTML = `<tr><td colspan="${grouped ? 8 : 9}" class="text-muted text-center py-5">
+    tb.innerHTML = `<tr><td colspan="${grouped ? 7 : 8}" class="text-muted text-center py-5">
       <i class="bi bi-inbox d-block mb-2" style="font-size:28px;opacity:.35"></i>
       Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA) di menu Anggaran
     </td></tr>`;
@@ -17131,7 +17126,6 @@ function renderGajiRekeningTable() {
     const totalColspan = grouped ? 3 : 4;
     foot.innerHTML = `<tr class="gaji-rek-total-row">
       <td colspan="${totalColspan}"><i class="bi bi-calculator me-1"></i>TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>
-      <td class="gaji-rek-input-cell gaji-rek-num">${(summary.total_pegawai || 0).toLocaleString('id-ID')}</td>
       <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</td>
       <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</td>
       <td class="gaji-rek-num muted">${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</td>
@@ -17171,13 +17165,11 @@ async function saveGajiRealisasi() {
   const rows = [];
   document.querySelectorAll('#gaji-realisasi-body tr[data-kode]').forEach(tr => {
     const kode = tr.dataset.kode;
-    const pegInp = tr.querySelector('.gaji-rek-peg');
     const reaInp = tr.querySelector('.gaji-rek-rea');
-    if (!pegInp && !reaInp) return;
+    if (!reaInp) return;
     rows.push({
       kode,
-      jumlah_pegawai: pegInp ? parseInt(pegInp.value, 10) || 0 : 0,
-      realisasi: reaInp ? parseKasNumber(reaInp.value) : 0,
+      realisasi: parseKasNumber(reaInp.value),
     });
   });
   if (!rows.length) return alert('Tidak ada baris yang dapat disimpan. Klik Perbaiki Bulan jika data terkunci.');
