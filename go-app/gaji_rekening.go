@@ -96,6 +96,18 @@ func gajiJenisFromNama(nama string) string {
 	return ""
 }
 
+// gajiJenisFromKodeJaminanKes — suffix RAK jaminan kesehatan (Templet Anggaran Gaji).
+func gajiJenisFromKodeJaminanKes(kode string) string {
+	k := strings.TrimSpace(kode)
+	if strings.HasSuffix(k, ".00002") || strings.HasSuffix(k, "00002") {
+		return "pppk"
+	}
+	if strings.HasSuffix(k, ".00001") || strings.HasSuffix(k, "00001") {
+		return "pns"
+	}
+	return ""
+}
+
 func isGajiPotonganRekening(kode, nama string) bool {
 	k := strings.TrimSpace(kode)
 	n := strings.ToUpper(strings.TrimSpace(nama))
@@ -131,10 +143,12 @@ func gajiRekeningAttachedJaminanKes(def GajiRekeningDef, grup string) bool {
 		return false
 	}
 	switch grup {
-	case "tpg":
-		return def.Jenis == "pns" || def.Jenis == ""
-	case "tamsil":
-		return def.Jenis == "pns" || def.Jenis == "pppk" || def.Jenis == ""
+	case "tpg", "tamsil":
+		jenis := def.Jenis
+		if jenis == "" {
+			jenis = gajiJenisFromKodeJaminanKes(def.Kode)
+		}
+		return jenis == "pns" || jenis == "pppk" || jenis == ""
 	default:
 		return false
 	}
@@ -172,6 +186,9 @@ func classifyGajiRekening(kode, nama string) (grup, jenis string, potongan bool)
 	k := strings.TrimSpace(kode)
 	n := strings.ToUpper(strings.TrimSpace(nama))
 	jenis = gajiJenisFromNama(nama)
+	if jenis == "" {
+		jenis = gajiJenisFromKodeJaminanKes(k)
+	}
 
 	if isGajiPotonganRekening(k, n) {
 		potongan = true

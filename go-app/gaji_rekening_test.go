@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func TestGajiRekeningAttachedJaminanKesTamsil(t *testing.T) {
+func TestGajiRekeningAttachedJaminanKesPPPK(t *testing.T) {
 	def := GajiRekeningDef{
 		Kode:     "5.1.01.01.009.00002",
 		Nama:     "Belanja Iuran Jaminan Kesehatan PPPK",
@@ -10,11 +10,37 @@ func TestGajiRekeningAttachedJaminanKesTamsil(t *testing.T) {
 		Jenis:    "pppk",
 		Potongan: true,
 	}
-	if !gajiRekeningAttachedJaminanKes(def, "tamsil") {
-		t.Fatal("expected jaminan kesehatan PPPK attached to tamsil")
+	for _, grup := range []string{"tpg", "tamsil"} {
+		if !gajiRekeningAttachedJaminanKes(def, grup) {
+			t.Fatalf("expected jaminan kesehatan PPPK attached to %s", grup)
+		}
+		if !gajiRekeningIncludedInGrup(def, grup) {
+			t.Fatalf("expected jaminan kesehatan PPPK included in %s report", grup)
+		}
 	}
-	if gajiRekeningAttachedJaminanKes(def, "tpg") {
-		t.Fatal("PPPK jaminan should not attach to tpg")
+}
+
+func TestGajiRekeningAttachedJaminanKesPNS(t *testing.T) {
+	def := GajiRekeningDef{
+		Kode:     "5.1.01.01.009.00001",
+		Nama:     "Belanja Iuran Jaminan Kesehatan PNS",
+		Grup:     "gaji",
+		Jenis:    "pns",
+		Potongan: true,
+	}
+	for _, grup := range []string{"tpg", "tamsil"} {
+		if !gajiRekeningAttachedJaminanKes(def, grup) {
+			t.Fatalf("expected jaminan kesehatan PNS attached to %s", grup)
+		}
+	}
+}
+
+func TestGajiJenisFromKodeJaminanKes(t *testing.T) {
+	if gajiJenisFromKodeJaminanKes("5.1.01.01.009.00001") != "pns" {
+		t.Fatal("expected pns from kode suffix 00001")
+	}
+	if gajiJenisFromKodeJaminanKes("5.1.01.01.009.00002") != "pppk" {
+		t.Fatal("expected pppk from kode suffix 00002")
 	}
 }
 

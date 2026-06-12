@@ -7,7 +7,7 @@
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" href="/assets/sakubijak-logo.png?v=1" sizes="32x32" />
   <link rel="apple-touch-icon" href="/assets/sakubijak-logo.png?v=1" />
-  <meta name="theme-color" content="#1a3a6b" />
+  <meta name="theme-color" content="#1E3A8A" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="/assets/sakubijak-logo-transparent.png?v=7" as="image" fetchpriority="high" />
@@ -2124,176 +2124,179 @@
       display: flex; align-items: center; justify-content: center;
       background: linear-gradient(145deg, #e8f4fd 0%, #ffffff 100%);
     }
-    .portal-app-card.portal-theme-gaji .portal-app-icon i { font-size: 42px; color: #006494; }
+    .portal-app-card.portal-theme-gaji .portal-app-icon i { font-size: 42px; color: #1E3A8A; }
     .portal-app-card.portal-theme-gaji {
-      border-color: rgba(0,100,148,.18);
-      background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 55%, #e8f4fd 100%);
+      border-color: rgba(30,58,138,.15);
+      background: linear-gradient(145deg, #ffffff 0%, #EFF6FF 55%, #DBEAFE 100%);
     }
     .portal-app-card.portal-theme-gaji:hover {
-      border-color: rgba(0,100,148,.35);
-      box-shadow: 0 12px 32px rgba(0,100,148,.12);
+      border-color: rgba(59,130,246,.35);
+      box-shadow: 0 12px 32px rgba(30,58,138,.12);
     }
-    .portal-app-card.portal-theme-gaji .portal-app-action { color: #006494; }
+    .portal-app-card.portal-theme-gaji .portal-app-action { color: #1E3A8A; }
     .portal-app-card.portal-theme-gaji h3 { text-shadow: none; color: #0f172a; }
 
-    /* ── Tema Gaji ASN · Material Light / Android Tech ── */
+    /* ── Tema Gaji ASN · Modern Government ── */
     body.theme-gaji {
-      --gaji-primary: #006494;
-      --gaji-primary-dark: #004a73;
-      --gaji-primary-light: #e8f4fd;
-      --gaji-accent: #0891b2;
-      --gaji-accent-light: #ecfeff;
+      --gaji-primary: #1E3A8A;
+      --gaji-primary-dark: #172554;
+      --gaji-primary-light: #EFF6FF;
+      --gaji-secondary: #3B82F6;
+      --gaji-accent: #3B82F6;
+      --gaji-accent-light: #DBEAFE;
       --gaji-surface: #ffffff;
-      --gaji-surface-2: #f8fafc;
-      --gaji-bg: #eef2f7;
-      --gaji-outline: #e2e8f0;
-      --gaji-text: #0f172a;
-      --gaji-text-muted: #64748b;
-      --gaji-success: #059669;
-      --gaji-error: #dc2626;
-      --gaji-radius: 16px;
-      --gaji-radius-lg: 24px;
-      --gaji-elev-1: 0 1px 2px rgba(15,23,42,.06), 0 2px 8px rgba(15,23,42,.04);
-      --gaji-elev-2: 0 4px 6px rgba(15,23,42,.05), 0 12px 28px rgba(0,100,148,.08);
-      --gaji-elev-3: 0 8px 24px rgba(0,100,148,.12);
-      font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+      --gaji-surface-2: #F8FAFC;
+      --gaji-bg: #F8FAFC;
+      --gaji-outline: #E2E8F0;
+      --gaji-text: #0F172A;
+      --gaji-text-muted: #64748B;
+      --gaji-success: #10B981;
+      --gaji-warning: #F59E0B;
+      --gaji-error: #EF4444;
+      --gaji-radius: 12px;
+      --gaji-radius-lg: 16px;
+      --gaji-elev-1: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+      --gaji-elev-2: 0 4px 6px rgba(30,58,138,.06), 0 10px 24px rgba(15,23,42,.06);
+      --gaji-elev-3: 0 12px 32px rgba(30,58,138,.12);
+      --gaji-sidebar-bg: linear-gradient(180deg, #1E3A8A 0%, #1e40af 55%, #172554 100%);
+      --gaji-sidebar-text: rgba(255,255,255,.88);
+      --gaji-sidebar-muted: rgba(255,255,255,.55);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
       background: var(--gaji-bg);
       color: var(--gaji-text);
     }
     body.theme-gaji .login-card {
-      border-color: rgba(0,100,148,.15);
+      border-color: rgba(30,58,138,.12);
       background: rgba(255,255,255,.96);
       box-shadow: var(--gaji-elev-3);
     }
     body.theme-gaji .login-brand h4 { color: var(--gaji-primary); }
-    body.theme-gaji .login-app-label { color: var(--gaji-accent); }
+    body.theme-gaji .login-app-label { color: var(--gaji-secondary); }
     body.theme-gaji .btn-primary, body.theme-gaji #btn-login.btn-primary {
-      background: linear-gradient(135deg, #006494, #0891b2); border: none;
-      border-radius: 999px; box-shadow: 0 4px 14px rgba(0,100,148,.3);
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6); border: none;
+      border-radius: 999px; box-shadow: 0 4px 14px rgba(30,58,138,.28);
     }
     body.theme-gaji .text-warning { color: var(--gaji-primary) !important; }
 
     #gaji-app-shell {
       display: none; min-height: 100vh; position: relative; z-index: 2;
-      font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
       --kas-sidebar-width: 272px;
     }
     #gaji-app-shell.visible { display: block; }
     body.theme-gaji:has(#gaji-app-shell.visible) .fx-vignette,
     body.theme-gaji:has(#gaji-app-shell.visible) .fx-particles { opacity: 0 !important; pointer-events: none; }
 
-    /* Sidebar — floating glass panel */
+    /* Sidebar — Modern Government (Navy) */
     #gaji-sidebar {
       position: fixed; top: 0; left: 0; width: var(--kas-sidebar-width); height: 100vh;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%);
-      border-right: 1px solid var(--gaji-outline);
-      box-shadow: 4px 0 32px rgba(15,23,42,.06);
+      background: var(--gaji-sidebar-bg);
+      border-right: 1px solid rgba(255,255,255,.08);
+      box-shadow: 4px 0 24px rgba(15,23,42,.15);
       display: flex; flex-direction: column; z-index: 1000;
-      color: var(--gaji-text-muted);
+      color: var(--gaji-sidebar-muted);
     }
     #gaji-sidebar::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, #006494, #0891b2, #22d3ee, #006494);
-      background-size: 200% 100%;
-      animation: gaji-bar-shimmer 8s linear infinite;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #3B82F6, #60A5FA, #3B82F6);
     }
-    @keyframes gaji-bar-shimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
 
     #gaji-sidebar .kas-sidebar-brand {
       padding: 22px 18px 18px;
-      border-bottom: 1px solid var(--gaji-outline);
-      background: linear-gradient(135deg, rgba(232,244,253,.6), transparent);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
     }
     #gaji-sidebar .gaji-brand-icon {
-      width: 48px; height: 48px; border-radius: 14px;
+      width: 48px; height: 48px; border-radius: 12px;
       display: grid; place-items: center;
-      background: linear-gradient(135deg, #006494, #0891b2);
-      box-shadow: 0 6px 16px rgba(0,100,148,.28);
+      background: linear-gradient(135deg, #3B82F6, #60A5FA);
+      box-shadow: 0 4px 14px rgba(0,0,0,.25);
     }
-    #gaji-sidebar .gaji-brand-icon i { font-size: 24px; color: #fff; }
+    #gaji-sidebar .gaji-brand-icon i { font-size: 22px; color: #fff; }
     #gaji-sidebar .kas-sidebar-brand h6 {
-      color: var(--gaji-text); font-weight: 700; font-size: 14px; letter-spacing: -.02em;
+      color: #fff; font-weight: 700; font-size: 14px; letter-spacing: -.02em;
     }
     #gaji-sidebar .kas-sidebar-brand small {
-      color: var(--gaji-primary); font-weight: 500; font-size: 11px;
+      color: rgba(255,255,255,.65); font-weight: 500; font-size: 11px;
     }
     #gaji-sidebar .gaji-tech-badge {
       display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
       padding: 3px 10px; border-radius: 999px; font-size: 9px; font-weight: 700;
       letter-spacing: .06em; text-transform: uppercase;
-      background: var(--gaji-primary-light); color: var(--gaji-primary);
-      border: 1px solid rgba(0,100,148,.12);
+      background: rgba(255,255,255,.12); color: rgba(255,255,255,.9);
+      border: 1px solid rgba(255,255,255,.18);
     }
     #gaji-sidebar .gaji-tech-badge i { font-size: 10px; }
 
     #gaji-sidebar .kas-nav-section-title {
-      color: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: .12em;
+      color: rgba(255,255,255,.4); font-size: 10px; font-weight: 700; letter-spacing: .12em;
       padding: 0 14px; margin-bottom: 6px;
     }
     #gaji-sidebar .kas-nav-link {
-      margin: 3px 10px; border-radius: 14px; border: 1px solid transparent;
-      color: var(--gaji-text-muted); transition: all .2s cubic-bezier(.4,0,.2,1);
+      margin: 3px 10px; border-radius: 10px; border: 1px solid transparent;
+      color: var(--gaji-sidebar-muted); transition: all .2s cubic-bezier(.4,0,.2,1);
     }
     #gaji-sidebar .kas-nav-link .kas-nav-icon {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: var(--gaji-surface-2); color: var(--gaji-primary);
-      border: 1px solid var(--gaji-outline);
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,.08); color: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.1);
       transition: all .2s ease;
     }
-    #gaji-sidebar .kas-nav-link .kas-nav-text { color: var(--gaji-text); font-weight: 500; font-size: 13px; }
-    #gaji-sidebar .kas-nav-link .kas-nav-desc { color: #94a3b8; font-size: 10px; }
+    #gaji-sidebar .kas-nav-link .kas-nav-text { color: var(--gaji-sidebar-text); font-weight: 500; font-size: 13px; }
+    #gaji-sidebar .kas-nav-link .kas-nav-desc { color: rgba(255,255,255,.45); font-size: 10px; }
     #gaji-sidebar .kas-nav-link:hover {
-      background: var(--gaji-primary-light); border-color: rgba(0,100,148,.1);
+      background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.12);
       transform: translateX(2px);
     }
     #gaji-sidebar .kas-nav-link:hover .kas-nav-icon {
-      background: #fff; box-shadow: var(--gaji-elev-1);
+      background: rgba(255,255,255,.15); color: #fff;
     }
     #gaji-sidebar .kas-nav-link.active {
-      background: linear-gradient(135deg, #e8f4fd, #f0f9ff);
-      border-color: rgba(0,100,148,.18);
-      box-shadow: var(--gaji-elev-1);
+      background: rgba(255,255,255,.14);
+      border-color: rgba(255,255,255,.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
     }
     #gaji-sidebar .kas-nav-link.active::before {
-      background: linear-gradient(180deg, #006494, #0891b2);
-      width: 4px; border-radius: 4px;
+      background: #60A5FA;
+      width: 3px; border-radius: 3px;
     }
     #gaji-sidebar .kas-nav-link.active .kas-nav-icon {
-      background: linear-gradient(135deg, #006494, #0891b2);
-      color: #fff; border-color: transparent;
-      box-shadow: 0 4px 12px rgba(0,100,148,.25);
+      background: #fff; color: var(--gaji-primary);
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
-    #gaji-sidebar .kas-nav-link.active .kas-nav-text { color: var(--gaji-primary-dark); font-weight: 700; }
+    #gaji-sidebar .kas-nav-link.active .kas-nav-text { color: #fff; font-weight: 700; }
 
     #gaji-sidebar .kas-sidebar-footer {
-      border-top: 1px solid var(--gaji-outline);
-      background: var(--gaji-surface-2);
+      border-top: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.12);
     }
     #gaji-sidebar .kas-user-card {
-      background: var(--gaji-surface); border: 1px solid var(--gaji-outline);
-      border-radius: 14px; box-shadow: var(--gaji-elev-1);
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
     }
     #gaji-sidebar .kas-user-avatar {
-      background: linear-gradient(135deg, #006494, #0891b2) !important;
-      color: #fff !important; font-weight: 700;
+      background: linear-gradient(135deg, #3B82F6, #60A5FA) !important;
+      color: #fff !important; font-weight: 800;
+      display: grid !important; place-items: center !important;
+      line-height: 1 !important;
     }
-    #gaji-sidebar .kas-user-name { color: var(--gaji-text); }
+    #gaji-sidebar .kas-user-name { color: #fff; }
+    #gaji-sidebar .kas-user-meta { color: rgba(255,255,255,.55); }
     #gaji-sidebar .btn-kas-logout {
-      background: var(--gaji-surface); border: 1px solid var(--gaji-outline);
-      color: var(--gaji-text-muted); border-radius: 12px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.8); border-radius: 10px;
     }
     #gaji-sidebar .btn-kas-logout:hover {
-      background: #fef2f2; border-color: #fecaca; color: #dc2626;
+      background: rgba(239,68,68,.2); border-color: rgba(239,68,68,.35); color: #fecaca;
     }
-    #gaji-sidebar .kas-dev-credit { color: #cbd5e1 !important; text-shadow: none !important; }
+    #gaji-sidebar .kas-dev-credit { color: rgba(255,255,255,.35) !important; text-shadow: none !important; }
 
     /* Main area */
     #gaji-main {
       margin-left: var(--kas-sidebar-width); min-height: 100vh;
-      background:
-        radial-gradient(ellipse 80% 50% at 100% 0%, rgba(0,100,148,.04) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(8,145,178,.05) 0%, transparent 50%),
-        linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%);
+      background: var(--gaji-bg);
     }
     #gaji-main::before {
       content: ''; position: fixed; inset: var(--kas-sidebar-width) 0 0 0; pointer-events: none; z-index: 0;
@@ -2366,10 +2369,10 @@
     }
     .gaji-peg-chip .lbl i { font-size: 13px; color: var(--gaji-primary); opacity: .9; }
     .gaji-peg-chip input {
-      width: 88px; min-height: 38px; line-height: 1.35;
-      border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 10px;
+      width: 96px; min-height: 42px; height: auto; line-height: 1.45;
+      border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 12px;
       background: #fff; color: var(--gaji-text); font-weight: 700; font-size: 14px;
-      text-align: center; box-shadow: none;
+      text-align: center; box-shadow: none; overflow: visible;
       font-family: 'Roboto Mono', monospace;
       -moz-appearance: textfield; appearance: textfield;
     }
@@ -2507,18 +2510,22 @@
     .gaji-peg-stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
 
     .gaji-realisasi-table-wrap {
-      width: 100%; overflow-x: auto; border-radius: 16px;
+      width: 100%; overflow-x: auto; overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 16px;
       border: 1px solid var(--gaji-outline); background: #fff;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
     }
     .gaji-rek-table {
       width: 100%; margin: 0; border-collapse: separate; border-spacing: 0;
+      table-layout: auto;
+      min-width: 920px;
       --gaji-rek-col-no: 44px;
       --gaji-rek-col-kode: 168px;
       --gaji-rek-col-jenis: 72px;
       --gaji-rek-col-peg: 96px;
-      --gaji-rek-col-amt: 132px;
-      --gaji-rek-col-pct: 88px;
+      --gaji-rek-col-amt: 172px;
+      --gaji-rek-col-pct: 104px;
     }
     .gaji-rek-table thead th {
       position: sticky; top: 0; z-index: 2;
@@ -2547,10 +2554,17 @@
     .gaji-rek-table td.gaji-rek-num {
       font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 600;
       color: #334155; text-align: right; white-space: nowrap;
+      min-width: var(--gaji-rek-col-amt); overflow: visible;
     }
     .gaji-rek-table td.gaji-rek-num.muted { color: #94a3b8; font-weight: 500; }
+    .gaji-rek-table th.gaji-rek-col-amt,
+    .gaji-rek-table th.gaji-rek-col-pct { white-space: nowrap; }
+    .gaji-rek-table th.gaji-rek-col-amt { min-width: var(--gaji-rek-col-amt); }
+    .gaji-rek-table th.gaji-rek-col-pct { min-width: var(--gaji-rek-col-pct); }
     .gaji-rek-table td.gaji-rek-input-cell { text-align: center; width: var(--gaji-rek-col-peg); }
-    .gaji-rek-table td.gaji-rek-rea-cell { text-align: right; width: var(--gaji-rek-col-amt); }
+    .gaji-rek-table td.gaji-rek-rea-cell {
+      text-align: right; min-width: var(--gaji-rek-col-amt); width: auto; overflow: visible;
+    }
     .gaji-rek-table .kas-input {
       border-radius: 10px; border: 1px solid #dbeafe; padding: 7px 10px;
       font-size: 12px; font-family: 'Roboto Mono', monospace; background: #fff;
@@ -2562,10 +2576,14 @@
       box-shadow: 0 0 0 3px rgba(0,100,148,.1);
     }
     .gaji-rek-table .gaji-rek-peg { width: 76px; text-align: center; }
-    .gaji-rek-table .gaji-rek-rea { width: 120px; text-align: right; }
+    .gaji-rek-table .gaji-rek-rea {
+      width: 100%; min-width: 156px; max-width: none; box-sizing: border-box;
+      text-align: right; padding: 8px 12px;
+    }
     .gaji-rek-table .gaji-rek-readonly {
-      display: inline-block; min-width: 76px;
+      display: inline-block; min-width: 0; max-width: none;
       font-family: 'Roboto Mono', monospace; font-size: 12px; color: #475569;
+      white-space: nowrap; overflow: visible;
     }
     .gaji-rek-table tr.gaji-rek-section td {
       background: linear-gradient(90deg, rgba(0,100,148,.1), rgba(0,100,148,.02));
@@ -2612,7 +2630,8 @@
     }
     .gaji-rek-pct {
       display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;
-      min-width: 72px; font-size: 10px; font-weight: 600; color: #64748b;
+      min-width: 84px; font-size: 10px; font-weight: 600; color: #64748b;
+      white-space: nowrap; flex-shrink: 0;
     }
     .gaji-rek-pct-bar {
       width: 48px; height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden;
@@ -2628,7 +2647,7 @@
     }
     .gaji-rek-table tfoot .gaji-rek-num { color: var(--gaji-primary); font-size: 12px; }
     .gaji-rek-summary {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
       gap: 10px; margin-bottom: 16px;
     }
     .gaji-rek-summary .chip {
@@ -2638,9 +2657,9 @@
       font-size: 10px; color: var(--gaji-text-muted); min-width: 0;
     }
     .gaji-rek-summary .chip strong {
-      display: block; color: var(--gaji-primary); font-size: 14px;
-      font-family: 'Roboto Mono', monospace; margin-top: 5px; line-height: 1.2;
-      word-break: break-word;
+      display: block; color: var(--gaji-primary); font-size: 13px;
+      font-family: 'Roboto Mono', monospace; margin-top: 5px; line-height: 1.25;
+      white-space: nowrap; overflow: visible; word-break: normal;
     }
     .gaji-rek-summary .chip-status {
       display: flex; align-items: center; justify-content: center;
@@ -2649,7 +2668,41 @@
     .gaji-rek-summary .badge { border-radius: 999px; font-weight: 600; font-size: 10px; padding: 6px 12px; }
     .gaji-matrix-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .04); }
     .gaji-rek-table.is-grouped thead .gaji-rek-col-jenis { display: none; }
+    .gaji-rek-table.is-jenis-filtered thead .gaji-rek-col-jenis { display: none; }
     .gaji-rek-pct.muted { color: #cbd5e1; }
+    .gaji-rek-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 12px; padding: 10px 14px;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+      border: 1px solid var(--gaji-outline); border-radius: 14px;
+    }
+    .gaji-rek-filter { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .gaji-rek-filter-lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      color: #64748b; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .gaji-rek-filter-btns {
+      display: inline-flex; padding: 3px; border-radius: 999px;
+      background: #fff; border: 1px solid #e2e8f0; box-shadow: inset 0 1px 2px rgba(15,23,42,.04);
+    }
+    .gaji-rek-filter-btn {
+      border: none; background: transparent; color: #64748b;
+      font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 999px;
+      cursor: pointer; transition: background .15s, color .15s, box-shadow .15s;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .gaji-rek-filter-btn:hover { color: var(--gaji-primary); background: rgba(0,100,148,.06); }
+    .gaji-rek-filter-btn.active {
+      background: linear-gradient(180deg, var(--gaji-primary), #005580);
+      color: #fff; box-shadow: 0 2px 8px rgba(0,100,148,.28);
+    }
+    .gaji-rek-filter-btn[data-jenis="pppk"].active {
+      background: linear-gradient(180deg, #0891b2, #0e7490);
+      box-shadow: 0 2px 8px rgba(8,145,178,.28);
+    }
+    .gaji-rek-filter-count {
+      font-size: 11px; color: #94a3b8; font-weight: 500;
+    }
 
     body.gaji-sidebar-open .sidebar-backdrop[data-for="gaji"] {
       background: rgba(15,23,42,.25); backdrop-filter: blur(4px);
@@ -4310,54 +4363,56 @@
     }
     #gaji-app-shell.visible {
       position: relative; z-index: 8; min-height: 100vh;
-      font-family: 'Inter', 'Roboto', system-ui, sans-serif;
-      --gaji-primary: #0ea5e9;
-      --gaji-primary-dark: #0369a1;
-      --gaji-accent: #22d3ee;
-      --gaji-gold: #fbbf24;
-      --gaji-sidebar-bg: #071525;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --gaji-primary: #1E3A8A;
+      --gaji-primary-dark: #172554;
+      --gaji-accent: #3B82F6;
+      --gaji-gold: #F59E0B;
+      --gaji-sidebar-bg: #1E3A8A;
       --gaji-sidebar-w: 280px;
       --kas-sidebar-width: 280px;
     }
-    /* 3D Sidebar */
+    /* Sidebar — Modern Government */
     #gaji-sidebar.gaji-pro-sidebar {
       width: var(--gaji-sidebar-w) !important;
-      background: linear-gradient(168deg, #071525 0%, #0c2340 42%, #0a1a30 100%) !important;
-      border-right: 1px solid rgba(56,189,248,.12) !important;
-      box-shadow: 8px 0 40px rgba(0,0,0,.35), inset -1px 0 0 rgba(255,255,255,.04) !important;
-      color: #94a3b8 !important;
+      background: linear-gradient(180deg, #1E3A8A 0%, #1e40af 52%, #172554 100%) !important;
+      border-right: 1px solid rgba(255,255,255,.08) !important;
+      box-shadow: 4px 0 28px rgba(15,23,42,.18) !important;
+      color: rgba(255,255,255,.65) !important;
       overflow: hidden;
     }
     #gaji-sidebar .gaji-sidebar-glow {
-      position: absolute; top: -80px; left: -40px; width: 220px; height: 220px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(14,165,233,.35) 0%, transparent 70%);
-      filter: blur(40px); pointer-events: none; animation: gaji-glow-pulse 6s ease-in-out infinite;
+      position: absolute; top: -60px; right: -30px; width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,.25) 0%, transparent 70%);
+      filter: blur(32px); pointer-events: none;
     }
-    @keyframes gaji-glow-pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
     #gaji-sidebar .gaji-pro-brand {
       position: relative; z-index: 2;
-      border-bottom: 1px solid rgba(56,189,248,.12) !important;
-      background: linear-gradient(135deg, rgba(14,165,233,.08), transparent) !important;
-      padding: 24px 18px 20px !important;
+      border-bottom: 1px solid rgba(255,255,255,.1) !important;
+      background: rgba(255,255,255,.04) !important;
+      padding: 22px 18px 18px !important;
     }
     #gaji-sidebar .gaji-brand-orb {
-      width: 52px; height: 52px; border-radius: 16px; padding: 2px;
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9, #0369a1);
-      box-shadow: 0 8px 24px rgba(14,165,233,.45), 0 0 0 1px rgba(255,255,255,.1);
-      transform: perspective(400px) rotateY(-8deg) rotateX(4deg);
+      width: 48px; height: 48px; border-radius: 12px; padding: 0;
+      background: transparent; box-shadow: none; transform: none;
     }
     #gaji-sidebar .gaji-brand-icon {
-      width: 100% !important; height: 100% !important; border-radius: 14px !important;
-      background: linear-gradient(145deg, #0c4a6e, #0369a1) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.15) !important;
+      width: 48px !important; height: 48px !important; border-radius: 12px !important;
+      display: grid !important; place-items: center !important;
+      background: linear-gradient(135deg, #3B82F6, #60A5FA) !important;
+      box-shadow: 0 4px 14px rgba(0,0,0,.2) !important;
+      border: 1px solid rgba(255,255,255,.18) !important;
     }
-    #gaji-sidebar .gaji-brand-icon i { font-size: 22px !important; color: #e0f2fe !important; }
-    #gaji-sidebar .gaji-pro-brand h6 { color: #f0f9ff !important; font-weight: 800 !important; font-size: 15px !important; letter-spacing: -.02em; }
-    #gaji-sidebar .gaji-pro-brand small { color: #7dd3fc !important; font-weight: 600 !important; }
+    #gaji-sidebar .gaji-brand-icon i { font-size: 22px !important; color: #fff !important; }
+    #gaji-sidebar .gaji-pro-brand h6,
+    #gaji-sidebar .gaji-brand-title {
+      color: #fff !important; font-weight: 700 !important; font-size: 13px !important;
+      letter-spacing: -.01em; line-height: 1.35; margin: 0;
+    }
     #gaji-sidebar .gaji-tech-badge {
-      background: rgba(14,165,233,.12) !important; color: #bae6fd !important;
-      border: 1px solid rgba(56,189,248,.25) !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2) !important;
+      background: rgba(255,255,255,.1) !important; color: rgba(255,255,255,.85) !important;
+      border: 1px solid rgba(255,255,255,.15) !important;
+      box-shadow: none !important; font-size: 9px !important;
     }
     #gaji-sidebar .gaji-pro-nav { position: relative; z-index: 2; padding-top: 8px !important; }
     #gaji-sidebar .kas-nav-section-title {
@@ -4393,30 +4448,68 @@
       box-shadow: 0 0 12px rgba(56,189,248,.6) !important;
     }
     #gaji-sidebar .gaji-nav-3d.active .kas-nav-icon {
-      background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-      color: #fff !important; border-color: transparent !important;
-      box-shadow: 0 6px 16px rgba(14,165,233,.45) !important;
+      background: #fff !important;
+      color: var(--gaji-primary) !important; border-color: transparent !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
     }
-    #gaji-sidebar .gaji-nav-3d.active .kas-nav-text { color: #f0f9ff !important; }
+    #gaji-sidebar .gaji-nav-3d.active .kas-nav-text { color: #fff !important; }
+    #gaji-sidebar .gaji-sidebar-footer,
     #gaji-sidebar .kas-sidebar-footer {
-      background: rgba(0,0,0,.25) !important; border-top: 1px solid rgba(56,189,248,.1) !important;
+      background: rgba(0,0,0,.14) !important;
+      border-top: 1px solid rgba(255,255,255,.1) !important;
+      padding: 14px 14px 16px !important;
     }
+    #gaji-sidebar .gaji-user-card,
     #gaji-sidebar .kas-user-card {
-      background: rgba(255,255,255,.04) !important; border: 1px solid rgba(56,189,248,.15) !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,.2) !important;
+      display: flex !important; align-items: center !important; gap: 12px !important;
+      background: rgba(255,255,255,.08) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      border-radius: 12px !important;
+      padding: 12px !important; margin-bottom: 10px !important;
+      box-shadow: none !important;
     }
-    #gaji-sidebar .kas-user-name { color: #f1f5f9 !important; }
-    #gaji-sidebar .kas-user-meta { color: #7dd3fc !important; }
+    #gaji-sidebar .gaji-user-info { flex: 1; min-width: 0; }
+    #gaji-sidebar .kas-user-name {
+      color: #fff !important; font-size: 13px !important; font-weight: 600 !important;
+      line-height: 1.35 !important; white-space: normal !important;
+      overflow: visible !important; text-overflow: unset !important;
+      word-break: break-word !important;
+    }
+    #gaji-sidebar .kas-user-meta {
+      color: rgba(255,255,255,.55) !important; font-size: 11px !important;
+      margin-top: 2px !important; font-weight: 500 !important;
+    }
     #gaji-sidebar .kas-user-avatar {
-      background: linear-gradient(135deg, #0ea5e9, #0369a1) !important;
-      box-shadow: 0 4px 12px rgba(14,165,233,.4) !important;
+      flex-shrink: 0; width: 42px !important; height: 42px !important;
+      border-radius: 12px !important;
+      display: grid !important; place-items: center !important;
+      font-size: 13px !important; font-weight: 800 !important;
+      line-height: 1 !important; letter-spacing: .02em !important;
+      background: linear-gradient(135deg, #3B82F6, #60A5FA) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.25) !important;
+      border: 1px solid rgba(255,255,255,.2) !important;
+      color: #fff !important;
     }
+    #gaji-sidebar .gaji-btn-logout,
     #gaji-sidebar .btn-kas-logout {
-      background: rgba(255,255,255,.04) !important; border: 1px solid rgba(248,113,113,.25) !important;
-      color: #fca5a5 !important;
+      width: 100% !important; display: flex !important; align-items: center !important;
+      justify-content: center !important; gap: 8px !important;
+      padding: 10px 14px !important; border-radius: 10px !important;
+      font-size: 12px !important; font-weight: 600 !important;
+      background: rgba(255,255,255,.06) !important;
+      border: 1px solid rgba(255,255,255,.18) !important;
+      color: rgba(255,255,255,.9) !important;
     }
-    #gaji-sidebar .btn-kas-logout:hover { background: rgba(248,113,113,.15) !important; color: #fff !important; }
-    #gaji-sidebar .kas-dev-credit { color: #475569 !important; }
+    #gaji-sidebar .gaji-btn-logout:hover,
+    #gaji-sidebar .btn-kas-logout:hover {
+      background: rgba(239,68,68,.18) !important;
+      border-color: rgba(239,68,68,.35) !important;
+      color: #fecaca !important;
+    }
+    #gaji-sidebar .kas-dev-credit {
+      color: rgba(255,255,255,.35) !important; font-size: 9px !important;
+      text-align: center; margin-top: 10px !important; line-height: 1.4;
+    }
     /* Main workspace */
     #gaji-main {
       margin-left: var(--gaji-sidebar-w) !important;
@@ -4437,19 +4530,19 @@
     }
     #gaji-main .kas-topbar .page-title { color: #0f172a !important; font-weight: 800 !important; }
     #gaji-main .kas-content { padding: 22px 26px 40px !important; }
-    /* Hero dashboard */
+    /* Hero dashboard — Modern Government */
     .gaji-dash-hero {
       display: flex; align-items: stretch; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-      margin-bottom: 20px; padding: 24px 28px; border-radius: 20px;
-      background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 45%, #0e7490 100%);
-      box-shadow: 0 12px 40px rgba(3,105,161,.28), inset 0 1px 0 rgba(255,255,255,.12);
+      margin-bottom: 20px; padding: 24px 28px; border-radius: var(--gaji-radius-lg);
+      background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%);
+      box-shadow: var(--gaji-elev-3);
       color: #fff; position: relative; overflow: hidden;
     }
     .gaji-dash-hero::after {
       content: ''; position: absolute; right: -40px; top: -40px; width: 200px; height: 200px; border-radius: 50%;
       background: radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 70%);
     }
-    .gaji-dash-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #bae6fd; }
+    .gaji-dash-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #BFDBFE; }
     .gaji-dash-hero h2 { margin: 6px 0 8px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
     .gaji-dash-hero p { margin: 0; font-size: 13px; color: rgba(255,255,255,.82); max-width: 520px; line-height: 1.5; }
     .gaji-dash-hero-stat {
@@ -4457,32 +4550,94 @@
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
       backdrop-filter: blur(8px); min-width: 120px; position: relative; z-index: 1;
     }
-    .gaji-dash-hero-stat .lbl { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #bae6fd; }
+    .gaji-dash-hero-stat .lbl { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #BFDBFE; }
     .gaji-dash-hero-stat .val { display: block; font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
     .gaji-dash-categories {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;
     }
     .gaji-cat-card {
-      padding: 16px 18px; border-radius: 16px; background: #fff;
-      border: 1px solid rgba(14,165,233,.12); box-shadow: 0 4px 16px rgba(15,23,42,.05);
+      padding: 16px 18px; border-radius: var(--gaji-radius); background: #fff;
+      border: 1px solid var(--gaji-outline); box-shadow: var(--gaji-elev-1);
       transition: transform .2s, box-shadow .2s;
     }
-    .gaji-cat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(14,165,233,.1); }
+    .gaji-cat-card:hover { transform: translateY(-2px); box-shadow: var(--gaji-elev-2); }
     .gaji-cat-card .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; }
-    .gaji-cat-card .val { font-size: 15px; font-weight: 800; color: #0369a1; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+    .gaji-cat-card .val { font-size: 15px; font-weight: 800; color: var(--gaji-primary); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
     .gaji-cat-card .sub { font-size: 10px; color: #94a3b8; margin-top: 6px; }
     .gaji-cat-card .bar { height: 4px; border-radius: 999px; background: #e2e8f0; margin-top: 8px; overflow: hidden; }
-    .gaji-cat-card .bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0ea5e9, #22d3ee); }
+    .gaji-cat-card .bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1E3A8A, #3B82F6); }
+    /* KPI cards — baris utama dashboard */
+    .gaji-kpi-primary {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px;
+    }
+    .gaji-kpi-secondary {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;
+    }
+    .gaji-stat-kpi {
+      position: relative; padding: 18px 20px 18px 56px !important; min-height: 96px;
+    }
+    .gaji-stat-kpi .gaji-stat-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 16px;
+    }
+    .gaji-stat-kpi.gaji-stat-anggaran .gaji-stat-icon { background: #EFF6FF; color: #1E3A8A; }
+    .gaji-stat-kpi.gaji-stat-realisasi .gaji-stat-icon { background: #ECFDF5; color: #10B981; }
+    .gaji-stat-kpi.gaji-stat-sisa .gaji-stat-icon { background: #FFFBEB; color: #F59E0B; }
+    .gaji-stat-kpi.gaji-stat-pct .gaji-stat-icon { background: #DBEAFE; color: #3B82F6; }
+    .gaji-stat-kpi .val { font-size: 17px !important; line-height: 1.3 !important; }
+    .gaji-dash-section-title {
+      font-size: 13px; font-weight: 700; color: var(--gaji-text); margin: 0 0 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .gaji-dash-section-title i { color: var(--gaji-secondary); }
+    .gaji-dash-insights {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;
+    }
+    .gaji-insight-card {
+      background: #fff; border: 1px solid var(--gaji-outline); border-radius: var(--gaji-radius-lg);
+      padding: 18px 20px; box-shadow: var(--gaji-elev-1);
+    }
+    .gaji-insight-card h6 {
+      margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--gaji-text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .gaji-insight-list { list-style: none; margin: 0; padding: 0; }
+    .gaji-insight-list li {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px;
+    }
+    .gaji-insight-list li:last-child { border-bottom: none; }
+    .gaji-insight-list .lbl { color: #475569; font-weight: 500; flex: 1; min-width: 0; }
+    .gaji-insight-list .amt { font-family: 'JetBrains Mono', monospace; font-weight: 700; white-space: nowrap; }
+    .gaji-insight-list .amt.warn { color: var(--gaji-warning); }
+    .gaji-insight-list .amt.danger { color: var(--gaji-error); }
+    .gaji-insight-list .amt.ok { color: var(--gaji-success); }
+    .gaji-alert-item {
+      display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px;
+      background: #FFFBEB; border: 1px solid #FDE68A; font-size: 12px; color: #92400E;
+      margin-bottom: 8px;
+    }
+    .gaji-alert-item.danger { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+    .gaji-alert-item.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+    @media (max-width: 1100px) {
+      .gaji-kpi-primary { grid-template-columns: repeat(2, 1fr); }
+      .gaji-kpi-secondary { grid-template-columns: 1fr; }
+      .gaji-dash-insights { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 576px) {
+      .gaji-kpi-primary { grid-template-columns: 1fr; }
+    }
     /* Stats & cards */
     #gaji-app-shell .gaji-pro-stat-grid .kas-stat,
     #gaji-app-shell .kas-stat {
-      background: #fff !important; border: 1px solid rgba(14,165,233,.1) !important;
-      border-radius: 16px !important; box-shadow: 0 4px 16px rgba(15,23,42,.05) !important;
+      background: #fff !important; border: 1px solid var(--gaji-outline) !important;
+      border-radius: var(--gaji-radius) !important; box-shadow: var(--gaji-elev-1) !important;
       transition: transform .2s, box-shadow .2s !important;
     }
-    #gaji-app-shell .kas-stat:hover { transform: translateY(-3px) !important; box-shadow: 0 12px 28px rgba(14,165,233,.1) !important; }
-    #gaji-app-shell .kas-stat .lbl { color: #64748b !important; font-weight: 700 !important; }
-    #gaji-app-shell .kas-stat .val { color: #0369a1 !important; font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important; }
+    #gaji-app-shell .kas-stat:hover { transform: translateY(-2px) !important; box-shadow: var(--gaji-elev-2) !important; }
+    #gaji-app-shell .kas-stat .lbl { color: var(--gaji-text-muted) !important; font-weight: 600 !important; font-size: 10px !important; text-transform: uppercase; letter-spacing: .05em; }
+    #gaji-app-shell .kas-stat .val { color: var(--gaji-primary) !important; font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important; }
     #gaji-app-shell .gaji-pro-card,
     #gaji-app-shell .kas-card {
       background: #fff !important; border: 1px solid rgba(14,165,233,.1) !important;
@@ -4498,20 +4653,20 @@
     }
     .gaji-peg-chip input { font-family: 'JetBrains Mono', monospace !important; }
     .gaji-peg-save {
-      background: linear-gradient(135deg, #0369a1, #0ea5e9) !important;
-      box-shadow: 0 4px 16px rgba(14,165,233,.35) !important;
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6) !important;
+      box-shadow: 0 4px 14px rgba(30,58,138,.25) !important;
     }
     /* Matrix */
     .gaji-matrix-grup-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
     .gaji-grup-tab {
-      border: 1px solid rgba(14,165,233,.25); background: #f8fafc; color: #0369a1;
+      border: 1px solid rgba(30,58,138,.2); background: #f8fafc; color: var(--gaji-primary);
       border-radius: 999px; padding: 6px 14px; font-size: 11px; font-weight: 700; cursor: pointer;
       transition: all .2s;
     }
-    .gaji-grup-tab:hover { background: #e0f2fe; }
+    .gaji-grup-tab:hover { background: var(--gaji-primary-light); }
     .gaji-grup-tab.active {
-      background: linear-gradient(135deg, #0369a1, #0ea5e9); color: #fff; border-color: transparent;
-      box-shadow: 0 4px 12px rgba(14,165,233,.3);
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6); color: #fff; border-color: transparent;
+      box-shadow: 0 4px 12px rgba(30,58,138,.25);
     }
     .gaji-matrix-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: #64748b; margin-bottom: 12px; align-items: center; }
     .gaji-heat-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
@@ -4547,10 +4702,10 @@
     #gaji-app-shell .kas-bulan-pill { border-color: rgba(14,165,233,.2) !important; }
     #gaji-app-shell .kas-bulan-pill .val { color: #0369a1 !important; }
     #gaji-app-shell .btn-warning {
-      background: linear-gradient(135deg, #0369a1, #0ea5e9) !important; border-radius: 999px !important;
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6) !important; border-radius: 999px !important;
     }
-    #gaji-app-shell .btn-outline-warning { color: #0369a1 !important; border-color: rgba(14,165,233,.35) !important; border-radius: 999px !important; }
-    #gaji-app-shell .text-warning { color: #0369a1 !important; }
+    #gaji-app-shell .btn-outline-warning { color: var(--gaji-primary) !important; border-color: rgba(30,58,138,.3) !important; border-radius: 999px !important; }
+    #gaji-app-shell .text-warning { color: var(--gaji-primary) !important; }
     .gaji-rek-summary .chip {
       background: #f8fafc !important; border-color: rgba(14,165,233,.12) !important;
       box-shadow: 0 2px 8px rgba(15,23,42,.04) !important;
@@ -4584,18 +4739,34 @@
     }
     #gaji-app-shell #gaji-sidebar .gaji-pro-brand,
     #gaji-app-shell #gaji-sidebar .kas-sidebar-brand {
-      display: flex !important; align-items: center !important; gap: 12px !important;
+      display: flex !important; align-items: flex-start !important; gap: 12px !important;
       flex-shrink: 0 !important; padding: 18px 16px !important;
     }
-    #gaji-app-shell #gaji-sidebar .gaji-brand-orb { flex-shrink: 0; width: 44px !important; height: 44px !important; }
-    #gaji-app-shell #gaji-sidebar .gaji-pro-brand > div:last-child { flex: 1; min-width: 0; overflow: hidden; }
-    #gaji-app-shell #gaji-sidebar .gaji-pro-brand h6 {
-      margin: 0 !important; font-size: 14px !important; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
+    #gaji-app-shell #gaji-sidebar .gaji-brand-orb { flex-shrink: 0; width: 44px !important; height: 44px !important; margin-top: 2px; }
+    #gaji-app-shell #gaji-sidebar .gaji-pro-brand > .gaji-brand-text { flex: 1; min-width: 0; }
+    #gaji-app-shell #gaji-sidebar .gaji-brand-title {
+      margin: 0 !important; padding: 0 !important;
+      display: flex !important; flex-direction: column !important; gap: 3px !important;
+      white-space: normal !important; overflow: visible !important; text-overflow: unset !important;
+      line-height: 1.25 !important;
     }
-    #gaji-app-shell #gaji-sidebar .gaji-pro-brand small { display: block; font-size: 10px !important; margin-top: 2px; }
+    #gaji-app-shell #gaji-sidebar .gaji-brand-mark {
+      display: block; font-size: 10px !important; font-weight: 800 !important;
+      letter-spacing: .16em !important; text-transform: uppercase !important;
+      color: rgba(255,255,255,.62) !important;
+    }
+    #gaji-app-shell #gaji-sidebar .gaji-brand-name {
+      display: block; font-size: 13px !important; font-weight: 700 !important;
+      color: #fff !important; letter-spacing: -.01em !important;
+      line-height: 1.35 !important;
+    }
     #gaji-app-shell #gaji-sidebar .gaji-tech-badge {
-      display: none !important;
+      display: inline-flex !important; align-items: center !important; gap: 5px !important;
+      margin-top: 8px !important; padding: 4px 10px !important;
+      border-radius: 999px !important; font-size: 9px !important; font-weight: 600 !important;
+      letter-spacing: .03em !important; white-space: nowrap !important;
+      background: rgba(255,255,255,.1) !important; color: rgba(255,255,255,.88) !important;
+      border: 1px solid rgba(255,255,255,.14) !important;
     }
     #gaji-app-shell #gaji-sidebar .kas-sidebar-nav,
     #gaji-app-shell #gaji-sidebar .gaji-pro-nav {
@@ -4634,15 +4805,38 @@
     }
     #gaji-app-shell #gaji-sidebar .kas-nav-desc { display: none !important; }
     #gaji-app-shell #gaji-sidebar .kas-sidebar-footer {
-      flex-shrink: 0 !important; padding: 12px 14px 14px !important;
+      flex-shrink: 0 !important; padding: 14px !important;
     }
     #gaji-app-shell #gaji-sidebar .kas-user-card {
-      display: flex !important; align-items: center !important; gap: 10px !important;
-      padding: 10px !important; margin-bottom: 8px !important;
+      display: flex !important; align-items: center !important; gap: 12px !important;
+      padding: 12px 14px !important; margin-bottom: 10px !important;
+      background: rgba(255,255,255,.08) !important;
+      border: 1px solid rgba(255,255,255,.14) !important;
+      border-radius: 14px !important;
+      backdrop-filter: blur(8px);
     }
-    #gaji-app-shell #gaji-sidebar .kas-user-name { font-size: 12px !important; }
-    #gaji-app-shell #gaji-sidebar .kas-user-meta { font-size: 10px !important; }
-    #gaji-app-shell #gaji-sidebar .kas-dev-credit { font-size: 9px !important; margin-top: 8px !important; text-align: center; }
+    #gaji-app-shell #gaji-sidebar .kas-user-avatar {
+      flex-shrink: 0 !important;
+      width: 42px !important; height: 42px !important;
+      border-radius: 12px !important;
+      display: grid !important; place-items: center !important;
+      font-size: 13px !important; font-weight: 800 !important;
+      letter-spacing: .02em !important; line-height: 1 !important;
+      color: #fff !important;
+      background: linear-gradient(135deg, #3B82F6, #60A5FA) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.25) !important;
+      border: 1px solid rgba(255,255,255,.2) !important;
+    }
+    #gaji-app-shell #gaji-sidebar .gaji-user-info { flex: 1; min-width: 0; }
+    #gaji-app-shell #gaji-sidebar .kas-user-name {
+      font-size: 13px !important; font-weight: 600 !important;
+      white-space: normal !important; overflow: visible !important;
+      text-overflow: unset !important; line-height: 1.35 !important;
+      word-break: break-word !important;
+    }
+    #gaji-app-shell #gaji-sidebar .kas-user-meta { font-size: 11px !important; }
+    #gaji-app-shell #gaji-sidebar .gaji-btn-logout { width: 100% !important; }
+    #gaji-app-shell #gaji-sidebar .kas-dev-credit { font-size: 9px !important; margin-top: 10px !important; text-align: center; }
 
     /* Topbar satu baris rapi */
     #gaji-app-shell .gaji-topbar-wrap {
@@ -4687,18 +4881,20 @@
     }
     #gaji-app-shell .gaji-pegawai-strip {
       gap: 12px !important; padding: 10px 14px !important;
-      flex-wrap: nowrap !important;
+      flex-wrap: nowrap !important; overflow: visible !important;
     }
     #gaji-app-shell .gaji-peg-chip {
       gap: 10px !important; padding: 0 !important;
       background: transparent !important; border: none !important;
+      overflow: visible !important;
     }
     #gaji-app-shell .gaji-peg-chip .lbl { min-width: 44px !important; }
     #gaji-app-shell .gaji-peg-chip input {
-      width: 88px !important; min-height: 38px !important;
-      padding: 8px 10px !important; font-size: 14px !important;
-      line-height: 1.35 !important; border: 1px solid #cbd5e1 !important;
+      width: 96px !important; min-height: 42px !important; height: auto !important;
+      padding: 10px 12px !important; font-size: 14px !important;
+      line-height: 1.45 !important; border: 1px solid #cbd5e1 !important;
       border-radius: 10px !important; background: #fff !important;
+      overflow: visible !important;
     }
     #gaji-app-shell .gaji-peg-total { min-width: 72px !important; padding: 0 10px !important; }
     #gaji-app-shell .gaji-peg-total .num { font-size: 17px !important; }
@@ -4725,11 +4921,7 @@
     #gaji-app-shell .gaji-card-header p {
       margin: 0; font-size: 12px; color: #64748b; line-height: 1.4;
     }
-    #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid {
-      display: grid !important;
-      grid-template-columns: repeat(3, 1fr) !important;
-      gap: 14px !important; margin-bottom: 20px !important;
-    }
+    #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid { display: none !important; }
     #gaji-app-shell .kas-stat {
       padding: 16px 18px !important; min-height: 100px;
       display: flex !important; flex-direction: column !important;
@@ -4757,7 +4949,24 @@
     #gaji-app-shell .gaji-grup-tab { padding: 5px 12px; font-size: 11px; }
     #gaji-app-shell .gaji-rek-summary { gap: 8px; margin: 12px 0 14px; }
     #gaji-app-shell .gaji-rek-summary .chip {
-      min-width: 100px; padding: 10px 14px !important;
+      min-width: 120px; padding: 10px 14px !important; overflow: visible !important;
+    }
+    #gaji-app-shell .gaji-rek-summary .chip strong {
+      white-space: nowrap !important; overflow: visible !important;
+      font-size: 13px !important;
+    }
+    #gaji-app-shell .gaji-realisasi-table-wrap { overflow-x: auto !important; overflow-y: visible !important; }
+    #gaji-app-shell .gaji-rek-table { min-width: 920px !important; table-layout: auto !important; }
+    #gaji-app-shell .gaji-rek-table td.gaji-rek-num,
+    #gaji-app-shell .gaji-rek-table td.gaji-rek-rea-cell {
+      min-width: 172px !important; overflow: visible !important; white-space: nowrap !important;
+    }
+    #gaji-app-shell .gaji-rek-table .gaji-rek-rea {
+      min-width: 156px !important; width: 100% !important; max-width: none !important;
+      box-sizing: border-box !important; padding: 8px 12px !important;
+    }
+    #gaji-app-shell .gaji-rek-table .gaji-rek-readonly {
+      white-space: nowrap !important; overflow: visible !important; max-width: none !important;
     }
     #gaji-app-shell .kas-table-wrap { margin-top: 0 !important; }
     #gaji-app-shell .kas-table th,
@@ -4773,43 +4982,181 @@
       #gaji-app-shell .kas-stat-grid.gaji-pro-stat-grid { grid-template-columns: 1fr !important; }
       #gaji-app-shell .gaji-pegawai-strip { flex-wrap: wrap !important; }
     }
-    /* Kebutuhan per rekening */
+    /* Kebutuhan & Rekap — Modern Government tables */
     #gaji-app-shell .gaji-keb-toolbar {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 14px; margin-bottom: 14px; padding: 12px 14px;
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+      gap: 14px; margin-bottom: 14px; padding: 12px 16px;
+      background: linear-gradient(180deg, #fff, #F8FAFC);
+      border: 1px solid var(--gaji-outline); border-radius: var(--gaji-radius);
+      box-shadow: var(--gaji-elev-1);
     }
     #gaji-app-shell .gaji-keb-period { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     #gaji-app-shell .gaji-keb-lbl {
       font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
-      color: #64748b; margin: 0; display: flex; align-items: center; gap: 4px;
+      color: var(--gaji-text-muted); margin: 0; display: flex; align-items: center; gap: 4px;
     }
     #gaji-app-shell .gaji-keb-select {
-      padding: 7px 28px 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
-      font-size: 12px; font-weight: 600; color: #0369a1; background: #fff;
+      padding: 8px 30px 8px 12px; border: 1px solid #CBD5E1; border-radius: 10px;
+      font-size: 12px; font-weight: 600; color: var(--gaji-primary); background: #fff;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%230369a1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 8px center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%231E3A8A' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
     }
-    #gaji-app-shell .gaji-keb-checks { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+    #gaji-app-shell .gaji-keb-checks { display: flex; flex-wrap: wrap; gap: 6px; }
     #gaji-app-shell .gaji-keb-check {
-      display: inline-flex; align-items: center; gap: 6px; margin: 0;
-      font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;
-      padding: 4px 10px; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0;
+      display: inline-flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;
+      font-size: 11px; font-weight: 600; color: #475569;
+      padding: 7px 14px; border-radius: 999px;
+      background: #fff; border: 1px solid #E2E8F0;
+      transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
     }
-    #gaji-app-shell .gaji-keb-check input { accent-color: #0ea5e9; }
-    #gaji-app-shell .gaji-keb-table-wrap { max-height: calc(100vh - 340px); overflow: auto; }
-    #gaji-app-shell .gaji-keb-table { font-size: 11px; }
+    #gaji-app-shell .gaji-keb-check:has(input:checked) {
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+      border-color: transparent; color: #fff;
+      box-shadow: 0 2px 8px rgba(30,58,138,.22);
+    }
+    #gaji-app-shell .gaji-keb-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .gaji-keb-context {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 12px; padding: 10px 14px;
+      background: var(--gaji-primary-light); border: 1px solid rgba(30,58,138,.12);
+      border-radius: 10px; font-size: 11px; color: var(--gaji-primary-dark);
+    }
+    .gaji-keb-context i { opacity: .75; }
+    .gaji-keb-ctx-sep { color: #94A3B8; font-weight: 400; }
+    .gaji-keb-context strong { font-weight: 700; }
+    #gaji-app-shell .gaji-keb-table-wrap {
+      max-height: calc(100vh - 320px); overflow: auto;
+      border-radius: var(--gaji-radius); border: 1px solid var(--gaji-outline);
+      box-shadow: var(--gaji-elev-1); background: #fff;
+    }
+    #gaji-app-shell .gaji-keb-table {
+      width: 100%; margin: 0; border-collapse: separate; border-spacing: 0;
+      font-size: 12px; min-width: 960px;
+    }
+    #gaji-app-shell .gaji-keb-table thead th {
+      position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(180deg, #1E3A8A, #2563EB);
+      color: #fff; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      padding: 11px 12px; border-bottom: none; white-space: nowrap;
+    }
+    #gaji-app-shell .gaji-keb-table thead th.kas-num { text-align: right; }
+    #gaji-app-shell .gaji-keb-table tbody td {
+      padding: 10px 12px; vertical-align: middle;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    #gaji-app-shell .gaji-keb-table tbody tr:nth-child(even) td { background: #FAFBFC; }
+    #gaji-app-shell .gaji-keb-table tbody tr:hover td { background: #EFF6FF; }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-col-no {
+      width: 40px; text-align: center; color: #94A3B8; font-size: 11px; font-weight: 600;
+    }
     #gaji-app-shell .gaji-keb-table .gaji-keb-kode {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #0369a1; white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+      color: var(--gaji-primary); white-space: nowrap;
     }
-    #gaji-app-shell .gaji-keb-table .gaji-keb-kegiatan { max-width: 160px; font-size: 10px; color: #475569; }
-    #gaji-app-shell .gaji-keb-table .gaji-keb-sub { max-width: 180px; font-size: 10px; color: #64748b; }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-nama { min-width: 200px; line-height: 1.35; color: #334155; }
+    #gaji-app-shell .gaji-keb-table .gaji-jenis-badge,
+    #gaji-app-shell .gaji-jenis-badge {
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+      font-size: 9px; font-weight: 700; letter-spacing: .04em;
+      background: var(--gaji-primary-light); color: var(--gaji-primary); border: 1px solid rgba(30,58,138,.15);
+    }
+    #gaji-app-shell .gaji-jenis-badge.pppk {
+      background: #ECFEFF; color: #0e7490; border-color: rgba(8,145,178,.2);
+    }
+    #gaji-app-shell .gaji-keb-table td.kas-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      white-space: nowrap; text-align: right; min-width: 156px;
+    }
+    #gaji-app-shell .gaji-keb-table .gaji-keb-col-input { min-width: 140px; }
     #gaji-app-shell .gaji-keb-input {
-      width: 110px; text-align: right; font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 8px;
+      width: 100%; min-width: 128px; box-sizing: border-box;
+      text-align: right; font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; padding: 8px 10px;
+      border: 1px solid #CBD5E1; border-radius: 10px; background: #fff;
     }
-    #gaji-app-shell .gaji-keb-input:focus { border-color: #0ea5e9; outline: none; box-shadow: 0 0 0 2px rgba(14,165,233,.12); }
+    #gaji-app-shell .gaji-keb-input:focus {
+      border-color: var(--gaji-secondary); outline: none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+    }
+    #gaji-app-shell .gaji-keb-table tfoot td {
+      padding: 12px; background: linear-gradient(180deg, #EFF6FF, #DBEAFE);
+      border-top: 2px solid rgba(30,58,138,.15);
+      font-weight: 700; color: var(--gaji-primary); font-size: 12px;
+    }
+    #gaji-app-shell .gaji-keb-table tfoot .kas-num {
+      font-family: 'JetBrains Mono', monospace; color: var(--gaji-primary-dark);
+    }
+    /* Rekap table */
+    .gaji-rekap-summary { margin-bottom: 14px; }
+    #gaji-app-shell .gaji-rekap-table-wrap {
+      overflow: auto; max-height: calc(100vh - 280px);
+      border-radius: var(--gaji-radius); border: 1px solid var(--gaji-outline);
+      box-shadow: var(--gaji-elev-1); background: #fff;
+    }
+    #gaji-app-shell .gaji-rekap-table {
+      width: 100%; margin: 0; border-collapse: separate; border-spacing: 0;
+      font-size: 11px; min-width: 1200px;
+    }
+    #gaji-app-shell .gaji-rekap-table thead th {
+      padding: 10px 8px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+      border-bottom: 1px solid rgba(255,255,255,.15); white-space: nowrap;
+    }
+    #gaji-app-shell .gaji-rekap-table thead tr:first-child th {
+      background: #1E3A8A; color: #fff; position: sticky; top: 0; z-index: 3;
+    }
+    #gaji-app-shell .gaji-rekap-table thead tr:nth-child(2) th {
+      background: #334155; color: rgba(255,255,255,.9);
+      position: sticky; top: 38px; z-index: 2; font-size: 9px; padding: 7px 6px;
+    }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pns { background: #1e40af !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-gaji_pppk { background: #0e7490 !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pns { background: #047857 !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpp_pppk { background: #059669 !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tpg { background: #7c3aed !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-grp-tamsil { background: #b45309 !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-total { background: #172554 !important; }
+    #gaji-app-shell .gaji-rekap-table thead th.gaji-rekap-sticky {
+      position: sticky; left: 0; z-index: 4;
+      background: #1E3A8A !important; min-width: 88px;
+      box-shadow: 2px 0 6px rgba(0,0,0,.08);
+    }
+    #gaji-app-shell .gaji-rekap-table thead tr:nth-child(2) th.gaji-rekap-sticky {
+      background: #334155 !important; z-index: 4;
+    }
+    #gaji-app-shell .gaji-rekap-table tbody td {
+      padding: 8px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle;
+    }
+    #gaji-app-shell .gaji-rekap-table tbody tr:nth-child(even) td { background: #FAFBFC; }
+    #gaji-app-shell .gaji-rekap-table tbody tr:hover td { background: #EFF6FF; }
+    #gaji-app-shell .gaji-rekap-table tbody td.gaji-rekap-sticky {
+      position: sticky; left: 0; z-index: 1;
+      background: inherit; font-weight: 700; color: var(--gaji-primary);
+      box-shadow: 2px 0 6px rgba(0,0,0,.04);
+    }
+    #gaji-app-shell .gaji-rekap-table tbody tr:nth-child(even) td.gaji-rekap-sticky { background: #FAFBFC; }
+    #gaji-app-shell .gaji-rekap-table tbody tr:hover td.gaji-rekap-sticky { background: #EFF6FF; }
+    #gaji-app-shell .gaji-rekap-table tbody td.kas-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      text-align: right; white-space: nowrap; min-width: 118px;
+    }
+    #gaji-app-shell .gaji-rekap-table thead th.kas-num { min-width: 118px; }
+    #gaji-app-shell .gaji-rekap-table tbody td.gaji-rekap-total-cell {
+      background: rgba(30,58,138,.04); font-weight: 700;
+    }
+    #gaji-app-shell .gaji-rekap-table tfoot td {
+      padding: 10px 8px; background: linear-gradient(180deg, #EFF6FF, #DBEAFE);
+      border-top: 2px solid rgba(30,58,138,.15);
+      font-weight: 700; font-size: 11px; color: var(--gaji-primary-dark);
+    }
+    #gaji-app-shell .gaji-rekap-table tfoot td.kas-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #gaji-app-shell .gaji-rekap-table tfoot td.gaji-rekap-sticky {
+      position: sticky; left: 0; z-index: 1; background: #DBEAFE;
+    }
 
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
     @page { size: A4 portrait; margin: 0; }
@@ -6418,10 +6765,12 @@ function initManualNumericInputUX() {
       <div class="gaji-brand-orb">
         <div class="brand-icon gaji-brand-icon"><i class="bi bi-diagram-3-fill"></i></div>
       </div>
-      <div>
-        <h6>SIPKEU · Gaji ASN</h6>
-        <small id="gaji-version-label">TA 2026 · APBD</small>
-        <div class="gaji-tech-badge"><i class="bi bi-stars"></i> Finance Intelligence · Pro</div>
+      <div class="gaji-brand-text">
+        <h6 class="gaji-brand-title">
+          <span class="gaji-brand-mark">SIPKEU</span>
+          <span class="gaji-brand-name">Gaji &amp; Tunjangan ASN</span>
+        </h6>
+        <div class="gaji-tech-badge"><i class="bi bi-building"></i> Dinas Pendidikan · Batam</div>
       </div>
     </div>
     <nav class="kas-sidebar-nav gaji-pro-nav">
@@ -6475,16 +6824,16 @@ function initManualNumericInputUX() {
         </a>
       </div>
     </nav>
-    <div class="kas-sidebar-footer">
-      <div class="kas-user-card">
+    <div class="kas-sidebar-footer gaji-sidebar-footer">
+      <div class="kas-user-card gaji-user-card">
         <div class="kas-user-avatar" id="gaji-user-avatar">AD</div>
-        <div>
+        <div class="gaji-user-info">
           <div class="kas-user-name" id="gaji-sidebar-user">Administrator</div>
-          <div class="kas-user-meta">Modul Gaji ASN</div>
+          <div class="kas-user-meta" id="gaji-sidebar-role">Administrator</div>
         </div>
       </div>
-      <button type="button" class="btn-kas-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Keluar Aplikasi</button>
-      <div class="kas-dev-credit">Developer by Keuangan Dinas Pendidikan Kota Batam</div>
+      <button type="button" class="btn-kas-logout gaji-btn-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left"></i> Keluar</button>
+      <div class="kas-dev-credit">Keuangan Dinas Pendidikan Kota Batam</div>
     </div>
   </div>
   <div id="gaji-main">
@@ -6492,8 +6841,8 @@ function initManualNumericInputUX() {
       <div class="gaji-topbar-main">
         <button type="button" class="mobile-nav-btn" onclick="toggleMobileSidebar('gaji')" aria-label="Buka menu"><i class="bi bi-list"></i></button>
         <div class="gaji-topbar-title-block">
-          <div class="page-title" id="gaji-topbar-title">Dashboard Gaji ASN</div>
-          <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji ASN</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
+          <div class="page-title" id="gaji-topbar-title">Dashboard Gaji &amp; Tunjangan ASN</div>
+          <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji &amp; Tunjangan</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
         </div>
         <div class="gaji-topbar-actions">
           <div class="gaji-bulan-dropdown" id="gaji-bulan-picker">
@@ -6529,23 +6878,60 @@ function initManualNumericInputUX() {
       <div id="gaji-page-dashboard" class="gaji-page kas-page active">
         <div class="gaji-dash-hero">
           <div class="gaji-dash-hero-copy">
-            <span class="gaji-dash-eyebrow">SIPKEU Finance Intelligence</span>
+            <span class="gaji-dash-eyebrow">Dinas Pendidikan · Kota Batam</span>
             <h2 id="gaji-dash-headline">Dashboard Gaji &amp; Tunjangan ASN</h2>
-            <p>Monitor pagu, realisasi s/d bulan, kebutuhan tahunan, dan pegawai ASN — selaras <em>Templet Anggaran Gaji.xlsx</em> (RAK BELANJA).</p>
+            <p>Monitor pagu, realisasi, sisa anggaran, dan pegawai ASN — selaras <em>Templet Anggaran Gaji.xlsx</em>.</p>
           </div>
           <div class="gaji-dash-hero-stat" id="gaji-dash-hero-pct">
             <span class="lbl">Realisasi s/d Bulan</span>
             <span class="val" id="gaji-dash-pct-val">0%</span>
           </div>
         </div>
-        <div class="kas-stat-grid gaji-pro-stat-grid" id="gaji-stat-grid">
-          <div class="kas-stat"><div class="lbl">Pagu Anggaran TA</div><div class="val" id="gaji-stat-pagu">Rp 0</div><div class="sub">Total pagu semua komponen</div></div>
-          <div class="kas-stat"><div class="lbl">Realisasi s/d Bulan</div><div class="val" id="gaji-stat-realisasi-sd">Rp 0</div><div class="sub">Total realisasi template</div></div>
-          <div class="kas-stat"><div class="lbl">Kebutuhan s/d Des</div><div class="val" id="gaji-stat-kebutuhan">Rp 0</div><div class="sub">Realisasi + kebutuhan sisa</div></div>
-          <div class="kas-stat"><div class="lbl">Pegawai ASN</div><div class="val" id="gaji-stat-pegawai">0</div><div class="gaji-peg-stat-row" id="gaji-stat-pegawai-badges"></div><div class="sub">Input di bar atas</div></div>
-          <div class="kas-stat"><div class="lbl">Sisa Anggaran</div><div class="val" id="gaji-stat-sisa">Rp 0</div><div class="sub">Pagu − Realisasi s/d bulan</div></div>
-          <div class="kas-stat"><div class="lbl">+/- Anggaran</div><div class="val" id="gaji-stat-selisih">Rp 0</div><div class="sub">Pagu − Kebutuhan tahun</div></div>
+        <div class="gaji-kpi-primary" id="gaji-kpi-primary">
+          <div class="kas-stat gaji-stat-kpi gaji-stat-anggaran">
+            <span class="gaji-stat-icon"><i class="bi bi-wallet2"></i></span>
+            <div class="lbl">Total Anggaran</div>
+            <div class="val" id="gaji-stat-pagu">Rp 0</div>
+            <div class="sub">Pagu TA semua komponen</div>
+          </div>
+          <div class="kas-stat gaji-stat-kpi gaji-stat-realisasi">
+            <span class="gaji-stat-icon"><i class="bi bi-graph-up-arrow"></i></span>
+            <div class="lbl">Total Realisasi</div>
+            <div class="val" id="gaji-stat-realisasi-sd">Rp 0</div>
+            <div class="sub">Realisasi s/d bulan aktif</div>
+          </div>
+          <div class="kas-stat gaji-stat-kpi gaji-stat-sisa">
+            <span class="gaji-stat-icon"><i class="bi bi-piggy-bank"></i></span>
+            <div class="lbl">Sisa Anggaran</div>
+            <div class="val" id="gaji-stat-sisa">Rp 0</div>
+            <div class="sub">Pagu − realisasi s/d bulan</div>
+          </div>
+          <div class="kas-stat gaji-stat-kpi gaji-stat-pct">
+            <span class="gaji-stat-icon"><i class="bi bi-percent"></i></span>
+            <div class="lbl">Persentase</div>
+            <div class="val" id="gaji-stat-persen">0%</div>
+            <div class="sub">Realisasi terhadap pagu</div>
+          </div>
         </div>
+        <div class="gaji-kpi-secondary" id="gaji-kpi-secondary">
+          <div class="kas-stat">
+            <div class="lbl">Kebutuhan s/d Desember</div>
+            <div class="val" id="gaji-stat-kebutuhan">Rp 0</div>
+            <div class="sub">Realisasi + kebutuhan sisa tahun</div>
+          </div>
+          <div class="kas-stat">
+            <div class="lbl">Pegawai ASN</div>
+            <div class="val" id="gaji-stat-pegawai">0</div>
+            <div class="gaji-peg-stat-row" id="gaji-stat-pegawai-badges"></div>
+            <div class="sub">Input di bar atas</div>
+          </div>
+          <div class="kas-stat">
+            <div class="lbl">+/- Anggaran</div>
+            <div class="val" id="gaji-stat-selisih">Rp 0</div>
+            <div class="sub">Pagu − kebutuhan tahun</div>
+          </div>
+        </div>
+        <div class="gaji-dash-section-title"><i class="bi bi-grid-3x3-gap"></i> Komposisi per Komponen</div>
         <div class="gaji-dash-categories" id="gaji-dash-categories"></div>
         <div class="gaji-dash-charts">
           <div class="gaji-chart-card gaji-chart-wide">
@@ -6568,6 +6954,16 @@ function initManualNumericInputUX() {
               <small>Perbandingan pagu dan realisasi s/d bulan aktif</small>
             </div>
             <div class="gaji-chart-canvas"><canvas id="gaji-chart-category"></canvas></div>
+          </div>
+        </div>
+        <div class="gaji-dash-insights">
+          <div class="gaji-insight-card">
+            <h6><i class="bi bi-exclamation-triangle text-warning"></i> Komponen Anggaran Menipis</h6>
+            <ul class="gaji-insight-list" id="gaji-insight-thin"></ul>
+          </div>
+          <div class="gaji-insight-card">
+            <h6><i class="bi bi-bell"></i> Notifikasi Anggaran</h6>
+            <div id="gaji-insight-alerts"></div>
           </div>
         </div>
         <div class="kas-card gaji-pro-card">
@@ -6642,6 +7038,17 @@ function initManualNumericInputUX() {
               <button type="button" class="btn btn-warning btn-sm" onclick="saveGajiRealisasi()"><i class="bi bi-save me-1"></i>Simpan Realisasi</button>
             </div>
           </div>
+          <div class="gaji-rek-toolbar" id="gaji-rek-toolbar">
+            <div class="gaji-rek-filter">
+              <span class="gaji-rek-filter-lbl"><i class="bi bi-funnel"></i> Jenis Pegawai</span>
+              <div class="gaji-rek-filter-btns" role="group" aria-label="Filter jenis pegawai">
+                <button type="button" class="gaji-rek-filter-btn active" data-jenis="all" onclick="setGajiRealisasiJenisFilter('all')"><i class="bi bi-people"></i> Semua</button>
+                <button type="button" class="gaji-rek-filter-btn" data-jenis="pns" onclick="setGajiRealisasiJenisFilter('pns')"><i class="bi bi-person-badge"></i> PNS</button>
+                <button type="button" class="gaji-rek-filter-btn" data-jenis="pppk" onclick="setGajiRealisasiJenisFilter('pppk')"><i class="bi bi-person-vcard"></i> PPPK</button>
+              </div>
+              <span class="gaji-rek-filter-count" id="gaji-rek-filter-count"></span>
+            </div>
+          </div>
           <div class="gaji-rek-summary" id="gaji-rek-summary"></div>
           <div class="kas-table-wrap gaji-realisasi-table-wrap">
             <table class="kas-table gaji-rek-table" id="gaji-realisasi-table">
@@ -6650,10 +7057,10 @@ function initManualNumericInputUX() {
                 <th style="width:168px">Kode Rekening</th>
                 <th>Nama Rekening</th>
                 <th class="gaji-rek-col-jenis" style="width:72px">Jenis</th>
-                <th class="kas-num" style="width:132px">Anggaran</th>
-                <th class="kas-num" style="width:132px">Realisasi</th>
-                <th class="kas-num" style="width:132px">Sisa</th>
-                <th class="kas-num" style="width:88px">%</th>
+                <th class="gaji-rek-col-amt kas-num">Anggaran</th>
+                <th class="gaji-rek-col-amt kas-num">Realisasi</th>
+                <th class="gaji-rek-col-amt kas-num">Sisa</th>
+                <th class="gaji-rek-col-pct kas-num">%</th>
               </tr></thead>
               <tbody id="gaji-realisasi-body"></tbody>
               <tfoot id="gaji-realisasi-foot"></tfoot>
@@ -6686,18 +7093,18 @@ function initManualNumericInputUX() {
             </div>
           </div>
           <div class="gaji-rek-summary" id="gaji-keb-summary"></div>
+          <div class="gaji-keb-context" id="gaji-keb-context" style="display:none"></div>
           <div class="kas-table-wrap gaji-keb-table-wrap">
             <table class="kas-table gaji-keb-table">
               <thead><tr>
-                <th>Kegiatan</th>
-                <th>Sub Kegiatan</th>
+                <th class="gaji-keb-col-no">#</th>
                 <th>Kode Rekening</th>
                 <th>Uraian Rekening</th>
-                <th class="kas-num">Pagu TA</th>
-                <th class="kas-num">Anggaran Bulan</th>
-                <th class="kas-num">Realisasi s/d</th>
-                <th class="kas-num">Kebutuhan</th>
-                <th class="kas-num">Surplus</th>
+                <th class="kas-num gaji-keb-col-amt">Pagu TA</th>
+                <th class="kas-num gaji-keb-col-amt">Anggaran Bulan</th>
+                <th class="kas-num gaji-keb-col-amt">Realisasi s/d</th>
+                <th class="kas-num gaji-keb-col-input">Kebutuhan</th>
+                <th class="kas-num gaji-keb-col-amt">Surplus</th>
               </tr></thead>
               <tbody id="gaji-kebutuhan-body"></tbody>
               <tfoot id="gaji-kebutuhan-foot"></tfoot>
@@ -6707,12 +7114,16 @@ function initManualNumericInputUX() {
       </div>
       <div id="gaji-page-rekap" class="gaji-page kas-page">
         <div class="kas-card gaji-pro-card">
-          <div class="kas-toolbar justify-content-between flex-wrap mb-2">
-            <div><h6 class="mb-0"><i class="bi bi-table me-2 text-warning"></i>Rekap Realisasi Semua Komponen</h6><small>Per periode: pegawai (satu kolom), anggaran, realisasi, sisa per komponen</small></div>
+          <div class="gaji-card-header">
+            <div class="gaji-card-header-text">
+              <h6><i class="bi bi-table me-2"></i>Rekap Realisasi Semua Komponen</h6>
+              <p>Anggaran, realisasi, dan sisa per periode · Gaji PNS/PPPK, TPP, TPG, Tamsil</p>
+            </div>
             <button type="button" class="btn btn-outline-warning btn-sm" onclick="exportGajiRekapExcel()"><i class="bi bi-download me-1"></i>Excel</button>
           </div>
-          <div class="kas-table-wrap" style="overflow:auto">
-            <table class="kas-table" id="gaji-rekap-table"><thead id="gaji-rekap-head"></thead><tbody id="gaji-rekap-body"></tbody></table>
+          <div class="gaji-rek-summary gaji-rekap-summary" id="gaji-rekap-summary"></div>
+          <div class="kas-table-wrap gaji-rekap-table-wrap">
+            <table class="kas-table gaji-rekap-table" id="gaji-rekap-table"><thead id="gaji-rekap-head"></thead><tbody id="gaji-rekap-body"></tbody><tfoot id="gaji-rekap-foot"></tfoot></table>
           </div>
         </div>
       </div>
@@ -8299,7 +8710,9 @@ function showGajiApp() {
     const av = document.getElementById('gaji-user-avatar');
     if (av) av.textContent = (parts[0]?.[0] || 'A') + (parts[1]?.[0] || 'D');
     const el = document.getElementById('gaji-sidebar-user');
-    if (el) el.textContent = `${currentUser.name} · Administrator`;
+    const roleEl = document.getElementById('gaji-sidebar-role');
+    if (el) el.textContent = currentUser.name || 'Pengguna';
+    if (roleEl) roleEl.textContent = isAdmin() ? 'Administrator' : 'Operator';
   }
 }
 
@@ -16350,6 +16763,7 @@ GAJI_CATEGORIES.forEach(c => {
 
 let gajiStateCache = null;
 let gajiActiveGrup = 'gaji';
+let gajiRealisasiJenisFilter = 'all';
 let gajiChartMonthly = null;
 let gajiChartDoughnut = null;
 let gajiChartCategory = null;
@@ -16435,16 +16849,17 @@ function showGajiPage(page, navEl, grup) {
   document.querySelectorAll('#gaji-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
   const titles = {
-    dashboard: 'Dashboard Gaji ASN',
+    dashboard: 'Dashboard Gaji & Tunjangan ASN',
     matrix: 'Matrix Rekening · ' + (GAJI_GRUP_LABELS[gajiActiveGrup] || 'Gaji ASN'),
     anggaran: 'Anggaran Gaji',
     realisasi: (GAJI_GRUP_LABELS[gajiActiveGrup] || 'Realisasi') + ' — per Rekening',
     kebutuhan: 'Kebutuhan Anggaran',
     rekap: 'Rekap Realisasi',
   };
-  document.getElementById('gaji-topbar-title').textContent = titles[page] || 'Gaji ASN';
+  document.getElementById('gaji-topbar-title').textContent = titles[page] || 'Gaji & Tunjangan ASN';
   document.getElementById('gaji-topbar-crumb').textContent = titles[page] || page;
   if (page === 'realisasi') {
+    gajiRealisasiJenisFilter = 'all';
     const t = document.getElementById('gaji-realisasi-title');
     if (t) t.textContent = GAJI_GRUP_LABELS[gajiActiveGrup] || gajiActiveGrup;
     loadGajiData();
@@ -16475,8 +16890,6 @@ async function loadGajiData() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Gagal memuat data');
     gajiStateCache = data;
-    const vl = document.getElementById('gaji-version-label');
-    if (vl) vl.textContent = data.version_label ? ('TA ' + (data.tahun || 2026) + ' · ' + data.version_label) : ('TA ' + (data.tahun || 2026) + ' · APBD');
     renderGajiPegawaiPanel();
     renderGajiDashboard();
     if (document.getElementById('gaji-page-realisasi')?.classList.contains('active')) renderGajiRekeningTable();
@@ -16578,9 +16991,11 @@ function renderGajiDashboard() {
   const pct = pagu > 0 ? Math.min(100, (rea / pagu) * 100) : 0;
   const pctEl = document.getElementById('gaji-dash-pct-val');
   if (pctEl) pctEl.textContent = pct.toFixed(1) + '%';
+  const pctStatEl = document.getElementById('gaji-stat-persen');
+  if (pctStatEl) pctStatEl.textContent = pct.toFixed(1) + '%';
   const catEl = document.getElementById('gaji-dash-categories');
+  const cats = d.category_summaries || [];
   if (catEl) {
-    const cats = d.category_summaries || [];
     catEl.innerHTML = cats.length ? cats.map(c => {
       const p = c.pagu > 0 ? Math.min(100, ((c.realisasi_sd || 0) / c.pagu) * 100) : 0;
       return `<div class="gaji-cat-card">
@@ -16591,7 +17006,43 @@ function renderGajiDashboard() {
       </div>`;
     }).join('') : '<div class="text-muted" style="font-size:12px;padding:8px">Upload template anggaran untuk melihat ringkasan kategori</div>';
   }
+  renderGajiDashboardInsights(d, cats);
   renderGajiDashboardCharts();
+}
+
+function renderGajiDashboardInsights(d, cats) {
+  const thinEl = document.getElementById('gaji-insight-thin');
+  const alertEl = document.getElementById('gaji-insight-alerts');
+  if (!thinEl && !alertEl) return;
+  const list = (cats || d?.category_summaries || []).slice()
+    .filter(c => (c.pagu || 0) > 0)
+    .sort((a, b) => (a.kebutuhan_sisa ?? a.pagu - (a.realisasi_sd || 0)) - (b.kebutuhan_sisa ?? b.pagu - (b.realisasi_sd || 0)))
+    .slice(0, 10);
+  if (thinEl) {
+    thinEl.innerHTML = list.length ? list.map(c => {
+      const sisa = c.kebutuhan_sisa ?? ((c.pagu || 0) - (c.realisasi_sd || 0));
+      const p = c.pagu > 0 ? ((c.realisasi_sd || 0) / c.pagu) * 100 : 0;
+      const cls = sisa <= 0 ? 'danger' : p >= 90 ? 'warn' : 'ok';
+      return `<li><span class="lbl">${escHtml(c.label)}</span><span class="amt ${cls}">${formatRupiah(Math.max(0, sisa))}</span></li>`;
+    }).join('') : '<li class="text-muted" style="border:none">Belum ada data kategori</li>';
+  }
+  if (alertEl) {
+    const alerts = [];
+    list.filter(c => {
+      const sisa = c.kebutuhan_sisa ?? ((c.pagu || 0) - (c.realisasi_sd || 0));
+      return sisa <= 0 || (c.pagu > 0 && ((c.realisasi_sd || 0) / c.pagu) >= 0.95);
+    }).slice(0, 5).forEach(c => {
+      const sisa = c.kebutuhan_sisa ?? ((c.pagu || 0) - (c.realisasi_sd || 0));
+      const danger = sisa <= 0;
+      alerts.push(`<div class="gaji-alert-item${danger ? ' danger' : ''}"><i class="bi bi-${danger ? 'x-circle' : 'exclamation-circle'}"></i><span><strong>${escHtml(c.label)}</strong> — ${danger ? 'sisa anggaran habis' : 'realisasi ≥ 95% pagu'}</span></div>`);
+    });
+    const pagu = d?.total_pagu || 0;
+    const rea = d?.total_realisasi_sd || 0;
+    if (pagu > 0 && rea / pagu >= 0.9 && !alerts.length) {
+      alerts.push('<div class="gaji-alert-item ok"><i class="bi bi-check-circle"></i><span>Realisasi keseluruhan mendekati pagu — pantau komponen menipis.</span></div>');
+    }
+    alertEl.innerHTML = alerts.length ? alerts.join('') : '<div class="gaji-alert-item ok"><i class="bi bi-check-circle"></i><span>Semua komponen dalam batas aman.</span></div>';
+  }
 }
 
 async function renderGajiDashboardCharts() {
@@ -16601,9 +17052,9 @@ async function renderGajiDashboardCharts() {
 
   const rekap = gajiStateCache?.rekap || [];
   const cats = gajiStateCache?.dashboard?.category_summaries || [];
-  const GAJI_CHART_BLUE = { line: '#0ea5e9', fill: 'rgba(14,165,233,.12)', bar: 'rgba(14,165,233,.85)', border: '#0369a1' };
-  const GAJI_CHART_CYAN = { line: '#22d3ee', fill: 'rgba(34,211,238,.1)', bar: 'rgba(6,182,212,.75)', border: '#0891b2' };
-  const GAJI_PALETTE = ['#0ea5e9', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
+  const GAJI_CHART_BLUE = { line: '#3B82F6', fill: 'rgba(59,130,246,.12)', bar: 'rgba(59,130,246,.85)', border: '#1E3A8A' };
+  const GAJI_CHART_CYAN = { line: '#60A5FA', fill: 'rgba(96,165,250,.1)', bar: 'rgba(30,58,138,.75)', border: '#2563EB' };
+  const GAJI_PALETTE = ['#1E3A8A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444'];
 
   const monthLabels = rekap.length
     ? rekap.map(r => (r.label_bulan || r.bulan || '').slice(0, 3))
@@ -16879,37 +17330,56 @@ async function loadGajiKebutuhanData() {
   }
 }
 
+function gajiKebJenisBadge(nama, kode) {
+  const jenis = gajiRekJenis(nama, kode);
+  if (jenis === 'pppk') return '<span class="gaji-jenis-badge pppk">PPPK</span>';
+  if (jenis === 'pns') return '<span class="gaji-jenis-badge">PNS</span>';
+  return '';
+}
+
 function renderGajiKebutuhan() {
   const tb = document.getElementById('gaji-kebutuhan-body');
   const foot = document.getElementById('gaji-kebutuhan-foot');
   const summaryEl = document.getElementById('gaji-keb-summary');
+  const contextEl = document.getElementById('gaji-keb-context');
   if (!tb) return;
   const rows = gajiStateCache?.kebutuhan_rekening || [];
   const bulanLabel = GAJI_BULAN_LABELS[getGajiKebBulan()] || getGajiKebBulan();
   const tahun = getGajiKebTahun();
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="text-muted text-center py-4">Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK, lalu centang filter komponen di atas</td></tr>';
+    tb.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-5"><i class="bi bi-inbox d-block mb-2" style="font-size:28px;opacity:.35"></i>Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK</td></tr>';
     if (foot) foot.innerHTML = '';
     if (summaryEl) summaryEl.innerHTML = '';
+    if (contextEl) contextEl.style.display = 'none';
     return;
   }
+  const first = rows[0];
+  if (contextEl) {
+    contextEl.style.display = 'flex';
+    contextEl.innerHTML = [
+      `<span><i class="bi bi-folder2-open me-1"></i><strong>Kegiatan:</strong> ${escHtml(first.kegiatan || '—')}</span>`,
+      `<span class="gaji-keb-ctx-sep">|</span>`,
+      `<span><strong>Sub:</strong> ${escHtml(first.sub_kegiatan || '—')}</span>`,
+    ].join('');
+  }
   let totPagu = 0, totAng = 0, totRea = 0, totKeb = 0, totSur = 0;
-  tb.innerHTML = rows.map(r => {
+  tb.innerHTML = rows.map((r, i) => {
     totPagu += r.pagu || 0;
     totAng += r.anggaran || 0;
     totRea += r.realisasi_sd || 0;
     totKeb += r.kebutuhan || 0;
     totSur += r.surplus || 0;
     const surCls = gajiSelisihClass(r.surplus);
+    const badge = gajiKebJenisBadge(r.nama, r.kode);
+    const meta = badge ? `<div class="gaji-keb-nama-meta">${badge}</div>` : '';
     return `<tr data-kode="${escHtml(r.kode)}" data-anggaran="${r.anggaran || 0}">
-      <td class="gaji-keb-kegiatan" title="${escHtml(r.kegiatan)}">${escHtml(r.kegiatan)}</td>
-      <td class="gaji-keb-sub" title="${escHtml(r.sub_kegiatan)}">${escHtml(r.sub_kegiatan)}</td>
+      <td class="gaji-keb-col-no text-muted">${i + 1}</td>
       <td class="gaji-keb-kode">${escHtml(r.kode)}</td>
-      <td>${escHtml(r.nama)}</td>
+      <td class="gaji-keb-nama"><div>${escHtml(r.nama)}</div>${meta}</td>
       <td class="kas-num">${formatRupiah(r.pagu || 0)}</td>
       <td class="kas-num">${formatRupiah(r.anggaran || 0)}</td>
       <td class="kas-num">${formatRupiah(r.realisasi_sd || 0)}</td>
-      <td class="kas-num">
+      <td class="kas-num gaji-keb-col-input">
         <input type="text" class="gaji-keb-input manual-numeric gaji-keb-rea" data-kode="${escHtml(r.kode)}"
           value="${formatKasAmount(r.kebutuhan || 0)}" aria-label="Kebutuhan ${escHtml(r.kode)}" />
       </td>
@@ -16917,8 +17387,8 @@ function renderGajiKebutuhan() {
     </tr>`;
   }).join('');
   if (foot) {
-    foot.innerHTML = `<tr style="background:#f0f9ff;font-weight:700">
-      <td colspan="4">TOTAL · ${bulanLabel} ${tahun}</td>
+    foot.innerHTML = `<tr class="gaji-keb-total-row">
+      <td colspan="3"><i class="bi bi-calculator me-1"></i>TOTAL · ${escHtml(bulanLabel)} ${tahun}</td>
       <td class="kas-num">${formatRupiah(totPagu)}</td>
       <td class="kas-num">${formatRupiah(totAng)}</td>
       <td class="kas-num">${formatRupiah(totRea)}</td>
@@ -16987,32 +17457,118 @@ async function saveGajiKebutuhan() {
 function renderGajiRekap() {
   const head = document.getElementById('gaji-rekap-head');
   const tb = document.getElementById('gaji-rekap-body');
+  const foot = document.getElementById('gaji-rekap-foot');
+  const summaryEl = document.getElementById('gaji-rekap-summary');
   if (!head || !tb) return;
   const rekap = gajiStateCache?.rekap || [];
-  head.innerHTML = `<tr><th rowspan="2">Periode</th><th rowspan="2" class="text-center">Pegawai</th>${GAJI_CATEGORIES.map(c => `<th colspan="3" class="text-center">${escHtml(c.label)}</th>`).join('')}<th colspan="3" class="text-center">TOTAL</th></tr>
-  <tr>${GAJI_CATEGORIES.map(() => '<th class="kas-num">Anggaran</th><th class="kas-num">Realisasi</th><th class="kas-num">Sisa</th>').join('')}<th class="kas-num">Anggaran</th><th class="kas-num">Realisasi</th><th class="kas-num">Sisa</th></tr>`;
-  const { total } = gajiGetPegawaiCounts();
+  const grpHdr = GAJI_CATEGORIES.map(c =>
+    `<th colspan="3" class="gaji-rekap-grp gaji-rekap-grp-${c.id} text-center">${escHtml(c.label)}</th>`
+  ).join('');
+  head.innerHTML = `<tr>
+    <th rowspan="2" class="gaji-rekap-sticky">Periode</th>
+    ${grpHdr}
+    <th colspan="3" class="gaji-rekap-grp gaji-rekap-total text-center">TOTAL</th>
+  </tr>
+  <tr>
+    ${GAJI_CATEGORIES.map(c => `<th class="kas-num gaji-rekap-sub gaji-rekap-grp-${c.id}">Anggaran</th><th class="kas-num gaji-rekap-sub gaji-rekap-grp-${c.id}">Realisasi</th><th class="kas-num gaji-rekap-sub gaji-rekap-grp-${c.id}">Sisa</th>`).join('')}
+    <th class="kas-num gaji-rekap-sub gaji-rekap-total">Anggaran</th>
+    <th class="kas-num gaji-rekap-sub gaji-rekap-total">Realisasi</th>
+    <th class="kas-num gaji-rekap-sub gaji-rekap-total">Sisa</th>
+  </tr>`;
+  const totals = { cats: {}, ang: 0, rea: 0, sisa: 0 };
+  GAJI_CATEGORIES.forEach(c => { totals.cats[c.id] = { ang: 0, rea: 0, sisa: 0 }; });
+  if (!rekap.length) {
+    tb.innerHTML = `<tr><td colspan="${1 + GAJI_CATEGORIES.length * 3 + 3}" class="text-muted text-center py-5">Belum ada data rekap — upload anggaran terlebih dahulu</td></tr>`;
+    if (foot) foot.innerHTML = '';
+    if (summaryEl) summaryEl.innerHTML = '';
+    return;
+  }
   tb.innerHTML = rekap.map(row => {
-    let cells = `<td>${escHtml(row.label_bulan || row.bulan)}</td><td class="kas-num text-center">${gajiPegawaiBadge('gaji_pns', total || row.total_pegawai || 0)}</td>`;
+    let cells = `<td class="gaji-rekap-sticky">${escHtml(row.label_bulan || row.bulan)}</td>`;
     GAJI_CATEGORIES.forEach(c => {
       const cell = row.categories?.[c.id] || {};
       const sisa = (cell.anggaran || 0) - (cell.realisasi || 0);
-      cells += `<td class="kas-num">${formatKasAmount(cell.anggaran || 0)}</td><td class="kas-num">${formatKasAmount(cell.realisasi || 0)}</td><td class="kas-num">${formatKasAmount(sisa)}</td>`;
+      totals.cats[c.id].ang += cell.anggaran || 0;
+      totals.cats[c.id].rea += cell.realisasi || 0;
+      totals.cats[c.id].sisa += sisa;
+      cells += `<td class="kas-num">${formatRupiah(cell.anggaran || 0)}</td><td class="kas-num">${formatRupiah(cell.realisasi || 0)}</td><td class="kas-num">${formatRupiah(sisa)}</td>`;
     });
-    cells += `<td class="kas-num"><strong>${formatKasAmount(row.total_anggaran || 0)}</strong></td><td class="kas-num"><strong>${formatKasAmount(row.total_realisasi || 0)}</strong></td><td class="kas-num"><strong>${formatKasAmount(row.total_sisa || 0)}</strong></td>`;
+    totals.ang += row.total_anggaran || 0;
+    totals.rea += row.total_realisasi || 0;
+    totals.sisa += row.total_sisa || 0;
+    cells += `<td class="kas-num gaji-rekap-total-cell">${formatRupiah(row.total_anggaran || 0)}</td><td class="kas-num gaji-rekap-total-cell">${formatRupiah(row.total_realisasi || 0)}</td><td class="kas-num gaji-rekap-total-cell">${formatRupiah(row.total_sisa || 0)}</td>`;
     return `<tr>${cells}</tr>`;
   }).join('');
+  if (foot) {
+    let footCells = GAJI_CATEGORIES.map(c => {
+      const t = totals.cats[c.id];
+      return `<td class="kas-num">${formatRupiah(t.ang)}</td><td class="kas-num">${formatRupiah(t.rea)}</td><td class="kas-num">${formatRupiah(t.sisa)}</td>`;
+    }).join('');
+    foot.innerHTML = `<tr>
+      <td class="gaji-rekap-sticky"><i class="bi bi-sigma me-1"></i>TOTAL</td>
+      ${footCells}
+      <td class="kas-num">${formatRupiah(totals.ang)}</td>
+      <td class="kas-num">${formatRupiah(totals.rea)}</td>
+      <td class="kas-num">${formatRupiah(totals.sisa)}</td>
+    </tr>`;
+  }
+  const { pns, pppk } = gajiGetPegawaiCounts();
+  if (summaryEl) {
+    summaryEl.innerHTML = [
+      `<div class="chip"><span class="text-muted">Periode</span><strong>${rekap.length} baris</strong></div>`,
+      `<div class="chip"><span class="text-muted">Total Anggaran</span><strong>${formatRupiah(totals.ang)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Total Realisasi</span><strong>${formatRupiah(totals.rea)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Pegawai</span><strong>${pns.toLocaleString('id-ID')} PNS · ${pppk.toLocaleString('id-ID')} PPPK</strong></div>`,
+    ].join('');
+  }
 }
 
 function updateGajiRealisasiDesc() {
   const el = document.getElementById('gaji-realisasi-desc');
   if (!el) return;
   const g = gajiActiveGrup;
+  const filterHint = gajiRealisasiJenisFilter === 'pns'
+    ? ' — menampilkan rekening <strong>PNS</strong>'
+    : gajiRealisasiJenisFilter === 'pppk'
+      ? ' — menampilkan rekening <strong>PPPK</strong>'
+      : '';
   if (g === 'tpg' || g === 'tamsil') {
-    el.innerHTML = 'Tunjangan + <strong>Iuran Jaminan Kesehatan</strong> per jenis pegawai — jumlah pegawai di <strong>bar atas</strong>, input <strong>realisasi</strong> per rekening';
+    el.innerHTML = 'Tunjangan + <strong>Iuran Jaminan Kesehatan</strong> per jenis pegawai — jumlah pegawai di <strong>bar atas</strong>, input <strong>realisasi</strong> per rekening' + filterHint;
   } else {
-    el.innerHTML = 'Input <strong>realisasi</strong> per kode rekening — jumlah pegawai PNS/PPPK di <strong>bar atas</strong>';
+    el.innerHTML = 'Input <strong>realisasi</strong> per kode rekening — jumlah pegawai PNS/PPPK di <strong>bar atas</strong>' + filterHint;
   }
+}
+
+function setGajiRealisasiJenisFilter(jenis) {
+  gajiRealisasiJenisFilter = jenis === 'pns' || jenis === 'pppk' ? jenis : 'all';
+  document.querySelectorAll('.gaji-rek-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.jenis === gajiRealisasiJenisFilter);
+  });
+  renderGajiRekeningTable();
+}
+
+function gajiRekRowJenis(r) {
+  return (r.jenis || 'pns').toLowerCase();
+}
+
+function gajiFilterReportByJenis(report) {
+  if (gajiRealisasiJenisFilter === 'all') return report;
+  return report.filter(r => gajiRekRowJenis(r) === gajiRealisasiJenisFilter);
+}
+
+function gajiSummarizeReportRows(rows) {
+  return rows.reduce((acc, r) => {
+    acc.total_anggaran += r.anggaran || 0;
+    acc.total_realisasi += r.realisasi || 0;
+    acc.total_sisa += r.sisa || 0;
+    return acc;
+  }, { total_anggaran: 0, total_realisasi: 0, total_sisa: 0 });
+}
+
+function gajiRekTableColCount() {
+  const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
+  const hideJenis = grouped || gajiRealisasiJenisFilter !== 'all';
+  return hideJenis ? 7 : 8;
 }
 
 function gajiRekIsJaminan(r) {
@@ -17042,11 +17598,13 @@ function renderGajiRekeningTableRows(report, locked) {
   let lastJenis = null;
   let idx = 0;
   const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
-  const colSpan = grouped ? 7 : 8;
+  const hideJenis = grouped || gajiRealisasiJenisFilter !== 'all';
+  const colSpan = hideJenis ? 7 : 8;
+  const showSections = grouped && gajiRealisasiJenisFilter === 'all';
   return report.map(r => {
     let section = '';
-    const jenisKey = r.jenis || 'pns';
-    if (grouped && jenisKey !== lastJenis) {
+    const jenisKey = gajiRekRowJenis(r);
+    if (showSections && jenisKey !== lastJenis) {
       lastJenis = jenisKey;
       const lbl = jenisKey === 'pppk' ? 'PPPK' : 'PNS';
       const icon = jenisKey === 'pppk' ? 'bi-person-vcard' : 'bi-person-badge';
@@ -17054,8 +17612,8 @@ function renderGajiRekeningTableRows(report, locked) {
     }
     idx++;
     const isJaminan = gajiRekIsJaminan(r);
-    const jenis = (r.jenis || '').toUpperCase() || '—';
-    const jenisCls = r.jenis === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
+    const jenis = jenisKey.toUpperCase();
+    const jenisCls = jenisKey === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
     const reaVal = r.realisasi || 0;
     const reaInput = locked
       ? `<span class="gaji-rek-readonly">${formatGajiRekDisplayAmount(reaVal)}</span>`
@@ -17066,7 +17624,7 @@ function renderGajiRekeningTableRows(report, locked) {
       isJaminan ? 'gaji-rek-jaminan' : '',
     ].filter(Boolean).join(' ');
     const noIcon = isJaminan ? '<i class="bi bi-heart-pulse" style="font-size:11px"></i>' : idx;
-    const jenisCell = grouped ? '' : `<td><span class="${jenisCls}">${jenis}</span></td>`;
+    const jenisCell = hideJenis ? '' : `<td><span class="${jenisCls}">${jenis}</span></td>`;
     const namaMeta = badge ? `<div class="gaji-rek-nama-meta">${badge}</div>` : '';
     return `${section}<tr data-kode="${escHtml(r.kode)}" class="${rowCls}">
       <td class="text-muted text-center">${noIcon}</td>
@@ -17087,22 +17645,45 @@ function renderGajiRekeningTable() {
   const tb = document.getElementById('gaji-realisasi-body');
   const foot = document.getElementById('gaji-realisasi-foot');
   const summaryEl = document.getElementById('gaji-rek-summary');
+  const filterCountEl = document.getElementById('gaji-rek-filter-count');
   const bulanLabel = document.getElementById('gaji-realisasi-bulan-label');
   const bulan = getGajiBulan();
   const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
-  if (table) table.classList.toggle('is-grouped', grouped);
+  const hideJenis = grouped || gajiRealisasiJenisFilter !== 'all';
+  const colCount = gajiRekTableColCount();
+  if (table) {
+    table.classList.toggle('is-grouped', grouped);
+    table.classList.toggle('is-jenis-filtered', !grouped && gajiRealisasiJenisFilter !== 'all');
+  }
+  document.querySelectorAll('.gaji-rek-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.jenis === gajiRealisasiJenisFilter);
+  });
   if (bulanLabel) bulanLabel.textContent = GAJI_BULAN_LABELS[bulan] || bulan;
   if (!tb) return;
-  const report = gajiStateCache?.rekening_report || [];
-  const summary = gajiStateCache?.rekening_summary || {};
+  const allReport = gajiStateCache?.rekening_report || [];
+  const report = gajiFilterReportByJenis(allReport);
+  const summary = gajiRealisasiJenisFilter === 'all'
+    ? (gajiStateCache?.rekening_summary || {})
+    : { ...gajiSummarizeReportRows(report), locked: gajiStateCache?.rekening_summary?.locked };
   const locked = !!summary.locked;
   const totalPct = summary.total_anggaran > 0
     ? Math.min(100, ((summary.total_realisasi || 0) / summary.total_anggaran) * 100)
     : 0;
+  const filterLabels = { all: 'Semua', pns: 'PNS', pppk: 'PPPK' };
+  if (filterCountEl) {
+    filterCountEl.textContent = allReport.length
+      ? `${report.length} dari ${allReport.length} rekening · ${filterLabels[gajiRealisasiJenisFilter] || 'Semua'}`
+      : '';
+  }
   if (summaryEl) {
     const { pns, pppk } = gajiGetPegawaiCounts();
+    const pegLabel = gajiRealisasiJenisFilter === 'pns'
+      ? `${pns.toLocaleString('id-ID')} PNS`
+      : gajiRealisasiJenisFilter === 'pppk'
+        ? `${pppk.toLocaleString('id-ID')} PPPK`
+        : `${pns.toLocaleString('id-ID')} PNS · ${pppk.toLocaleString('id-ID')} PPPK`;
     summaryEl.innerHTML = [
-      `<div class="chip"><span class="text-muted">Pegawai ASN</span><strong>${pns.toLocaleString('id-ID')} PNS · ${pppk.toLocaleString('id-ID')} PPPK</strong></div>`,
+      `<div class="chip"><span class="text-muted">Pegawai ASN</span><strong>${pegLabel}</strong></div>`,
       `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Realisasi</span><strong>${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Sisa</span><strong>${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</strong></div>`,
@@ -17111,8 +17692,8 @@ function renderGajiRekeningTable() {
         : '<span class="badge bg-light text-secondary border"><i class="bi bi-pencil me-1"></i>Draft — bisa diedit</span>'}</div>`,
     ].join('');
   }
-  if (!report.length) {
-    tb.innerHTML = `<tr><td colspan="${grouped ? 7 : 8}" class="text-muted text-center py-5">
+  if (!allReport.length) {
+    tb.innerHTML = `<tr><td colspan="${colCount}" class="text-muted text-center py-5">
       <i class="bi bi-inbox d-block mb-2" style="font-size:28px;opacity:.35"></i>
       Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA) di menu Anggaran
     </td></tr>`;
@@ -17121,11 +17702,25 @@ function renderGajiRekeningTable() {
     if (unlockBtn) unlockBtn.disabled = true;
     return;
   }
+  if (!report.length) {
+    const jenisLbl = gajiRealisasiJenisFilter === 'pppk' ? 'PPPK' : 'PNS';
+    tb.innerHTML = `<tr><td colspan="${colCount}" class="text-muted text-center py-5">
+      <i class="bi bi-funnel d-block mb-2" style="font-size:28px;opacity:.35"></i>
+      Tidak ada kode rekening untuk <strong>${jenisLbl}</strong> pada komponen ini
+    </td></tr>`;
+    if (foot) foot.innerHTML = '';
+    const unlockBtn = document.getElementById('btn-gaji-unlock');
+    if (unlockBtn) unlockBtn.disabled = locked ? false : true;
+    return;
+  }
   tb.innerHTML = renderGajiRekeningTableRows(report, locked);
   if (foot) {
-    const totalColspan = grouped ? 3 : 4;
+    const totalColspan = hideJenis ? 3 : 4;
+    const totalLabel = gajiRealisasiJenisFilter === 'all'
+      ? GAJI_GRUP_LABELS[gajiActiveGrup] || ''
+      : `${GAJI_GRUP_LABELS[gajiActiveGrup] || ''} · ${filterLabels[gajiRealisasiJenisFilter]}`;
     foot.innerHTML = `<tr class="gaji-rek-total-row">
-      <td colspan="${totalColspan}"><i class="bi bi-calculator me-1"></i>TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>
+      <td colspan="${totalColspan}"><i class="bi bi-calculator me-1"></i>TOTAL ${escHtml(totalLabel)}</td>
       <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</td>
       <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</td>
       <td class="gaji-rek-num muted">${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</td>
@@ -17266,7 +17861,7 @@ function findGajiRakHeaderIndices(rows) {
 function classifyGajiRekMeta(kode, nama) {
   const k = String(kode || '');
   const n = String(nama || '').toUpperCase();
-  const jenis = gajiRekJenis(nama);
+  const jenis = gajiRekJenis(nama, kode);
   const isPot = k.includes('.007.') || k.includes('.009.') || k.includes('.010.') || k.includes('.011.') || k.includes('.012.') ||
     n.includes('PPh') || n.includes('IURAN JAMINAN') || n.includes('IURAN SIMPANAN');
   if (isPot) {
@@ -17293,10 +17888,13 @@ function classifyGajiRekGrup(kode, nama) {
   return classifyGajiRekMeta(kode, nama).grup;
 }
 
-function gajiRekJenis(nama) {
+function gajiRekJenis(nama, kode) {
   const n = String(nama || '').toUpperCase();
   if (n.includes('PPPK')) return 'pppk';
   if (n.includes('PNS')) return 'pns';
+  const k = String(kode || '').trim();
+  if (k.endsWith('.00002') || k.endsWith('00002')) return 'pppk';
+  if (k.endsWith('.00001') || k.endsWith('00001')) return 'pns';
   return '';
 }
 
