@@ -2480,76 +2480,150 @@
     .gaji-peg-badge-pppk { background: var(--gaji-accent-light); border-color: rgba(8,145,178,.2); color: #0e7490; }
     .gaji-peg-stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
 
-    .gaji-rek-table td.kode {
-      font-family: 'Roboto Mono', monospace; font-size: 11px;
-      color: var(--gaji-primary); white-space: nowrap; font-weight: 500;
-    }
-    .gaji-rek-table td.nama { font-size: 12px; max-width: none; color: var(--gaji-text); line-height: 1.35; }
     .gaji-realisasi-table-wrap {
-      width: 100%; overflow-x: auto; border-radius: 14px;
+      width: 100%; overflow-x: auto; border-radius: 16px;
       border: 1px solid var(--gaji-outline); background: #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
     }
-    .gaji-rek-table { width: 100%; table-layout: auto; margin: 0; }
+    .gaji-rek-table {
+      width: 100%; margin: 0; border-collapse: separate; border-spacing: 0;
+      --gaji-rek-col-no: 44px;
+      --gaji-rek-col-kode: 168px;
+      --gaji-rek-col-jenis: 72px;
+      --gaji-rek-col-peg: 96px;
+      --gaji-rek-col-amt: 132px;
+      --gaji-rek-col-pct: 88px;
+    }
     .gaji-rek-table thead th {
-      background: #f8fafc; font-size: 11px; font-weight: 700; color: #475569;
-      padding: 10px 12px; border-bottom: 1px solid var(--gaji-outline); white-space: nowrap;
+      position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      font-size: 10px; font-weight: 700; color: #64748b;
+      padding: 11px 14px; border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: .04em;
     }
-    .gaji-rek-table tbody td { padding: 10px 12px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
-    .gaji-rek-table tfoot td {
-      padding: 12px; background: #f8fafc; border-top: 2px solid var(--gaji-outline);
-      font-size: 12px; color: var(--gaji-primary);
+    .gaji-rek-table thead th.kas-num { text-align: right; }
+    .gaji-rek-table tbody td {
+      padding: 12px 14px; vertical-align: middle;
+      border-bottom: 1px solid #eef2f7; font-size: 12px;
     }
+    .gaji-rek-table tbody tr:last-child td { border-bottom: none; }
+    .gaji-rek-table tbody tr.gaji-rek-benefit:hover td { background: rgba(0,100,148,.025); }
+    .gaji-rek-table td.kode {
+      font-family: 'Roboto Mono', monospace; font-size: 10px;
+      color: var(--gaji-primary); white-space: nowrap; font-weight: 600;
+      width: var(--gaji-rek-col-kode);
+    }
+    .gaji-rek-table td.nama {
+      min-width: 220px; color: var(--gaji-text); line-height: 1.4;
+    }
+    .gaji-rek-nama-main { font-weight: 500; color: #1e293b; }
+    .gaji-rek-nama-meta { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .gaji-rek-table td.gaji-rek-num {
+      font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 600;
+      color: #334155; text-align: right; white-space: nowrap;
+    }
+    .gaji-rek-table td.gaji-rek-num.muted { color: #94a3b8; font-weight: 500; }
+    .gaji-rek-table td.gaji-rek-input-cell { text-align: center; width: var(--gaji-rek-col-peg); }
+    .gaji-rek-table td.gaji-rek-rea-cell { text-align: right; width: var(--gaji-rek-col-amt); }
     .gaji-rek-table .kas-input {
-      border-radius: 8px; border: 1px solid #cbd5e1; padding: 4px 8px;
+      border-radius: 10px; border: 1px solid #dbeafe; padding: 7px 10px;
       font-size: 12px; font-family: 'Roboto Mono', monospace; background: #fff;
+      box-shadow: none; transition: border-color .15s, box-shadow .15s;
     }
-    .gaji-rek-table .kas-input:focus { border-color: var(--gaji-primary); box-shadow: 0 0 0 2px rgba(0,100,148,.12); }
-    .gaji-rek-table .gaji-rek-peg { width: 72px; text-align: center; }
-    .gaji-rek-table .gaji-rek-rea { width: 128px; text-align: right; }
+    .gaji-rek-table .kas-input:hover { border-color: #93c5fd; }
+    .gaji-rek-table .kas-input:focus {
+      border-color: var(--gaji-primary); outline: none;
+      box-shadow: 0 0 0 3px rgba(0,100,148,.1);
+    }
+    .gaji-rek-table .gaji-rek-peg { width: 76px; text-align: center; }
+    .gaji-rek-table .gaji-rek-rea { width: 120px; text-align: right; }
     .gaji-rek-table .gaji-rek-readonly {
-      font-family: 'Roboto Mono', monospace; font-size: 12px; color: #334155;
+      display: inline-block; min-width: 76px;
+      font-family: 'Roboto Mono', monospace; font-size: 12px; color: #475569;
     }
     .gaji-rek-table tr.gaji-rek-section td {
-      background: linear-gradient(90deg, rgba(0,100,148,.08), transparent);
+      background: linear-gradient(90deg, rgba(0,100,148,.1), rgba(0,100,148,.02));
       color: var(--gaji-primary); font-weight: 700; font-size: 11px;
-      padding: 8px 12px; letter-spacing: .04em; text-transform: uppercase;
-      border-bottom: 1px solid rgba(0,100,148,.12);
+      padding: 9px 14px; letter-spacing: .06em; text-transform: uppercase;
+      border-bottom: 1px solid rgba(0,100,148,.14); border-top: 1px solid rgba(0,100,148,.08);
     }
-    .gaji-rek-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .06); }
-    .gaji-rek-table tr.gaji-rek-potongan td.nama { padding-left: 28px; }
-    .gaji-rek-table tr.gaji-rek-potongan td.nama::before {
-      content: '↳'; margin-right: 6px; color: #b45309; font-weight: 700;
+    .gaji-rek-table tr.gaji-rek-section td i { opacity: .85; }
+    .gaji-rek-table tr.gaji-rek-jaminan td {
+      background: linear-gradient(90deg, rgba(16,185,129,.07), rgba(16,185,129,.02));
+    }
+    .gaji-rek-table tr.gaji-rek-jaminan td:first-child { color: #059669; font-weight: 700; }
+    .gaji-rek-table tr.gaji-rek-jaminan td.kode { color: #047857; }
+    .gaji-rek-table tr.gaji-rek-jaminan .gaji-rek-nama-main {
+      color: #065f46; padding-left: 12px; border-left: 3px solid rgba(16,185,129,.45);
+    }
+    .gaji-rek-table tr.gaji-rek-potongan:not(.gaji-rek-jaminan) td {
+      background: rgba(251, 191, 36, .05);
     }
     .gaji-rek-table .gaji-jenis-badge {
-      display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 700;
-      background: var(--gaji-primary-light); color: var(--gaji-primary); border: 1px solid rgba(0,100,148,.12);
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 44px; padding: 4px 10px; border-radius: 999px;
+      font-size: 10px; font-weight: 700;
+      background: var(--gaji-primary-light); color: var(--gaji-primary);
+      border: 1px solid rgba(0,100,148,.12);
     }
     .gaji-rek-table .gaji-jenis-badge.pppk {
       background: var(--gaji-accent-light); color: #0e7490; border-color: rgba(8,145,178,.2);
     }
-    .gaji-rek-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .05); }
+    .gaji-rek-table .gaji-potongan-badge,
+    .gaji-rek-table .gaji-jaminan-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 999px; font-size: 9px; font-weight: 700;
+      letter-spacing: .02em; white-space: nowrap;
+    }
     .gaji-rek-table .gaji-potongan-badge {
-      display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
-      font-size: 9px; font-weight: 700; background: rgba(251, 191, 36, .15); color: #b45309;
-      border: 1px solid rgba(251, 191, 36, .35);
+      background: rgba(251, 191, 36, .14); color: #b45309; border: 1px solid rgba(251, 191, 36, .35);
     }
     .gaji-rek-table .gaji-jaminan-badge {
-      display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
-      font-size: 9px; font-weight: 700; background: rgba(16, 185, 129, .12); color: #047857;
-      border: 1px solid rgba(16, 185, 129, .28);
+      background: rgba(16, 185, 129, .12); color: #047857; border: 1px solid rgba(16, 185, 129, .28);
     }
-    .gaji-matrix-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .04); }
-    .gaji-rek-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .gaji-rek-table .gaji-jaminan-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981;
+    }
+    .gaji-rek-pct {
+      display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;
+      min-width: 72px; font-size: 10px; font-weight: 600; color: #64748b;
+    }
+    .gaji-rek-pct-bar {
+      width: 48px; height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden;
+    }
+    .gaji-rek-pct-bar span {
+      display: block; height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #0891b2, #0ea5e9);
+    }
+    .gaji-rek-table tfoot td {
+      padding: 14px; background: linear-gradient(180deg, #f8fafc, #eef6fb);
+      border-top: 2px solid rgba(0,100,148,.18); font-size: 12px; font-weight: 700;
+      color: var(--gaji-primary);
+    }
+    .gaji-rek-table tfoot .gaji-rek-num { color: var(--gaji-primary); font-size: 12px; }
+    .gaji-rek-summary {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px; margin-bottom: 16px;
+    }
     .gaji-rek-summary .chip {
-      flex: 1; min-width: 120px; padding: 12px 16px; border-radius: 14px;
-      background: var(--gaji-surface); border: 1px solid var(--gaji-outline);
-      box-shadow: var(--gaji-elev-1); font-size: 11px; color: var(--gaji-text-muted);
+      padding: 12px 14px; border-radius: 14px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      border: 1px solid var(--gaji-outline); box-shadow: var(--gaji-elev-1);
+      font-size: 10px; color: var(--gaji-text-muted); min-width: 0;
     }
     .gaji-rek-summary .chip strong {
-      display: block; color: var(--gaji-primary); font-size: 15px;
-      font-family: 'Roboto Mono', monospace; margin-top: 4px;
+      display: block; color: var(--gaji-primary); font-size: 14px;
+      font-family: 'Roboto Mono', monospace; margin-top: 5px; line-height: 1.2;
+      word-break: break-word;
     }
-    .gaji-rek-summary .badge { border-radius: 999px; font-weight: 600; }
+    .gaji-rek-summary .chip-status {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 68px;
+    }
+    .gaji-rek-summary .badge { border-radius: 999px; font-weight: 600; font-size: 10px; padding: 6px 12px; }
+    .gaji-matrix-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .04); }
+    .gaji-rek-table.is-grouped thead .gaji-rek-col-jenis { display: none; }
+    .gaji-rek-pct.muted { color: #cbd5e1; }
 
     body.gaji-sidebar-open .sidebar-backdrop[data-for="gaji"] {
       background: rgba(15,23,42,.25); backdrop-filter: blur(4px);
@@ -6533,15 +6607,15 @@ function initManualNumericInputUX() {
           <div class="kas-table-wrap gaji-realisasi-table-wrap">
             <table class="kas-table gaji-rek-table" id="gaji-realisasi-table">
               <thead><tr>
-                <th style="width:36px">#</th>
-                <th>Kode Rekening</th>
+                <th style="width:44px">#</th>
+                <th style="width:168px">Kode Rekening</th>
                 <th>Nama Rekening</th>
-                <th>Jenis</th>
-                <th class="kas-num">Pegawai</th>
-                <th class="kas-num">Anggaran</th>
-                <th class="kas-num">Realisasi</th>
-                <th class="kas-num">Sisa</th>
-                <th class="kas-num">%</th>
+                <th class="gaji-rek-col-jenis" style="width:72px">Jenis</th>
+                <th class="kas-num" style="width:96px">Pegawai</th>
+                <th class="kas-num" style="width:132px">Anggaran</th>
+                <th class="kas-num" style="width:132px">Realisasi</th>
+                <th class="kas-num" style="width:132px">Sisa</th>
+                <th class="kas-num" style="width:88px">%</th>
               </tr></thead>
               <tbody id="gaji-realisasi-body"></tbody>
               <tfoot id="gaji-realisasi-foot"></tfoot>
@@ -16903,77 +16977,111 @@ function updateGajiRealisasiDesc() {
   }
 }
 
+function gajiRekIsJaminan(r) {
+  return !!(r.attached || (r.potongan && /jaminan|kesehatan|bpjs/i.test(r.nama || '')));
+}
+
 function gajiRekRowBadge(r) {
-  if (r.attached || (r.potongan && /jaminan|kesehatan|bpjs/i.test(r.nama || ''))) {
-    return '<span class="gaji-jaminan-badge">Jaminan Kesehatan</span>';
-  }
+  if (gajiRekIsJaminan(r)) return '<span class="gaji-jaminan-badge">Jaminan Kesehatan</span>';
   if (r.potongan) return '<span class="gaji-potongan-badge">Potongan</span>';
   return '';
+}
+
+function formatGajiRekDisplayAmount(n) {
+  return formatRupiah(n || 0);
+}
+
+function gajiRekPctCell(persen, anggaran, realisasi) {
+  const p = anggaran > 0 ? Math.min(100, (realisasi / anggaran) * 100) : (persen || 0);
+  if (!anggaran && !realisasi) {
+    return '<span class="gaji-rek-pct muted">—</span>';
+  }
+  const w = Math.max(0, Math.min(100, p)).toFixed(0);
+  return `<span class="gaji-rek-pct"><span class="gaji-rek-pct-bar"><span style="width:${w}%"></span></span>${p.toFixed(1)}%</span>`;
 }
 
 function renderGajiRekeningTableRows(report, locked) {
   let lastJenis = null;
   let idx = 0;
   const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
+  const colSpan = grouped ? 8 : 9;
   return report.map(r => {
     let section = '';
     const jenisKey = r.jenis || 'pns';
     if (grouped && jenisKey !== lastJenis) {
       lastJenis = jenisKey;
       const lbl = jenisKey === 'pppk' ? 'PPPK' : 'PNS';
-      section = `<tr class="gaji-rek-section"><td colspan="9"><i class="bi bi-person-badge me-1"></i>${lbl}</td></tr>`;
+      const icon = jenisKey === 'pppk' ? 'bi-person-vcard' : 'bi-person-badge';
+      section = `<tr class="gaji-rek-section"><td colspan="${colSpan}"><i class="bi ${icon} me-2"></i>${lbl}</td></tr>`;
     }
     idx++;
+    const isJaminan = gajiRekIsJaminan(r);
     const jenis = (r.jenis || '').toUpperCase() || '—';
     const jenisCls = r.jenis === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
     const pegVal = r.jumlah_pegawai || 0;
     const reaVal = r.realisasi || 0;
     const pegInput = locked
-      ? `<span class="gaji-rek-readonly">${pegVal.toLocaleString('id-ID')}</span>`
-      : `<input type="number" min="0" class="kas-input gaji-rek-peg manual-numeric" data-kode="${escHtml(r.kode)}" value="${pegVal || ''}" />`;
+      ? `<span class="gaji-rek-readonly">${pegVal ? pegVal.toLocaleString('id-ID') : '—'}</span>`
+      : `<input type="number" min="0" class="kas-input gaji-rek-peg manual-numeric" data-kode="${escHtml(r.kode)}" value="${pegVal || ''}" placeholder="0" />`;
     const reaInput = locked
-      ? `<span class="gaji-rek-readonly">${formatKasAmount(reaVal)}</span>`
-      : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" />`;
-    const pct = r.persen ? r.persen.toFixed(1) + '%' : '—';
+      ? `<span class="gaji-rek-readonly">${formatGajiRekDisplayAmount(reaVal)}</span>`
+      : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" placeholder="0,00" />`;
     const badge = gajiRekRowBadge(r);
-    const rowCls = [r.potongan ? 'gaji-rek-potongan' : 'gaji-rek-benefit'].join(' ');
+    const rowCls = [
+      r.potongan ? 'gaji-rek-potongan' : 'gaji-rek-benefit',
+      isJaminan ? 'gaji-rek-jaminan' : '',
+    ].filter(Boolean).join(' ');
+    const noIcon = isJaminan ? '<i class="bi bi-heart-pulse" style="font-size:11px"></i>' : idx;
+    const jenisCell = grouped ? '' : `<td><span class="${jenisCls}">${jenis}</span></td>`;
+    const namaMeta = badge ? `<div class="gaji-rek-nama-meta">${badge}</div>` : '';
     return `${section}<tr data-kode="${escHtml(r.kode)}" class="${rowCls}">
-      <td class="text-muted">${idx}</td>
+      <td class="text-muted text-center">${noIcon}</td>
       <td class="kode">${escHtml(r.kode)}</td>
-      <td class="nama">${escHtml(r.nama)}${badge}</td>
-      <td><span class="${jenisCls}">${jenis}</span></td>
-      <td class="kas-num">${pegInput}</td>
-      <td class="kas-num">${formatKasAmount(r.anggaran || 0)}</td>
-      <td class="kas-num">${reaInput}</td>
-      <td class="kas-num">${formatKasAmount(r.sisa || 0)}</td>
-      <td class="kas-num">${pct}</td>
+      <td class="nama"><div class="gaji-rek-nama-main">${escHtml(r.nama)}</div>${namaMeta}</td>
+      ${jenisCell}
+      <td class="gaji-rek-input-cell">${pegInput}</td>
+      <td class="gaji-rek-num">${formatGajiRekDisplayAmount(r.anggaran || 0)}</td>
+      <td class="gaji-rek-rea-cell">${reaInput}</td>
+      <td class="gaji-rek-num muted">${formatGajiRekDisplayAmount(r.sisa || 0)}</td>
+      <td class="gaji-rek-num">${gajiRekPctCell(r.persen, r.anggaran, r.realisasi)}</td>
     </tr>`;
   }).join('');
 }
 
 function renderGajiRekeningTable() {
   updateGajiRealisasiDesc();
+  const table = document.getElementById('gaji-realisasi-table');
   const tb = document.getElementById('gaji-realisasi-body');
   const foot = document.getElementById('gaji-realisasi-foot');
   const summaryEl = document.getElementById('gaji-rek-summary');
   const bulanLabel = document.getElementById('gaji-realisasi-bulan-label');
   const bulan = getGajiBulan();
+  const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
+  if (table) table.classList.toggle('is-grouped', grouped);
   if (bulanLabel) bulanLabel.textContent = GAJI_BULAN_LABELS[bulan] || bulan;
   if (!tb) return;
   const report = gajiStateCache?.rekening_report || [];
   const summary = gajiStateCache?.rekening_summary || {};
   const locked = !!summary.locked;
+  const totalPct = summary.total_anggaran > 0
+    ? Math.min(100, ((summary.total_realisasi || 0) / summary.total_anggaran) * 100)
+    : 0;
   if (summaryEl) {
     summaryEl.innerHTML = [
       `<div class="chip"><span class="text-muted">Pegawai</span><strong>${(summary.total_pegawai || 0).toLocaleString('id-ID')}</strong></div>`,
-      `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatRupiah(summary.total_anggaran || 0)}</strong></div>`,
-      `<div class="chip"><span class="text-muted">Realisasi</span><strong>${formatRupiah(summary.total_realisasi || 0)}</strong></div>`,
-      `<div class="chip"><span class="text-muted">Sisa</span><strong>${formatRupiah(summary.total_sisa || 0)}</strong></div>`,
-      locked ? '<div class="chip"><span class="badge bg-success">Bulan terkunci</span></div>' : '<div class="chip"><span class="badge bg-secondary">Draft — bisa diedit</span></div>',
+      `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Realisasi</span><strong>${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</strong></div>`,
+      `<div class="chip"><span class="text-muted">Sisa</span><strong>${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</strong></div>`,
+      `<div class="chip chip-status">${locked
+        ? '<span class="badge bg-success"><i class="bi bi-lock-fill me-1"></i>Bulan terkunci</span>'
+        : '<span class="badge bg-light text-secondary border"><i class="bi bi-pencil me-1"></i>Draft — bisa diedit</span>'}</div>`,
     ].join('');
   }
   if (!report.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="text-muted text-center py-4">Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA) di menu Anggaran</td></tr>';
+    tb.innerHTML = `<tr><td colspan="${grouped ? 8 : 9}" class="text-muted text-center py-5">
+      <i class="bi bi-inbox d-block mb-2" style="font-size:28px;opacity:.35"></i>
+      Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA) di menu Anggaran
+    </td></tr>`;
     if (foot) foot.innerHTML = '';
     const unlockBtn = document.getElementById('btn-gaji-unlock');
     if (unlockBtn) unlockBtn.disabled = true;
@@ -16981,13 +17089,14 @@ function renderGajiRekeningTable() {
   }
   tb.innerHTML = renderGajiRekeningTableRows(report, locked);
   if (foot) {
-    foot.innerHTML = `<tr class="fw-bold">
-      <td colspan="4">TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>
-      <td class="kas-num">${(summary.total_pegawai || 0).toLocaleString('id-ID')}</td>
-      <td class="kas-num">${formatKasAmount(summary.total_anggaran || 0)}</td>
-      <td class="kas-num">${formatKasAmount(summary.total_realisasi || 0)}</td>
-      <td class="kas-num">${formatKasAmount(summary.total_sisa || 0)}</td>
-      <td></td>
+    const totalColspan = grouped ? 3 : 4;
+    foot.innerHTML = `<tr class="gaji-rek-total-row">
+      <td colspan="${totalColspan}"><i class="bi bi-calculator me-1"></i>TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>
+      <td class="gaji-rek-input-cell gaji-rek-num">${(summary.total_pegawai || 0).toLocaleString('id-ID')}</td>
+      <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</td>
+      <td class="gaji-rek-num">${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</td>
+      <td class="gaji-rek-num muted">${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</td>
+      <td class="gaji-rek-num">${gajiRekPctCell(totalPct, summary.total_anggaran, summary.total_realisasi)}</td>
     </tr>`;
   }
   const unlockBtn = document.getElementById('btn-gaji-unlock');
