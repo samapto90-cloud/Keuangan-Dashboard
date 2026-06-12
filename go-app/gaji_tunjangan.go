@@ -338,7 +338,6 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		"keb_filter_labels":   gajiKebutuhanFilterLabels,
 		"keb_filter_keys":     gajiKebutuhanFilterKeys(),
 		"rekap":               buildGajiRekap(state),
-		"potongan":      buildGajiPotonganDashboard(state, reportingMonth),
 	}
 	if grup != "" && isValidGajiGrup(grup) {
 		rows, summary := buildGajiRekeningReport(state, grup, reportingMonth)

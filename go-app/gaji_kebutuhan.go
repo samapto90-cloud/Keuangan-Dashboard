@@ -66,7 +66,7 @@ func parseGajiKebutuhanFilters(raw string) []string {
 }
 
 func gajiRekeningMatchesKebutuhanFilter(catID string, filters []string) bool {
-	if catID == "" || catID == "potongan" {
+	if catID == "" {
 		return false
 	}
 	fk := gajiRekeningFilterKey(catID)
@@ -115,7 +115,7 @@ func buildGajiKebutuhanRekening(state GajiTunjanganState, bulan string, filters 
 	}
 	var rows []GajiKebutuhanRekeningRow
 	for _, def := range state.Rekening {
-		if def.Grup == "potongan" {
+		if def.Potongan {
 			continue
 		}
 		catID := gajiCategoryFromRekening(def)

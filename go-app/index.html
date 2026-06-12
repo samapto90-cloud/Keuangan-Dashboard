@@ -2492,6 +2492,13 @@
     .gaji-rek-table .gaji-jenis-badge.pppk {
       background: var(--gaji-accent-light); color: #0e7490; border-color: rgba(8,145,178,.2);
     }
+    .gaji-rek-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .05); }
+    .gaji-rek-table .gaji-potongan-badge {
+      display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+      font-size: 9px; font-weight: 700; background: rgba(251, 191, 36, .15); color: #b45309;
+      border: 1px solid rgba(251, 191, 36, .35);
+    }
+    .gaji-matrix-table tr.gaji-rek-potongan td { background: rgba(251, 191, 36, .04); }
     .gaji-rek-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
     .gaji-rek-summary .chip {
       flex: 1; min-width: 120px; padding: 12px 16px; border-radius: 14px;
@@ -6317,10 +6324,6 @@ function initManualNumericInputUX() {
           <span class="kas-nav-icon"><i class="bi bi-award"></i></span>
           <span class="kas-nav-text">Tamsil</span>
         </a>
-        <a href="#" class="kas-nav-link gaji-nav-3d" id="gaji-nav-grup-potongan" onclick="showGajiPage('realisasi',this,'potongan');return false">
-          <span class="kas-nav-icon"><i class="bi bi-scissors"></i></span>
-          <span class="kas-nav-text">Potongan</span>
-        </a>
       </div>
       <div class="kas-nav-section">
         <div class="kas-nav-section-title">Sistem</div>
@@ -6418,7 +6421,7 @@ function initManualNumericInputUX() {
           <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Modul Gaji ASN</h6>
           <small>
             <strong>1.</strong> Upload <em>Templet Anggaran Gaji.xlsx</em> (RAK BELANJA) — sistem membaca setiap <strong>kode rekening</strong> + RAK bulanan.<br>
-            <strong>2.</strong> Menu <strong>Realisasi</strong>: input per rekening per bulan (pegawai + realisasi) · <strong>Potongan</strong> = PPh, BPJS, iuran (seperti SIPD, disederhanakan).<br>
+            <strong>2.</strong> Menu <strong>Realisasi</strong> (Gaji, TPP, TPG, Tamsil): input per rekening per bulan — potongan PPh, BPJS, iuran tampil di menu induk sesuai PNS/PPPK.<br>
             <strong>3.</strong> Pilih bulan di bar atas · menu <strong>Kebutuhan</strong> &amp; <strong>Rekap</strong> otomatis teragregasi.
           </small>
         </div>
@@ -6435,7 +6438,6 @@ function initManualNumericInputUX() {
               <button type="button" class="gaji-grup-tab" data-grup="tpp" onclick="switchGajiMatrixGrup('tpp',this)">TPP</button>
               <button type="button" class="gaji-grup-tab" data-grup="tpg" onclick="switchGajiMatrixGrup('tpg',this)">TPG</button>
               <button type="button" class="gaji-grup-tab" data-grup="tamsil" onclick="switchGajiMatrixGrup('tamsil',this)">Tamsil</button>
-              <button type="button" class="gaji-grup-tab" data-grup="potongan" onclick="switchGajiMatrixGrup('potongan',this)">Potongan</button>
             </div>
           </div>
           <div class="gaji-matrix-legend">
@@ -16172,9 +16174,8 @@ const GAJI_GRUPS = [
   { id: 'tpp', label: 'TPP', icon: 'cash-stack' },
   { id: 'tpg', label: 'TPG', icon: 'mortarboard' },
   { id: 'tamsil', label: 'Tamsil', icon: 'award' },
-  { id: 'potongan', label: 'Potongan', icon: 'scissors' },
 ];
-const GAJI_GRUP_LABELS = { gaji: 'Gaji ASN', tpp: 'TPP', tpg: 'TPG', tamsil: 'Tamsil', potongan: 'Potongan' };
+const GAJI_GRUP_LABELS = { gaji: 'Gaji ASN', tpp: 'TPP', tpg: 'TPG', tamsil: 'Tamsil' };
 const GAJI_CATEGORIES = [
   { id: 'gaji_pns', label: 'Gaji PNS' },
   { id: 'gaji_pppk', label: 'Gaji PPPK' },
@@ -16270,8 +16271,13 @@ async function loadGajiBuildLabel() {
   } catch (_) { /* ignore */ }
 }
 
+function normalizeGajiGrup(grup) {
+  if (!grup || grup === 'potongan' || !GAJI_GRUP_LABELS[grup]) return 'gaji';
+  return grup;
+}
+
 function showGajiPage(page, navEl, grup) {
-  if (grup) gajiActiveGrup = grup;
+  if (grup) gajiActiveGrup = normalizeGajiGrup(grup);
   document.querySelectorAll('#gaji-app-shell .gaji-page').forEach(p => p.classList.remove('active'));
   document.getElementById('gaji-page-' + page)?.classList.add('active');
   document.querySelectorAll('#gaji-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
@@ -16579,7 +16585,7 @@ function syncGajiMatrixTabs() {
 }
 
 function switchGajiMatrixGrup(grup, btnEl) {
-  gajiActiveGrup = grup;
+  gajiActiveGrup = normalizeGajiGrup(grup);
   syncGajiMatrixTabs();
   const topTitle = document.getElementById('gaji-topbar-title');
   if (topTitle && document.getElementById('gaji-page-matrix')?.classList.contains('active')) {
@@ -16626,9 +16632,10 @@ function renderGajiMatrix() {
       const ang = cell.anggaran ? `<div class="ang">${formatGajiMatrixAmt(cell.anggaran)}</div>` : '';
       return `<td class="gaji-matrix-cell${cls}">${peg}${rea}${ang}</td>`;
     }).join('');
-    return `<tr>
+    const potBadge = r.potongan ? ' <span class="gaji-potongan-badge">Pot</span>' : '';
+    return `<tr class="${r.potongan ? 'gaji-rek-potongan' : ''}">
       <td class="gaji-sticky gaji-matrix-kode">${escHtml(r.kode)}</td>
-      <td class="gaji-sticky gaji-matrix-nama" title="${escHtml(r.nama)}">${escHtml(r.nama)}</td>
+      <td class="gaji-sticky gaji-matrix-nama" title="${escHtml(r.nama)}">${escHtml(r.nama)}${potBadge}</td>
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.pagu)}</strong></td>
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.realisasi_sd)}</strong></td>
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.kebutuhan_sisa)}</strong></td>
@@ -16882,10 +16889,11 @@ function renderGajiRekeningTable() {
       ? `<span>${formatKasAmount(reaVal)}</span>`
       : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" style="width:120px" />`;
     const pct = r.persen ? r.persen.toFixed(1) + '%' : '—';
-    return `<tr data-kode="${escHtml(r.kode)}" class="${locked ? '' : 'table-success'}">
+    const potBadge = r.potongan ? '<span class="gaji-potongan-badge">Potongan</span>' : '';
+    return `<tr data-kode="${escHtml(r.kode)}" class="${locked ? '' : 'table-success'}${r.potongan ? ' gaji-rek-potongan' : ''}">
       <td class="text-muted">${i + 1}</td>
       <td class="kode">${escHtml(r.kode)}</td>
-      <td class="nama">${escHtml(r.nama)}</td>
+      <td class="nama">${escHtml(r.nama)}${potBadge}</td>
       <td><span class="${jenisCls}">${jenis}</span></td>
       <td class="kas-num">${pegInput}</td>
       <td class="kas-num">${formatKasAmount(r.anggaran || 0)}</td>
@@ -17037,17 +17045,34 @@ function findGajiRakHeaderIndices(rows) {
   return null;
 }
 
-function classifyGajiRekGrup(kode, nama) {
+function classifyGajiRekMeta(kode, nama) {
   const k = String(kode || '');
   const n = String(nama || '').toUpperCase();
-  if (k.includes('.007.') || k.includes('.009.') || k.includes('.010.') || k.includes('.011.') || k.includes('.012.') ||
-      n.includes('PPh') || n.includes('IURAN JAMINAN') || n.includes('IURAN SIMPANAN')) return 'potongan';
-  if (k.includes('5.1.01.02.006') || n.includes('TPG') || n.includes('TAMSIL')) {
-    if (n.includes('TAMSIL')) return 'tamsil';
-    return 'tpg';
+  const jenis = gajiRekJenis(nama);
+  const isPot = k.includes('.007.') || k.includes('.009.') || k.includes('.010.') || k.includes('.011.') || k.includes('.012.') ||
+    n.includes('PPh') || n.includes('IURAN JAMINAN') || n.includes('IURAN SIMPANAN');
+  if (isPot) {
+    let grup = 'gaji';
+    if (n.includes('TPP') || n.includes('TUNJANGAN PENGHASILAN')) grup = 'tpp';
+    else if (n.includes('TAMSIL')) grup = 'tamsil';
+    else if (n.includes('TPG') || n.includes('TUNJANGAN PROFESI')) grup = 'tpg';
+    const isJaminanKes = n.includes('JAMINAN KESEHATAN') || n.includes('BPJS KESEHATAN') ||
+      (n.includes('IURAN JAMINAN') && n.includes('KESEHATAN'));
+    if ((grup === 'tpg' || grup === 'tamsil') && !isJaminanKes) {
+      grup = n.includes('TPP') ? 'tpp' : 'gaji';
+    }
+    return { grup, jenis, potongan: true };
   }
-  if (k.startsWith('5.1.01.02.')) return 'tpp';
-  return 'gaji';
+  if (k.includes('5.1.01.02.006') || n.includes('TPG') || n.includes('TAMSIL')) {
+    if (n.includes('TAMSIL')) return { grup: 'tamsil', jenis, potongan: false };
+    return { grup: 'tpg', jenis, potongan: false };
+  }
+  if (k.startsWith('5.1.01.02.')) return { grup: 'tpp', jenis, potongan: false };
+  return { grup: 'gaji', jenis, potongan: false };
+}
+
+function classifyGajiRekGrup(kode, nama) {
+  return classifyGajiRekMeta(kode, nama).grup;
 }
 
 function gajiRekJenis(nama) {
@@ -17103,7 +17128,7 @@ function parseGajiRakAnggaranWorkbook(wb) {
     bulanAgg[c.id] = {};
     GAJI_BULAN_LIST.forEach(b => { bulanAgg[c.id][b] = 0; });
   });
-  pagu.potongan = 0;
+  pagu.potongan = 0; // legacy — potongan now merged into grup induk
   const get = (row, i) => (i < 0 || i >= row.length ? '' : String(row[i] ?? '').trim());
   let lineCount = 0;
   let urut = 0;
@@ -17114,13 +17139,12 @@ function parseGajiRakAnggaranWorkbook(wb) {
     const subKeg = hdr.iSub >= 0 ? get(row, hdr.iSub).toUpperCase() : '';
     if (subKeg && !subKeg.includes('PENYEDIAAN GAJI') && !subKeg.includes('GAJI DAN TUNJANGAN')) continue;
     const nama = get(row, hdr.iNama);
-    const grup = classifyGajiRekGrup(kode, nama);
-    const jenis = gajiRekJenis(nama);
-    const cat = grup === 'potongan' ? '' : classifyGajiRakCategory(kode, nama);
+    const { grup, jenis, potongan } = classifyGajiRekMeta(kode, nama);
+    const cat = potongan ? '' : classifyGajiRakCategory(kode, nama);
     const paguVal = parseKasNumber(row[hdr.iAnggaran]);
     urut++;
     rekening.push({
-      kode, nama, grup, jenis, pagu: paguVal, urut,
+      kode, nama, grup, jenis, potongan, pagu: paguVal, urut,
       kegiatan: hdr.iKeg >= 0 ? get(row, hdr.iKeg) : '',
       sub_kegiatan: hdr.iSub >= 0 ? get(row, hdr.iSub) : '',
     });
@@ -17131,8 +17155,7 @@ function parseGajiRakAnggaranWorkbook(wb) {
       if (cat) bulanAgg[cat][bk] += ang;
     }
     lineCount++;
-    if (grup === 'potongan') pagu.potongan += paguVal;
-    else if (cat) pagu[cat] += paguVal;
+    if (!potongan && cat) pagu[cat] += paguVal;
   }
   if (!lineCount) throw new Error('Tidak ada baris rekening gaji/tunjangan (5.1.01.*) di sheet RAK BELANJA.');
   const cells = {};

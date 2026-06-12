@@ -12,6 +12,7 @@ type GajiRekeningDef struct {
 	SubKegiatan string  `json:"sub_kegiatan,omitempty"`
 	Grup        string  `json:"grup"`
 	Jenis       string  `json:"jenis"`
+	Potongan    bool    `json:"potongan,omitempty"`
 	Pagu        float64 `json:"pagu"`
 	Urut        int     `json:"urut"`
 }
@@ -21,6 +22,7 @@ type GajiRekeningRow struct {
 	Nama          string  `json:"nama"`
 	Grup          string  `json:"grup"`
 	Jenis         string  `json:"jenis"`
+	Potongan      bool    `json:"potongan,omitempty"`
 	Pagu          float64 `json:"pagu"`
 	JumlahPegawai int     `json:"jumlah_pegawai"`
 	Anggaran      float64 `json:"anggaran"`
@@ -54,6 +56,7 @@ type GajiRekeningMatrixRow struct {
 	Nama         string                              `json:"nama"`
 	Grup         string                              `json:"grup"`
 	Jenis        string                              `json:"jenis"`
+	Potongan     bool                                `json:"potongan,omitempty"`
 	Pagu         float64                             `json:"pagu"`
 	RealisasiSD  float64                             `json:"realisasi_sd"`
 	KebutuhanSisa float64                            `json:"kebutuhan_sisa"`
@@ -67,14 +70,13 @@ type GajiRekeningMatrixSummary struct {
 }
 
 var gajiGrupLabels = map[string]string{
-	"gaji":     "Realisasi Gaji",
-	"tpp":      "Realisasi TPP",
-	"tpg":      "TPG",
-	"tamsil":   "Tamsil",
-	"potongan": "Potongan",
+	"gaji":   "Realisasi Gaji",
+	"tpp":    "Realisasi TPP",
+	"tpg":    "TPG",
+	"tamsil": "Tamsil",
 }
 
-var gajiGrupOrder = []string{"gaji", "tpp", "tpg", "tamsil", "potongan"}
+var gajiGrupOrder = []string{"gaji", "tpp", "tpg", "tamsil"}
 
 func isValidGajiGrup(grup string) bool {
 	_, ok := gajiGrupLabels[grup]
@@ -92,27 +94,66 @@ func gajiJenisFromNama(nama string) string {
 	return ""
 }
 
-func classifyGajiRekening(kode, nama string) (grup, jenis string) {
+func isGajiPotonganRekening(kode, nama string) bool {
+	k := strings.TrimSpace(kode)
+	n := strings.ToUpper(strings.TrimSpace(nama))
+	return strings.Contains(k, ".007.") || strings.Contains(k, ".009.") ||
+		strings.Contains(k, ".010.") || strings.Contains(k, ".011.") || strings.Contains(k, ".012.") ||
+		strings.Contains(n, "PPh") || strings.Contains(n, "IURAN JAMINAN") ||
+		strings.Contains(n, "IURAN SIMPANAN")
+}
+
+func isJaminanKesehatanPotongan(nama string) bool {
+	n := strings.ToUpper(strings.TrimSpace(nama))
+	return strings.Contains(n, "JAMINAN KESEHATAN") ||
+		strings.Contains(n, "BPJS KESEHATAN") ||
+		(strings.Contains(n, "IURAN JAMINAN") && strings.Contains(n, "KESEHATAN"))
+}
+
+func potonganTargetGrupFromNama(nama string) string {
+	n := strings.ToUpper(strings.TrimSpace(nama))
+	if strings.Contains(n, "TPP") || strings.Contains(n, "TUNJANGAN PENGHASILAN") {
+		return "tpp"
+	}
+	if strings.Contains(n, "TAMSIL") {
+		return "tamsil"
+	}
+	if strings.Contains(n, "TPG") || strings.Contains(n, "TUNJANGAN PROFESI") {
+		return "tpg"
+	}
+	return "gaji"
+}
+
+func classifyGajiRekening(kode, nama string) (grup, jenis string, potongan bool) {
 	k := strings.TrimSpace(kode)
 	n := strings.ToUpper(strings.TrimSpace(nama))
 	jenis = gajiJenisFromNama(nama)
 
+	if isGajiPotonganRekening(k, n) {
+		potongan = true
+		target := potonganTargetGrupFromNama(n)
+		if target == "tpg" || target == "tamsil" {
+			if !isJaminanKesehatanPotongan(n) {
+				if strings.Contains(n, "TPP") {
+					target = "tpp"
+				} else {
+					target = "gaji"
+				}
+			}
+		}
+		return target, jenis, true
+	}
+
 	if strings.Contains(k, "5.1.01.02.006") || strings.Contains(n, "TPG") || strings.Contains(n, "TAMSIL") {
 		if strings.Contains(n, "TAMSIL") {
-			return "tamsil", jenis
+			return "tamsil", jenis, false
 		}
-		return "tpg", jenis
-	}
-	if strings.Contains(k, ".007.") || strings.Contains(k, ".009.") ||
-		strings.Contains(k, ".010.") || strings.Contains(k, ".011.") || strings.Contains(k, ".012.") ||
-		strings.Contains(n, "PPh") || strings.Contains(n, "IURAN JAMINAN") ||
-		strings.Contains(n, "IURAN SIMPANAN") {
-		return "potongan", jenis
+		return "tpg", jenis, false
 	}
 	if strings.HasPrefix(k, "5.1.01.02.") {
-		return "tpp", jenis
+		return "tpp", jenis, false
 	}
-	return "gaji", jenis
+	return "gaji", jenis, false
 }
 
 func gajiRekeningLockKey(grup, bulan string) string {
@@ -143,7 +184,7 @@ func gajiGetRekeningCell(state GajiTunjanganState, kode, bulan string) GajiMonth
 }
 
 func gajiUpsertRekeningDef(state *GajiTunjanganState, kode, nama string, pagu float64, urut int) *GajiRekeningDef {
-	grup, jenis := classifyGajiRekening(kode, nama)
+	grup, jenis, potongan := classifyGajiRekening(kode, nama)
 	for i := range state.Rekening {
 		if state.Rekening[i].Kode == kode {
 			if nama != "" {
@@ -153,13 +194,14 @@ func gajiUpsertRekeningDef(state *GajiTunjanganState, kode, nama string, pagu fl
 				state.Rekening[i].Pagu = pagu
 			}
 			state.Rekening[i].Grup = grup
+			state.Rekening[i].Potongan = potongan
 			if jenis != "" {
 				state.Rekening[i].Jenis = jenis
 			}
 			return &state.Rekening[i]
 		}
 	}
-	def := GajiRekeningDef{Kode: kode, Nama: nama, Grup: grup, Jenis: jenis, Pagu: pagu, Urut: urut}
+	def := GajiRekeningDef{Kode: kode, Nama: nama, Grup: grup, Jenis: jenis, Potongan: potongan, Pagu: pagu, Urut: urut}
 	if urut == 0 {
 		def.Urut = len(state.Rekening) + 1
 	}
@@ -207,6 +249,9 @@ func gajiMergeRekeningImport(state *GajiTunjanganState, lines []GajiRekeningDef,
 		if state.Rekening[i].Grup != state.Rekening[j].Grup {
 			return gajiGrupIndex(state.Rekening[i].Grup) < gajiGrupIndex(state.Rekening[j].Grup)
 		}
+		if state.Rekening[i].Potongan != state.Rekening[j].Potongan {
+			return !state.Rekening[i].Potongan
+		}
 		return state.Rekening[i].Urut < state.Rekening[j].Urut
 	})
 	gajiSyncCategoryFromRekening(state)
@@ -214,15 +259,28 @@ func gajiMergeRekeningImport(state *GajiTunjanganState, lines []GajiRekeningDef,
 
 func normalizeGajiRekeningGrups(state *GajiTunjanganState) {
 	for i := range state.Rekening {
-		grup, jenis := classifyGajiRekening(state.Rekening[i].Kode, state.Rekening[i].Nama)
+		grup, jenis, potongan := classifyGajiRekening(state.Rekening[i].Kode, state.Rekening[i].Nama)
 		state.Rekening[i].Grup = grup
+		state.Rekening[i].Potongan = potongan
 		if jenis != "" {
 			state.Rekening[i].Jenis = jenis
+		}
+	}
+	delete(state.Pagu, "potongan")
+	delete(state.Cells, "potongan")
+	if state.RealisasiLocked != nil {
+		for k := range state.RealisasiLocked {
+			if strings.HasPrefix(k, "rekening:potongan:") {
+				delete(state.RealisasiLocked, k)
+			}
 		}
 	}
 	sort.Slice(state.Rekening, func(i, j int) bool {
 		if state.Rekening[i].Grup != state.Rekening[j].Grup {
 			return gajiGrupIndex(state.Rekening[i].Grup) < gajiGrupIndex(state.Rekening[j].Grup)
+		}
+		if state.Rekening[i].Potongan != state.Rekening[j].Potongan {
+			return !state.Rekening[i].Potongan
 		}
 		return state.Rekening[i].Urut < state.Rekening[j].Urut
 	})
@@ -269,6 +327,7 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			Nama:          def.Nama,
 			Grup:          def.Grup,
 			Jenis:         def.Jenis,
+			Potongan:      def.Potongan,
 			Pagu:          def.Pagu,
 			JumlahPegawai: pegawai,
 			Anggaran:      cell.Anggaran,
@@ -316,12 +375,13 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 			continue
 		}
 		row := GajiRekeningMatrixRow{
-			Kode:  def.Kode,
-			Nama:  def.Nama,
-			Grup:  def.Grup,
-			Jenis: def.Jenis,
-			Pagu:  def.Pagu,
-			Bulan: map[string]GajiRekeningMatrixCell{},
+			Kode:     def.Kode,
+			Nama:     def.Nama,
+			Grup:     def.Grup,
+			Jenis:    def.Jenis,
+			Potongan: def.Potongan,
+			Pagu:     def.Pagu,
+			Bulan:    map[string]GajiRekeningMatrixCell{},
 		}
 		for i, b := range bulanKeys {
 			cell := gajiGetRekeningCell(state, def.Kode, b)
@@ -362,17 +422,9 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 	catAng := map[string]map[string]float64{}
 	catReal := map[string]map[string]float64{}
 	catPeg := map[string]map[string]int{}
-	potPagu := 0.0
-	potReal := map[string]float64{}
-	potAng := map[string]float64{}
 
 	for _, def := range state.Rekening {
-		if def.Grup == "potongan" {
-			potPagu += def.Pagu
-			for b, cell := range state.RekeningCells[def.Kode] {
-				potReal[b] += cell.Realisasi
-				potAng[b] += cell.Anggaran
-			}
+		if def.Potongan {
 			continue
 		}
 		catID := gajiCategoryFromRekening(def)
@@ -406,25 +458,6 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 			state.Cells[catID][b] = cell
 		}
 	}
-	if potPagu > 0 {
-		state.Pagu["potongan"] = potPagu
-	}
-	if state.Cells["potongan"] == nil {
-		state.Cells["potongan"] = map[string]GajiMonthCell{}
-	}
-	for b, real := range potReal {
-		cell := state.Cells["potongan"][b]
-		cell.Realisasi = real
-		state.Cells["potongan"][b] = cell
-	}
-	for b, ang := range potAng {
-		cell := state.Cells["potongan"][b]
-		cell.Anggaran = ang
-		state.Cells["potongan"][b] = cell
-	}
-	if potPagu > 0 {
-		state.Pagu["potongan"] = potPagu
-	}
 }
 
 func gajiCategoryFromRekening(def GajiRekeningDef) string {
@@ -443,32 +476,8 @@ func gajiCategoryFromRekening(def GajiRekeningDef) string {
 		return "tpg"
 	case "tamsil":
 		return "tamsil"
-	case "potongan":
-		return "potongan"
 	default:
 		return ""
-	}
-}
-
-func buildGajiPotonganDashboard(state GajiTunjanganState, bulan string) map[string]interface{} {
-	bulan = normalizeBulanKey(bulan)
-	endIdx := gajiBulanIndex(bulan)
-	var pagu, realisasiSD float64
-	for _, def := range state.Rekening {
-		if def.Grup != "potongan" {
-			continue
-		}
-		pagu += def.Pagu
-		for b, cell := range state.RekeningCells[def.Kode] {
-			if gajiBulanIndex(b) <= endIdx {
-				realisasiSD += cell.Realisasi
-			}
-		}
-	}
-	return map[string]interface{}{
-		"pagu":         pagu,
-		"realisasi_sd": realisasiSD,
-		"sisa":         pagu - realisasiSD,
 	}
 }
 
@@ -492,8 +501,6 @@ func gajiGrupFromCategory(category string) string {
 		return "tpg"
 	case "tamsil":
 		return "tamsil"
-	case "potongan":
-		return "potongan"
 	default:
 		return category
 	}
