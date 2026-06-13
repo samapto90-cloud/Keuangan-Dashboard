@@ -255,21 +255,67 @@ func gajiRekeningCellStoreKey(viewGrup string, def GajiRekeningDef) string {
 
 func gajiGetRekeningCellForGrup(state GajiTunjanganState, viewGrup string, def GajiRekeningDef, bulan string) GajiMonthCell {
 	bulan = normalizeBulanKey(bulan)
+	native := gajiGetRekeningCell(state, def.Kode, bulan)
+	cell := GajiMonthCell{
+		Anggaran:      native.Anggaran,
+		JumlahPegawai: native.JumlahPegawai,
+	}
 	storeKey := gajiRekeningCellStoreKey(viewGrup, def)
-	cell := GajiMonthCell{}
-	if state.RekeningCells != nil && state.RekeningCells[storeKey] != nil {
-		cell = state.RekeningCells[storeKey][bulan]
-	}
 	if storeKey != def.Kode {
-		native := gajiGetRekeningCell(state, def.Kode, bulan)
-		if cell.Anggaran == 0 {
-			cell.Anggaran = native.Anggaran
+		if state.RekeningCells != nil && state.RekeningCells[storeKey] != nil {
+			cell.Realisasi = state.RekeningCells[storeKey][bulan].Realisasi
 		}
-		if cell.JumlahPegawai == 0 {
-			cell.JumlahPegawai = native.JumlahPegawai
+		return cell
+	}
+	cell.Realisasi = native.Realisasi
+	return cell
+}
+
+func gajiRekeningIsSharedAcrossMenus(def GajiRekeningDef) bool {
+	for _, grup := range gajiGrupOrder {
+		if def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup) {
+			return true
 		}
 	}
-	return cell
+	return false
+}
+
+func gajiGrupsIncludingRekening(def GajiRekeningDef) []string {
+	var grups []string
+	for _, g := range gajiGrupOrder {
+		if gajiRekeningIncludedInGrup(def, g) {
+			grups = append(grups, g)
+		}
+	}
+	return grups
+}
+
+// gajiSumRekeningRealisasiAllGrups — jumlah realisasi semua menu untuk satu kode rekening (anggaran shared).
+func gajiSumRekeningRealisasiAllGrups(state GajiTunjanganState, def GajiRekeningDef, bulan string) float64 {
+	bulan = normalizeBulanKey(bulan)
+	if !gajiRekeningIsSharedAcrossMenus(def) {
+		return gajiGetRekeningCell(state, def.Kode, bulan).Realisasi
+	}
+	var total float64
+	hasScoped := false
+	for _, grup := range gajiGrupsIncludingRekening(def) {
+		if def.Grup == grup {
+			continue
+		}
+		storeKey := gajiRekeningCellStoreKey(grup, def)
+		if state.RekeningCells == nil || state.RekeningCells[storeKey] == nil {
+			continue
+		}
+		r := state.RekeningCells[storeKey][bulan].Realisasi
+		if r != 0 {
+			hasScoped = true
+		}
+		total += r
+	}
+	if !hasScoped {
+		return gajiGetRekeningCell(state, def.Kode, bulan).Realisasi
+	}
+	return total
 }
 
 func gajiSetRekeningCellForGrup(state *GajiTunjanganState, viewGrup string, def *GajiRekeningDef, kode, bulan string, cell GajiMonthCell) {
@@ -282,45 +328,22 @@ func gajiSetRekeningCellForGrup(state *GajiTunjanganState, viewGrup string, def 
 	if state.RekeningCells[storeKey] == nil {
 		state.RekeningCells[storeKey] = map[string]GajiMonthCell{}
 	}
+	if def != nil && storeKey != def.Kode {
+		prev := state.RekeningCells[storeKey][bulan]
+		prev.Realisasi = cell.Realisasi
+		if cell.JumlahPegawai > 0 {
+			prev.JumlahPegawai = cell.JumlahPegawai
+		}
+		state.RekeningCells[storeKey][bulan] = prev
+		return
+	}
 	state.RekeningCells[storeKey][bulan] = cell
 }
 
 func migrateGajiAttachedRekeningCells(state *GajiTunjanganState) {
-	if state.RekeningCells == nil {
-		return
-	}
-	ensureGajiRekening(state)
-	for _, def := range state.Rekening {
-		if def.Grup == "" || !def.Potongan || !isJaminanKesehatanPotongan(def.Nama) {
-			continue
-		}
-		nativeMonths := state.RekeningCells[def.Kode]
-		if nativeMonths == nil {
-			continue
-		}
-		for _, grup := range gajiGrupOrder {
-			if def.Grup == grup || !gajiRekeningAttachedJaminanKes(def, grup) {
-				continue
-			}
-			scopedKey := gajiRekeningCellStoreKey(grup, def)
-			if state.RekeningCells[scopedKey] == nil {
-				state.RekeningCells[scopedKey] = map[string]GajiMonthCell{}
-			}
-			for bulan, nativeCell := range nativeMonths {
-				scoped := state.RekeningCells[scopedKey][bulan]
-				if scoped.Realisasi == 0 && nativeCell.Realisasi != 0 {
-					scoped.Realisasi = nativeCell.Realisasi
-				}
-				if scoped.Anggaran == 0 && nativeCell.Anggaran != 0 {
-					scoped.Anggaran = nativeCell.Anggaran
-				}
-				if scoped.JumlahPegawai == 0 && nativeCell.JumlahPegawai != 0 {
-					scoped.JumlahPegawai = nativeCell.JumlahPegawai
-				}
-				state.RekeningCells[scopedKey][bulan] = scoped
-			}
-		}
-	}
+	// Tidak menduplikasi realisasi ke tiap menu — data legacy tetap di kode asli
+	// sampai pengguna menyimpan per menu; akumulasi sisa membaca semua menu.
+	_ = state
 }
 
 func gajiUpsertRekeningDef(state *GajiTunjanganState, kode, nama string, pagu float64, urut int) *GajiRekeningDef {
@@ -450,10 +473,12 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			continue
 		}
 		cell := gajiGetRekeningCellForGrup(state, grup, def, bulan)
-		sisa := cell.Anggaran - cell.Realisasi
+		realisasiMenu := cell.Realisasi
+		realisasiTotal := gajiSumRekeningRealisasiAllGrups(state, def, bulan)
+		sisa := cell.Anggaran - realisasiTotal
 		persen := 0.0
 		if cell.Anggaran > 0 {
-			persen = (cell.Realisasi / cell.Anggaran) * 100
+			persen = (realisasiTotal / cell.Anggaran) * 100
 		}
 		attached := def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup)
 		rows = append(rows, GajiRekeningRow{
@@ -465,13 +490,13 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			Attached:      attached,
 			Pagu:          def.Pagu,
 			Anggaran:      cell.Anggaran,
-			Realisasi:     cell.Realisasi,
+			Realisasi:     realisasiMenu,
 			Sisa:          sisa,
 			Persen:        persen,
 			Locked:        summary.Locked,
 		})
 		summary.TotalAnggaran += cell.Anggaran
-		summary.TotalRealisasi += cell.Realisasi
+		summary.TotalRealisasi += realisasiMenu
 		summary.TotalSisa += sisa
 	}
 	summary.TotalPegawai = state.Pegawai["pns"] + state.Pegawai["pppk"]
@@ -516,8 +541,9 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 		}
 		for i, b := range bulanKeys {
 			cell := gajiGetRekeningCellForGrup(state, grup, def, b)
+			realisasiTotal := gajiSumRekeningRealisasiAllGrups(state, def, b)
 			pegawai := gajiRekeningPegawaiFallback(state, def, cell)
-			sisa := cell.Anggaran - cell.Realisasi
+			sisa := cell.Anggaran - realisasiTotal
 			mc := GajiRekeningMatrixCell{
 				Pegawai:   pegawai,
 				Anggaran:  cell.Anggaran,
@@ -532,7 +558,7 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 			sum.Sisa += sisa
 			summary.Bulan[b] = sum
 			if endIdx >= 0 && i <= endIdx {
-				row.RealisasiSD += cell.Realisasi
+				row.RealisasiSD += realisasiTotal
 			}
 		}
 		row.KebutuhanSisa = row.Pagu - row.RealisasiSD

@@ -56,36 +56,53 @@ func TestGajiRekeningIncludedInGrupTamsilBenefit(t *testing.T) {
 	}
 }
 
-func TestGajiRekeningCellIndependentPerGrup(t *testing.T) {
+func TestGajiRekeningSharedAnggaranAccumulatedSisa(t *testing.T) {
 	def := GajiRekeningDef{
 		Kode:     "5.1.01.01.009.00001",
 		Nama:     "Belanja Iuran Jaminan Kesehatan PNS",
 		Grup:     "gaji",
 		Jenis:    "pns",
 		Potongan: true,
+		Pagu:     10_000_000,
 	}
 	state := GajiTunjanganState{
-		Rekening:      []GajiRekeningDef{def},
-		RekeningCells: map[string]map[string]GajiMonthCell{},
+		Rekening: []GajiRekeningDef{def},
+		RekeningCells: map[string]map[string]GajiMonthCell{
+			def.Kode: {
+				"januari": {Anggaran: 1_000_000},
+			},
+		},
 	}
 	ensureGajiRekening(&state)
 	bulan := "januari"
 
-	tpgCell := GajiMonthCell{Anggaran: 1_000_000, Realisasi: 400_000}
-	gajiSetRekeningCellForGrup(&state, "tpg", &def, def.Kode, bulan, tpgCell)
+	gajiSetRekeningCellForGrup(&state, "tpg", &def, def.Kode, bulan, GajiMonthCell{Realisasi: 400_000})
+	gajiSetRekeningCellForGrup(&state, "tamsil", &def, def.Kode, bulan, GajiMonthCell{Realisasi: 250_000})
 
-	tamsilCell := GajiMonthCell{Anggaran: 1_000_000, Realisasi: 250_000}
-	gajiSetRekeningCellForGrup(&state, "tamsil", &def, def.Kode, bulan, tamsilCell)
+	tpgCell := gajiGetRekeningCellForGrup(state, "tpg", def, bulan)
+	if tpgCell.Realisasi != 400_000 {
+		t.Fatalf("expected tpg menu realisasi 400000, got %v", tpgCell.Realisasi)
+	}
+	if tpgCell.Anggaran != 1_000_000 {
+		t.Fatalf("expected shared anggaran 1000000, got %v", tpgCell.Anggaran)
+	}
+	total := gajiSumRekeningRealisasiAllGrups(state, def, bulan)
+	if total != 650_000 {
+		t.Fatalf("expected accumulated realisasi 650000, got %v", total)
+	}
+	sisa := tpgCell.Anggaran - total
+	if sisa != 350_000 {
+		t.Fatalf("expected accumulated sisa 350000, got %v", sisa)
+	}
 
-	gotTPG := gajiGetRekeningCellForGrup(state, "tpg", def, bulan)
-	gotTamsil := gajiGetRekeningCellForGrup(state, "tamsil", def, bulan)
-	if gotTPG.Realisasi != 400_000 {
-		t.Fatalf("expected tpg realisasi 400000, got %v", gotTPG.Realisasi)
+	rows, _ := buildGajiRekeningReport(state, "tpg", bulan)
+	if len(rows) != 1 {
+		t.Fatalf("expected 1 row in tpg report, got %d", len(rows))
 	}
-	if gotTamsil.Realisasi != 250_000 {
-		t.Fatalf("expected tamsil realisasi 250000, got %v", gotTamsil.Realisasi)
+	if rows[0].Realisasi != 400_000 {
+		t.Fatalf("expected row realisasi menu 400000, got %v", rows[0].Realisasi)
 	}
-	if sisa := gotTPG.Anggaran - gotTPG.Realisasi; sisa != 600_000 {
-		t.Fatalf("expected tpg sisa 600000, got %v", sisa)
+	if rows[0].Sisa != 350_000 {
+		t.Fatalf("expected row sisa 350000, got %v", rows[0].Sisa)
 	}
 }
