@@ -5063,7 +5063,18 @@
       display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap;
     }
     #gaji-app-shell .gaji-topbar-wrap.is-hidden { display: none !important; }
-    #gaji-app-shell.gaji-page-kebutuhan-active .kas-content { padding-top: 12px !important; }
+    #gaji-app-shell.gaji-page-kebutuhan-active .kas-content,
+    #gaji-app-shell.gaji-page-anggaran-active .kas-content { padding-top: 12px !important; }
+    #gaji-app-shell .gaji-anggaran-version-wrap {
+      max-width: 520px; margin: 0 0 14px;
+      padding: 12px 14px; border-radius: 12px;
+      background: linear-gradient(180deg, #fff, #F8FAFC);
+      border: 1px solid var(--gaji-outline);
+    }
+    #gaji-app-shell .gaji-anggaran-version-wrap .form-text {
+      font-size: 11px; color: #64748b; margin-top: 6px; margin-bottom: 0;
+    }
+    #gaji-app-shell .gaji-rak-version-select { width: 100%; max-width: 100%; margin-top: 6px; }
     .gaji-keb-context {
       display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
       margin-bottom: 12px; padding: 10px 14px;
@@ -7095,6 +7106,24 @@ function initManualNumericInputUX() {
             <div><h6 class="mb-0"><i class="bi bi-cloud-upload me-2 text-warning"></i>Upload Anggaran &amp; Realisasi</h6><small>Template <strong>Templet Anggaran Gaji.xlsx</strong> (RAK BELANJA), <strong>Perhitungan Gaji TA 2026.xls</strong>, atau format sederhana</small></div>
             <button type="button" class="btn btn-outline-warning btn-sm" onclick="downloadGajiTemplate()"><i class="bi bi-download me-1"></i>Template Sederhana</button>
           </div>
+          <div class="gaji-anggaran-version-wrap">
+            <div id="gaji-anggaran-current" style="display:none" class="mb-2">
+              <span class="badge bg-primary">Anggaran aktif: <span id="gaji-anggaran-current-label">—</span></span>
+            </div>
+            <label class="gaji-keb-lbl" for="gaji-rak-version"><i class="bi bi-layers"></i> Versi Anggaran RAK</label>
+            <select id="gaji-rak-version" class="gaji-keb-select gaji-rak-version-select">
+              <option value="apbd">Anggaran Murni</option>
+              <option value="pergeseran-1">Pergeseran 1</option>
+              <option value="pergeseran-2">Pergeseran 2</option>
+              <option value="pergeseran-3">Pergeseran 3</option>
+              <option value="pergeseran-4">Pergeseran 4</option>
+              <option value="apbdp">Perubahan Anggaran (APBDP)</option>
+              <option value="apbdp-pergeseran-1">APBDP 1</option>
+              <option value="apbdp-pergeseran-2">APBDP 2</option>
+              <option value="apbdp-pergeseran-3">APBDP 3</option>
+            </select>
+            <div class="form-text">Pilih versi yang sesuai isi file Excel — Murni, Pergeseran, atau Perubahan Anggaran (APBDP).</div>
+          </div>
           <div class="kas-upload-zone mt-2">
             <i class="bi bi-file-earmark-spreadsheet" style="font-size:40px;color:var(--gaji-primary,#006494)"></i>
             <p class="mt-2 mb-2" style="font-size:13px">Pilih <strong>Templet Anggaran Gaji.xlsx</strong> (RAK), <strong>Perhitungan Gaji .xls</strong>, atau <strong>.xlsx</strong> format sederhana</p>
@@ -7965,6 +7994,17 @@ const RAK_VERSION_LABELS = {
   'apbdp-pergeseran-2': 'APBDP Pergeseran II',
   'apbdp-pergeseran-3': 'APBDP Pergeseran III',
 };
+const GAJI_RAK_VERSION_LABELS = {
+  'apbd': 'Anggaran Murni',
+  'pergeseran-1': 'Pergeseran 1',
+  'pergeseran-2': 'Pergeseran 2',
+  'pergeseran-3': 'Pergeseran 3',
+  'pergeseran-4': 'Pergeseran 4',
+  'apbdp': 'Perubahan Anggaran (APBDP)',
+  'apbdp-pergeseran-1': 'APBDP 1',
+  'apbdp-pergeseran-2': 'APBDP 2',
+  'apbdp-pergeseran-3': 'APBDP 3',
+};
 let importAnggaranData = [];
 let rekapRowsCache = [];
 let rekapTransactionsCache = [];
@@ -8360,6 +8400,32 @@ function filterPortalTransactions(list) {
 
 function rakVersionLabel(key) {
   return RAK_VERSION_LABELS[key] || (key ? String(key).toUpperCase() : 'APBD (Murni)');
+}
+
+function gajiRakVersionLabel(key) {
+  const k = String(key || '').trim();
+  return GAJI_RAK_VERSION_LABELS[k] || rakVersionLabel(k);
+}
+
+function getGajiRakVersion() {
+  return document.getElementById('gaji-rak-version')?.value || 'apbd';
+}
+
+function syncGajiAnggaranVersionUI() {
+  const curWrap = document.getElementById('gaji-anggaran-current');
+  const curLabel = document.getElementById('gaji-anggaran-current-label');
+  const sel = document.getElementById('gaji-rak-version');
+  const v = gajiStateCache?.version;
+  if (sel && v && [...sel.options].some(o => o.value === v)) sel.value = v;
+  const label = gajiStateCache?.version_label || (v ? gajiRakVersionLabel(v) : '');
+  if (curWrap && curLabel) {
+    if (label) {
+      curWrap.style.display = '';
+      curLabel.textContent = label;
+    } else {
+      curWrap.style.display = 'none';
+    }
+  }
 }
 
 function formatRakMetaSummary(meta) {
@@ -16937,8 +17003,10 @@ function updateGajiTopbarForPage(page) {
   const pegStrip = document.getElementById('gaji-pegawai-strip');
   if (pegStrip) pegStrip.classList.toggle('is-hidden', page !== 'realisasi');
   const topbar = document.querySelector('#gaji-app-shell .gaji-topbar-wrap');
-  if (topbar) topbar.classList.toggle('is-hidden', page === 'kebutuhan');
-  document.getElementById('gaji-app-shell')?.classList.toggle('gaji-page-kebutuhan-active', page === 'kebutuhan');
+  if (topbar) topbar.classList.toggle('is-hidden', page === 'kebutuhan' || page === 'anggaran');
+  const shell = document.getElementById('gaji-app-shell');
+  shell?.classList.toggle('gaji-page-kebutuhan-active', page === 'kebutuhan');
+  shell?.classList.toggle('gaji-page-anggaran-active', page === 'anggaran');
 }
 
 function showGajiPage(page, navEl, grup) {
@@ -16973,6 +17041,8 @@ function showGajiPage(page, navEl, grup) {
     renderGajiRekap();
   } else if (page === 'dashboard') {
     renderGajiDashboard();
+  } else if (page === 'anggaran') {
+    syncGajiAnggaranVersionUI();
   }
   closeMobileSidebar();
 }
@@ -16996,6 +17066,7 @@ async function loadGajiData() {
     if (document.getElementById('gaji-page-matrix')?.classList.contains('active')) renderGajiMatrix();
     if (document.getElementById('gaji-page-kebutuhan')?.classList.contains('active')) renderGajiKebutuhan();
     if (document.getElementById('gaji-page-rekap')?.classList.contains('active')) renderGajiRekap();
+    if (document.getElementById('gaji-page-anggaran')?.classList.contains('active')) syncGajiAnggaranVersionUI();
   } catch (err) {
     console.error(err);
   }
@@ -18341,7 +18412,8 @@ function previewGajiRakAnggaran(wb, fileName) {
     if (preview) preview.style.display = 'block';
     if (alertEl) {
       alertEl.className = 'alert alert-success py-2';
-      alertEl.textContent = `Template RAK Anggaran: ${fileName} — ${parsed.lineCount} baris rekening · sheet ${parsed.sheetName}. Pagu & RAK bulanan siap diimpor.`;
+      const verLabel = gajiRakVersionLabel(getGajiRakVersion());
+      alertEl.textContent = `Template RAK Anggaran (${verLabel}): ${fileName} — ${parsed.lineCount} baris rekening · sheet ${parsed.sheetName}. Pagu & RAK bulanan siap diimpor.`;
     }
     if (body) {
       body.innerHTML = rows.slice(0, 60).map(r =>
@@ -18415,11 +18487,14 @@ async function previewGajiAnggaranFromWorkbook(wb) {
 async function doGajiImportAnggaran() {
   if (gajiRakImportData) return doGajiImportRakAnggaran();
   if (!gajiAnggaranImportRows.length) return alert('Tidak ada data untuk diimpor.');
+  const version = getGajiRakVersion();
   try {
     const res = await apiFetch(API + '/gaji-tunjangan/import-anggaran', {
       method: 'POST',
       body: JSON.stringify({
         tahun: gajiStateCache?.tahun || 2026,
+        version,
+        version_label: gajiRakVersionLabel(version),
         rows: gajiAnggaranImportRows.map(r => ({
           category: r.category,
           bulan: r.bulan,
@@ -18443,14 +18518,15 @@ async function doGajiImportAnggaran() {
 
 async function doGajiImportRakAnggaran() {
   if (!gajiRakImportData) return alert('Tidak ada data RAK untuk diimpor.');
+  const version = getGajiRakVersion();
   try {
     const parsed = gajiRakImportData;
     const res = await apiFetch(API + '/gaji-tunjangan/import-anggaran', {
       method: 'POST',
       body: JSON.stringify({
         tahun: gajiStateCache?.tahun || 2026,
-        version: 'template-rak-anggaran',
-        version_label: 'Template Anggaran Penyediaan Gaji dan Tunjangan (RAK BELANJA)',
+        version,
+        version_label: gajiRakVersionLabel(version),
         pagu: parsed.pagu,
         cells: parsed.cells,
         rekening: parsed.rekening,
