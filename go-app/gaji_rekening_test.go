@@ -55,3 +55,37 @@ func TestGajiRekeningIncludedInGrupTamsilBenefit(t *testing.T) {
 		t.Fatal("expected tamsil benefit in tamsil grup")
 	}
 }
+
+func TestGajiRekeningCellIndependentPerGrup(t *testing.T) {
+	def := GajiRekeningDef{
+		Kode:     "5.1.01.01.009.00001",
+		Nama:     "Belanja Iuran Jaminan Kesehatan PNS",
+		Grup:     "gaji",
+		Jenis:    "pns",
+		Potongan: true,
+	}
+	state := GajiTunjanganState{
+		Rekening:      []GajiRekeningDef{def},
+		RekeningCells: map[string]map[string]GajiMonthCell{},
+	}
+	ensureGajiRekening(&state)
+	bulan := "januari"
+
+	tpgCell := GajiMonthCell{Anggaran: 1_000_000, Realisasi: 400_000}
+	gajiSetRekeningCellForGrup(&state, "tpg", &def, def.Kode, bulan, tpgCell)
+
+	tamsilCell := GajiMonthCell{Anggaran: 1_000_000, Realisasi: 250_000}
+	gajiSetRekeningCellForGrup(&state, "tamsil", &def, def.Kode, bulan, tamsilCell)
+
+	gotTPG := gajiGetRekeningCellForGrup(state, "tpg", def, bulan)
+	gotTamsil := gajiGetRekeningCellForGrup(state, "tamsil", def, bulan)
+	if gotTPG.Realisasi != 400_000 {
+		t.Fatalf("expected tpg realisasi 400000, got %v", gotTPG.Realisasi)
+	}
+	if gotTamsil.Realisasi != 250_000 {
+		t.Fatalf("expected tamsil realisasi 250000, got %v", gotTamsil.Realisasi)
+	}
+	if sisa := gotTPG.Anggaran - gotTPG.Realisasi; sisa != 600_000 {
+		t.Fatalf("expected tpg sisa 600000, got %v", sisa)
+	}
+}

@@ -244,6 +244,85 @@ func gajiGetRekeningCell(state GajiTunjanganState, kode, bulan string) GajiMonth
 	return state.RekeningCells[kode][bulan]
 }
 
+// gajiRekeningCellStoreKey — kode rekening yang ditampilkan lintas menu (mis. jaminan kesehatan di TPG/Tamsil)
+// disimpan terpisah per menu agar realisasi tidak saling timpa.
+func gajiRekeningCellStoreKey(viewGrup string, def GajiRekeningDef) string {
+	if def.Grup != viewGrup {
+		return viewGrup + "|" + def.Kode
+	}
+	return def.Kode
+}
+
+func gajiGetRekeningCellForGrup(state GajiTunjanganState, viewGrup string, def GajiRekeningDef, bulan string) GajiMonthCell {
+	bulan = normalizeBulanKey(bulan)
+	storeKey := gajiRekeningCellStoreKey(viewGrup, def)
+	cell := GajiMonthCell{}
+	if state.RekeningCells != nil && state.RekeningCells[storeKey] != nil {
+		cell = state.RekeningCells[storeKey][bulan]
+	}
+	if storeKey != def.Kode {
+		native := gajiGetRekeningCell(state, def.Kode, bulan)
+		if cell.Anggaran == 0 {
+			cell.Anggaran = native.Anggaran
+		}
+		if cell.JumlahPegawai == 0 {
+			cell.JumlahPegawai = native.JumlahPegawai
+		}
+	}
+	return cell
+}
+
+func gajiSetRekeningCellForGrup(state *GajiTunjanganState, viewGrup string, def *GajiRekeningDef, kode, bulan string, cell GajiMonthCell) {
+	ensureGajiRekening(state)
+	bulan = normalizeBulanKey(bulan)
+	storeKey := kode
+	if def != nil {
+		storeKey = gajiRekeningCellStoreKey(viewGrup, *def)
+	}
+	if state.RekeningCells[storeKey] == nil {
+		state.RekeningCells[storeKey] = map[string]GajiMonthCell{}
+	}
+	state.RekeningCells[storeKey][bulan] = cell
+}
+
+func migrateGajiAttachedRekeningCells(state *GajiTunjanganState) {
+	if state.RekeningCells == nil {
+		return
+	}
+	ensureGajiRekening(state)
+	for _, def := range state.Rekening {
+		if def.Grup == "" || !def.Potongan || !isJaminanKesehatanPotongan(def.Nama) {
+			continue
+		}
+		nativeMonths := state.RekeningCells[def.Kode]
+		if nativeMonths == nil {
+			continue
+		}
+		for _, grup := range gajiGrupOrder {
+			if def.Grup == grup || !gajiRekeningAttachedJaminanKes(def, grup) {
+				continue
+			}
+			scopedKey := gajiRekeningCellStoreKey(grup, def)
+			if state.RekeningCells[scopedKey] == nil {
+				state.RekeningCells[scopedKey] = map[string]GajiMonthCell{}
+			}
+			for bulan, nativeCell := range nativeMonths {
+				scoped := state.RekeningCells[scopedKey][bulan]
+				if scoped.Realisasi == 0 && nativeCell.Realisasi != 0 {
+					scoped.Realisasi = nativeCell.Realisasi
+				}
+				if scoped.Anggaran == 0 && nativeCell.Anggaran != 0 {
+					scoped.Anggaran = nativeCell.Anggaran
+				}
+				if scoped.JumlahPegawai == 0 && nativeCell.JumlahPegawai != 0 {
+					scoped.JumlahPegawai = nativeCell.JumlahPegawai
+				}
+				state.RekeningCells[scopedKey][bulan] = scoped
+			}
+		}
+	}
+}
+
 func gajiUpsertRekeningDef(state *GajiTunjanganState, kode, nama string, pagu float64, urut int) *GajiRekeningDef {
 	grup, jenis, potongan := classifyGajiRekening(kode, nama)
 	for i := range state.Rekening {
@@ -370,7 +449,7 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		if !gajiRekeningIncludedInGrup(def, grup) {
 			continue
 		}
-		cell := gajiGetRekeningCell(state, def.Kode, bulan)
+		cell := gajiGetRekeningCellForGrup(state, grup, def, bulan)
 		sisa := cell.Anggaran - cell.Realisasi
 		persen := 0.0
 		if cell.Anggaran > 0 {
@@ -436,7 +515,7 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 			Bulan:    map[string]GajiRekeningMatrixCell{},
 		}
 		for i, b := range bulanKeys {
-			cell := gajiGetRekeningCell(state, def.Kode, b)
+			cell := gajiGetRekeningCellForGrup(state, grup, def, b)
 			pegawai := gajiRekeningPegawaiFallback(state, def, cell)
 			sisa := cell.Anggaran - cell.Realisasi
 			mc := GajiRekeningMatrixCell{

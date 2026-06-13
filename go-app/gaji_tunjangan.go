@@ -528,15 +528,17 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 		if kode == "" {
 			continue
 		}
-		if gajiState.RekeningCells[kode] == nil {
-			gajiState.RekeningCells[kode] = map[string]GajiMonthCell{}
+		def := gajiFindRekeningDef(gajiState, kode)
+		lookupDef := GajiRekeningDef{Kode: kode, Grup: grup}
+		if def != nil {
+			lookupDef = *def
 		}
-		cell := gajiState.RekeningCells[kode][bulan]
+		cell := gajiGetRekeningCellForGrup(gajiState, grup, lookupDef, bulan)
 		if row.JumlahPegawai > 0 {
 			cell.JumlahPegawai = row.JumlahPegawai
 		}
 		cell.Realisasi = row.Realisasi
-		gajiState.RekeningCells[kode][bulan] = cell
+		gajiSetRekeningCellForGrup(&gajiState, grup, def, kode, bulan, cell)
 	}
 	if gajiState.RealisasiLocked == nil {
 		gajiState.RealisasiLocked = map[string]bool{}
