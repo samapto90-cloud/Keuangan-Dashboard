@@ -2507,7 +2507,8 @@
     }
     .gaji-peg-badge small { font-weight: 600; opacity: .75; font-size: 10px; }
     .gaji-peg-badge-pppk { background: var(--gaji-accent-light); border-color: rgba(8,145,178,.2); color: #0e7490; }
-    .gaji-peg-stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .gaji-peg-stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; min-width: 0; }
+    .gaji-kpi-secondary .gaji-peg-stat-row { margin-bottom: 4px; }
 
     .gaji-realisasi-table-wrap {
       width: 100%; overflow-x: auto; overflow-y: visible;
@@ -4553,39 +4554,78 @@
     .gaji-dash-hero-stat .lbl { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #BFDBFE; }
     .gaji-dash-hero-stat .val { display: block; font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
     .gaji-dash-categories {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px;
     }
     .gaji-cat-card {
-      padding: 16px 18px; border-radius: var(--gaji-radius); background: #fff;
+      display: flex; flex-direction: column; min-height: 118px; min-width: 0;
+      padding: 14px 16px; border-radius: var(--gaji-radius); background: #fff;
       border: 1px solid var(--gaji-outline); box-shadow: var(--gaji-elev-1);
       transition: transform .2s, box-shadow .2s;
     }
     .gaji-cat-card:hover { transform: translateY(-2px); box-shadow: var(--gaji-elev-2); }
-    .gaji-cat-card .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; }
-    .gaji-cat-card .val { font-size: 15px; font-weight: 800; color: var(--gaji-primary); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
-    .gaji-cat-card .sub { font-size: 10px; color: #94a3b8; margin-top: 6px; }
-    .gaji-cat-card .bar { height: 4px; border-radius: 999px; background: #e2e8f0; margin-top: 8px; overflow: hidden; }
+    .gaji-cat-card .lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      color: #64748b; line-height: 1.3;
+    }
+    .gaji-cat-card .val {
+      font-size: 14px; font-weight: 800; color: var(--gaji-primary);
+      font-family: 'JetBrains Mono', monospace; margin-top: 8px;
+      word-break: break-word; overflow-wrap: anywhere; line-height: 1.35;
+    }
+    .gaji-cat-card .val.is-long { font-size: 12px; }
+    .gaji-cat-card .val.is-xlong { font-size: 10px; }
+    .gaji-cat-card .sub {
+      font-size: 9px; color: #94a3b8; margin-top: auto; padding-top: 8px;
+      line-height: 1.45; display: flex; flex-direction: column; gap: 3px;
+    }
+    .gaji-cat-card .sub span { display: block; word-break: break-word; overflow-wrap: anywhere; }
+    .gaji-cat-card .bar { height: 4px; border-radius: 999px; background: #e2e8f0; margin-top: 10px; overflow: hidden; flex-shrink: 0; }
     .gaji-cat-card .bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1E3A8A, #3B82F6); }
     /* KPI cards — baris utama dashboard */
     .gaji-kpi-primary {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px;
     }
     .gaji-kpi-secondary {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px;
     }
     .gaji-stat-kpi {
-      position: relative; padding: 18px 20px 18px 56px !important; min-height: 96px;
+      display: flex; flex-direction: column; justify-content: flex-start;
+      position: relative; padding: 16px 18px !important; min-height: 108px; min-width: 0;
+    }
+    .gaji-stat-kpi .gaji-stat-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px; min-width: 0;
     }
     .gaji-stat-kpi .gaji-stat-icon {
-      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-      width: 36px; height: 36px; border-radius: 10px;
-      display: grid; place-items: center; font-size: 16px;
+      position: static; transform: none; flex-shrink: 0;
+      width: 34px; height: 34px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 15px;
     }
+    .gaji-stat-kpi .gaji-stat-head .lbl {
+      margin: 0 !important; padding: 0 !important; flex: 1; min-width: 0;
+      line-height: 1.3 !important;
+    }
+    .gaji-stat-kpi .val {
+      font-size: 15px !important; line-height: 1.35 !important;
+      word-break: break-word; overflow-wrap: anywhere; min-width: 0; flex: 1;
+    }
+    .gaji-stat-kpi .val.is-long { font-size: 13px !important; }
+    .gaji-stat-kpi .val.is-xlong { font-size: 11px !important; letter-spacing: -.01em; }
+    .gaji-stat-kpi .sub { margin-top: auto !important; padding-top: 8px !important; }
     .gaji-stat-kpi.gaji-stat-anggaran .gaji-stat-icon { background: #EFF6FF; color: #1E3A8A; }
     .gaji-stat-kpi.gaji-stat-realisasi .gaji-stat-icon { background: #ECFDF5; color: #10B981; }
     .gaji-stat-kpi.gaji-stat-sisa .gaji-stat-icon { background: #FFFBEB; color: #F59E0B; }
     .gaji-stat-kpi.gaji-stat-pct .gaji-stat-icon { background: #DBEAFE; color: #3B82F6; }
-    .gaji-stat-kpi .val { font-size: 17px !important; line-height: 1.3 !important; }
+    .gaji-kpi-secondary .kas-stat {
+      display: flex; flex-direction: column; min-height: 104px; min-width: 0;
+      padding: 16px 18px !important;
+    }
+    .gaji-kpi-secondary .kas-stat .val {
+      font-size: 15px !important; line-height: 1.35 !important;
+      word-break: break-word; overflow-wrap: anywhere; min-width: 0; flex: 1;
+    }
+    .gaji-kpi-secondary .kas-stat .val.is-long { font-size: 13px !important; }
+    .gaji-kpi-secondary .kas-stat .val.is-xlong { font-size: 11px !important; }
+    .gaji-kpi-secondary .kas-stat .sub { margin-top: auto !important; }
     .gaji-dash-section-title {
       font-size: 13px; font-weight: 700; color: var(--gaji-text); margin: 0 0 12px;
       display: flex; align-items: center; gap: 8px;
@@ -4621,12 +4661,14 @@
     .gaji-alert-item.danger { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
     .gaji-alert-item.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
     @media (max-width: 1100px) {
-      .gaji-kpi-primary { grid-template-columns: repeat(2, 1fr); }
+      .gaji-kpi-primary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .gaji-kpi-secondary { grid-template-columns: 1fr; }
       .gaji-dash-insights { grid-template-columns: 1fr; }
+      .gaji-dash-categories { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 576px) {
       .gaji-kpi-primary { grid-template-columns: 1fr; }
+      .gaji-dash-categories { grid-template-columns: 1fr; }
     }
     /* Stats & cards */
     #gaji-app-shell .gaji-pro-stat-grid .kas-stat,
@@ -6987,26 +7029,34 @@ function initManualNumericInputUX() {
         </div>
         <div class="gaji-kpi-primary" id="gaji-kpi-primary">
           <div class="kas-stat gaji-stat-kpi gaji-stat-anggaran">
-            <span class="gaji-stat-icon"><i class="bi bi-wallet2"></i></span>
-            <div class="lbl">Total Anggaran</div>
+            <div class="gaji-stat-head">
+              <span class="gaji-stat-icon"><i class="bi bi-wallet2"></i></span>
+              <div class="lbl">Total Anggaran</div>
+            </div>
             <div class="val" id="gaji-stat-pagu">Rp 0</div>
             <div class="sub">Pagu TA semua komponen</div>
           </div>
           <div class="kas-stat gaji-stat-kpi gaji-stat-realisasi">
-            <span class="gaji-stat-icon"><i class="bi bi-graph-up-arrow"></i></span>
-            <div class="lbl">Total Realisasi</div>
+            <div class="gaji-stat-head">
+              <span class="gaji-stat-icon"><i class="bi bi-graph-up-arrow"></i></span>
+              <div class="lbl">Total Realisasi</div>
+            </div>
             <div class="val" id="gaji-stat-realisasi-sd">Rp 0</div>
             <div class="sub">Realisasi s/d bulan aktif</div>
           </div>
           <div class="kas-stat gaji-stat-kpi gaji-stat-sisa">
-            <span class="gaji-stat-icon"><i class="bi bi-piggy-bank"></i></span>
-            <div class="lbl">Sisa Anggaran</div>
+            <div class="gaji-stat-head">
+              <span class="gaji-stat-icon"><i class="bi bi-piggy-bank"></i></span>
+              <div class="lbl">Sisa Anggaran</div>
+            </div>
             <div class="val" id="gaji-stat-sisa">Rp 0</div>
             <div class="sub">Pagu − realisasi s/d bulan</div>
           </div>
           <div class="kas-stat gaji-stat-kpi gaji-stat-pct">
-            <span class="gaji-stat-icon"><i class="bi bi-percent"></i></span>
-            <div class="lbl">Persentase</div>
+            <div class="gaji-stat-head">
+              <span class="gaji-stat-icon"><i class="bi bi-percent"></i></span>
+              <div class="lbl">Persentase</div>
+            </div>
             <div class="val" id="gaji-stat-persen">0%</div>
             <div class="sub">Realisasi terhadap pagu</div>
           </div>
@@ -17133,11 +17183,23 @@ async function saveGajiPegawai() {
   }
 }
 
+function fitGajiStatVal(el) {
+  if (!el) return;
+  el.classList.remove('is-long', 'is-xlong');
+  const len = (el.textContent || '').replace(/\s/g, '').length;
+  if (len > 20) el.classList.add('is-xlong');
+  else if (len > 15) el.classList.add('is-long');
+}
+
 function renderGajiDashboard() {
   const d = gajiStateCache?.dashboard || {};
-  document.getElementById('gaji-stat-pagu').textContent = formatRupiah(d.total_pagu || 0);
-  document.getElementById('gaji-stat-realisasi-sd').textContent = formatRupiah(d.total_realisasi_sd || 0);
-  document.getElementById('gaji-stat-kebutuhan').textContent = formatRupiah(d.total_kebutuhan_tahun || 0);
+  const paguEl = document.getElementById('gaji-stat-pagu');
+  const reaEl = document.getElementById('gaji-stat-realisasi-sd');
+  const kebEl = document.getElementById('gaji-stat-kebutuhan');
+  const sisaEl = document.getElementById('gaji-stat-sisa');
+  if (paguEl) paguEl.textContent = formatRupiah(d.total_pagu || 0);
+  if (reaEl) reaEl.textContent = formatRupiah(d.total_realisasi_sd || 0);
+  if (kebEl) kebEl.textContent = formatRupiah(d.total_kebutuhan_tahun || 0);
   const { pns, pppk, total } = gajiGetPegawaiCounts();
   document.getElementById('gaji-stat-pegawai').textContent = total.toLocaleString('id-ID');
   const badges = document.getElementById('gaji-stat-pegawai-badges');
@@ -17147,7 +17209,7 @@ function renderGajiDashboard() {
       pppk > 0 ? gajiPegawaiBadge('gaji_pppk', pppk) : '',
     ].filter(Boolean).join('') || '<span class="text-muted" style="font-size:11px">Belum diisi — gunakan panel di atas</span>';
   }
-  document.getElementById('gaji-stat-sisa').textContent = formatRupiah(d.total_sisa_anggaran || 0);
+  if (sisaEl) sisaEl.textContent = formatRupiah(d.total_sisa_anggaran || 0);
   const selisih = d.total_selisih_pagu || 0;
   const el = document.getElementById('gaji-stat-selisih');
   if (el) {
@@ -17164,6 +17226,7 @@ function renderGajiDashboard() {
   if (pctEl) pctEl.textContent = pct.toFixed(1) + '%';
   const pctStatEl = document.getElementById('gaji-stat-persen');
   if (pctStatEl) pctStatEl.textContent = pct.toFixed(1) + '%';
+  [paguEl, reaEl, kebEl, sisaEl, el, pctStatEl].forEach(fitGajiStatVal);
   const catEl = document.getElementById('gaji-dash-categories');
   const cats = d.category_summaries || [];
   if (catEl) {
@@ -17171,11 +17234,15 @@ function renderGajiDashboard() {
       const p = c.pagu > 0 ? Math.min(100, ((c.realisasi_sd || 0) / c.pagu) * 100) : 0;
       return `<div class="gaji-cat-card">
         <div class="lbl">${escHtml(c.label)}</div>
-        <div class="val">${formatRupiah(c.realisasi_sd || 0)}</div>
-        <div class="sub">Pagu ${formatRupiah(c.pagu || 0)} · Sisa ${formatRupiah(c.kebutuhan_sisa || 0)}</div>
+        <div class="val gaji-cat-val">${formatRupiah(c.realisasi_sd || 0)}</div>
+        <div class="sub">
+          <span>Pagu ${formatRupiah(c.pagu || 0)}</span>
+          <span>Sisa ${formatRupiah(c.kebutuhan_sisa || 0)}</span>
+        </div>
         <div class="bar"><span style="width:${p.toFixed(0)}%"></span></div>
       </div>`;
     }).join('') : '<div class="text-muted" style="font-size:12px;padding:8px">Upload template anggaran untuk melihat ringkasan kategori</div>';
+    catEl.querySelectorAll('.gaji-cat-val').forEach(fitGajiStatVal);
   }
   renderGajiDashboardInsights(d, cats);
   renderGajiDashboardCharts();
