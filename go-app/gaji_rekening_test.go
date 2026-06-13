@@ -128,3 +128,20 @@ func TestGajiRekeningSharedAnggaranAccumulatedSisa(t *testing.T) {
 		t.Fatalf("expected row sisa 350000, got %v", rows[0].Sisa)
 	}
 }
+
+func TestGajiSyncCategoryDashboardRealisasi(t *testing.T) {
+	def := GajiRekeningDef{
+		Kode: "5.1.01.02.001.00001", Nama: "Gaji PNS", Grup: "gaji", Jenis: "pns", Pagu: 100_000_000,
+	}
+	state := GajiTunjanganState{
+		Rekening:      []GajiRekeningDef{def},
+		RekeningCells: map[string]map[string]GajiMonthCell{},
+	}
+	ensureGajiRekening(&state)
+	gajiSetRekeningCellForGrup(&state, "gaji", &def, def.Kode, "januari", GajiMonthCell{Anggaran: 10_000_000, Realisasi: 3_500_000})
+	gajiSyncCategoryFromRekening(&state)
+	dash := buildGajiDashboard(state, "januari")
+	if dash["total_realisasi_sd"].(float64) != 3_500_000 {
+		t.Fatalf("expected dashboard realisasi 3500000, got %v", dash["total_realisasi_sd"])
+	}
+}

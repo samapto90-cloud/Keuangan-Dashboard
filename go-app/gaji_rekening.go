@@ -628,56 +628,6 @@ func gajiSortRekeningMatrixRows(rows []GajiRekeningMatrixRow, grup string) {
 	})
 }
 
-func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
-	ensureGajiCells(state)
-	ensureGajiRekening(state)
-
-	catPagu := map[string]float64{}
-	catAng := map[string]map[string]float64{}
-	catReal := map[string]map[string]float64{}
-	catPeg := map[string]map[string]int{}
-
-	for _, def := range state.Rekening {
-		if def.Potongan {
-			continue
-		}
-		catID := gajiCategoryFromRekening(def)
-		if catID == "" {
-			continue
-		}
-		catPagu[catID] += def.Pagu
-		if catAng[catID] == nil {
-			catAng[catID] = map[string]float64{}
-			catReal[catID] = map[string]float64{}
-			catPeg[catID] = map[string]int{}
-		}
-		for b, cell := range state.RekeningCells[def.Kode] {
-			catAng[catID][b] += cell.Anggaran
-			catReal[catID][b] += cell.Realisasi
-			if cell.JumlahPegawai > 0 {
-				catPeg[catID][b] += cell.JumlahPegawai
-			}
-		}
-	}
-
-	for catID, pagu := range catPagu {
-		state.Pagu[catID] = pagu
-		for b, ang := range catAng[catID] {
-			cell := state.Cells[catID][b]
-			cell.Anggaran = ang
-			cell.Realisasi = catReal[catID][b]
-			if p := catPeg[catID][b]; p > 0 {
-				cell.JumlahPegawai = p
-			}
-			state.Cells[catID][b] = cell
-		}
-	}
-	delete(state.Pagu, "tpg")
-	delete(state.Pagu, "tamsil")
-	delete(state.Cells, "tpg")
-	delete(state.Cells, "tamsil")
-}
-
 func gajiCategoryFromRekening(def GajiRekeningDef) string {
 	switch def.Grup {
 	case "gaji":
@@ -703,6 +653,117 @@ func gajiCategoryFromRekening(def GajiRekeningDef) string {
 	default:
 		return ""
 	}
+}
+
+func gajiCategoryForGrup(def GajiRekeningDef, viewGrup string) string {
+	d := def
+	d.Grup = viewGrup
+	return gajiCategoryFromRekening(d)
+}
+
+func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
+	ensureGajiCells(state)
+	ensureGajiRekening(state)
+
+	catPagu := map[string]float64{}
+	catAng := map[string]map[string]float64{}
+	catReal := map[string]map[string]float64{}
+	catPeg := map[string]map[string]int{}
+
+	ensureCatMaps := func(catID string) {
+		if catAng[catID] == nil {
+			catAng[catID] = map[string]float64{}
+			catReal[catID] = map[string]float64{}
+			catPeg[catID] = map[string]int{}
+		}
+	}
+
+	// Rekening induk (non-potongan): anggaran + realisasi menu asal
+	for _, def := range state.Rekening {
+		if def.Potongan {
+			continue
+		}
+		catID := gajiCategoryFromRekening(def)
+		if catID == "" {
+			continue
+		}
+		catPagu[catID] += def.Pagu
+		ensureCatMaps(catID)
+		viewGrup := def.Grup
+		for _, b := range bulanKeys {
+			native := gajiGetRekeningCell(*state, def.Kode, b)
+			menuCell := gajiGetRekeningCellForGrup(*state, viewGrup, def, b)
+			if native.Anggaran > 0 {
+				catAng[catID][b] += native.Anggaran
+			}
+			if menuCell.Realisasi > 0 {
+				catReal[catID][b] += menuCell.Realisasi
+			} else if native.Realisasi > 0 {
+				catReal[catID][b] += native.Realisasi
+			}
+			peg := native.JumlahPegawai
+			if peg == 0 {
+				peg = menuCell.JumlahPegawai
+			}
+			if peg > 0 {
+				catPeg[catID][b] += peg
+			}
+		}
+	}
+
+	// Potongan terlampir (mis. jaminan kesehatan di TPG/Tamsil): realisasi per menu → kategori menu
+	for _, def := range state.Rekening {
+		if !def.Potongan {
+			continue
+		}
+		for _, grup := range gajiGrupOrder {
+			if !gajiRekeningAttachedJaminanKes(def, grup) {
+				continue
+			}
+			catID := gajiCategoryForGrup(def, grup)
+			if catID == "" {
+				continue
+			}
+			ensureCatMaps(catID)
+			for _, b := range bulanKeys {
+				cell := gajiGetRekeningCellForGrup(*state, grup, def, b)
+				if cell.Realisasi > 0 {
+					catReal[catID][b] += cell.Realisasi
+				}
+			}
+		}
+	}
+
+	for catID, pagu := range catPagu {
+		state.Pagu[catID] = pagu
+	}
+	catIDs := map[string]bool{}
+	for id := range catAng {
+		catIDs[id] = true
+	}
+	for id := range catReal {
+		catIDs[id] = true
+	}
+	for catID := range catIDs {
+		for _, b := range bulanKeys {
+			ang := catAng[catID][b]
+			rea := catReal[catID][b]
+			if ang == 0 && rea == 0 && catPeg[catID][b] == 0 {
+				continue
+			}
+			cell := state.Cells[catID][b]
+			cell.Anggaran = ang
+			cell.Realisasi = rea
+			if p := catPeg[catID][b]; p > 0 {
+				cell.JumlahPegawai = p
+			}
+			state.Cells[catID][b] = cell
+		}
+	}
+	delete(state.Pagu, "tpg")
+	delete(state.Pagu, "tamsil")
+	delete(state.Cells, "tpg")
+	delete(state.Cells, "tamsil")
 }
 
 func gajiBulanIndex(bulan string) int {
