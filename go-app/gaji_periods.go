@@ -70,6 +70,33 @@ func gajiPeriodsForCategory(category string) []gajiPeriodDef {
 }
 
 // gajiRekapLookupPeriod — baris rekap memakai periode gaji bulanan; TPG/Tamsil disimpan per TW.
+// gajiCategoryPeriodKeyForCalendarMonth — bulan kalender (grid realisasi) → kunci periode kategori.
+func gajiCategoryPeriodKeyForCalendarMonth(categoryID, calendarMonth string) string {
+	calendarMonth = normalizeBulanKey(calendarMonth)
+	if calendarMonth == "" {
+		return ""
+	}
+	switch categoryID {
+	case "tpg_pns", "tpg_pppk", "tamsil_pns", "tamsil_pppk":
+		switch calendarMonth {
+		case "januari", "februari", "maret":
+			return "tw1"
+		case "april", "mei", "juni":
+			return "tw2"
+		case "juli", "agustus", "september":
+			return "tw3"
+		case "oktober", "november", "desember":
+			return "tw4"
+		}
+		return ""
+	default:
+		if gajiPeriodIndex(categoryID, calendarMonth) >= 0 {
+			return calendarMonth
+		}
+		return ""
+	}
+}
+
 func gajiRekapLookupPeriod(categoryID, rowPeriodKey string) string {
 	switch categoryID {
 	case "tpg_pns", "tpg_pppk", "tamsil_pns", "tamsil_pppk":

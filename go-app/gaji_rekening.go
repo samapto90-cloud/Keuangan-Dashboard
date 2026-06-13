@@ -298,6 +298,12 @@ func gajiGetRekeningCellForGrup(state GajiTunjanganState, viewGrup string, def G
 		return cell
 	}
 	cell.Realisasi = native.Realisasi
+	if cell.Realisasi == 0 && storeKey == def.Kode {
+		scopedKey := viewGrup + "|" + def.Kode
+		if state.RekeningCells != nil && state.RekeningCells[scopedKey] != nil {
+			cell.Realisasi = state.RekeningCells[scopedKey][bulan].Realisasi
+		}
+	}
 	return cell
 }
 
@@ -691,22 +697,26 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 		ensureCatMaps(catID)
 		viewGrup := def.Grup
 		for _, b := range bulanKeys {
+			periodKey := gajiCategoryPeriodKeyForCalendarMonth(catID, b)
+			if periodKey == "" {
+				continue
+			}
 			native := gajiGetRekeningCell(*state, def.Kode, b)
 			menuCell := gajiGetRekeningCellForGrup(*state, viewGrup, def, b)
 			if native.Anggaran > 0 {
-				catAng[catID][b] += native.Anggaran
+				catAng[catID][periodKey] += native.Anggaran
 			}
 			if menuCell.Realisasi > 0 {
-				catReal[catID][b] += menuCell.Realisasi
+				catReal[catID][periodKey] += menuCell.Realisasi
 			} else if native.Realisasi > 0 {
-				catReal[catID][b] += native.Realisasi
+				catReal[catID][periodKey] += native.Realisasi
 			}
 			peg := native.JumlahPegawai
 			if peg == 0 {
 				peg = menuCell.JumlahPegawai
 			}
 			if peg > 0 {
-				catPeg[catID][b] += peg
+				catPeg[catID][periodKey] += peg
 			}
 		}
 	}
@@ -726,9 +736,13 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 			}
 			ensureCatMaps(catID)
 			for _, b := range bulanKeys {
+				periodKey := gajiCategoryPeriodKeyForCalendarMonth(catID, b)
+				if periodKey == "" {
+					continue
+				}
 				cell := gajiGetRekeningCellForGrup(*state, grup, def, b)
 				if cell.Realisasi > 0 {
-					catReal[catID][b] += cell.Realisasi
+					catReal[catID][periodKey] += cell.Realisasi
 				}
 			}
 		}
@@ -745,19 +759,24 @@ func gajiSyncCategoryFromRekening(state *GajiTunjanganState) {
 		catIDs[id] = true
 	}
 	for catID := range catIDs {
-		for _, b := range bulanKeys {
-			ang := catAng[catID][b]
-			rea := catReal[catID][b]
-			if ang == 0 && rea == 0 && catPeg[catID][b] == 0 {
+		periods := gajiPeriodsForCategory(catID)
+		if len(periods) == 0 {
+			continue
+		}
+		for _, p := range periods {
+			pk := p.Key
+			ang := catAng[catID][pk]
+			rea := catReal[catID][pk]
+			if ang == 0 && rea == 0 && catPeg[catID][pk] == 0 {
 				continue
 			}
-			cell := state.Cells[catID][b]
+			cell := state.Cells[catID][pk]
 			cell.Anggaran = ang
 			cell.Realisasi = rea
-			if p := catPeg[catID][b]; p > 0 {
-				cell.JumlahPegawai = p
+			if peg := catPeg[catID][pk]; peg > 0 {
+				cell.JumlahPegawai = peg
 			}
-			state.Cells[catID][b] = cell
+			state.Cells[catID][pk] = cell
 		}
 	}
 	delete(state.Pagu, "tpg")

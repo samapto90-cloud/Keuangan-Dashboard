@@ -310,9 +310,10 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		grup = gajiGrupFromCategory(category)
 	}
 
-	gajiMu.RLock()
+	gajiMu.Lock()
+	gajiSyncCategoryFromRekening(&gajiState)
 	state := gajiState
-	gajiMu.RUnlock()
+	gajiMu.Unlock()
 
 	periodDefs := map[string][]gajiPeriodDef{}
 	for _, cat := range gajiCategories {

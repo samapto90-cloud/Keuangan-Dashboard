@@ -93,18 +93,18 @@ func gajiGetKebutuhanManual(state GajiTunjanganState, kode, bulan string) float6
 	return 0
 }
 
-func gajiSumRekeningRealisasiSD(state GajiTunjanganState, kode, sdBulan string) float64 {
+func gajiSumRekeningRealisasiSDForDef(state GajiTunjanganState, def GajiRekeningDef, sdBulan string) float64 {
 	endIdx := gajiBulanIndex(normalizeBulanKey(sdBulan))
 	if endIdx < 0 {
 		return 0
 	}
 	var total float64
+	viewGrup := def.Grup
 	for i, b := range bulanKeys {
 		if i > endIdx {
 			break
 		}
-		cell := gajiGetRekeningCell(state, kode, b)
-		total += cell.Realisasi
+		total += gajiGetRekeningCellForGrup(state, viewGrup, def, b).Realisasi
 	}
 	return total
 }
@@ -132,10 +132,11 @@ func parseGajiKebutuhanBulanList(raw string) []string {
 	return out
 }
 
-func gajiSumRekeningRealisasiMonths(state GajiTunjanganState, kode string, bulanList []string) float64 {
+func gajiSumRekeningRealisasiMonthsForDef(state GajiTunjanganState, def GajiRekeningDef, bulanList []string) float64 {
 	var total float64
+	viewGrup := def.Grup
 	for _, b := range bulanList {
-		total += gajiGetRekeningCell(state, kode, b).Realisasi
+		total += gajiGetRekeningCellForGrup(state, viewGrup, def, b).Realisasi
 	}
 	return total
 }
@@ -168,9 +169,9 @@ func buildGajiKebutuhanRekeningMulti(state GajiTunjanganState, bulanList []strin
 			kebutuhan += gajiGetKebutuhanManual(state, def.Kode, b)
 		}
 		if multi {
-			realisasi = gajiSumRekeningRealisasiMonths(state, def.Kode, bulanList)
+			realisasi = gajiSumRekeningRealisasiMonthsForDef(state, def, bulanList)
 		} else {
-			realisasi = gajiSumRekeningRealisasiSD(state, def.Kode, bulanList[0])
+			realisasi = gajiSumRekeningRealisasiSDForDef(state, def, bulanList[0])
 		}
 		surplus := anggaran - kebutuhan
 		kegiatan := strings.TrimSpace(def.Kegiatan)

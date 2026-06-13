@@ -145,3 +145,45 @@ func TestGajiSyncCategoryDashboardRealisasi(t *testing.T) {
 		t.Fatalf("expected dashboard realisasi 3500000, got %v", dash["total_realisasi_sd"])
 	}
 }
+
+func TestGajiSyncCategoryTPGRekapRealisasi(t *testing.T) {
+	def := GajiRekeningDef{
+		Kode: "5.1.01.02.006.00071", Nama: "TPG PNS", Grup: "tpg", Jenis: "pns", Pagu: 50_000_000,
+	}
+	state := GajiTunjanganState{
+		Rekening:      []GajiRekeningDef{def},
+		RekeningCells: map[string]map[string]GajiMonthCell{},
+	}
+	ensureGajiRekening(&state)
+	gajiSetRekeningCellForGrup(&state, "tpg", &def, def.Kode, "januari", GajiMonthCell{Realisasi: 100_000})
+	gajiSetRekeningCellForGrup(&state, "tpg", &def, def.Kode, "februari", GajiMonthCell{Realisasi: 200_000})
+	gajiSyncCategoryFromRekening(&state)
+	cell := gajiGetCell(state, "tpg_pns", "tw1")
+	if cell.Realisasi != 300_000 {
+		t.Fatalf("expected tw1 realisasi 300000, got %v", cell.Realisasi)
+	}
+	rekap := buildGajiRekap(state)
+	var janRow *GajiRekapBulanRow
+	for i := range rekap {
+		if rekap[i].Bulan == "januari" {
+			janRow = &rekap[i]
+			break
+		}
+	}
+	if janRow == nil {
+		t.Fatal("expected januari rekap row")
+	}
+	if janRow.Categories["tpg_pns"].Realisasi != 300_000 {
+		t.Fatalf("expected rekap tpg_pns januari realisasi 300000, got %v", janRow.Categories["tpg_pns"].Realisasi)
+	}
+	dash := buildGajiDashboard(state, "juni")
+	var tpgSum float64
+	for _, c := range dash["category_summaries"].([]GajiCategorySummary) {
+		if c.CategoryID == "tpg_pns" {
+			tpgSum = c.RealisasiSD
+		}
+	}
+	if tpgSum != 300_000 {
+		t.Fatalf("expected dashboard tpg_pns sd 300000, got %v", tpgSum)
+	}
+}
