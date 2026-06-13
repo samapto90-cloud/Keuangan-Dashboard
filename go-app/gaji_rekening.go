@@ -221,6 +221,36 @@ func gajiRekeningLockKey(grup, bulan string) string {
 	return "rekening:" + grup + ":" + normalizeBulanKey(bulan)
 }
 
+func gajiRekeningRowLockKey(grup, kode, bulan string) string {
+	return "rekening:" + grup + ":" + strings.TrimSpace(kode) + ":" + normalizeBulanKey(bulan)
+}
+
+func isGajiRekeningRowLocked(state GajiTunjanganState, grup, kode, bulan string) bool {
+	if state.RealisasiLocked == nil {
+		return false
+	}
+	bulan = normalizeBulanKey(bulan)
+	if state.RealisasiLocked[gajiRekeningRowLockKey(grup, kode, bulan)] {
+		return true
+	}
+	return state.RealisasiLocked[gajiRekeningLockKey(grup, bulan)]
+}
+
+func unlockGajiRekeningMonth(state *GajiTunjanganState, grup, bulan string) {
+	if state.RealisasiLocked == nil {
+		return
+	}
+	bulan = normalizeBulanKey(bulan)
+	delete(state.RealisasiLocked, gajiRekeningLockKey(grup, bulan))
+	prefix := "rekening:" + grup + ":"
+	suffix := ":" + bulan
+	for k := range state.RealisasiLocked {
+		if strings.HasPrefix(k, prefix) && strings.HasSuffix(k, suffix) && k != gajiRekeningLockKey(grup, bulan) {
+			delete(state.RealisasiLocked, k)
+		}
+	}
+}
+
 func ensureGajiRekening(state *GajiTunjanganState) {
 	if state.RekeningCells == nil {
 		state.RekeningCells = map[string]map[string]GajiMonthCell{}
@@ -465,9 +495,10 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		Label:      gajiGrupLabels[grup],
 		Bulan:      bulan,
 		LabelBulan: bulanLabels[bulan],
-		Locked:     state.RealisasiLocked != nil && state.RealisasiLocked[gajiRekeningLockKey(grup, bulan)],
+		Locked:     false,
 	}
 	var rows []GajiRekeningRow
+	anyLocked := false
 	for _, def := range state.Rekening {
 		if !gajiRekeningIncludedInGrup(def, grup) {
 			continue
@@ -479,6 +510,10 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		persen := 0.0
 		if cell.Anggaran > 0 {
 			persen = (realisasiTotal / cell.Anggaran) * 100
+		}
+		rowLocked := isGajiRekeningRowLocked(state, grup, def.Kode, bulan)
+		if rowLocked {
+			anyLocked = true
 		}
 		attached := def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup)
 		rows = append(rows, GajiRekeningRow{
@@ -493,12 +528,13 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 			Realisasi:     realisasiMenu,
 			Sisa:          sisa,
 			Persen:        persen,
-			Locked:        summary.Locked,
+			Locked:        rowLocked,
 		})
 		summary.TotalAnggaran += cell.Anggaran
 		summary.TotalRealisasi += realisasiMenu
 		summary.TotalSisa += sisa
 	}
+	summary.Locked = anyLocked
 	summary.TotalPegawai = state.Pegawai["pns"] + state.Pegawai["pppk"]
 	gajiSortRekeningReportRows(rows, grup)
 	return rows, summary

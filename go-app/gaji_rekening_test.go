@@ -56,6 +56,28 @@ func TestGajiRekeningIncludedInGrupTamsilBenefit(t *testing.T) {
 	}
 }
 
+func TestGajiRekeningLockIndependentPerGrup(t *testing.T) {
+	state := GajiTunjanganState{
+		Rekening: []GajiRekeningDef{{
+			Kode: "5.1.01.01.009.00001", Nama: "Belanja Iuran Jaminan Kesehatan PNS",
+			Grup: "gaji", Jenis: "pns", Potongan: true,
+		}},
+		RealisasiLocked: map[string]bool{
+			gajiRekeningRowLockKey("tpg", "5.1.01.01.009.00001", "januari"): true,
+		},
+	}
+	if !isGajiRekeningRowLocked(state, "tpg", "5.1.01.01.009.00001", "januari") {
+		t.Fatal("expected tpg row locked")
+	}
+	if isGajiRekeningRowLocked(state, "tamsil", "5.1.01.01.009.00001", "januari") {
+		t.Fatal("expected tamsil row not locked when only tpg saved")
+	}
+	unlockGajiRekeningMonth(&state, "tpg", "januari")
+	if isGajiRekeningRowLocked(state, "tpg", "5.1.01.01.009.00001", "januari") {
+		t.Fatal("expected tpg row unlocked after perbaiki bulan")
+	}
+}
+
 func TestGajiRekeningSharedAnggaranAccumulatedSisa(t *testing.T) {
 	def := GajiRekeningDef{
 		Kode:     "5.1.01.01.009.00001",

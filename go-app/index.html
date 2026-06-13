@@ -17899,7 +17899,7 @@ function gajiRekPctCell(persen, anggaran, realisasi) {
   return `<span class="gaji-rek-pct"><span class="gaji-rek-pct-bar"><span style="width:${w}%"></span></span>${p.toFixed(1)}%</span>`;
 }
 
-function renderGajiRekeningTableRows(report, locked) {
+function renderGajiRekeningTableRows(report) {
   let lastJenis = null;
   let idx = 0;
   const grouped = ['tpg', 'tamsil'].includes(gajiActiveGrup);
@@ -17916,11 +17916,12 @@ function renderGajiRekeningTableRows(report, locked) {
       section = `<tr class="gaji-rek-section"><td colspan="${colSpan}"><i class="bi ${icon} me-2"></i>${lbl}</td></tr>`;
     }
     idx++;
+    const rowLocked = !!r.locked;
     const isJaminan = gajiRekIsJaminan(r);
     const jenis = jenisKey.toUpperCase();
     const jenisCls = jenisKey === 'pppk' ? 'gaji-jenis-badge pppk' : 'gaji-jenis-badge';
     const reaVal = r.realisasi || 0;
-    const reaInput = locked
+    const reaInput = rowLocked
       ? `<span class="gaji-rek-readonly">${formatGajiRekDisplayAmount(reaVal)}</span>`
       : `<input type="text" class="kas-input gaji-rek-rea manual-numeric" data-kode="${escHtml(r.kode)}" value="${formatKasAmount(reaVal)}" placeholder="0,00" />`;
     const badge = gajiRekRowBadge(r);
@@ -17969,8 +17970,10 @@ function renderGajiRekeningTable() {
   const report = gajiFilterReportByJenis(allReport);
   const summary = gajiRealisasiJenisFilter === 'all'
     ? (gajiStateCache?.rekening_summary || {})
-    : { ...gajiSummarizeReportRows(report), locked: gajiStateCache?.rekening_summary?.locked };
-  const locked = !!summary.locked;
+    : { ...gajiSummarizeReportRows(report), locked: report.some(r => r.locked) };
+  const anyLocked = report.some(r => r.locked);
+  const allLocked = report.length > 0 && report.every(r => r.locked);
+  const locked = anyLocked;
   const totalPct = summary.total_anggaran > 0
     ? Math.min(100, ((summary.total_realisasi || 0) / summary.total_anggaran) * 100)
     : 0;
@@ -17992,9 +17995,11 @@ function renderGajiRekeningTable() {
       `<div class="chip"><span class="text-muted">Anggaran Bulan</span><strong>${formatGajiRekDisplayAmount(summary.total_anggaran || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Realisasi</span><strong>${formatGajiRekDisplayAmount(summary.total_realisasi || 0)}</strong></div>`,
       `<div class="chip"><span class="text-muted">Sisa</span><strong>${formatGajiRekDisplayAmount(summary.total_sisa || 0)}</strong></div>`,
-      `<div class="chip chip-status">${locked
+      `<div class="chip chip-status">${allLocked
         ? '<span class="badge bg-success"><i class="bi bi-lock-fill me-1"></i>Bulan terkunci</span>'
-        : '<span class="badge bg-light text-secondary border"><i class="bi bi-pencil me-1"></i>Draft — bisa diedit</span>'}</div>`,
+        : anyLocked
+          ? '<span class="badge bg-warning text-dark"><i class="bi bi-lock me-1"></i>Sebagian terkunci</span>'
+          : '<span class="badge bg-light text-secondary border"><i class="bi bi-pencil me-1"></i>Draft — bisa diedit</span>'}</div>`,
     ].join('');
   }
   if (!allReport.length) {
@@ -18018,7 +18023,7 @@ function renderGajiRekeningTable() {
     if (unlockBtn) unlockBtn.disabled = locked ? false : true;
     return;
   }
-  tb.innerHTML = renderGajiRekeningTableRows(report, locked);
+  tb.innerHTML = renderGajiRekeningTableRows(report);
   if (foot) {
     const totalColspan = hideJenis ? 3 : 4;
     const totalLabel = gajiRealisasiJenisFilter === 'all'

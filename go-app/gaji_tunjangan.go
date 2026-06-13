@@ -515,13 +515,21 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 
 	gajiMu.Lock()
 	ensureGajiRekening(&gajiState)
-	lockKey := gajiRekeningLockKey(grup, bulan)
-	if gajiState.RealisasiLocked != nil && gajiState.RealisasiLocked[lockKey] {
-		gajiMu.Unlock()
-		jsonResponse(w, http.StatusForbidden, map[string]string{
-			"error": "Realisasi bulan ini terkunci. Klik Perbaiki terlebih dahulu.",
-		})
-		return
+	if gajiState.RealisasiLocked == nil {
+		gajiState.RealisasiLocked = map[string]bool{}
+	}
+	for _, row := range payload.Rows {
+		kode := strings.TrimSpace(row.Kode)
+		if kode == "" {
+			continue
+		}
+		if isGajiRekeningRowLocked(gajiState, grup, kode, bulan) {
+			gajiMu.Unlock()
+			jsonResponse(w, http.StatusForbidden, map[string]string{
+				"error": "Realisasi kode " + kode + " terkunci. Klik Perbaiki Bulan terlebih dahulu.",
+			})
+			return
+		}
 	}
 	for _, row := range payload.Rows {
 		kode := strings.TrimSpace(row.Kode)
@@ -539,11 +547,8 @@ func handleGajiSaveRealisasi(w http.ResponseWriter, r *http.Request) {
 		}
 		cell.Realisasi = row.Realisasi
 		gajiSetRekeningCellForGrup(&gajiState, grup, def, kode, bulan, cell)
+		gajiState.RealisasiLocked[gajiRekeningRowLockKey(grup, kode, bulan)] = true
 	}
-	if gajiState.RealisasiLocked == nil {
-		gajiState.RealisasiLocked = map[string]bool{}
-	}
-	gajiState.RealisasiLocked[lockKey] = true
 	gajiSyncCategoryFromRekening(&gajiState)
 	rows, summary := buildGajiRekeningReport(gajiState, grup, bulan)
 	gajiMu.Unlock()
@@ -586,7 +591,7 @@ func handleGajiUnlockRealisasi(w http.ResponseWriter, r *http.Request) {
 	if gajiState.RealisasiLocked == nil {
 		gajiState.RealisasiLocked = map[string]bool{}
 	}
-	delete(gajiState.RealisasiLocked, gajiRekeningLockKey(grup, bulan))
+	unlockGajiRekeningMonth(&gajiState, grup, bulan)
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
