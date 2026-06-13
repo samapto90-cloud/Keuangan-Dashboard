@@ -4710,25 +4710,40 @@
       background: linear-gradient(135deg, #1E3A8A, #3B82F6); color: #fff; border-color: transparent;
       box-shadow: 0 4px 12px rgba(30,58,138,.25);
     }
+    .gaji-grup-tab.active::before {
+      content: '✓'; margin-right: 4px; font-size: 10px; opacity: .9;
+    }
+    .gaji-matrix-grup-hint { font-size: 10px; color: #64748b; margin-top: 4px; }
+    .gaji-matrix-menu-badge {
+      display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+      background: rgba(30,58,138,.08); color: #1e3a8a; white-space: nowrap;
+    }
     .gaji-matrix-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: #64748b; margin-bottom: 12px; align-items: center; }
     .gaji-heat-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
     .gaji-heat-ok { background: #0ea5e9; }
     .gaji-heat-peg { background: #fbbf24; }
     .gaji-matrix-wrap { max-height: calc(100vh - 280px) !important; overflow: auto !important; }
-    .gaji-matrix-table { font-size: 10px !important; min-width: 1400px !important; }
-    .gaji-matrix-table th { font-size: 9px !important; white-space: nowrap; }
+    .gaji-matrix-table { font-size: 10px !important; min-width: 2200px !important; }
+    .gaji-matrix-table th { font-size: 9px !important; white-space: nowrap; vertical-align: bottom; }
     .gaji-matrix-table th.gaji-col-active { background: #e0f2fe !important; color: #0369a1 !important; box-shadow: inset 0 -2px 0 #0ea5e9; }
     .gaji-matrix-table td.gaji-sticky { position: sticky; left: 0; z-index: 2; background: #fff; box-shadow: 2px 0 8px rgba(0,0,0,.04); }
     .gaji-matrix-table th.gaji-sticky { position: sticky; left: 0; z-index: 3; background: #f8fafc !important; }
-    .gaji-matrix-cell { min-width: 88px; padding: 4px 6px !important; vertical-align: top !important; }
+    .gaji-matrix-table th.gaji-matrix-sticky-menu { left: 280px; z-index: 3; }
+    .gaji-matrix-table td.gaji-matrix-sticky-menu { left: 280px; z-index: 2; }
+    .gaji-matrix-table th.gaji-matrix-sticky-kode { min-width: 130px; left: 0; }
+    .gaji-matrix-table td.gaji-matrix-sticky-kode { min-width: 130px; left: 0; }
+    .gaji-matrix-table th.gaji-matrix-sticky-nama { left: 130px; min-width: 220px; }
+    .gaji-matrix-table td.gaji-matrix-sticky-nama { left: 130px; min-width: 220px; max-width: 280px; }
+    .gaji-matrix-cell { min-width: 108px; padding: 5px 7px !important; vertical-align: top !important; }
     .gaji-matrix-cell.gaji-col-active { background: rgba(14,165,233,.06) !important; }
-    .gaji-matrix-cell .peg { font-size: 9px; color: #b45309; font-weight: 700; }
-    .gaji-matrix-cell .rea { font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #0369a1; }
-    .gaji-matrix-cell .ang { font-size: 9px; color: #94a3b8; }
+    .gaji-matrix-cell .peg { font-size: 9px; color: #b45309; font-weight: 700; margin-bottom: 2px; }
+    .gaji-matrix-cell .rea { font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #0369a1; white-space: nowrap; }
+    .gaji-matrix-cell .ang { font-size: 9px; font-family: 'JetBrains Mono', monospace; color: #64748b; white-space: nowrap; }
+    .gaji-matrix-cell .lbl { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: .03em; }
     .gaji-matrix-kode { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #0369a1; font-weight: 600; white-space: nowrap; }
-    .gaji-matrix-nama { font-size: 10px; max-width: 200px; color: #334155; }
-    .gaji-matrix-meta { font-size: 9px; color: #64748b; white-space: nowrap; }
-    .gaji-matrix-meta strong { color: #0369a1; font-family: 'JetBrains Mono', monospace; }
+    .gaji-matrix-nama { font-size: 10px; color: #334155; line-height: 1.35; }
+    .gaji-matrix-meta { font-size: 9px; color: #64748b; white-space: nowrap; min-width: 120px; }
+    .gaji-matrix-meta strong { color: #0369a1; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; }
     /* Tables & inputs */
     #gaji-app-shell .kas-table-wrap {
       background: #fff !important; border: 1px solid rgba(14,165,233,.1) !important;
@@ -7127,20 +7142,25 @@ function initManualNumericInputUX() {
         <div class="kas-card gaji-pro-card">
           <div class="gaji-card-header">
             <div class="gaji-card-header-text">
-              <h6><i class="bi bi-calendar3-range me-2"></i>Matrix Rekening · <span id="gaji-matrix-grup-label">Gaji ASN</span></h6>
-              <p>Pegawai, anggaran &amp; realisasi per kode rekening × bulan</p>
+              <h6><i class="bi bi-calendar3-range me-2"></i>Matrix Rekening Anggaran &amp; Realisasi</h6>
+              <p>Ringkasan pagu TA, realisasi s.d. bulan terpilih, dan rincian pegawai · realisasi · anggaran per bulan untuk setiap kode rekening.</p>
+              <p class="gaji-matrix-grup-hint mb-0"><i class="bi bi-check2-square me-1"></i>Pilih satu atau lebih komponen (Gaji, TPP, TPG, Tamsil) — klik lagi untuk membatalkan pilihan.</p>
             </div>
-            <div class="gaji-matrix-grup-tabs" id="gaji-matrix-grup-tabs">
-              <button type="button" class="gaji-grup-tab active" data-grup="gaji" onclick="switchGajiMatrixGrup('gaji',this)">Gaji</button>
-              <button type="button" class="gaji-grup-tab" data-grup="tpp" onclick="switchGajiMatrixGrup('tpp',this)">TPP</button>
-              <button type="button" class="gaji-grup-tab" data-grup="tpg" onclick="switchGajiMatrixGrup('tpg',this)">TPG</button>
-              <button type="button" class="gaji-grup-tab" data-grup="tamsil" onclick="switchGajiMatrixGrup('tamsil',this)">Tamsil</button>
+            <div>
+              <div class="gaji-matrix-grup-tabs" id="gaji-matrix-grup-tabs" role="group" aria-label="Filter komponen matrix">
+                <button type="button" class="gaji-grup-tab active" data-grup="gaji" onclick="toggleGajiMatrixGrup('gaji',this)">Gaji ASN</button>
+                <button type="button" class="gaji-grup-tab" data-grup="tpp" onclick="toggleGajiMatrixGrup('tpp',this)">TPP</button>
+                <button type="button" class="gaji-grup-tab" data-grup="tpg" onclick="toggleGajiMatrixGrup('tpg',this)">TPG</button>
+                <button type="button" class="gaji-grup-tab" data-grup="tamsil" onclick="toggleGajiMatrixGrup('tamsil',this)">Tamsil</button>
+              </div>
+              <div class="gaji-matrix-grup-hint text-end mt-1">Komponen aktif: <strong id="gaji-matrix-grup-label">Gaji ASN</strong></div>
             </div>
           </div>
           <div class="gaji-matrix-legend">
-            <span><i class="gaji-heat-dot gaji-heat-ok"></i> Realisasi</span>
-            <span><i class="gaji-heat-dot gaji-heat-peg"></i> Pegawai</span>
-            <span class="text-muted">Kolom aktif = bulan terpilih</span>
+            <span><span class="lbl">Pegawai</span> <i class="gaji-heat-dot gaji-heat-peg"></i> jumlah pegawai (org)</span>
+            <span><span class="lbl">Realisasi</span> <i class="gaji-heat-dot gaji-heat-ok"></i> nilai realisasi (Rp)</span>
+            <span><span class="lbl">Anggaran</span> <i class="gaji-heat-dot" style="background:#94a3b8"></i> anggaran RAK bulan (Rp)</span>
+            <span class="text-muted">| Kolom biru = bulan terpilih di bar atas</span>
           </div>
           <div class="kas-table-wrap gaji-matrix-wrap">
             <table class="kas-table gaji-matrix-table" id="gaji-matrix-table">
@@ -17068,7 +17088,7 @@ function showGajiPage(page, navEl, grup) {
   updateGajiTopbarForPage(page);
   const titles = {
     dashboard: 'Dashboard Gaji & Tunjangan ASN',
-    matrix: 'Matrix Rekening · ' + (GAJI_GRUP_LABELS[gajiActiveGrup] || 'Gaji ASN'),
+    matrix: 'Matrix Rekening · ' + gajiMatrixGrupLabel(),
     anggaran: 'Anggaran Gaji',
     realisasi: (GAJI_GRUP_LABELS[gajiActiveGrup] || 'Realisasi') + ' — per Rekening',
     kebutuhan: 'Kebutuhan Anggaran',
@@ -17100,6 +17120,10 @@ function showGajiPage(page, navEl, grup) {
 async function loadGajiData() {
   const bulan = getGajiBulan();
   let grupQ = gajiActiveGrup ? '&grup=' + encodeURIComponent(gajiActiveGrup) : '';
+  if (document.getElementById('gaji-page-matrix')?.classList.contains('active')) {
+    const mg = getGajiMatrixGrups();
+    if (mg.length) grupQ += '&matrix_grup=' + encodeURIComponent(mg.join(','));
+  }
   if (document.getElementById('gaji-page-kebutuhan')?.classList.contains('active')) {
     grupQ = '';
     const kf = getGajiKebFilterQuery();
@@ -17412,25 +17436,42 @@ async function renderGajiDashboardCharts() {
 function formatGajiMatrixAmt(n) {
   const v = Number(n) || 0;
   if (v === 0) return '—';
-  if (Math.abs(v) >= 1e9) return (v / 1e9).toFixed(1).replace('.', ',') + ' M';
-  if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1).replace('.', ',') + ' jt';
-  return v.toLocaleString('id-ID');
+  return formatRupiah(v);
+}
+
+function getGajiMatrixGrups() {
+  const active = [...document.querySelectorAll('#gaji-matrix-grup-tabs .gaji-grup-tab.active')]
+    .map(btn => normalizeGajiGrup(btn.dataset.grup))
+    .filter(Boolean);
+  return active.length ? active : ['gaji'];
+}
+
+function gajiMatrixGrupLabel(grups) {
+  const list = grups || getGajiMatrixGrups();
+  if (list.length === 1) return GAJI_GRUP_LABELS[list[0]] || list[0];
+  if (list.length >= 4) return 'Semua Komponen';
+  return list.map(g => GAJI_GRUP_LABELS[g] || g).join(' + ');
 }
 
 function syncGajiMatrixTabs() {
+  const grups = getGajiMatrixGrups();
   document.querySelectorAll('#gaji-matrix-grup-tabs .gaji-grup-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.grup === gajiActiveGrup);
+    btn.classList.toggle('active', grups.includes(normalizeGajiGrup(btn.dataset.grup)));
+    btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
   });
   const lbl = document.getElementById('gaji-matrix-grup-label');
-  if (lbl) lbl.textContent = GAJI_GRUP_LABELS[gajiActiveGrup] || gajiActiveGrup;
+  if (lbl) lbl.textContent = gajiMatrixGrupLabel(grups);
 }
 
-function switchGajiMatrixGrup(grup, btnEl) {
-  gajiActiveGrup = normalizeGajiGrup(grup);
+function toggleGajiMatrixGrup(grup, btnEl) {
+  grup = normalizeGajiGrup(grup);
+  const activeCount = document.querySelectorAll('#gaji-matrix-grup-tabs .gaji-grup-tab.active').length;
+  if (btnEl.classList.contains('active') && activeCount <= 1) return;
+  btnEl.classList.toggle('active');
   syncGajiMatrixTabs();
   const topTitle = document.getElementById('gaji-topbar-title');
   if (topTitle && document.getElementById('gaji-page-matrix')?.classList.contains('active')) {
-    topTitle.textContent = 'Matrix Rekening · ' + (GAJI_GRUP_LABELS[grup] || grup);
+    topTitle.textContent = 'Matrix Rekening · ' + gajiMatrixGrupLabel();
   }
   loadGajiData();
 }
@@ -17440,45 +17481,71 @@ function renderGajiMatrix() {
   const tb = document.getElementById('gaji-matrix-body');
   if (!head || !tb) return;
   const activeBulan = getGajiBulan();
+  const bulanLabel = GAJI_BULAN_LABELS[activeBulan] || activeBulan;
   const rows = gajiStateCache?.rekening_matrix || [];
   const summary = gajiStateCache?.rekening_matrix_summary || {};
+  const matrixGrups = gajiStateCache?.matrix_grups || getGajiMatrixGrups();
+  const showMenuCol = matrixGrups.length > 1;
   syncGajiMatrixTabs();
   const monthHdr = GAJI_BULAN_LIST.map(b => {
-    const short = GAJI_BULAN_LABELS[b].slice(0, 3);
+    const lbl = GAJI_BULAN_LABELS[b];
     const cls = b === activeBulan ? ' gaji-col-active' : '';
-    return `<th class="gaji-matrix-cell text-center${cls}">${short}</th>`;
+    return `<th class="gaji-matrix-cell text-center${cls}" colspan="3" title="${escHtml(lbl)}">${escHtml(lbl)}</th>`;
   }).join('');
+  const fixedCols = showMenuCol ? 6 : 5;
+  const menuTh = showMenuCol ? `<th class="gaji-sticky gaji-matrix-sticky-menu" rowspan="3" title="Menu/komponen realisasi">Komponen</th>` : '';
   head.innerHTML = `<tr>
-    <th class="gaji-sticky gaji-matrix-kode" rowspan="2">Kode</th>
-    <th class="gaji-sticky gaji-matrix-nama" rowspan="2">Uraian</th>
-    <th class="kas-num" rowspan="2">Pagu</th>
-    <th class="kas-num" rowspan="2">Real. s/d</th>
-    <th class="kas-num" rowspan="2">Kebut.</th>
+    <th class="gaji-sticky gaji-matrix-sticky-kode" rowspan="3">Kode Rekening</th>
+    <th class="gaji-sticky gaji-matrix-sticky-nama" rowspan="3">Uraian Belanja</th>
+    ${menuTh}
+    <th class="kas-num gaji-matrix-meta" rowspan="3" title="Pagu anggaran tahun berjalan">Pagu Anggaran TA</th>
+    <th class="kas-num gaji-matrix-meta" rowspan="3" title="Akumulasi realisasi s.d. ${escHtml(bulanLabel)}">Realisasi s.d.<br><small>${escHtml(bulanLabel)}</small></th>
+    <th class="kas-num gaji-matrix-meta" rowspan="3" title="Pagu dikurangi realisasi s.d. bulan terpilih">Sisa Kebutuhan</th>
     ${monthHdr}
   </tr>
   <tr>${GAJI_BULAN_LIST.map(b => {
     const cls = b === activeBulan ? ' gaji-col-active' : '';
-    return `<th class="gaji-matrix-cell text-center${cls}" style="font-size:8px">Peg · Rea</th>`;
+    return `<th class="gaji-matrix-cell text-center${cls}">Pegawai</th><th class="gaji-matrix-cell text-center${cls}">Realisasi</th><th class="gaji-matrix-cell text-center${cls}">Anggaran</th>`;
+  }).join('')}</tr>
+  <tr>${GAJI_BULAN_LIST.map(b => {
+    const cls = b === activeBulan ? ' gaji-col-active' : '';
+    return `<th class="gaji-matrix-cell text-center${cls}" style="font-size:8px">org</th><th class="gaji-matrix-cell text-center${cls}" style="font-size:8px">Rp</th><th class="gaji-matrix-cell text-center${cls}" style="font-size:8px">Rp</th>`;
   }).join('')}</tr>`;
+  const colSpan = fixedCols + GAJI_BULAN_LIST.length * 3;
   if (!rows.length) {
-    tb.innerHTML = `<tr><td colspan="${5 + GAJI_BULAN_LIST.length}" class="text-muted text-center py-4">Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="${colSpan}" class="text-muted text-center py-4">Belum ada rekening — upload <strong>Templet Anggaran Gaji.xlsx</strong> di menu Anggaran RAK</td></tr>`;
     return;
   }
+  let totPagu = 0, totRea = 0, totKeb = 0;
   tb.innerHTML = rows.map(r => {
+    totPagu += r.pagu || 0;
+    totRea += r.realisasi_sd || 0;
+    totKeb += r.kebutuhan_sisa || 0;
+    const viewGrup = r.view_grup || r.grup || matrixGrups[0] || 'gaji';
     const monthCells = GAJI_BULAN_LIST.map(b => {
       const cell = r.bulan?.[b] || {};
       const cls = b === activeBulan ? ' gaji-col-active' : '';
-      const peg = cell.pegawai ? `<div class="peg">${cell.pegawai} org</div>` : '';
-      const rea = cell.realisasi ? `<div class="rea">${formatGajiMatrixAmt(cell.realisasi)}</div>` : '';
-      const ang = cell.anggaran ? `<div class="ang">${formatGajiMatrixAmt(cell.anggaran)}</div>` : '';
-      return `<td class="gaji-matrix-cell${cls}">${peg}${rea}${ang}</td>`;
+      const pegHtml = cell.pegawai
+        ? `<div class="peg">${Number(cell.pegawai).toLocaleString('id-ID')} org</div>`
+        : `<div class="peg text-muted">—</div>`;
+      const reaHtml = cell.realisasi
+        ? `<div class="rea">${formatGajiMatrixAmt(cell.realisasi)}</div>`
+        : `<div class="rea text-muted">—</div>`;
+      const angHtml = cell.anggaran
+        ? `<div class="ang">${formatGajiMatrixAmt(cell.anggaran)}</div>`
+        : `<div class="ang text-muted">—</div>`;
+      return `<td class="gaji-matrix-cell${cls}">${pegHtml}</td><td class="gaji-matrix-cell${cls}">${reaHtml}</td><td class="gaji-matrix-cell${cls}">${angHtml}</td>`;
     }).join('');
     const potBadge = r.attached || (r.potongan && /jaminan|kesehatan/i.test(r.nama || ''))
-      ? ' <span class="gaji-jaminan-badge">JK</span>'
-      : (r.potongan ? ' <span class="gaji-potongan-badge">Pot</span>' : '');
+      ? ' <span class="gaji-jaminan-badge" title="Jaminan kesehatan terlampir">JK</span>'
+      : (r.potongan ? ' <span class="gaji-potongan-badge" title="Potongan">Pot</span>' : '');
+    const menuCell = showMenuCol
+      ? `<td class="gaji-sticky gaji-matrix-sticky-menu"><span class="gaji-matrix-menu-badge">${escHtml(GAJI_GRUP_LABELS[viewGrup] || viewGrup)}</span></td>`
+      : '';
     return `<tr class="${r.potongan ? 'gaji-rek-potongan' : ''}">
-      <td class="gaji-sticky gaji-matrix-kode">${escHtml(r.kode)}</td>
-      <td class="gaji-sticky gaji-matrix-nama" title="${escHtml(r.nama)}">${escHtml(r.nama)}${potBadge}</td>
+      <td class="gaji-sticky gaji-matrix-sticky-kode gaji-matrix-kode">${escHtml(r.kode)}</td>
+      <td class="gaji-sticky gaji-matrix-sticky-nama gaji-matrix-nama" title="${escHtml(r.nama)}">${escHtml(r.nama)}${potBadge}</td>
+      ${menuCell}
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.pagu)}</strong></td>
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.realisasi_sd)}</strong></td>
       <td class="kas-num gaji-matrix-meta"><strong>${formatGajiMatrixAmt(r.kebutuhan_sisa)}</strong></td>
@@ -17489,11 +17556,16 @@ function renderGajiMatrix() {
     const sumCells = GAJI_BULAN_LIST.map(b => {
       const cell = summary.bulan[b] || {};
       const cls = b === activeBulan ? ' gaji-col-active' : '';
-      return `<td class="gaji-matrix-cell${cls}"><div class="peg">${(cell.pegawai || 0).toLocaleString('id-ID')}</div><div class="rea">${formatGajiMatrixAmt(cell.realisasi)}</div></td>`;
+      const peg = (cell.pegawai || 0) > 0 ? Number(cell.pegawai).toLocaleString('id-ID') + ' org' : '—';
+      return `<td class="gaji-matrix-cell${cls}"><div class="peg">${peg}</div></td><td class="gaji-matrix-cell${cls}"><div class="rea">${formatGajiMatrixAmt(cell.realisasi)}</div></td><td class="gaji-matrix-cell${cls}"><div class="ang">${formatGajiMatrixAmt(cell.anggaran)}</div></td>`;
     }).join('');
+    const menuFoot = showMenuCol ? '<td class="gaji-sticky gaji-matrix-sticky-menu"></td>' : '';
     tb.innerHTML += `<tr style="background:#f0f9ff;font-weight:700">
-      <td class="gaji-sticky" colspan="2">TOTAL ${escHtml(GAJI_GRUP_LABELS[gajiActiveGrup] || '')}</td>
-      <td class="kas-num">—</td><td class="kas-num">—</td><td class="kas-num">—</td>
+      <td class="gaji-sticky gaji-matrix-sticky-kode" colspan="2">TOTAL · ${escHtml(gajiMatrixGrupLabel(matrixGrups))}</td>
+      ${menuFoot}
+      <td class="kas-num gaji-matrix-meta">${formatGajiMatrixAmt(totPagu)}</td>
+      <td class="kas-num gaji-matrix-meta">${formatGajiMatrixAmt(totRea)}</td>
+      <td class="kas-num gaji-matrix-meta">${formatGajiMatrixAmt(totKeb)}</td>
       ${sumCells}
     </tr>`;
   }

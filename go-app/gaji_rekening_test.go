@@ -187,3 +187,22 @@ func TestGajiSyncCategoryTPGRekapRealisasi(t *testing.T) {
 		t.Fatalf("expected dashboard tpg_pns sd 300000, got %v", tpgSum)
 	}
 }
+
+func TestGajiRekeningMatrixMultiGrup(t *testing.T) {
+	defGaji := GajiRekeningDef{Kode: "5.1.01.02.001.00001", Nama: "Gaji PNS", Grup: "gaji", Jenis: "pns", Pagu: 10_000_000}
+	defTpp := GajiRekeningDef{Kode: "5.1.01.02.002.00001", Nama: "TPP PNS", Grup: "tpp", Jenis: "pns", Pagu: 5_000_000}
+	state := GajiTunjanganState{
+		Rekening:      []GajiRekeningDef{defGaji, defTpp},
+		RekeningCells: map[string]map[string]GajiMonthCell{},
+	}
+	ensureGajiRekening(&state)
+	gajiSetRekeningCellForGrup(&state, "gaji", &defGaji, defGaji.Kode, "januari", GajiMonthCell{Realisasi: 100_000})
+	gajiSetRekeningCellForGrup(&state, "tpp", &defTpp, defTpp.Kode, "januari", GajiMonthCell{Realisasi: 50_000})
+	rows, summary := buildGajiRekeningMatrixMulti(state, []string{"gaji", "tpp"}, "januari")
+	if len(rows) != 2 {
+		t.Fatalf("expected 2 matrix rows, got %d", len(rows))
+	}
+	if summary.Bulan["januari"].Realisasi != 150_000 {
+		t.Fatalf("expected summary realisasi 150000, got %v", summary.Bulan["januari"].Realisasi)
+	}
+}

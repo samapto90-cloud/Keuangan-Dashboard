@@ -345,14 +345,27 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		"keb_filter_keys":     gajiKebutuhanFilterKeys(),
 		"rekap":               buildGajiRekap(state),
 	}
+	matrixGrups := parseGajiGrupList(strings.TrimSpace(r.URL.Query().Get("matrix_grup")))
+	if len(matrixGrups) == 0 && grup != "" && isValidGajiGrup(grup) {
+		matrixGrups = []string{grup}
+	}
+	if len(matrixGrups) > 0 {
+		var matrixRows []GajiRekeningMatrixRow
+		var matrixSummary GajiRekeningMatrixSummary
+		if len(matrixGrups) == 1 {
+			matrixRows, matrixSummary = buildGajiRekeningMatrix(state, matrixGrups[0], reportingMonth)
+		} else {
+			matrixRows, matrixSummary = buildGajiRekeningMatrixMulti(state, matrixGrups, reportingMonth)
+		}
+		resp["matrix_grups"] = matrixGrups
+		resp["rekening_matrix"] = matrixRows
+		resp["rekening_matrix_summary"] = matrixSummary
+	}
 	if grup != "" && isValidGajiGrup(grup) {
 		rows, summary := buildGajiRekeningReport(state, grup, reportingMonth)
-		matrixRows, matrixSummary := buildGajiRekeningMatrix(state, grup, reportingMonth)
 		resp["grup"] = grup
 		resp["rekening_report"] = rows
 		resp["rekening_summary"] = summary
-		resp["rekening_matrix"] = matrixRows
-		resp["rekening_matrix_summary"] = matrixSummary
 	}
 	if category != "" && isValidGajiCategory(category) {
 		resp["category"] = category

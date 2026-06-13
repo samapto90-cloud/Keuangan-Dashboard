@@ -53,16 +53,17 @@ type GajiRekeningMatrixCell struct {
 }
 
 type GajiRekeningMatrixRow struct {
-	Kode         string                              `json:"kode"`
-	Nama         string                              `json:"nama"`
-	Grup         string                              `json:"grup"`
-	Jenis        string                              `json:"jenis"`
-	Potongan     bool                                `json:"potongan,omitempty"`
-	Attached     bool                                `json:"attached,omitempty"`
-	Pagu         float64                             `json:"pagu"`
-	RealisasiSD  float64                             `json:"realisasi_sd"`
-	KebutuhanSisa float64                            `json:"kebutuhan_sisa"`
-	Bulan        map[string]GajiRekeningMatrixCell   `json:"bulan"`
+	Kode          string                            `json:"kode"`
+	Nama          string                            `json:"nama"`
+	Grup          string                            `json:"grup"`
+	ViewGrup      string                            `json:"view_grup,omitempty"`
+	Jenis         string                            `json:"jenis"`
+	Potongan      bool                              `json:"potongan,omitempty"`
+	Attached      bool                              `json:"attached,omitempty"`
+	Pagu          float64                           `json:"pagu"`
+	RealisasiSD   float64                           `json:"realisasi_sd"`
+	KebutuhanSisa float64                           `json:"kebutuhan_sisa"`
+	Bulan         map[string]GajiRekeningMatrixCell `json:"bulan"`
 }
 
 type GajiRekeningMatrixSummary struct {
@@ -83,6 +84,33 @@ var gajiGrupOrder = []string{"gaji", "tpp", "tpg", "tamsil"}
 func isValidGajiGrup(grup string) bool {
 	_, ok := gajiGrupLabels[grup]
 	return ok
+}
+
+func parseGajiGrupList(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	seen := map[string]bool{}
+	var picked []string
+	for _, part := range strings.Split(raw, ",") {
+		g := strings.TrimSpace(part)
+		if g == "" || !isValidGajiGrup(g) || seen[g] {
+			continue
+		}
+		seen[g] = true
+		picked = append(picked, g)
+	}
+	if len(picked) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(picked))
+	for _, g := range gajiGrupOrder {
+		if seen[g] {
+			out = append(out, g)
+		}
+	}
+	return out
 }
 
 func gajiJenisFromNama(nama string) string {
@@ -600,9 +628,10 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 			sum.Sisa += sisa
 			summary.Bulan[b] = sum
 			if endIdx >= 0 && i <= endIdx {
-				row.RealisasiSD += realisasiTotal
+				row.RealisasiSD += cell.Realisasi
 			}
 		}
+		row.ViewGrup = grup
 		row.KebutuhanSisa = row.Pagu - row.RealisasiSD
 		if row.KebutuhanSisa < 0 {
 			row.KebutuhanSisa = 0
@@ -611,6 +640,36 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 	}
 	gajiSortRekeningMatrixRows(rows, grup)
 	return rows, summary
+}
+
+func buildGajiRekeningMatrixMulti(state GajiTunjanganState, grups []string, sdBulan string) ([]GajiRekeningMatrixRow, GajiRekeningMatrixSummary) {
+	summary := GajiRekeningMatrixSummary{
+		Grup:  "multi",
+		Label: "Gabungan",
+		Bulan: map[string]GajiRekeningMatrixCell{},
+	}
+	for _, b := range bulanKeys {
+		summary.Bulan[b] = GajiRekeningMatrixCell{}
+	}
+	var allRows []GajiRekeningMatrixRow
+	labels := make([]string, 0, len(grups))
+	for _, grup := range grups {
+		rows, part := buildGajiRekeningMatrix(state, grup, sdBulan)
+		allRows = append(allRows, rows...)
+		if lbl, ok := gajiGrupLabels[grup]; ok {
+			labels = append(labels, lbl)
+		}
+		for b, cell := range part.Bulan {
+			sum := summary.Bulan[b]
+			sum.Pegawai += cell.Pegawai
+			sum.Anggaran += cell.Anggaran
+			sum.Realisasi += cell.Realisasi
+			sum.Sisa += cell.Sisa
+			summary.Bulan[b] = sum
+		}
+	}
+	summary.Label = strings.Join(labels, " + ")
+	return allRows, summary
 }
 
 func gajiSortRekeningMatrixRows(rows []GajiRekeningMatrixRow, grup string) {
