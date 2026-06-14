@@ -4786,6 +4786,27 @@
       border-color: rgba(30,58,138,.18);
       background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
     }
+    .gaji-chart-program {
+      display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 10px 0 4px;
+      padding: 10px 14px; border-radius: 10px; background: rgba(30,58,138,.04);
+      border: 1px solid rgba(30,58,138,.08); font-size: 11px; color: #475569;
+    }
+    .gaji-chart-program span { line-height: 1.45; }
+    .gaji-chart-program strong { color: #1e3a8a; font-weight: 700; }
+    .gaji-chart-pekerjaan-legend {
+      display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px;
+      max-height: 120px; overflow: auto; padding: 8px 10px;
+      border-radius: 10px; background: #f8fafc; border: 1px solid rgba(148,163,184,.25);
+    }
+    .gaji-chart-pekerjaan-chip {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: #334155;
+      padding: 3px 8px; border-radius: 999px; background: #fff; border: 1px solid rgba(148,163,184,.35);
+      max-width: 100%;
+    }
+    .gaji-chart-pekerjaan-chip i {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .gaji-chart-pekerjaan-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .gaji-dash-charts .gaji-chart-card:last-child { grid-column: 1 / -1; }
 
     @media (max-width: 1100px) {
@@ -7107,8 +7128,10 @@ function initManualNumericInputUX() {
             <div class="gaji-chart-head">
               <h6><i class="bi bi-bar-chart-steps me-2"></i>Anggaran RAK &amp; Realisasi per Bulan — Seluruh Kode Rekening</h6>
               <small id="gaji-chart-rekening-sub">Agregasi <span id="gaji-chart-rekening-count">0</span> kode rekening · Januari–Desember · TA <span id="gaji-chart-rekening-tahun">2026</span></small>
+              <div class="gaji-chart-program" id="gaji-chart-rekening-program"></div>
             </div>
             <div class="gaji-chart-canvas gaji-chart-canvas-tall"><canvas id="gaji-chart-rekening-monthly"></canvas></div>
+            <div class="gaji-chart-pekerjaan-legend" id="gaji-chart-rekening-pekerjaan-legend"></div>
           </div>
           <div class="gaji-chart-card gaji-chart-wide">
             <div class="gaji-chart-head">
@@ -17329,6 +17352,82 @@ function formatGajiChartAxis(v) {
   return n.toLocaleString('id-ID');
 }
 
+const GAJI_CHART_PEKERJAAN_COLORS = [
+  '#1E3A8A', '#3B82F6', '#0EA5E9', '#10B981', '#14B8A6', '#F59E0B', '#F97316', '#EF4444',
+  '#8B5CF6', '#A855F7', '#EC4899', '#64748B', '#0369A1', '#059669', '#CA8A04', '#DC2626',
+  '#7C3AED', '#DB2777', '#0891B2', '#4F46E5', '#2563EB', '#0D9488', '#D97706', '#B91C1C',
+  '#6D28D9', '#BE185D', '#0284C7', '#15803D', '#A16207', '#991B1B', '#4338CA', '#C026D3',
+];
+
+function gajiChartPekerjaanColor(i) {
+  return GAJI_CHART_PEKERJAAN_COLORS[i % GAJI_CHART_PEKERJAAN_COLORS.length];
+}
+
+function renderGajiRekeningChartProgram(meta, pekerjaanRows) {
+  const el = document.getElementById('gaji-chart-rekening-program');
+  if (!el) return;
+  const kegiatan = meta?.kegiatan || 'Penyediaan Gaji dan Tunjangan ASN';
+  const sub = meta?.sub_kegiatan || 'Penyediaan Gaji dan Tunjangan ASN Pemerintah';
+  el.innerHTML = [
+    `<span><strong>Kegiatan:</strong> ${escHtml(kegiatan)}</span>`,
+    `<span><strong>Sub Kegiatan:</strong> ${escHtml(sub)}</span>`,
+    `<span><strong>Pekerjaan:</strong> ${(pekerjaanRows || []).length} uraian belanja terdaftar</span>`,
+  ].join('');
+  const legendEl = document.getElementById('gaji-chart-rekening-pekerjaan-legend');
+  if (!legendEl) return;
+  if (!pekerjaanRows?.length) {
+    legendEl.innerHTML = '<span class="text-muted" style="font-size:11px">Belum ada data pekerjaan — upload template anggaran terlebih dahulu.</span>';
+    return;
+  }
+  legendEl.innerHTML = pekerjaanRows.map((row, i) =>
+    `<span class="gaji-chart-pekerjaan-chip" title="${escHtml(row.pekerjaan || row.nama || row.kode)}">
+      <i style="background:${gajiChartPekerjaanColor(i)}"></i>
+      <span>${escHtml(row.pekerjaan || row.nama || row.kode)}</span>
+    </span>`
+  ).join('');
+}
+
+function gajiBuildPekerjaanChartDatasets(pekerjaanRows, bulanList) {
+  const rows = pekerjaanRows || [];
+  const datasets = rows.map((row, i) => {
+    const byMonth = {};
+    (row.bulan || []).forEach(b => { byMonth[b.bulan] = b; });
+    return {
+      label: row.pekerjaan || row.nama || row.kode,
+      data: bulanList.map(b => byMonth[b]?.realisasi || 0),
+      backgroundColor: gajiChartPekerjaanColor(i) + 'CC',
+      borderColor: gajiChartPekerjaanColor(i),
+      borderWidth: 1,
+      stack: 'realisasi',
+      barPercentage: 0.85,
+      categoryPercentage: 0.82,
+    };
+  });
+  const angTotals = bulanList.map(b => {
+    let sum = 0;
+    rows.forEach(row => {
+      const cell = (row.bulan || []).find(x => x.bulan === b);
+      sum += cell?.anggaran || 0;
+    });
+    return sum;
+  });
+  datasets.unshift({
+    label: 'Anggaran RAK — Total (Rp)',
+    data: angTotals,
+    type: 'line',
+    borderColor: '#64748b',
+    backgroundColor: 'rgba(100,116,139,.15)',
+    borderWidth: 2,
+    pointRadius: 4,
+    pointBackgroundColor: '#fff',
+    pointBorderColor: '#64748b',
+    tension: 0.25,
+    fill: false,
+    order: 0,
+  });
+  return datasets;
+}
+
 async function renderGajiDashboardCharts() {
   if (!document.getElementById('gaji-page-dashboard')?.classList.contains('active')) return;
   try { await loadScript(SIPKEU_SCRIPTS.chart); } catch (_) { return; }
@@ -17337,17 +17436,23 @@ async function renderGajiDashboardCharts() {
   const rekap = gajiStateCache?.rekap || [];
   const cats = gajiStateCache?.dashboard?.category_summaries || [];
   const rekeningMonthly = gajiStateCache?.dashboard?.rekening_monthly || [];
+  const pekerjaanRows = gajiStateCache?.dashboard?.rekening_pekerjaan || [];
+  const programMeta = gajiStateCache?.dashboard?.program_meta || {};
   const rekeningCount = gajiStateCache?.dashboard?.rekening_count || gajiStateCache?.rekening?.length || 0;
   const tahun = gajiStateCache?.tahun || new Date().getFullYear();
   const countEl = document.getElementById('gaji-chart-rekening-count');
   const tahunEl = document.getElementById('gaji-chart-rekening-tahun');
   if (countEl) countEl.textContent = Number(rekeningCount).toLocaleString('id-ID');
   if (tahunEl) tahunEl.textContent = String(tahun);
+  renderGajiRekeningChartProgram(programMeta, pekerjaanRows);
 
   const GAJI_CHART_BLUE = { line: '#3B82F6', fill: 'rgba(59,130,246,.12)', bar: 'rgba(59,130,246,.85)', border: '#1E3A8A' };
   const GAJI_CHART_CYAN = { line: '#60A5FA', fill: 'rgba(96,165,250,.1)', bar: 'rgba(30,58,138,.75)', border: '#2563EB' };
   const GAJI_PALETTE = ['#1E3A8A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444'];
 
+  const bulanList = rekeningMonthly.length
+    ? rekeningMonthly.map(r => r.bulan)
+    : GAJI_BULAN_LIST;
   const rekLabels = rekeningMonthly.length
     ? rekeningMonthly.map(r => r.label_bulan || GAJI_BULAN_LABELS[r.bulan] || r.bulan)
     : GAJI_BULAN_LIST.map(b => GAJI_BULAN_LABELS[b]);
@@ -17362,11 +17467,10 @@ async function renderGajiDashboardCharts() {
   if (gajiChartRekeningMonthly) { gajiChartRekeningMonthly.destroy(); gajiChartRekeningMonthly = null; }
   const rekeningChartEl = document.getElementById('gaji-chart-rekening-monthly');
   if (rekeningChartEl) {
-    gajiChartRekeningMonthly = new Chart(rekeningChartEl, {
-      type: 'bar',
-      data: {
-        labels: rekLabels,
-        datasets: [
+    const usePekerjaanStack = pekerjaanRows.length > 0;
+    const chartDatasets = usePekerjaanStack
+      ? gajiBuildPekerjaanChartDatasets(pekerjaanRows, bulanList)
+      : [
           {
             label: 'Anggaran RAK (Rp)',
             data: rekAng,
@@ -17389,7 +17493,12 @@ async function renderGajiDashboardCharts() {
             categoryPercentage: 0.82,
             order: 1,
           },
-        ],
+        ];
+    gajiChartRekeningMonthly = new Chart(rekeningChartEl, {
+      type: 'bar',
+      data: {
+        labels: rekLabels,
+        datasets: chartDatasets,
       },
       options: {
         responsive: true,
@@ -17397,13 +17506,20 @@ async function renderGajiDashboardCharts() {
         interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
+            display: !usePekerjaanStack,
             position: 'top',
             labels: { color: '#475569', boxWidth: 14, padding: 14, font: { size: 12, weight: '600' } },
           },
           tooltip: {
+            filter: item => usePekerjaanStack ? (item.raw || 0) > 0 || item.datasetIndex === 0 : true,
             callbacks: {
               title: items => items[0]?.label || '',
-              label: ctx => `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}`,
+              label: ctx => {
+                if (!usePekerjaanStack) return `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}`;
+                if (ctx.datasetIndex === 0) return `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}`;
+                if ((ctx.raw || 0) <= 0) return null;
+                return `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}`;
+              },
               afterBody: items => {
                 if (!items.length || !rekeningMonthly.length) return [];
                 const idx = items[0].dataIndex;
@@ -17411,13 +17527,18 @@ async function renderGajiDashboardCharts() {
                 if (!row) return [];
                 const sisa = (row.anggaran || 0) - (row.realisasi || 0);
                 const pct = row.anggaran > 0 ? ((row.realisasi / row.anggaran) * 100).toFixed(1) : '0.0';
-                return [`Sisa: ${formatRupiah(sisa)}`, `Persentase: ${pct}%`];
+                const lines = [`Total Realisasi: ${formatRupiah(row.realisasi || 0)}`, `Sisa: ${formatRupiah(sisa)}`, `Persentase: ${pct}%`];
+                if (usePekerjaanStack) {
+                  lines.unshift(`Total Anggaran RAK: ${formatRupiah(row.anggaran || 0)}`);
+                }
+                return lines;
               },
             },
           },
         },
         scales: {
           x: {
+            stacked: usePekerjaanStack,
             ticks: {
               color: '#64748b',
               font: { size: 11, weight: '600' },
@@ -17429,6 +17550,7 @@ async function renderGajiDashboardCharts() {
             grid: { display: false },
           },
           y: {
+            stacked: usePekerjaanStack,
             ticks: { color: '#64748b', callback: v => formatGajiChartAxis(v), font: { size: 10 } },
             grid: { color: 'rgba(14,165,233,.08)' },
             title: { display: true, text: 'Nilai (Rp)', color: '#94a3b8', font: { size: 10 } },

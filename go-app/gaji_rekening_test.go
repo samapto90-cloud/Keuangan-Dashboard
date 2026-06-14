@@ -231,3 +231,28 @@ func TestGajiRekeningMonthlyTotals(t *testing.T) {
 		t.Fatalf("feb anggaran = %v want 10000000", totals[1].Anggaran)
 	}
 }
+
+func TestGajiRekeningPekerjaanSeries(t *testing.T) {
+	state := GajiTunjanganState{
+		Rekening: []GajiRekeningDef{{
+			Kode: "5.1.01.02.001.00001", Nama: "Belanja Gaji Pokok PNS",
+			Grup: "gaji", Jenis: "pns", Pagu: 100_000_000,
+			Kegiatan: "Penyediaan Gaji dan Tunjangan ASN",
+			SubKegiatan: "Penyediaan Gaji dan Tunjangan ASN Pemerintah",
+		}},
+		RekeningCells: map[string]map[string]GajiMonthCell{
+			"5.1.01.02.001.00001": {"januari": {Anggaran: 10_000_000, Realisasi: 2_000_000}},
+		},
+	}
+	series := buildGajiRekeningPekerjaanSeries(state)
+	if len(series) != 1 {
+		t.Fatalf("expected 1 pekerjaan row, got %d", len(series))
+	}
+	if series[0].Pekerjaan != "Belanja Gaji Pokok PNS" {
+		t.Fatalf("unexpected pekerjaan label %q", series[0].Pekerjaan)
+	}
+	meta := gajiProgramMetaFromRekening(state)
+	if meta.Kegiatan != "Penyediaan Gaji dan Tunjangan ASN" {
+		t.Fatalf("unexpected kegiatan %q", meta.Kegiatan)
+	}
+}

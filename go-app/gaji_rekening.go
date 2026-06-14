@@ -80,6 +80,27 @@ type GajiRekeningMonthlyTotal struct {
 	Sisa       float64 `json:"sisa"`
 }
 
+type GajiProgramMeta struct {
+	Kegiatan    string `json:"kegiatan"`
+	SubKegiatan string `json:"sub_kegiatan"`
+}
+
+type GajiRekeningPekerjaanMonth struct {
+	Bulan     string  `json:"bulan"`
+	Anggaran  float64 `json:"anggaran"`
+	Realisasi float64 `json:"realisasi"`
+}
+
+type GajiRekeningPekerjaanRow struct {
+	Kode        string                       `json:"kode"`
+	Nama        string                       `json:"nama"`
+	Pekerjaan   string                       `json:"pekerjaan"`
+	Kegiatan    string                       `json:"kegiatan"`
+	SubKegiatan string                       `json:"sub_kegiatan"`
+	Pagu        float64                      `json:"pagu"`
+	Bulan       []GajiRekeningPekerjaanMonth `json:"bulan"`
+}
+
 var gajiGrupLabels = map[string]string{
 	"gaji":   "Realisasi Gaji",
 	"tpp":    "Realisasi TPP",
@@ -681,6 +702,73 @@ func buildGajiRekeningMonthlyTotals(state GajiTunjanganState) []GajiRekeningMont
 		out[i].Sisa = ang - rea
 	}
 	return out
+}
+
+func gajiRekeningPekerjaanLabel(def GajiRekeningDef) string {
+	if v := strings.TrimSpace(def.Nama); v != "" {
+		return v
+	}
+	return strings.TrimSpace(def.Kode)
+}
+
+func gajiProgramMetaFromRekening(state GajiTunjanganState) GajiProgramMeta {
+	meta := GajiProgramMeta{
+		Kegiatan:    "Penyediaan Gaji dan Tunjangan ASN",
+		SubKegiatan: "Penyediaan Gaji dan Tunjangan ASN Pemerintah",
+	}
+	for _, def := range state.Rekening {
+		if v := strings.TrimSpace(def.Kegiatan); v != "" {
+			meta.Kegiatan = v
+			break
+		}
+	}
+	for _, def := range state.Rekening {
+		if v := strings.TrimSpace(def.SubKegiatan); v != "" {
+			meta.SubKegiatan = v
+			break
+		}
+	}
+	return meta
+}
+
+func buildGajiRekeningPekerjaanSeries(state GajiTunjanganState) []GajiRekeningPekerjaanRow {
+	program := gajiProgramMetaFromRekening(state)
+	rows := make([]GajiRekeningPekerjaanRow, 0, len(state.Rekening))
+	for _, def := range state.Rekening {
+		kegiatan := strings.TrimSpace(def.Kegiatan)
+		subKeg := strings.TrimSpace(def.SubKegiatan)
+		if kegiatan == "" {
+			kegiatan = program.Kegiatan
+		}
+		if subKeg == "" {
+			subKeg = program.SubKegiatan
+		}
+		row := GajiRekeningPekerjaanRow{
+			Kode:        def.Kode,
+			Nama:        def.Nama,
+			Pekerjaan:   gajiRekeningPekerjaanLabel(def),
+			Kegiatan:    kegiatan,
+			SubKegiatan: subKeg,
+			Pagu:        def.Pagu,
+			Bulan:       make([]GajiRekeningPekerjaanMonth, 0, len(bulanKeys)),
+		}
+		for _, b := range bulanKeys {
+			native := gajiGetRekeningCell(state, def.Kode, b)
+			row.Bulan = append(row.Bulan, GajiRekeningPekerjaanMonth{
+				Bulan:     b,
+				Anggaran:  native.Anggaran,
+				Realisasi: gajiRekeningMonthlyRealisasi(state, def, b),
+			})
+		}
+		rows = append(rows, row)
+	}
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].Pagu != rows[j].Pagu {
+			return rows[i].Pagu > rows[j].Pagu
+		}
+		return rows[i].Kode < rows[j].Kode
+	})
+	return rows
 }
 
 func buildGajiRekeningMatrixMulti(state GajiTunjanganState, grups []string, sdBulan string) ([]GajiRekeningMatrixRow, GajiRekeningMatrixSummary) {
