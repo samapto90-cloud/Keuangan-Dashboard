@@ -287,6 +287,8 @@ func buildGajiDashboard(state GajiTunjanganState, reportingMonth string) map[str
 		"pegawai_pppk":            pegawaiPPPK,
 		"pegawai_total":           pegawaiPNS + pegawaiPPPK,
 		"category_summaries":      summaries,
+		"rekening_monthly":        buildGajiRekeningMonthlyTotals(state),
+		"rekening_count":          len(state.Rekening),
 	}
 }
 

@@ -206,3 +206,28 @@ func TestGajiRekeningMatrixMultiGrup(t *testing.T) {
 		t.Fatalf("expected summary realisasi 150000, got %v", summary.Bulan["januari"].Realisasi)
 	}
 }
+
+func TestGajiRekeningMonthlyTotals(t *testing.T) {
+	defGaji := GajiRekeningDef{Kode: "5.1.01.02.001.00001", Nama: "Gaji PNS", Grup: "gaji", Jenis: "pns", Pagu: 100_000_000}
+	defTpp := GajiRekeningDef{Kode: "5.1.01.02.002.00001", Nama: "TPP PNS", Grup: "tpp", Jenis: "pns", Pagu: 50_000_000}
+	state := GajiTunjanganState{
+		Rekening: []GajiRekeningDef{defGaji, defTpp},
+		RekeningCells: map[string]map[string]GajiMonthCell{
+			defGaji.Kode: {"januari": {Anggaran: 10_000_000, Realisasi: 3_000_000}, "februari": {Anggaran: 10_000_000}},
+			defTpp.Kode:  {"januari": {Anggaran: 5_000_000, Realisasi: 1_500_000}},
+		},
+	}
+	totals := buildGajiRekeningMonthlyTotals(state)
+	if len(totals) != 12 {
+		t.Fatalf("expected 12 months, got %d", len(totals))
+	}
+	if totals[0].Anggaran != 15_000_000 {
+		t.Fatalf("jan anggaran = %v want 15000000", totals[0].Anggaran)
+	}
+	if totals[0].Realisasi != 4_500_000 {
+		t.Fatalf("jan realisasi = %v want 4500000", totals[0].Realisasi)
+	}
+	if totals[1].Anggaran != 10_000_000 {
+		t.Fatalf("feb anggaran = %v want 10000000", totals[1].Anggaran)
+	}
+}

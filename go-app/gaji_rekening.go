@@ -72,6 +72,14 @@ type GajiRekeningMatrixSummary struct {
 	Bulan   map[string]GajiRekeningMatrixCell `json:"bulan"`
 }
 
+type GajiRekeningMonthlyTotal struct {
+	Bulan      string  `json:"bulan"`
+	LabelBulan string  `json:"label_bulan"`
+	Anggaran   float64 `json:"anggaran"`
+	Realisasi  float64 `json:"realisasi"`
+	Sisa       float64 `json:"sisa"`
+}
+
 var gajiGrupLabels = map[string]string{
 	"gaji":   "Realisasi Gaji",
 	"tpp":    "Realisasi TPP",
@@ -640,6 +648,39 @@ func buildGajiRekeningMatrix(state GajiTunjanganState, grup, sdBulan string) ([]
 	}
 	gajiSortRekeningMatrixRows(rows, grup)
 	return rows, summary
+}
+
+func gajiRekeningMonthlyRealisasi(state GajiTunjanganState, def GajiRekeningDef, bulan string) float64 {
+	if gajiRekeningIsSharedAcrossMenus(def) {
+		return gajiSumRekeningRealisasiAllGrups(state, def, bulan)
+	}
+	return gajiGetRekeningCellForGrup(state, def.Grup, def, bulan).Realisasi
+}
+
+// buildGajiRekeningMonthlyTotals — agregasi anggaran RAK & realisasi per bulan (Jan–Des) seluruh kode rekening.
+func buildGajiRekeningMonthlyTotals(state GajiTunjanganState) []GajiRekeningMonthlyTotal {
+	out := make([]GajiRekeningMonthlyTotal, 0, len(bulanKeys))
+	for _, b := range bulanKeys {
+		out = append(out, GajiRekeningMonthlyTotal{
+			Bulan:      b,
+			LabelBulan: bulanLabels[b],
+		})
+	}
+	if len(state.Rekening) == 0 {
+		return out
+	}
+	for i, b := range bulanKeys {
+		var ang, rea float64
+		for _, def := range state.Rekening {
+			native := gajiGetRekeningCell(state, def.Kode, b)
+			ang += native.Anggaran
+			rea += gajiRekeningMonthlyRealisasi(state, def, b)
+		}
+		out[i].Anggaran = ang
+		out[i].Realisasi = rea
+		out[i].Sisa = ang - rea
+	}
+	return out
 }
 
 func buildGajiRekeningMatrixMulti(state GajiTunjanganState, grups []string, sdBulan string) ([]GajiRekeningMatrixRow, GajiRekeningMatrixSummary) {

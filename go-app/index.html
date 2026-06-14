@@ -4780,6 +4780,12 @@
     .gaji-chart-head small { font-size: 11px; color: #64748b; }
     .gaji-chart-canvas { position: relative; height: 240px; margin-top: 12px; }
     .gaji-chart-canvas-donut { height: 220px; }
+    .gaji-chart-canvas-tall { height: 320px; }
+    .gaji-chart-featured {
+      grid-column: 1 / -1;
+      border-color: rgba(30,58,138,.18);
+      background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+    }
     .gaji-dash-charts .gaji-chart-card:last-child { grid-column: 1 / -1; }
 
     @media (max-width: 1100px) {
@@ -7097,6 +7103,13 @@ function initManualNumericInputUX() {
         <div class="gaji-dash-section-title"><i class="bi bi-grid-3x3-gap"></i> Komposisi per Komponen</div>
         <div class="gaji-dash-categories" id="gaji-dash-categories"></div>
         <div class="gaji-dash-charts">
+          <div class="gaji-chart-card gaji-chart-wide gaji-chart-featured">
+            <div class="gaji-chart-head">
+              <h6><i class="bi bi-bar-chart-steps me-2"></i>Anggaran RAK &amp; Realisasi per Bulan — Seluruh Kode Rekening</h6>
+              <small id="gaji-chart-rekening-sub">Agregasi <span id="gaji-chart-rekening-count">0</span> kode rekening · Januari–Desember · TA <span id="gaji-chart-rekening-tahun">2026</span></small>
+            </div>
+            <div class="gaji-chart-canvas gaji-chart-canvas-tall"><canvas id="gaji-chart-rekening-monthly"></canvas></div>
+          </div>
           <div class="gaji-chart-card gaji-chart-wide">
             <div class="gaji-chart-head">
               <h6><i class="bi bi-graph-up me-2"></i>Tren Realisasi Bulanan</h6>
@@ -17000,6 +17013,7 @@ let gajiRealisasiJenisFilter = 'all';
 let gajiChartMonthly = null;
 let gajiChartDoughnut = null;
 let gajiChartCategory = null;
+let gajiChartRekeningMonthly = null;
 let gajiUnlockBulan = '';
 let gajiAnggaranImportRows = [];
 let gajiRakImportData = null;
@@ -17307,6 +17321,14 @@ function renderGajiDashboardInsights(d, cats) {
   }
 }
 
+function formatGajiChartAxis(v) {
+  const n = Number(v) || 0;
+  if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(1).replace('.', ',') + ' T';
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(1).replace('.', ',') + ' M';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(0).replace('.', ',') + ' jt';
+  return n.toLocaleString('id-ID');
+}
+
 async function renderGajiDashboardCharts() {
   if (!document.getElementById('gaji-page-dashboard')?.classList.contains('active')) return;
   try { await loadScript(SIPKEU_SCRIPTS.chart); } catch (_) { return; }
@@ -17314,9 +17336,107 @@ async function renderGajiDashboardCharts() {
 
   const rekap = gajiStateCache?.rekap || [];
   const cats = gajiStateCache?.dashboard?.category_summaries || [];
+  const rekeningMonthly = gajiStateCache?.dashboard?.rekening_monthly || [];
+  const rekeningCount = gajiStateCache?.dashboard?.rekening_count || gajiStateCache?.rekening?.length || 0;
+  const tahun = gajiStateCache?.tahun || new Date().getFullYear();
+  const countEl = document.getElementById('gaji-chart-rekening-count');
+  const tahunEl = document.getElementById('gaji-chart-rekening-tahun');
+  if (countEl) countEl.textContent = Number(rekeningCount).toLocaleString('id-ID');
+  if (tahunEl) tahunEl.textContent = String(tahun);
+
   const GAJI_CHART_BLUE = { line: '#3B82F6', fill: 'rgba(59,130,246,.12)', bar: 'rgba(59,130,246,.85)', border: '#1E3A8A' };
   const GAJI_CHART_CYAN = { line: '#60A5FA', fill: 'rgba(96,165,250,.1)', bar: 'rgba(30,58,138,.75)', border: '#2563EB' };
   const GAJI_PALETTE = ['#1E3A8A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444'];
+
+  const rekLabels = rekeningMonthly.length
+    ? rekeningMonthly.map(r => r.label_bulan || GAJI_BULAN_LABELS[r.bulan] || r.bulan)
+    : GAJI_BULAN_LIST.map(b => GAJI_BULAN_LABELS[b]);
+  const rekAng = rekeningMonthly.length
+    ? rekeningMonthly.map(r => r.anggaran || 0)
+    : GAJI_BULAN_LIST.map(() => 0);
+  const rekRea = rekeningMonthly.length
+    ? rekeningMonthly.map(r => r.realisasi || 0)
+    : GAJI_BULAN_LIST.map(() => 0);
+  const activeBulan = getGajiBulan();
+
+  if (gajiChartRekeningMonthly) { gajiChartRekeningMonthly.destroy(); gajiChartRekeningMonthly = null; }
+  const rekeningChartEl = document.getElementById('gaji-chart-rekening-monthly');
+  if (rekeningChartEl) {
+    gajiChartRekeningMonthly = new Chart(rekeningChartEl, {
+      type: 'bar',
+      data: {
+        labels: rekLabels,
+        datasets: [
+          {
+            label: 'Anggaran RAK (Rp)',
+            data: rekAng,
+            backgroundColor: 'rgba(148,163,184,.45)',
+            borderColor: '#64748b',
+            borderWidth: 1,
+            borderRadius: 6,
+            barPercentage: 0.72,
+            categoryPercentage: 0.82,
+            order: 2,
+          },
+          {
+            label: 'Realisasi (Rp)',
+            data: rekRea,
+            backgroundColor: GAJI_CHART_BLUE.bar,
+            borderColor: GAJI_CHART_BLUE.border,
+            borderWidth: 1,
+            borderRadius: 6,
+            barPercentage: 0.72,
+            categoryPercentage: 0.82,
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#475569', boxWidth: 14, padding: 14, font: { size: 12, weight: '600' } },
+          },
+          tooltip: {
+            callbacks: {
+              title: items => items[0]?.label || '',
+              label: ctx => `${ctx.dataset.label}: ${formatRupiah(ctx.raw || 0)}`,
+              afterBody: items => {
+                if (!items.length || !rekeningMonthly.length) return [];
+                const idx = items[0].dataIndex;
+                const row = rekeningMonthly[idx];
+                if (!row) return [];
+                const sisa = (row.anggaran || 0) - (row.realisasi || 0);
+                const pct = row.anggaran > 0 ? ((row.realisasi / row.anggaran) * 100).toFixed(1) : '0.0';
+                return [`Sisa: ${formatRupiah(sisa)}`, `Persentase: ${pct}%`];
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#64748b',
+              font: { size: 11, weight: '600' },
+              callback: (_, i) => {
+                const key = rekeningMonthly[i]?.bulan || GAJI_BULAN_LIST[i];
+                return key === activeBulan ? `▶ ${rekLabels[i]}` : rekLabels[i];
+              },
+            },
+            grid: { display: false },
+          },
+          y: {
+            ticks: { color: '#64748b', callback: v => formatGajiChartAxis(v), font: { size: 10 } },
+            grid: { color: 'rgba(14,165,233,.08)' },
+            title: { display: true, text: 'Nilai (Rp)', color: '#94a3b8', font: { size: 10 } },
+          },
+        },
+      },
+    });
+  }
 
   const monthLabels = rekap.length
     ? rekap.map(r => (r.label_bulan || r.bulan || '').slice(0, 3))
@@ -17358,7 +17478,7 @@ async function renderGajiDashboardCharts() {
         },
         scales: {
           x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.06)' } },
-          y: { ticks: { color: '#64748b', callback: v => formatGajiMatrixAmt(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
+          y: { ticks: { color: '#64748b', callback: v => formatGajiChartAxis(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
         },
       },
     });
@@ -17426,7 +17546,7 @@ async function renderGajiDashboardCharts() {
         },
         scales: {
           x: { ticks: { color: '#64748b', maxRotation: 35, font: { size: 10 } }, grid: { display: false } },
-          y: { ticks: { color: '#64748b', callback: v => formatGajiMatrixAmt(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
+          y: { ticks: { color: '#64748b', callback: v => formatGajiChartAxis(v), font: { size: 10 } }, grid: { color: 'rgba(14,165,233,.08)' } },
         },
       },
     });
