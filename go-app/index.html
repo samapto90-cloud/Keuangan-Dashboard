@@ -11844,6 +11844,21 @@ function npRomanSection(n) {
   return romans[n] || String(n);
 }
 
+function isIwpPotonganItem(item) {
+  if (!item) return false;
+  if (resolveCatalogIdFromItem(item) === 'iwp') return true;
+  const j = String(item.jenis || '').toLowerCase();
+  return j.includes('iuran wajib pegawai') || j.includes('(iwp)');
+}
+
+function npPotonganUraian(item, keperluan) {
+  const uraian = String(keperluan || '').trim();
+  if (isIwpPotonganItem(item)) {
+    return uraian ? `Iuran Wajib 1% ${uraian}` : 'Iuran Wajib 1%';
+  }
+  return uraian || '—';
+}
+
 function cetakNP2D(id) {
   syncPortalPejabat();
   const t = allTransactions.find(x => x.id === id);
@@ -11930,7 +11945,7 @@ function cetakNP2D(id) {
       .map((it, i) => `<tr>`
         + `<td class="np-c">${i + 1}</td>`
         + `<td>${escHtml(it.jenis || '—')}</td>`
-        + `<td>${escHtml(keperluan)}</td>`
+        + `<td>${escHtml(npPotonganUraian(it, keperluan))}</td>`
         + `<td class="np-amt">${formatKwitansiAmount(it.nilai || 0)}</td>`
         + `</tr>`)
       .join('');
