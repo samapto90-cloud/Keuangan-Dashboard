@@ -206,7 +206,13 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
                                         return
                                 }
                                 jsonResponse(w, http.StatusForbidden, map[string]string{
-                                        "error": "Origin tidak diizinkan. Buka aplikasi lewat alamat resmi https://sakubijak.com:8888 atau https://sakubijak.com — jangan gunakan alamat IP, bookmark lama, atau varian www yang salah.",
+                                        "error": "Alamat tidak dikenali. Buka https://sakubijak.com:8888 (atau https://www.sakubijak.com:8888) lalu login ulang.",
+                                })
+                                return
+                        }
+                        if !mutatingRequestSafe(r, allowedOrigins) {
+                                jsonResponse(w, http.StatusForbidden, map[string]string{
+                                        "error": "Permintaan ditolak demi keamanan data. Muat ulang halaman dari alamat resmi Sakubijak.",
                                 })
                                 return
                         }
@@ -806,7 +812,7 @@ func main() {
         if port == "" {
                 port = "3000"
         }
-        allowedOrigins = parseAllowedOrigins(os.Getenv("ALLOWED_ORIGIN"))
+        allowedOrigins = expandAllowedOrigins(parseAllowedOrigins(os.Getenv("ALLOWED_ORIGIN")))
         initAuth()
         initSecurity()
         initIndexCache()

@@ -6,7 +6,7 @@ import (
 )
 
 func TestOriginAllowed(t *testing.T) {
-	allowed := parseAllowedOrigins("https://sakubijak.com")
+	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
 	req := httptest.NewRequest("POST", "https://sakubijak.com:8888/data/auth/login", nil)
 	req.Host = "sakubijak.com:8888"
 	req.Header.Set("X-Forwarded-Proto", "https")
@@ -21,7 +21,6 @@ func TestOriginAllowed(t *testing.T) {
 		{"https://www.sakubijak.com:8888", true},
 		{"http://localhost:3000", false},
 		{"", true},
-		{"null", true},
 	}
 	for _, c := range cases {
 		got := originAllowed(c.origin, allowed, req)
@@ -31,8 +30,33 @@ func TestOriginAllowed(t *testing.T) {
 	}
 }
 
+func TestOriginNullWithReferer(t *testing.T) {
+	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
+	req := httptest.NewRequest("POST", "https://sakubijak.com:8888/data/auth/login", nil)
+	req.Host = "sakubijak.com:8888"
+	req.Header.Set("Referer", "https://sakubijak.com:8888/")
+	req.Header.Set("X-Forwarded-Proto", "https")
+
+	if !originAllowed("null", allowed, req) {
+		t.Fatal("null origin with valid referer should be allowed")
+	}
+	req2 := httptest.NewRequest("POST", "https://evil.example/data/auth/login", nil)
+	if originAllowed("null", allowed, req2) {
+		t.Fatal("null origin without trusted referer should be rejected")
+	}
+}
+
+func TestExpandAllowedOrigins(t *testing.T) {
+	got := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
+	if len(got) < 4 {
+		t.Fatalf("expected expanded origins, got %d: %v", len(got), got)
+	}
+}
+
 func TestOriginAllowedProxyForwardedHost(t *testing.T) {
-	allowed := parseAllowedOrigins("https://sakubijak.com")
+	trustProxy = true
+	t.Cleanup(func() { trustProxy = false })
+	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
 	req := httptest.NewRequest("POST", "http://127.0.0.1:8888/data/auth/login", nil)
 	req.Host = "127.0.0.1:8888"
 	req.Header.Set("X-Forwarded-Proto", "https")
@@ -45,7 +69,7 @@ func TestOriginAllowedProxyForwardedHost(t *testing.T) {
 
 func TestOriginAllowedLocalhostDev(t *testing.T) {
 	t.Setenv("SIPKEU_ALLOW_LOCALHOST", "1")
-	allowed := parseAllowedOrigins("https://sakubijak.com")
+	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
 	if !originAllowed("http://localhost:3000", allowed, nil) {
 		t.Fatal("localhost should be allowed when SIPKEU_ALLOW_LOCALHOST=1")
 	}
@@ -54,10 +78,18 @@ func TestOriginAllowedLocalhostDev(t *testing.T) {
 	}
 }
 
-func TestParseAllowedOriginsMultiple(t *testing.T) {
-	got := parseAllowedOrigins("https://sakubijak.com, https://sakubijak.com:8888")
-	if len(got) != 2 {
-		t.Fatalf("expected 2 origins, got %d", len(got))
+func TestMutatingRequestBlocksCrossSite(t *testing.T) {
+	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
+	req := httptest.NewRequest("POST", "https://sakubijak.com:8888/data/auth/login", nil)
+	req.Host = "sakubijak.com:8888"
+	req.Header.Set("Origin", "https://sakubijak.com:8888")
+	req.Header.Set("Sec-Fetch-Site", "cross-site")
+	if mutatingRequestSafe(req, allowed) {
+		t.Fatal("cross-site POST should be blocked")
+	}
+	req.Header.Set("Sec-Fetch-Site", "same-origin")
+	if !mutatingRequestSafe(req, allowed) {
+		t.Fatal("same-origin POST should be allowed")
 	}
 }
 

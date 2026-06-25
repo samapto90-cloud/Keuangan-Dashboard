@@ -12,7 +12,6 @@ chmod +x "$APP_DIR/keuangan"
 export PORT="$PORT"
 export DATA_DIR="$DATA_DIR"
 export ANGGARAN_FILE="$APP_DIR/Anggaran.xlsx"
-export ALLOWED_ORIGIN="https://sakubijak.com,https://www.sakubijak.com,https://sakubijak.com:8888,https://www.sakubijak.com:8888"
 export TZ="Asia/Jakarta"
 
 if [ -f "$HOME/hostinger-web/.env" ]; then
@@ -21,6 +20,9 @@ if [ -f "$HOME/hostinger-web/.env" ]; then
   source "$HOME/hostinger-web/.env"
   set +a
 fi
+
+# Selalu izinkan semua varian URL resmi (www, port 8888) — override .env lama.
+export ALLOWED_ORIGIN="https://sakubijak.com,https://www.sakubijak.com,https://sakubijak.com:8888,https://www.sakubijak.com:8888"
 
 export SIPKEU_TRUST_PROXY="${SIPKEU_TRUST_PROXY:-1}"
 export SIPKEU_API_RATE_LIMIT="${SIPKEU_API_RATE_LIMIT:-3000}"
