@@ -79,6 +79,8 @@ type Transaction struct {
         JenisTransaksi   string  `json:"jenis_transaksi,omitempty"`
         NoBAST           string  `json:"no_bast"`
         NoKontrak        string  `json:"no_kontrak"`
+        TanggalBAST      string  `json:"tanggal_bast,omitempty"`
+        TanggalKontrak   string  `json:"tanggal_kontrak,omitempty"`
         Pekerjaan        string  `json:"pekerjaan"`
         Uraian           string  `json:"uraian"`
         JenisPajak       string  `json:"jenis_pajak"`

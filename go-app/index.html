@@ -6341,14 +6341,22 @@ function initManualNumericInputUX() {
             <input type="text" class="form-control" id="f-nobpk" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
           </div>
 
-          <!-- Baris 2: No BAST + No Kontrak -->
-          <div class="col-md-6">
+          <!-- Baris 2: No BAST + Tanggal BAST + No Kontrak + Tanggal Kontrak -->
+          <div class="col-md-4">
             <label class="form-label">No. BAST <small class="text-muted">(Berita Acara Serah Terima)</small></label>
             <input type="text" class="form-control" id="f-nobast" placeholder="0001/BAST/DISDIK/I/2026" />
           </div>
-          <div class="col-md-6">
+          <div class="col-md-2">
+            <label class="form-label">Tanggal BAST</label>
+            <input type="date" class="form-control" id="f-tglbast" />
+          </div>
+          <div class="col-md-4">
             <label class="form-label">No. Kontrak / SPK <small class="text-muted">(kosongkan jika tidak ada)</small></label>
             <input type="text" class="form-control" id="f-nokontrak" placeholder="027/SPK/DISDIK/I/2026" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Tanggal Kontrak</label>
+            <input type="date" class="form-control" id="f-tglkontrak" />
           </div>
 
           <!-- Baris 3: Kegiatan (cascading level 1) -->
@@ -6563,13 +6571,13 @@ function initManualNumericInputUX() {
             <tr>
               <th class="text-center" style="width:34px"><input type="checkbox" id="trx-check-all" class="form-check-input" title="Pilih semua" onchange="toggleSelectAllTrx(this.checked)" /></th>
               <th>No</th><th>Status</th><th>Jenis Trx</th><th>Tanggal</th><th>Kegiatan</th><th>Sub Kegiatan</th>
-              <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>No Kontrak</th>
+              <th>Penerima</th><th>No BPK</th><th>No BAST</th><th>Tgl BAST</th><th>No Kontrak</th><th>Tgl Kontrak</th>
               <th>Kode Rek.</th><th>Pekerjaan</th><th>Uraian</th>
               <th class="text-end">Nilai (Rp)</th><th>Jenis Pajak</th><th class="text-end">Pajak (Rp)</th><th>Jenis Potongan</th><th class="text-end">Potongan (Rp)</th>
               <th>PA</th><th>PPTK</th><th>Bendahara</th><th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="trx-tbody"><tr><td colspan="23" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
+          <tbody id="trx-tbody"><tr><td colspan="25" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
       <div class="p-3 border-top trx-table-footer">
@@ -10048,6 +10056,12 @@ function formatTanggalShort(s) {
   const d = new Date(s + 'T00:00:00');
   return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 }
+function formatTanggalTable(s) {
+  if (!s) return '—';
+  const d = new Date(s + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
 // Terbilang
 function terbilang(n) {
@@ -10878,7 +10892,9 @@ function getFilteredTransactions() {
     (trxJenisLabel(t)||'').toLowerCase().includes(q) ||
     (t.no_bpk||'').toLowerCase().includes(q) ||
     (t.no_bast||'').toLowerCase().includes(q) ||
+    (t.tanggal_bast||'').toLowerCase().includes(q) ||
     (t.no_kontrak||'').toLowerCase().includes(q) ||
+    (t.tanggal_kontrak||'').toLowerCase().includes(q) ||
     (t.pekerjaan||'').toLowerCase().includes(q) ||
     (t.uraian||'').toLowerCase().includes(q) ||
     (t.jenis_pajak||'').toLowerCase().includes(q) ||
@@ -10941,7 +10957,7 @@ function renderTable() {
     const emptyMsg = hasDateFilter
       ? 'Tidak ada transaksi pada periode tanggal yang dipilih.'
       : 'Belum ada data. Tambah lewat form di atas.';
-    tbody.innerHTML = `<tr><td colspan="23"><div class="empty-state"><i class="bi bi-inbox"></i><p>${emptyMsg}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="25"><div class="empty-state"><i class="bi bi-inbox"></i><p>${emptyMsg}</p></div></td></tr>`;
     document.getElementById('table-info').textContent = '0 data';
     document.getElementById('table-total-nilai').textContent = 'Rp 0';
     document.getElementById('table-total-pajak').textContent = 'Rp 0';
@@ -10975,7 +10991,9 @@ function renderTable() {
       <td style="white-space:nowrap">${t.penerima||'-'}</td>
       <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_bpk||'-'}</span></td>
       <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_bast||'-'}</span></td>
+      <td style="white-space:nowrap;font-size:11px">${formatTanggalTable(t.tanggal_bast)}</td>
       <td><span class="badge bg-light text-secondary" style="font-size:10px">${t.no_kontrak||'—'}</span></td>
+      <td style="white-space:nowrap;font-size:11px">${formatTanggalTable(t.tanggal_kontrak)}</td>
       <td style="font-size:11px;white-space:nowrap">${t.kode_rekening||'-'}</td>
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.pekerjaan||''}">${t.pekerjaan||'-'}</td>
       <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${t.uraian||''}">${t.uraian||'-'}</td>
@@ -11148,7 +11166,9 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     jenis_transaksi: getJenisTransaksiFromForm(),
     no_bpk: document.getElementById('f-nobpk').value,
     no_bast: document.getElementById('f-nobast').value,
+    tanggal_bast: document.getElementById('f-tglbast').value,
     no_kontrak: document.getElementById('f-nokontrak').value,
+    tanggal_kontrak: document.getElementById('f-tglkontrak').value,
     pekerjaan: pekerjaanText,
     uraian: document.getElementById('f-uraian').value,
     potongan_pajak: potonganItems,
@@ -11207,7 +11227,9 @@ function resetForm() {
   document.getElementById('f-id').value = '';
   document.getElementById('f-penerima').value = '';
   document.getElementById('f-nobast').value = '';
+  document.getElementById('f-tglbast').value = '';
   document.getElementById('f-nokontrak').value = '';
+  document.getElementById('f-tglkontrak').value = '';
   document.getElementById('f-uraian').value = '';
   document.getElementById('f-nilai').value = 0;
   document.getElementById('f-no-rekening').value = '';
@@ -11270,7 +11292,9 @@ function editTrx(id) {
   document.getElementById('f-tanggal').value = t.tanggal||'';
   document.getElementById('f-nobpk').value = t.no_bpk||'';
   document.getElementById('f-nobast').value = t.no_bast||'';
+  document.getElementById('f-tglbast').value = t.tanggal_bast||'';
   document.getElementById('f-nokontrak').value = t.no_kontrak||'';
+  document.getElementById('f-tglkontrak').value = t.tanggal_kontrak||'';
   document.getElementById('f-penerima').value = t.penerima||'';
   const jenisEl = document.getElementById('f-jenis-trx');
   if (jenisEl) jenisEl.value = inferJenisTransaksi(t);
@@ -13844,7 +13868,9 @@ const EXPORT_COLS = [
   {label:'Jenis Transaksi', key:'jenis_transaksi'},
   {label:'No BPK',       key:'no_bpk'},
   {label:'No BAST',      key:'no_bast'},
+  {label:'Tanggal BAST', key:'tanggal_bast'},
   {label:'No Kontrak',   key:'no_kontrak'},
+  {label:'Tanggal Kontrak', key:'tanggal_kontrak'},
   {label:'Pekerjaan',    key:'pekerjaan'},
   {label:'Uraian',       key:'uraian'},
   {label:'Jenis Pajak',  key:'jenis_pajak'},
@@ -13868,6 +13894,8 @@ const EXPORT_COLS = [
 
 const IMPORT_COL_ALIASES = {
   no_bpk: ['nomor bpk', 'bpk'],
+  tanggal_bast: ['tanggal bast', 'tgl bast', 'tgl. bast'],
+  tanggal_kontrak: ['tanggal kontrak', 'tgl kontrak', 'tgl. kontrak', 'tanggal spk', 'tgl spk'],
   jenis_transaksi: ['jenis trx', 'jenis transaksi', 'tipe transaksi'],
   no_np2d: ['no np2d', 'np2d', 'npd', 'no npd', 'nomor np2d', 'nomor npd', 'no np2d pptk', 'np2d pptk', 'np2d-pptk'],
   kegiatan: ['nama kegiatan'],
