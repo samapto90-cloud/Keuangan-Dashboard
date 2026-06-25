@@ -17,14 +17,29 @@ func TestOriginAllowed(t *testing.T) {
 	}{
 		{"https://sakubijak.com", true},
 		{"https://sakubijak.com:8888", true},
+		{"https://www.sakubijak.com", true},
+		{"https://www.sakubijak.com:8888", true},
 		{"http://localhost:3000", false},
 		{"", true},
+		{"null", true},
 	}
 	for _, c := range cases {
 		got := originAllowed(c.origin, allowed, req)
 		if got != c.want {
 			t.Fatalf("originAllowed(%q) = %v, want %v", c.origin, got, c.want)
 		}
+	}
+}
+
+func TestOriginAllowedProxyForwardedHost(t *testing.T) {
+	allowed := parseAllowedOrigins("https://sakubijak.com")
+	req := httptest.NewRequest("POST", "http://127.0.0.1:8888/data/auth/login", nil)
+	req.Host = "127.0.0.1:8888"
+	req.Header.Set("X-Forwarded-Proto", "https")
+	req.Header.Set("X-Forwarded-Host", "sakubijak.com")
+
+	if !originAllowed("https://sakubijak.com", allowed, req) {
+		t.Fatal("expected https://sakubijak.com allowed via X-Forwarded-Host proxy path")
 	}
 }
 
@@ -43,5 +58,11 @@ func TestParseAllowedOriginsMultiple(t *testing.T) {
 	got := parseAllowedOrigins("https://sakubijak.com, https://sakubijak.com:8888")
 	if len(got) != 2 {
 		t.Fatalf("expected 2 origins, got %d", len(got))
+	}
+}
+
+func TestNormalizeHostname(t *testing.T) {
+	if normalizeHostname("WWW.Sakubijak.com") != "sakubijak.com" {
+		t.Fatal("www prefix should be stripped")
 	}
 }

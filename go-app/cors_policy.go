@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,23 +24,56 @@ func parseAllowedOrigins(raw string) []string {
 	return out
 }
 
+func normalizeHostname(h string) string {
+	h = strings.ToLower(strings.TrimSpace(h))
+	if strings.HasPrefix(h, "www.") {
+		h = h[4:]
+	}
+	return h
+}
+
 func originHostname(origin string) string {
 	origin = strings.TrimSpace(origin)
-	if origin == "" {
+	if origin == "" || origin == "null" {
 		return ""
 	}
 	u, err := url.Parse(origin)
 	if err != nil || u.Host == "" {
-		return strings.ToLower(origin)
+		return normalizeHostname(origin)
 	}
-	return strings.ToLower(u.Hostname())
+	return normalizeHostname(u.Hostname())
+}
+
+func effectiveRequestHost(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	host := strings.TrimSpace(r.Host)
+	if trustProxy {
+		if xf := strings.TrimSpace(r.Header.Get("X-Forwarded-Host")); xf != "" {
+			host = strings.TrimSpace(strings.Split(xf, ",")[0])
+		}
+	}
+	return host
+}
+
+func requestHostname(r *http.Request) string {
+	host := effectiveRequestHost(r)
+	if host == "" {
+		return ""
+	}
+	h, _, err := net.SplitHostPort(host)
+	if err != nil {
+		return normalizeHostname(host)
+	}
+	return normalizeHostname(h)
 }
 
 func requestOriginFromHost(r *http.Request) string {
 	if r == nil {
 		return ""
 	}
-	host := strings.TrimSpace(r.Host)
+	host := effectiveRequestHost(r)
 	if host == "" {
 		return ""
 	}
@@ -58,7 +92,7 @@ func originAllowed(origin string, allowed []string, r *http.Request) bool {
 		return true
 	}
 	origin = strings.TrimSpace(origin)
-	if origin == "" {
+	if origin == "" || origin == "null" {
 		return true
 	}
 	for _, a := range allowed {
@@ -70,10 +104,17 @@ func originAllowed(origin string, allowed []string, r *http.Request) bool {
 	if reqOrigin != "" && origin == reqOrigin {
 		return true
 	}
+
 	oh := originHostname(origin)
 	if oh == "" {
 		return false
 	}
+
+	// Same hostname as incoming request (www / port / http vs https variants).
+	if rh := requestHostname(r); rh != "" && oh == rh {
+		return true
+	}
+
 	for _, a := range allowed {
 		if oh == originHostname(a) && oh != "" {
 			return true

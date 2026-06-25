@@ -12,7 +12,7 @@ chmod +x "$APP_DIR/keuangan"
 export PORT="$PORT"
 export DATA_DIR="$DATA_DIR"
 export ANGGARAN_FILE="$APP_DIR/Anggaran.xlsx"
-export ALLOWED_ORIGIN="https://sakubijak.com"
+export ALLOWED_ORIGIN="https://sakubijak.com,https://www.sakubijak.com,https://sakubijak.com:8888,https://www.sakubijak.com:8888"
 export TZ="Asia/Jakarta"
 
 if [ -f "$HOME/hostinger-web/.env" ]; then
