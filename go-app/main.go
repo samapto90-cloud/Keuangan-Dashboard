@@ -2,8 +2,10 @@ package main
 
 import (
         "embed"
+        "encoding/base64"
         "encoding/json"
         "fmt"
+        "io"
         "io/fs"
         "log"
         "net/http"
@@ -501,11 +503,52 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                 jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
                 return
         }
-        var items []Transaction
-        if err := json.NewDecoder(r.Body).Decode(&items); err != nil {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+        items, err := decodeImportItems(r)
+        if err != nil {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data impor tidak valid"})
                 return
         }
+        respondImportResult(w, r, sess, items)
+}
+
+func decodeImportItems(r *http.Request) ([]Transaction, error) {
+        body, err := io.ReadAll(r.Body)
+        if err != nil {
+                return nil, err
+        }
+        if len(body) == 0 {
+                return nil, fmt.Errorf("empty body")
+        }
+        var encWrap struct {
+                Enc string `json:"enc"`
+        }
+        if json.Unmarshal(body, &encWrap) == nil && strings.TrimSpace(encWrap.Enc) != "" {
+                raw, err := base64.StdEncoding.DecodeString(strings.TrimSpace(encWrap.Enc))
+                if err != nil {
+                        return nil, err
+                }
+                var items []Transaction
+                if err := json.Unmarshal(raw, &items); err != nil {
+                        var one Transaction
+                        if err2 := json.Unmarshal(raw, &one); err2 != nil {
+                                return nil, err
+                        }
+                        return []Transaction{one}, nil
+                }
+                return items, nil
+        }
+        var items []Transaction
+        if err := json.Unmarshal(body, &items); err == nil {
+                return items, nil
+        }
+        var one Transaction
+        if err := json.Unmarshal(body, &one); err != nil {
+                return nil, err
+        }
+        return []Transaction{one}, nil
+}
+
+func respondImportResult(w http.ResponseWriter, r *http.Request, sess *Session, items []Transaction) {
         mod := moduleFromRequest(r)
         mod.mu.Lock()
         accepted := make([]Transaction, 0, len(items))
@@ -535,6 +578,28 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
                 "total":    total,
                 "message":  msg,
         })
+}
+
+func handleTxPush(w http.ResponseWriter, r *http.Request) {
+        sess := getSession(r)
+        if sess == nil {
+                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+                return
+        }
+        if !sessionHasPermission(sess, "import_transaksi") {
+                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+                return
+        }
+        if r.Method != http.MethodPost {
+                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+                return
+        }
+        items, err := decodeImportItems(r)
+        if err != nil || len(items) == 0 {
+                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data transaksi tidak valid"})
+                return
+        }
+        respondImportResult(w, r, sess, items[:1])
 }
 
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
@@ -885,6 +950,7 @@ func main() {
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
         mux.HandleFunc("/data/transactions/bulk", cors(handleImport))
+        mux.HandleFunc("/data/tx/push", cors(handleTxPush))
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
         mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
         mux.HandleFunc("/data/transactions/delete-all", cors(requireAuth(requirePermission("delete_all")(handleDeleteAllTransactions))))

@@ -360,7 +360,8 @@ func withAPIRateLimit(next http.Handler) http.Handler {
 			return
 		}
 		if path == "/data/transactions/import" || path == "/data/transactions/bulk" ||
-			path == "/data/import/anggaran" || path == "/data/anggaran/bulk" {
+			path == "/data/import/anggaran" || path == "/data/anggaran/bulk" ||
+			path == "/data/tx/push" {
 			next.ServeHTTP(w, r)
 			return
 		}

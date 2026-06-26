@@ -62,7 +62,7 @@ function ensureBinary() {
   console.log("==> Build Linux binary (fresh)...");
   const r = spawnSync(
     "go",
-    ["build", "-ldflags", "-s -X main.buildSHA=importfix", "-o", "keuangan-linux-amd64", "."],
+    ["build", "-ldflags", "-s -X main.buildSHA=txpush2", "-o", "keuangan-linux-amd64", "."],
     {
       cwd: goApp,
       env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },
@@ -94,6 +94,7 @@ async function deploy(password) {
         try {
           console.log("==> Connected");
           await exec(conn, "mkdir -p ~/sipkeu ~/sipkeu-data ~/hostinger-web ~/domains/sakubijak.com/public_html");
+          await exec(conn, "rm -f ~/domains/sakubijak.com/public_html/index.html ~/domains/sakubijak.com/public_html/index.htm 2>/dev/null || true");
           await exec(conn, "pkill -x keuangan || pkill -f sipkeu/keuangan || true");
           await new Promise((r) => setTimeout(r, 2000));
           await new Promise((res, rej) => {
