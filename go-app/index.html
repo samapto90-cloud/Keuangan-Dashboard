@@ -6904,8 +6904,9 @@ function initManualNumericInputUX() {
         <h6><i class="bi bi-info-circle me-2 text-warning"></i>Panduan Singkat</h6>
         <small>
           <strong>1.</strong> Upload file <em>Kertas Kerja RAK APBD</em> (sheet RAK BELANJA).<br>
-          <strong>2.</strong> Pilih bulan di kanan atas, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
-          <strong>3.</strong> Lihat Hashira Trail di grafik — pilar wisteria = anggaran, pilar merah &amp; ukuran tokoh = realisasi per jenis belanja. Ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
+          <strong>2.</strong> Bulan yang realisasinya sudah <strong>disimpan/terkunci</strong> tetap memakai rencana kas &amp; input realisasi lama saat upload versi RAK baru.<br>
+          <strong>3.</strong> Pilih bulan di kanan atas, isi kolom <strong>Realisasi Bulan Ini</strong> pada menu Input Realisasi.<br>
+          <strong>4.</strong> Lihat Hashira Trail di grafik — pilar wisteria = anggaran, pilar merah &amp; ukuran tokoh = realisasi per jenis belanja. Ekspor/cetak laporan di menu <strong>Laporan Angkas</strong>.
         </small>
       </div>
     </div>
@@ -16391,16 +16392,26 @@ function previewKasRAK(event) {
 
 async function doKasImportRAK() {
   if (!kasRakImportData.length) return;
+  const lockedMonths = kasStateCache.realisasi_locked_months || [];
+  const version = document.getElementById('kas-rak-version')?.value || 'apbd';
+  const versionLabel = rakVersionLabel(version);
+  if (lockedMonths.length) {
+    const bulanLabel = lockedMonths.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ');
+    const ok = confirm(
+      `Impor RAK ${versionLabel}?\n\n` +
+      `Bulan terkunci (${bulanLabel}): rencana kas & realisasi TIDAK diubah.\n` +
+      `Bulan belum terkunci: rencana kas mengikuti file baru.`
+    );
+    if (!ok) return;
+  }
   const btn = document.getElementById('btn-kas-import-rak');
   btn.disabled = true;
   try {
-    const version = document.getElementById('kas-rak-version')?.value || 'apbd';
     const res = await apiFetch(API + '/kas-belanja/import-rak', {
       method: 'POST',
-      body: JSON.stringify({ tahun: 2026, rak_rows: kasRakImportData, version, version_label: rakVersionLabel(version) }),
+      body: JSON.stringify({ tahun: 2026, rak_rows: kasRakImportData, version, version_label: versionLabel }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Import gagal');
+    const data = await parseJsonResponse(res);
     alert(data.message || 'RAK berhasil diimpor');
     await loadKasData();
     showKasPage('realisasi', document.getElementById('kas-nav-realisasi'));

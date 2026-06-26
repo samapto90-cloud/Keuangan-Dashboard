@@ -211,6 +211,80 @@ func totalPaguFromRak(rows []RakBelanjaRow) float64 {
 	return total
 }
 
+func kasRakMergeKey(r RakBelanjaRow) string {
+	return strings.TrimSpace(r.KodeRekening) + "\x00" +
+		strings.TrimSpace(r.NamaKegiatan) + "\x00" +
+		strings.TrimSpace(r.NamaSubKegiatan)
+}
+
+func lockedKasMonths(locked map[string]bool) []string {
+	if len(locked) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(bulanKeys))
+	for _, b := range bulanKeys {
+		if locked[b] {
+			out = append(out, b)
+		}
+	}
+	return out
+}
+
+func cloneRakBelanjaRows(rows []RakBelanjaRow) []RakBelanjaRow {
+	out := make([]RakBelanjaRow, len(rows))
+	for i, r := range rows {
+		out[i] = r
+		if r.Bulan != nil {
+			out[i].Bulan = make(map[string]float64, len(r.Bulan))
+			for k, v := range r.Bulan {
+				out[i].Bulan[k] = v
+			}
+		}
+	}
+	return out
+}
+
+// mergeKasRakPreservingLockedMonths menggabungkan RAK baru dengan RAK lama:
+// bulan yang realisasinya sudah terkunci mempertahankan rencana kas (kolom bulan) lama.
+func mergeKasRakPreservingLockedMonths(oldRows, newRows []RakBelanjaRow, locked map[string]bool) []RakBelanjaRow {
+	lockedMonths := lockedKasMonths(locked)
+	if len(lockedMonths) == 0 || len(oldRows) == 0 {
+		return cloneRakBelanjaRows(newRows)
+	}
+	oldMap := make(map[string]RakBelanjaRow, len(oldRows))
+	for _, r := range oldRows {
+		oldMap[kasRakMergeKey(r)] = r
+	}
+	out := cloneRakBelanjaRows(newRows)
+	for i := range out {
+		old, ok := oldMap[kasRakMergeKey(out[i])]
+		if !ok || old.Bulan == nil {
+			continue
+		}
+		if out[i].Bulan == nil {
+			out[i].Bulan = map[string]float64{}
+		}
+		for _, bulan := range lockedMonths {
+			out[i].Bulan[bulan] = old.Bulan[bulan]
+		}
+	}
+	return out
+}
+
+func formatKasLockedMonthList(months []string) string {
+	if len(months) == 0 {
+		return ""
+	}
+	labels := make([]string, len(months))
+	for i, m := range months {
+		if m == "" {
+			continue
+		}
+		labels[i] = strings.ToUpper(m[:1]) + m[1:]
+	}
+	return strings.Join(labels, ", ")
+}
+
 func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 	sess := getSession(r)
 	if sess == nil {
@@ -229,11 +303,12 @@ func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 		kasMu.RUnlock()
 		locked := state.RealisasiLocked != nil && state.RealisasiLocked[bulan]
 		jsonResponse(w, http.StatusOK, map[string]interface{}{
-			"tahun":            state.Tahun,
-			"rak_rows":         state.RakRows,
-			"realisasi":        state.Realisasi,
-			"sisa_manual":      state.SisaManual,
-			"realisasi_locked": locked,
+			"tahun":                   state.Tahun,
+			"rak_rows":                state.RakRows,
+			"realisasi":               state.Realisasi,
+			"sisa_manual":             state.SisaManual,
+			"realisasi_locked":        locked,
+			"realisasi_locked_months": lockedKasMonths(state.RealisasiLocked),
 			"imported_at":      state.ImportedAt,
 			"total_pagu":       totalPaguFromRak(state.RakRows),
 			"bulan":            bulan,
@@ -279,22 +354,32 @@ func handleKasImportRAK(w http.ResponseWriter, r *http.Request) {
 		versionLabel = rakVersionLabel(version)
 	}
 	kasMu.Lock()
+	oldRows := cloneRakBelanjaRows(kasState.RakRows)
+	locked := kasState.RealisasiLocked
 	if payload.Tahun > 0 {
 		kasState.Tahun = payload.Tahun
 	}
-	kasState.RakRows = payload.RakRows
+	merged := mergeKasRakPreservingLockedMonths(oldRows, payload.RakRows, locked)
+	kasState.RakRows = merged
 	kasState.Version = version
 	kasState.VersionLabel = versionLabel
 	kasState.ImportedAt = time.Now().Format("2006-01-02 15:04:05")
+	preserved := lockedKasMonths(locked)
+	importedAt := kasState.ImportedAt
 	kasMu.Unlock()
 	persistKasState()
+	msg := "Data RAK " + versionLabel + " berhasil diimpor"
+	if len(preserved) > 0 {
+		msg += ". Rencana kas & realisasi bulan terkunci (" + formatKasLockedMonthList(preserved) + ") tetap dipertahankan."
+	}
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"message":       "Data RAK " + versionLabel + " berhasil diimpor",
-		"total":         len(payload.RakRows),
-		"rak_rows":      payload.RakRows,
-		"version":       version,
-		"version_label": versionLabel,
-		"imported_at":   kasState.ImportedAt,
+		"message":                 msg,
+		"total":                   len(merged),
+		"rak_rows":                merged,
+		"version":                 version,
+		"version_label":           versionLabel,
+		"imported_at":             importedAt,
+		"preserved_locked_months": preserved,
 	})
 }
 
