@@ -5,18 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <link rel="canonical" href="https://sakubijak.com:8888/" />
+  <link rel="canonical" href="https://sakubijak.com/" />
   <script>
   (function () {
     var h = (location.hostname || '').toLowerCase();
     var path = location.pathname + location.search + location.hash;
-    var port = location.port || (location.protocol === 'https:' ? '443' : '80');
     if (/^(\d{1,3}\.){3}\d{1,3}$/.test(h)) {
-      location.replace('https://sakubijak.com:8888' + path);
-      return;
-    }
-    if ((h === 'sakubijak.com' || h === 'www.sakubijak.com') && port !== '8888') {
-      location.replace('https://sakubijak.com:8888' + path);
+      location.replace('https://sakubijak.com' + path);
       return;
     }
     if ((h === 'sakubijak.com' || h === 'www.sakubijak.com') && location.protocol === 'http:') {
@@ -14410,7 +14405,7 @@ async function doImpor() {
   } catch(err) {
     const msg = String(err?.message || err || 'Import gagal');
     if (/forbidden/i.test(msg)) {
-      alert('Gagal mengimpor: server menolak permintaan (Forbidden).\n\nCoba:\n1. Muat ulang halaman lalu login ulang\n2. Impor file dengan lebih sedikit baris\n3. Pastikan membuka https://sakubijak.com:8888');
+      alert('Gagal mengimpor: server menolak permintaan (Forbidden).\n\nCoba:\n1. Muat ulang halaman lalu login ulang\n2. Impor file dengan lebih sedikit baris\n3. Pastikan membuka https://sakubijak.com');
     } else {
       alert('Gagal mengimpor: ' + msg);
     }
