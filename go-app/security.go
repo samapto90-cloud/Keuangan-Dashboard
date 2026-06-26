@@ -289,6 +289,13 @@ func suspiciousUserAgent(ua string) bool {
 	return false
 }
 
+func jsonForbidden(w http.ResponseWriter, message string) {
+	if message == "" {
+		message = "Akses ditolak"
+	}
+	jsonResponse(w, http.StatusForbidden, map[string]string{"error": message})
+}
+
 func withIPShield(next http.Handler) http.Handler {
 	const maxPathLen = 2048
 	const maxQueryLen = 4096
@@ -300,7 +307,7 @@ func withIPShield(next http.Handler) http.Handler {
 		}
 
 		if strings.HasPrefix(path, "/data/") && suspiciousUserAgent(r.Header.Get("User-Agent")) {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			jsonForbidden(w, "Permintaan ditolak demi keamanan.")
 			return
 		}
 
@@ -349,6 +356,11 @@ func withAPIRateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		if path == "/health" || path == "/favicon.ico" || path == "/data/auth/login" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if path == "/data/transactions/import" || path == "/data/transactions/bulk" ||
+			path == "/data/import/anggaran" || path == "/data/anggaran/bulk" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -412,12 +424,12 @@ func withBlockSuspiciousPaths(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := strings.ToLower(r.URL.Path)
 		if strings.Contains(p, "..") || strings.Contains(p, "\x00") {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			jsonForbidden(w, "Path permintaan tidak valid.")
 			return
 		}
 		for _, b := range blocked {
-			if strings.HasPrefix(p, b) || strings.Contains(p, b) {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+			if strings.HasPrefix(p, b) {
+				jsonForbidden(w, "Path permintaan tidak valid.")
 				return
 			}
 		}

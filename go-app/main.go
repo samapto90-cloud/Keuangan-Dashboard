@@ -199,10 +199,13 @@ var allowedOrigins []string
 func cors(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
                 origin := strings.TrimSpace(r.Header.Get("Origin"))
-                if len(allowedOrigins) > 0 {
+                authenticated := getSession(r) != nil
+                if len(allowedOrigins) > 0 && !authenticated {
                         if origin != "" && !originAllowed(origin, allowedOrigins, r) {
                                 if r.Method == http.MethodOptions {
-                                        w.WriteHeader(http.StatusForbidden)
+                                        jsonResponse(w, http.StatusForbidden, map[string]string{
+                                                "error": "Alamat tidak dikenali.",
+                                        })
                                         return
                                 }
                                 jsonResponse(w, http.StatusForbidden, map[string]string{
@@ -216,6 +219,8 @@ func cors(next http.HandlerFunc) http.HandlerFunc {
                                 })
                                 return
                         }
+                }
+                if len(allowedOrigins) > 0 {
                         if allow := corsAllowOriginHeader(origin, allowedOrigins, r); allow != "" {
                                 w.Header().Set("Access-Control-Allow-Origin", allow)
                                 w.Header().Set("Vary", "Origin")
@@ -879,6 +884,7 @@ func main() {
         mux.HandleFunc("/data/transactions/review", cors(requireAuth(handleTransactionReview)))
         mux.HandleFunc("/data/transactions", cors(handleTransactions))
         mux.HandleFunc("/data/transactions/import", cors(handleImport))
+        mux.HandleFunc("/data/transactions/bulk", cors(handleImport))
         mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
         mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
         mux.HandleFunc("/data/transactions/delete-all", cors(requireAuth(requirePermission("delete_all")(handleDeleteAllTransactions))))
@@ -887,6 +893,7 @@ func main() {
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
         mux.HandleFunc("/data/settings", cors(handleSettings))
         mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
+        mux.HandleFunc("/data/anggaran/bulk", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
         mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
         mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))

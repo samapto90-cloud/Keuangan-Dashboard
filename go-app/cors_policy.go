@@ -201,12 +201,23 @@ func originAllowed(origin string, allowed []string, r *http.Request) bool {
 	return false
 }
 
-func secFetchSiteSafe(r *http.Request) bool {
+func secFetchSiteSafe(r *http.Request, allowed []string) bool {
 	sfs := strings.ToLower(strings.TrimSpace(r.Header.Get("Sec-Fetch-Site")))
-	if sfs == "" {
+	if sfs == "" || sfs == "none" {
 		return true
 	}
-	return sfs == "same-origin" || sfs == "same-site"
+	if sfs == "same-origin" || sfs == "same-site" {
+		return true
+	}
+	// cross-site: tetap izinkan jika Origin/Referer dari domain resmi (beberapa browser mobile).
+	origin := strings.TrimSpace(r.Header.Get("Origin"))
+	if origin != "" && origin != "null" && originAllowed(origin, allowed, r) {
+		return true
+	}
+	if rh := refererHostname(r); rh != "" && hostnameInAllowedList(rh, allowed) {
+		return true
+	}
+	return false
 }
 
 func mutatingRequestSafe(r *http.Request, allowed []string) bool {
@@ -218,15 +229,15 @@ func mutatingRequestSafe(r *http.Request, allowed []string) bool {
 	default:
 		return true
 	}
-	if !secFetchSiteSafe(r) {
-		return false
-	}
 	origin := strings.TrimSpace(r.Header.Get("Origin"))
-	if origin != "" && origin != "null" {
-		return originAllowed(origin, allowed, r)
+	if origin != "" && origin != "null" && originAllowed(origin, allowed, r) {
+		return true
 	}
-	if origin == "null" {
-		return originAllowed(origin, allowed, r)
+	if origin == "null" && originAllowed(origin, allowed, r) {
+		return true
+	}
+	if !secFetchSiteSafe(r, allowed) {
+		return false
 	}
 	if rh := refererHostname(r); rh != "" {
 		return hostnameInAllowedList(rh, allowed)

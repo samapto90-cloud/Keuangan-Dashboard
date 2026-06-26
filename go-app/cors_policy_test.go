@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -78,18 +79,38 @@ func TestOriginAllowedLocalhostDev(t *testing.T) {
 	}
 }
 
-func TestMutatingRequestBlocksCrossSite(t *testing.T) {
+func TestMutatingRequestCrossSiteWithOrigin(t *testing.T) {
 	allowed := expandAllowedOrigins(parseAllowedOrigins("https://sakubijak.com"))
-	req := httptest.NewRequest("POST", "https://sakubijak.com:8888/data/auth/login", nil)
+	req := httptest.NewRequest("POST", "https://sakubijak.com:8888/data/transactions/import", nil)
 	req.Host = "sakubijak.com:8888"
 	req.Header.Set("Origin", "https://sakubijak.com:8888")
 	req.Header.Set("Sec-Fetch-Site", "cross-site")
-	if mutatingRequestSafe(req, allowed) {
-		t.Fatal("cross-site POST should be blocked")
-	}
-	req.Header.Set("Sec-Fetch-Site", "same-origin")
 	if !mutatingRequestSafe(req, allowed) {
-		t.Fatal("same-origin POST should be allowed")
+		t.Fatal("cross-site POST with trusted origin should be allowed")
+	}
+	req2 := httptest.NewRequest("POST", "https://evil.example/data/transactions/import", nil)
+	req2.Host = "evil.example"
+	req2.Header.Set("Sec-Fetch-Site", "cross-site")
+	if mutatingRequestSafe(req2, allowed) {
+		t.Fatal("cross-site POST without trusted origin should be blocked")
+	}
+}
+
+func TestImportPathsNotBlocked(t *testing.T) {
+	paths := []string{"/data/transactions/import", "/data/import/anggaran"}
+	blocked := []string{
+		"/.env", "/.git", "/wp-admin", "/wp-login", "/phpmyadmin", "/admin.php",
+		"/cgi-bin", "/vendor/phpunit", "/.aws", "/config.php", "/shell",
+		"/xmlrpc.php", "/.well-known/security.txt", "/actuator", "/server-status",
+		"/telescope", "/debug", "/_profiler", "/solr", "/manager/html",
+	}
+	for _, p := range paths {
+		lower := strings.ToLower(p)
+		for _, b := range blocked {
+			if strings.HasPrefix(lower, b) {
+				t.Fatalf("import path %q should not be blocked by prefix %q", p, b)
+			}
+		}
 	}
 }
 

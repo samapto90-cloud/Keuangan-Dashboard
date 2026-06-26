@@ -59,14 +59,16 @@ function askPassword() {
 
 function ensureBinary() {
   const bin = path.join(goApp, "keuangan-linux-amd64");
-  if (fs.existsSync(bin)) return bin;
-  console.log("==> Binary belum ada, build Linux...");
-  const r = spawnSync("go", ["build", "-ldflags=-s -w -X main.buildSHA=manual", "-o", "keuangan-linux-amd64", "."], {
-    cwd: goApp,
-    env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },
-    stdio: "inherit",
-    shell: true,
-  });
+  console.log("==> Build Linux binary (fresh)...");
+  const r = spawnSync(
+    "go",
+    ["build", "-ldflags", "-s -X main.buildSHA=importfix", "-o", "keuangan-linux-amd64", "."],
+    {
+      cwd: goApp,
+      env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },
+      stdio: "inherit",
+    },
+  );
   if (r.status !== 0) {
     console.error("Build gagal. Pastikan Go terinstall.");
     process.exit(1);

@@ -9005,6 +9005,23 @@ async function apiFetch(path, options = {}) {
   return promise;
 }
 
+async function parseJsonResponse(res) {
+  const text = await res.text();
+  let result = {};
+  if (text) {
+    try {
+      result = JSON.parse(text);
+    } catch (_) {
+      const snippet = text.trim().slice(0, 160);
+      throw new Error(snippet || `HTTP ${res.status}`);
+    }
+  }
+  if (!res.ok) {
+    throw new Error(result.error || result.message || `HTTP ${res.status}`);
+  }
+  return result;
+}
+
 function isAdmin() { return currentUser?.role === 'admin'; }
 
 function canDo(perm) {
@@ -14341,17 +14358,36 @@ async function doImpor() {
       alert('Tidak ada transaksi valid untuk portal ' + cfg.bpkCode + '. Pastikan No BPK/NP2D sesuai portal aktif atau kosongkan agar diisi otomatis.');
       return;
     }
-    const res = await apiFetch(API + '/transactions/import', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    const result = await res.json();
+    const batchSize = 12;
+    let totalImported = 0;
+    let totalSkipped = 0;
+    let lastMessage = '';
+    for (let i = 0; i < payload.length; i += batchSize) {
+      const batch = payload.slice(i, i + batchSize);
+      const pct = Math.min(100, Math.round(((i + batch.length) / payload.length) * 100));
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor… ${pct}%`;
+      const res = await apiFetch(API + '/transactions/bulk', {
+        method: 'POST',
+        body: JSON.stringify(batch),
+        timeoutMs: 120000,
+      });
+      const result = await parseJsonResponse(res);
+      totalImported += Number(result.imported || batch.length);
+      totalSkipped += Number(result.skipped || 0);
+      lastMessage = result.message || '';
+    }
     bootstrap.Modal.getInstance(document.getElementById('modalImpor')).hide();
     invalidateTxCache();
     await loadTransaksi(true);
-    alert(result.message || `${payload.length} transaksi ditambahkan (transaksi lama tetap tersimpan).`);
+    const summary = lastMessage || `${totalImported} transaksi ditambahkan (transaksi lama tetap tersimpan).`;
+    alert(totalSkipped > 0 ? `${summary} (${totalSkipped} baris dilewati.)` : summary);
   } catch(err) {
-    alert('Gagal mengimpor: ' + err.message);
+    const msg = String(err?.message || err || 'Import gagal');
+    if (/forbidden/i.test(msg)) {
+      alert('Gagal mengimpor: server menolak permintaan (Forbidden).\n\nCoba:\n1. Muat ulang halaman lalu login ulang\n2. Impor file dengan lebih sedikit baris\n3. Pastikan membuka https://sakubijak.com:8888');
+    } else {
+      alert('Gagal mengimpor: ' + msg);
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Import';
@@ -14596,16 +14632,16 @@ async function doImporAnggaran() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mengimpor…';
   try {
-    const res = await apiFetch(API + '/import/anggaran', {
+    const res = await apiFetch(API + '/anggaran/bulk', {
       method: 'POST',
       body: JSON.stringify({
         rak: importAnggaranData,
         version,
         version_label: versionLabel,
       }),
+      timeoutMs: 120000,
     });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Import gagal');
+    const result = await parseJsonResponse(res);
     appSettings.rak = result.rak || importAnggaranData;
     appSettings.anggaran_kegiatan = result.anggaran_kegiatan || {};
     appSettings.rak_meta = result.rak_meta || appSettings.rak_meta;
