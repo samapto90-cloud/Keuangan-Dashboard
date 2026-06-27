@@ -113,26 +113,27 @@
       display: none !important;
     }
     .portal-video-bg {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 3;
+      z-index: 0;
       overflow: hidden;
       pointer-events: none;
       background: #0a0e1a;
+      border-radius: inherit;
     }
     .portal-hero-video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center center;
+      object-position: center 40%;
       display: block;
     }
     .portal-video-scrim {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(8, 12, 24, 0.35) 0%, rgba(8, 12, 24, 0.18) 38%, rgba(8, 12, 24, 0.55) 100%),
-        radial-gradient(ellipse 90% 70% at 50% 42%, transparent 35%, rgba(8, 12, 24, 0.45) 100%);
+        linear-gradient(180deg, rgba(8, 12, 24, 0.22) 0%, rgba(8, 12, 24, 0.28) 32%, rgba(8, 12, 24, 0.62) 62%, rgba(8, 12, 24, 0.78) 100%),
+        radial-gradient(ellipse 88% 58% at 50% 28%, transparent 32%, rgba(8, 12, 24, 0.38) 100%);
     }
     body.fx-portal-home.portal-video-mode {
       overflow: hidden;
@@ -154,6 +155,14 @@
       height: 100%;
       max-height: 100%;
       overflow: hidden;
+      border-radius: 20px;
+      isolation: isolate;
+    }
+    body.fx-portal-home.portal-video-mode .portal-header,
+    body.fx-portal-home.portal-video-mode .portal-grid,
+    body.fx-portal-home.portal-video-mode .portal-footer {
+      position: relative;
+      z-index: 2;
     }
     body.fx-portal-home.portal-video-mode .portal-header {
       margin-bottom: 6px;
@@ -196,19 +205,8 @@
       margin: 1px 0 0;
       font-size: clamp(0.72rem, 1.6vw, 0.88rem);
     }
-    body.fx-portal-home.portal-video-mode .portal-hero-copy h1 {
-      margin: 3px 0 0;
-      padding: 0;
-      line-height: 1.25;
-      font-size: clamp(0.92rem, 1.9vw, 1.1rem);
-    }
-    body.fx-portal-home.portal-video-mode .portal-tagline {
-      margin: 4px auto 2px;
-      font-size: clamp(11px, 1.5vw, 13px);
-      line-height: 1.35;
-    }
     body.fx-portal-home.portal-video-mode .portal-ta {
-      margin-top: 4px;
+      margin-top: 6px;
       padding: 3px 10px;
       font-size: 9px;
     }
@@ -255,11 +253,9 @@
       font-size: 10px;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-name,
-    body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-motto,
-    body.fx-portal-home.portal-video-mode .portal-hero-copy h1 {
+    body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-motto {
       text-shadow: 0 2px 18px rgba(0,0,0,.75), 0 0 32px rgba(255, 120, 0, .35);
     }
-    body.fx-portal-home.portal-video-mode .portal-tagline,
     body.fx-portal-home.portal-video-mode .portal-ta {
       text-shadow: 0 1px 12px rgba(0,0,0,.8);
     }
@@ -5932,13 +5928,13 @@
 
 <!-- ═══════════════ PORTAL APLIKASI (Homepage) ═══════════════ -->
 <div id="portal-screen">
-  <div class="portal-video-bg" aria-hidden="true">
-    <video id="portal-hero-video" class="portal-hero-video" autoplay muted loop playsinline preload="auto">
-      <source src="/assets/portal-hero/portal-intro.mp4?v=1" type="video/mp4" />
-    </video>
-    <div class="portal-video-scrim"></div>
-  </div>
   <div class="portal-wrap ds-animate">
+    <div class="portal-video-bg" aria-hidden="true">
+      <video id="portal-hero-video" class="portal-hero-video" autoplay muted loop playsinline preload="auto">
+        <source src="/assets/portal-hero/portal-intro.mp4?v=1" type="video/mp4" />
+      </video>
+      <div class="portal-video-scrim"></div>
+    </div>
     <header class="portal-header portal-battle-hero">
       <div class="portal-hero-stage">
         <div class="fx-dom-battle" aria-hidden="true">
@@ -5974,11 +5970,6 @@
       <div class="portal-hero-copy">
         <p class="sakubijak-name fire-glow-text" aria-label="Sakubijak">Sakubijak</p>
         <p class="sakubijak-motto fire-glow-text">Keuangan Bijak untuk Semua</p>
-        <h1 class="fire-glow-text">SIPKEU Portal</h1>
-        <p class="portal-tagline">
-          <span class="portal-tagline-line">Sistem Informasi Penatausahaan Keuangan</span>
-          <span class="portal-tagline-line">Dinas Pendidikan Kota Batam</span>
-        </p>
         <span class="portal-ta">Tahun Anggaran 2026</span>
       </div>
     </header>
@@ -9004,10 +8995,36 @@ function setPortalHomeFx(active) {
   document.body.classList.toggle('portal-video-mode', !!active);
 }
 
+function fitPortalHeroVideo() {
+  const v = document.getElementById('portal-hero-video');
+  const wrap = document.querySelector('#portal-screen .portal-wrap');
+  if (!v || !wrap) return;
+  const apply = () => {
+    const vw = v.videoWidth;
+    const vh = v.videoHeight;
+    const cw = wrap.clientWidth;
+    const ch = wrap.clientHeight;
+    if (!vw || !vh || !cw || !ch) return;
+    const videoRatio = vw / vh;
+    const boxRatio = cw / ch;
+    v.style.objectFit = 'cover';
+    if (videoRatio > boxRatio * 1.08) {
+      v.style.objectPosition = 'center center';
+    } else if (videoRatio < boxRatio * 0.92) {
+      v.style.objectPosition = 'center 36%';
+    } else {
+      v.style.objectPosition = 'center 42%';
+    }
+  };
+  if (v.readyState >= 1) apply();
+  else v.addEventListener('loadedmetadata', apply, { once: true });
+}
+
 function playPortalHeroVideo() {
   const v = document.getElementById('portal-hero-video');
   if (!v) return;
   v.muted = true;
+  fitPortalHeroVideo();
   const p = v.play();
   if (p && typeof p.catch === 'function') p.catch(() => {});
 }
@@ -9053,6 +9070,9 @@ function bindPortalFxVisibility() {
     document.body.classList.toggle('fx-paused', document.hidden);
     if (document.hidden) pausePortalHeroVideo();
     else if (isPortalHomeVisible()) playPortalHeroVideo();
+  });
+  window.addEventListener('resize', () => {
+    if (isPortalHomeVisible()) fitPortalHeroVideo();
   });
 }
 
