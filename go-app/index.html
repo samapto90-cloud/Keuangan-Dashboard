@@ -146,16 +146,11 @@
       --portal-pad-x: clamp(10px, 2.2vw, 22px);
       --portal-pad-y: clamp(6px, 1.4vh, 14px);
       --portal-radius: clamp(14px, 2.2vw, 22px);
-      --portal-logo: clamp(76px, 12vw, 132px);
-      --portal-name: clamp(0.88rem, 1.6vw + 0.55rem, 1.5rem);
-      --portal-motto: clamp(0.7rem, 1vw + 0.45rem, 0.98rem);
-      --portal-ta-fs: clamp(8px, 1.4vw, 10px);
-      --portal-grid-cols: 4;
-      --portal-grid-gap: clamp(7px, 1.1vw, 12px);
-      --portal-card-pad-y: clamp(8px, 1.2vh, 12px);
-      --portal-card-pad-x: clamp(7px, 1vw, 11px);
-      --portal-icon: clamp(36px, 4.8vw, 54px);
-      --portal-title: clamp(10px, 1.2vw, 12px);
+      --portal-logo: clamp(40px, 6.5vw, 56px);
+      --portal-name: clamp(0.78rem, 1.2vw + 0.4rem, 1.05rem);
+      --portal-motto: clamp(0.62rem, 0.8vw + 0.35rem, 0.78rem);
+      --portal-icon: clamp(28px, 3.2vw, 38px);
+      --portal-title: clamp(9px, 1vw, 11px);
       --portal-badge-fs: clamp(8px, 1.1vw, 10px);
       --portal-footer-fs: clamp(9px, 1.5vw, 11px);
       --portal-header-gap: clamp(4px, 0.8vh, 10px);
@@ -184,16 +179,17 @@
     }
     body.fx-portal-home.portal-video-mode .portal-video-scrim {
       background:
-        linear-gradient(180deg, rgba(4, 8, 18, 0.78) 0%, rgba(4, 8, 18, 0.62) 35%, rgba(4, 8, 18, 0.85) 100%),
-        radial-gradient(ellipse 90% 60% at 50% 20%, rgba(15, 23, 42, 0.5) 0%, transparent 65%);
+        linear-gradient(180deg, rgba(4, 8, 18, 0.42) 0%, rgba(4, 8, 18, 0.06) 38%, rgba(4, 8, 18, 0.12) 58%, rgba(4, 8, 18, 0.62) 100%),
+        radial-gradient(ellipse 70% 55% at 50% 42%, transparent 42%, rgba(4, 8, 18, 0.35) 100%);
     }
     body.fx-portal-home.portal-video-mode .portal-wrap {
       position: relative;
       z-index: 2;
       display: flex;
       flex-direction: column;
+      justify-content: flex-end;
       width: 100%;
-      max-width: min(96vw, 1200px);
+      max-width: min(98vw, 1240px);
       height: 100%;
       max-height: 100%;
       overflow: hidden;
@@ -202,22 +198,37 @@
       background: transparent;
       border: none;
       box-shadow: none;
+      padding-top: 0;
     }
-    body.fx-portal-home.portal-video-mode .portal-header,
-    body.fx-portal-home.portal-video-mode .portal-grid,
+    body.fx-portal-home.portal-video-mode .portal-header {
+      position: absolute;
+      top: clamp(6px, 1.2vh, 14px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: min(96vw, 520px);
+      margin: 0;
+      z-index: 3;
+    }
+    body.fx-portal-home.portal-video-mode .portal-battle-hero {
+      background: rgba(6, 10, 22, 0.32);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      margin-bottom: 0;
+      padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 18px);
+      border-bottom: none;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(8px, 1.5vw, 14px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    }
+    body.fx-portal-home.portal-video-mode .portal-modules-dock,
     body.fx-portal-home.portal-video-mode .portal-footer {
       position: relative;
       z-index: 2;
-    }
-    body.fx-portal-home.portal-video-mode .portal-header {
-      margin-bottom: var(--portal-header-gap);
-      flex-shrink: 0;
-    }
-    body.fx-portal-home.portal-video-mode .portal-battle-hero {
-      background: transparent;
-      margin-bottom: clamp(6px, 1vh, 12px);
-      padding: clamp(4px, 0.8vh, 10px) clamp(4px, 1.5vw, 12px) clamp(6px, 1vh, 12px);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     }
     body.fx-portal-home.portal-video-mode .portal-hero-stage {
       min-height: 0;
@@ -225,6 +236,7 @@
       padding: 0;
       display: flex;
       justify-content: center;
+      flex-shrink: 0;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-stage::before {
       display: none;
@@ -248,9 +260,12 @@
       animation: none !important;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-copy {
-      margin: clamp(1px, 0.4vh, 4px) auto 0;
-      padding: 0 clamp(6px, 2vw, 12px) clamp(1px, 0.3vh, 4px);
-      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      max-width: none;
+      text-align: left;
+      flex: 1;
+      min-width: 0;
     }
     body.fx-portal-home.portal-video-mode .sakubijak-name {
       margin: 0;
@@ -262,55 +277,69 @@
       letter-spacing: 0.04em;
     }
     body.fx-portal-home.portal-video-mode .sakubijak-motto {
-      margin: clamp(2px, 0.35vh, 5px) 0 0;
+      margin: 1px 0 0;
       font-size: var(--portal-motto);
-      line-height: 1.35;
+      line-height: 1.25;
       animation: none !important;
       color: var(--portal-accent);
       font-weight: 600;
-      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     body.fx-portal-home.portal-video-mode .portal-ta {
-      margin-top: clamp(4px, 0.7vh, 10px);
-      padding: clamp(3px, 0.55vh, 5px) clamp(10px, 1.8vw, 14px);
-      font-size: var(--portal-ta-fs);
-      background: rgba(26, 58, 107, 0.72);
+      margin-top: 3px;
+      padding: 2px 8px;
+      font-size: 7px;
+      background: rgba(26, 58, 107, 0.55);
       border: 1px solid var(--portal-accent-soft);
       color: #e8dcc0;
       font-weight: 700;
       letter-spacing: 0.1em;
       border-radius: 999px;
     }
+    body.fx-portal-home.portal-video-mode .portal-modules-dock {
+      flex-shrink: 0;
+      width: 100%;
+      margin-top: auto;
+      padding: clamp(8px, 1.2vh, 14px) clamp(8px, 1.5vw, 14px) clamp(4px, 0.6vh, 8px);
+      background: linear-gradient(180deg, transparent 0%, rgba(4, 8, 18, 0.28) 22%, rgba(4, 8, 18, 0.5) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: clamp(16px, 2vw, 22px) clamp(16px, 2vw, 22px) 0 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
     body.fx-portal-home.portal-video-mode .portal-grid {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-height: 0;
+      max-height: 40vh;
       overflow-x: hidden;
-      overflow-y: hidden;
+      overflow-y: auto;
       align-content: start;
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: clamp(8px, 1.2vw, 14px);
-      margin-bottom: clamp(2px, 0.5vh, 6px);
+      gap: clamp(6px, 0.9vw, 10px);
+      margin-bottom: 0;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
     }
     body.fx-portal-home.portal-video-mode .portal-modules-head {
       flex-shrink: 0;
       text-align: center;
-      margin-bottom: clamp(6px, 1vh, 12px);
-      padding: 0 8px;
+      margin-bottom: clamp(4px, 0.6vh, 8px);
+      padding: 0 4px;
     }
     body.fx-portal-home.portal-video-mode .portal-modules-head h2 {
       margin: 0;
-      font-size: clamp(11px, 1.4vw, 13px);
+      font-size: clamp(9px, 1.1vw, 11px);
       font-weight: 600;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: rgba(148, 163, 184, 0.85);
+      color: rgba(226, 232, 240, 0.75);
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
     }
     body.fx-portal-home.portal-video-mode .portal-modules-head p {
-      margin: 3px 0 0;
-      font-size: clamp(10px, 1.2vw, 12px);
-      color: rgba(148, 163, 184, 0.55);
+      display: none;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean {
       grid-column: span 3;
@@ -318,15 +347,15 @@
       position: relative;
       display: flex;
       align-items: center;
-      gap: clamp(8px, 1.2vw, 12px);
-      padding: clamp(10px, 1.2vh, 14px) clamp(10px, 1.4vw, 14px);
-      border-radius: 14px;
-      background: rgba(11, 17, 32, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
-      backdrop-filter: blur(20px) saturate(1.1);
-      -webkit-backdrop-filter: blur(20px) saturate(1.1);
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      gap: clamp(6px, 0.9vw, 10px);
+      padding: clamp(6px, 0.8vh, 9px) clamp(8px, 1vw, 11px);
+      border-radius: 12px;
+      background: rgba(8, 14, 28, 0.34);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.16);
+      backdrop-filter: blur(14px) saturate(1.3);
+      -webkit-backdrop-filter: blur(14px) saturate(1.3);
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
       cursor: pointer;
       overflow: hidden;
     }
@@ -346,8 +375,9 @@
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean:hover {
       transform: translateY(-2px);
-      border-color: color-mix(in srgb, var(--card-accent, #c9a84c) 35%, rgba(148, 163, 184, 0.2));
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      background: rgba(12, 20, 38, 0.48);
+      border-color: color-mix(in srgb, var(--card-accent, #c9a84c) 38%, rgba(255, 255, 255, 0.16));
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon {
       width: var(--portal-icon);
@@ -356,7 +386,7 @@
       flex-shrink: 0;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(0, 0, 0, 0.28);
       box-shadow: none;
       overflow: hidden;
       display: flex;
@@ -399,8 +429,8 @@
       font-size: var(--portal-title);
       line-height: 1.3;
       font-weight: 600;
-      color: #f1f5f9 !important;
-      text-shadow: none !important;
+      color: #f8fafc !important;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.75) !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -413,9 +443,9 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-card-status {
       flex-shrink: 0;
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-badge-live {
       font-size: clamp(7px, 0.85vw, 9px);
@@ -468,10 +498,11 @@
     body.fx-portal-home.portal-video-mode .portal-footer {
       flex-shrink: 0;
       margin: 0;
-      padding: clamp(4px, 0.6vh, 8px) clamp(6px, 2vw, 12px) clamp(4px, 0.8vh, 10px);
+      padding: clamp(3px, 0.5vh, 6px) clamp(6px, 2vw, 12px);
       font-size: var(--portal-footer-fs);
       line-height: 1.35;
-      color: rgba(148, 163, 184, 0.78);
+      color: rgba(148, 163, 184, 0.65);
+      background: rgba(4, 8, 18, 0.45);
       animation: none !important;
       font-weight: 500;
       letter-spacing: 0.02em;
@@ -6281,6 +6312,7 @@
       </div>
     </header>
 
+    <div class="portal-modules-dock">
     <div class="portal-modules-head">
       <h2>Modul SIPKEU</h2>
       <p>Pilih aplikasi penatausahaan keuangan · TA 2026</p>
@@ -6377,6 +6409,7 @@
         </div>
         <p hidden>Super Admin · Kendali penuh semua portal SIPKEU · TA 2026.</p>
       </div>
+    </div>
     </div>
 
     <div class="portal-footer">Developer by Keuangan Dinas Pendidikan Kota Batam</div>
@@ -9353,7 +9386,7 @@ function fitPortalHeroVideo() {
     } else if (videoRatio < boxRatio * 0.95) {
       v.style.objectPosition = narrow ? 'center 36%' : 'center 40%';
     } else {
-      v.style.objectPosition = narrow ? 'center 40%' : 'center 44%';
+      v.style.objectPosition = narrow ? 'center 42%' : 'center 48%';
     }
     v.style.transform = 'scale(1)';
   };
