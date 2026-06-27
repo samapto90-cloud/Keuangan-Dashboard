@@ -57,6 +57,9 @@ var dsKasRunnersFS embed.FS
 //go:embed assets/sao-icons/*
 var saoIconsFS embed.FS
 
+//go:embed assets/portal-hero/*
+var portalHeroFS embed.FS
+
 // buildSHA is injected at compile time: -ldflags "-X main.buildSHA=abc1234"
 var buildSHA = "dev"
 
@@ -932,6 +935,9 @@ func main() {
         }
         if saoSub, err := fs.Sub(saoIconsFS, "assets/sao-icons"); err == nil {
                 mux.Handle("/assets/sao-icons/", withStaticCache(http.StripPrefix("/assets/sao-icons/", http.FileServer(http.FS(saoSub)))))
+        }
+        if phSub, err := fs.Sub(portalHeroFS, "assets/portal-hero"); err == nil {
+                mux.Handle("/assets/portal-hero/", withStaticCache(http.StripPrefix("/assets/portal-hero/", http.FileServer(http.FS(phSub)))))
         }
 
         loginHandler := http.HandlerFunc(cors(handleLogin))

@@ -27,8 +27,9 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="/assets/sakubijak-logo-transparent.png?v=7" as="image" fetchpriority="high" />
-  <link rel="preload" href="/assets/naruto-smp-runners/naruto.png?v=1" as="image" />
-  <link rel="preload" href="/assets/naruto-smp-runners/sasuke.png?v=1" as="image" />
+  <link rel="preload" href="/assets/portal-hero/portal-intro.mp4?v=1" as="video" type="video/mp4" />
+  <link rel="preload" href="/assets/naruto-smp-runners/naruto.png?v=2" as="image" />
+  <link rel="preload" href="/assets/naruto-smp-runners/sasuke.png?v=2" as="image" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
@@ -102,9 +103,62 @@
     body.fx-portal-home .portal-hero-copy {
       overflow: visible;
     }
-    body.fx-portal-home .fx-fighter {
-      isolation: isolate;
-      backface-visibility: hidden;
+    body.fx-portal-home.portal-video-mode #sipkeu-fx-layer,
+    body.fx-portal-home.portal-video-mode .fx-burst-canvas,
+    body.fx-portal-home.portal-video-mode #global-fx-vignette {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    body.fx-portal-home.portal-video-mode .fx-dom-battle {
+      display: none !important;
+    }
+    .portal-video-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      overflow: hidden;
+      pointer-events: none;
+      background: #0a0e1a;
+    }
+    .portal-hero-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+    }
+    .portal-video-scrim {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(8, 12, 24, 0.35) 0%, rgba(8, 12, 24, 0.18) 38%, rgba(8, 12, 24, 0.55) 100%),
+        radial-gradient(ellipse 90% 70% at 50% 42%, transparent 35%, rgba(8, 12, 24, 0.45) 100%);
+    }
+    body.fx-portal-home.portal-video-mode #portal-screen {
+      background: transparent;
+    }
+    body.fx-portal-home.portal-video-mode .portal-wrap {
+      position: relative;
+      z-index: 5;
+    }
+    body.fx-portal-home.portal-video-mode .portal-battle-hero {
+      background: transparent;
+    }
+    body.fx-portal-home.portal-video-mode .portal-hero-stage {
+      min-height: clamp(220px, 34vw, 320px);
+    }
+    body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-name,
+    body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-motto,
+    body.fx-portal-home.portal-video-mode .portal-hero-copy h1 {
+      text-shadow: 0 2px 18px rgba(0,0,0,.75), 0 0 32px rgba(255, 120, 0, .35);
+    }
+    body.fx-portal-home.portal-video-mode .portal-tagline,
+    body.fx-portal-home.portal-video-mode .portal-ta {
+      text-shadow: 0 1px 12px rgba(0,0,0,.8);
+    }
+    body.fx-portal-home.portal-video-mode .portal-app-card {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     body:not(.fx-portal-home) #sipkeu-fx-layer,
     body:not(.fx-portal-home) .fx-burst-canvas {
@@ -161,6 +215,21 @@
       top: clamp(14%, 22vh, 28%);
       width: min(24vw, 210px);
       display: flex; flex-direction: column; align-items: center;
+      transform-style: preserve-3d;
+    }
+    .fx-fighter::after {
+      content: '';
+      position: absolute;
+      bottom: -6%;
+      left: 50%;
+      transform: translateX(-50%) rotateX(72deg);
+      width: 72%;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(0,0,0,.45) 0%, transparent 72%);
+      filter: blur(3px);
+      z-index: 0;
+      pointer-events: none;
     }
     .fx-naruto-side {
       left: clamp(2%, 6vw, 10%);
@@ -262,28 +331,39 @@
       position: relative; z-index: 1;
       width: 100%; height: auto; display: block;
       object-fit: contain;
+      image-rendering: auto;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
     .fx-naruto-side .fx-fighter-img {
-      transform: scaleX(1) translateZ(0);
-      filter: drop-shadow(0 0 18px rgba(255, 100, 0, 0.75));
+      transform: scaleX(1) translateZ(24px);
+      filter:
+        contrast(1.1) saturate(1.14) brightness(1.04)
+        drop-shadow(0 14px 22px rgba(0,0,0,.55))
+        drop-shadow(0 0 28px rgba(255, 100, 0, 0.82))
+        drop-shadow(0 0 8px rgba(255, 200, 80, 0.45));
       animation: fxNarutoImgIdle 8s ease-in-out infinite;
     }
     .fx-sasuke-side .fx-fighter-img {
-      transform: scaleX(-1) translateZ(0);
-      filter: drop-shadow(0 0 18px rgba(139, 92, 246, 0.75));
+      transform: scaleX(-1) translateZ(24px);
+      filter:
+        contrast(1.1) saturate(1.12) brightness(1.03)
+        drop-shadow(0 14px 22px rgba(0,0,0,.55))
+        drop-shadow(0 0 28px rgba(139, 92, 246, 0.82))
+        drop-shadow(0 0 8px rgba(167, 139, 250, 0.42));
       animation: fxSasukeImgIdle 8s ease-in-out infinite;
     }
     @keyframes fxNarutoImgIdle {
-      0%, 100% { transform: scaleX(1) scale(1) translateZ(0); }
-      16% { transform: scaleX(1) scale(1.04) translateZ(0); }
-      52% { transform: scaleX(1) scale(0.96) translateZ(0); }
-      78% { transform: scaleX(1) scale(1) translateZ(0); }
+      0%, 100% { transform: scaleX(1) scale(1) translateZ(24px) rotateY(-2deg); }
+      16% { transform: scaleX(1) scale(1.05) translateZ(32px) rotateY(0deg); }
+      52% { transform: scaleX(1) scale(0.97) translateZ(18px) rotateY(-4deg); }
+      78% { transform: scaleX(1) scale(1) translateZ(24px) rotateY(-2deg); }
     }
     @keyframes fxSasukeImgIdle {
-      0%, 100% { transform: scaleX(-1) scale(1) translateZ(0); }
-      16% { transform: scaleX(-1) scale(1.04) translateZ(0); }
-      52% { transform: scaleX(-1) scale(0.96) translateZ(0); }
-      78% { transform: scaleX(-1) scale(1) translateZ(0); }
+      0%, 100% { transform: scaleX(-1) scale(1) translateZ(24px) rotateY(2deg); }
+      16% { transform: scaleX(-1) scale(1.05) translateZ(32px) rotateY(0deg); }
+      52% { transform: scaleX(-1) scale(0.97) translateZ(18px) rotateY(4deg); }
+      78% { transform: scaleX(-1) scale(1) translateZ(24px) rotateY(2deg); }
     }
     .fx-clash-flash {
       position: absolute;
@@ -1588,6 +1668,7 @@
       background: transparent;
     }
     #portal-screen.hidden { display: none !important; pointer-events: none !important; }
+    #portal-screen.hidden .portal-video-bg { display: none !important; }
     #portal-screen.hidden .fx-dom-battle { display: none !important; }
     .portal-wrap { width: 100%; max-width: 1080px; position: relative; z-index: 2; overflow: visible; }
     @keyframes sakubijakLogoBounce {
@@ -1616,6 +1697,8 @@
       margin: 0 auto;
       padding: clamp(20px, 4vw, 36px) clamp(4px, 1.5vw, 10px) clamp(16px, 3vw, 28px);
       overflow: visible;
+      perspective: 1200px;
+      perspective-origin: 50% 42%;
     }
     .portal-hero-stage::before {
       content: '';
@@ -1704,8 +1787,8 @@
       overflow: visible;
     }
     .portal-battle-hero .fx-fighter {
-      top: 10%;
-      width: min(27vw, 245px);
+      top: 8%;
+      width: min(32vw, 300px);
       z-index: 2;
     }
     .portal-battle-hero .fx-arena-floor {
@@ -5684,6 +5767,12 @@
 
 <!-- ═══════════════ PORTAL APLIKASI (Homepage) ═══════════════ -->
 <div id="portal-screen">
+  <div class="portal-video-bg" aria-hidden="true">
+    <video id="portal-hero-video" class="portal-hero-video" autoplay muted loop playsinline preload="auto">
+      <source src="/assets/portal-hero/portal-intro.mp4?v=1" type="video/mp4" />
+    </video>
+    <div class="portal-video-scrim"></div>
+  </div>
   <div class="portal-wrap ds-animate">
     <header class="portal-header portal-battle-hero">
       <div class="portal-hero-stage">
@@ -5696,12 +5785,12 @@
           <div class="fx-fighter fx-naruto-side">
             <div class="fx-aura-sparks fx-naruto-sparks" aria-hidden="true"></div>
             <div class="fx-kyubi-tails"></div>
-            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=1" alt="" decoding="async" loading="eager" />
+            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=2" alt="" decoding="async" loading="lazy" />
           </div>
           <div class="fx-fighter fx-sasuke-side">
             <div class="fx-aura-sparks fx-sasuke-sparks" aria-hidden="true"></div>
             <div class="fx-susanoo-shell"></div>
-            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=1" alt="" decoding="async" loading="eager" />
+            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=2" alt="" decoding="async" loading="lazy" />
           </div>
           <div class="fx-proj fx-proj-rasengan"></div>
           <div class="fx-proj fx-proj-chidori"></div>
@@ -5758,7 +5847,7 @@
       </div>
 
       <div class="portal-app-card portal-theme-naruto portal-active" data-portal-id="smp" onclick="openPortalApp('smp')">
-        <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=1" alt="Naruto — SIPKEU SMP" loading="lazy" decoding="async" /></div>
+        <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=2" alt="Naruto — SIPKEU SMP" loading="lazy" decoding="async" /></div>
         <h3>SIPKEU Sekolah Menengah Pertama</h3>
         <p>Penatausahaan keuangan Bidang Pembinaan SMP · TA 2026.</p>
         <div class="portal-app-foot">
@@ -8744,10 +8833,24 @@ function isPortalHomeVisible() {
 
 function setPortalHomeFx(active) {
   document.body.classList.toggle('fx-portal-home', !!active);
+  document.body.classList.toggle('portal-video-mode', !!active);
+}
+
+function playPortalHeroVideo() {
+  const v = document.getElementById('portal-hero-video');
+  if (!v) return;
+  v.muted = true;
+  const p = v.play();
+  if (p && typeof p.catch === 'function') p.catch(() => {});
+}
+
+function pausePortalHeroVideo() {
+  document.getElementById('portal-hero-video')?.pause();
 }
 
 function stopAllPortalFx() {
   setPortalHomeFx(false);
+  pausePortalHeroVideo();
   setFxLayerActive(false);
   stopPortalFx();
   stopPortalBurstFx();
@@ -8771,6 +8874,7 @@ function showPortal() {
   if (portal) portal.scrollTop = 0;
   setPortalHomeFx(true);
   clearFxCanvasHide();
+  playPortalHeroVideo();
   schedulePortalFx();
 }
 
@@ -8779,6 +8883,8 @@ function bindPortalFxVisibility() {
   window.__portalFxVisBound = true;
   document.addEventListener('visibilitychange', () => {
     document.body.classList.toggle('fx-paused', document.hidden);
+    if (document.hidden) pausePortalHeroVideo();
+    else if (isPortalHomeVisible()) playPortalHeroVideo();
   });
 }
 
@@ -8789,6 +8895,13 @@ function schedulePortalFx() {
     return;
   }
   setPortalHomeFx(true);
+  playPortalHeroVideo();
+  if (document.getElementById('portal-hero-video')) {
+    setFxLayerActive(false);
+    stopPortalFx();
+    stopPortalBurstFx();
+    return;
+  }
   const host = currentFxHost();
   if (!host) {
     stopAllPortalFx();
