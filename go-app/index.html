@@ -138,24 +138,50 @@
     body.fx-portal-home.portal-video-mode {
       overflow: hidden;
       height: 100dvh;
+      height: 100svh;
+      --portal-pad-x: clamp(10px, 2.2vw, 22px);
+      --portal-pad-y: clamp(6px, 1.4vh, 14px);
+      --portal-radius: clamp(14px, 2.2vw, 22px);
+      --portal-logo: clamp(76px, 12vw, 132px);
+      --portal-name: clamp(0.88rem, 1.6vw + 0.55rem, 1.5rem);
+      --portal-motto: clamp(0.7rem, 1vw + 0.45rem, 0.98rem);
+      --portal-ta-fs: clamp(8px, 1.4vw, 10px);
+      --portal-grid-cols: 4;
+      --portal-grid-gap: clamp(7px, 1.1vw, 12px);
+      --portal-card-pad-y: clamp(8px, 1.2vh, 12px);
+      --portal-card-pad-x: clamp(7px, 1vw, 11px);
+      --portal-icon: clamp(36px, 4.8vw, 54px);
+      --portal-title: clamp(10px, 1.2vw, 12px);
+      --portal-badge-fs: clamp(8px, 1.1vw, 10px);
+      --portal-footer-fs: clamp(9px, 1.5vw, 11px);
+      --portal-header-gap: clamp(4px, 0.8vh, 10px);
     }
     body.fx-portal-home.portal-video-mode #portal-screen {
       background: transparent;
-      padding: 8px 14px 6px;
+      padding:
+        max(var(--portal-pad-y), env(safe-area-inset-top, 0px))
+        max(var(--portal-pad-x), env(safe-area-inset-right, 0px))
+        max(var(--portal-pad-y), env(safe-area-inset-bottom, 0px))
+        max(var(--portal-pad-x), env(safe-area-inset-left, 0px));
       overflow: hidden;
       align-items: center;
+      justify-content: center;
       height: 100dvh;
+      height: 100svh;
       max-height: 100dvh;
+      max-height: 100svh;
     }
     body.fx-portal-home.portal-video-mode .portal-wrap {
       position: relative;
       z-index: 5;
       display: flex;
       flex-direction: column;
+      width: 100%;
+      max-width: min(96vw, 1140px);
       height: 100%;
       max-height: 100%;
       overflow: hidden;
-      border-radius: 20px;
+      border-radius: var(--portal-radius);
       isolation: isolate;
     }
     body.fx-portal-home.portal-video-mode .portal-header,
@@ -165,13 +191,13 @@
       z-index: 2;
     }
     body.fx-portal-home.portal-video-mode .portal-header {
-      margin-bottom: 6px;
+      margin-bottom: var(--portal-header-gap);
       flex-shrink: 0;
     }
     body.fx-portal-home.portal-video-mode .portal-battle-hero {
       background: transparent;
-      margin-bottom: 4px;
-      padding: 4px 8px 2px;
+      margin-bottom: 0;
+      padding: clamp(2px, 0.6vh, 8px) clamp(4px, 1.5vw, 12px) clamp(2px, 0.5vh, 6px);
     }
     body.fx-portal-home.portal-video-mode .portal-hero-stage {
       min-height: 0;
@@ -179,6 +205,9 @@
       padding: 0;
       display: flex;
       justify-content: center;
+    }
+    body.fx-portal-home.portal-video-mode .portal-hero-stage::before {
+      display: none;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-emblem {
       position: static;
@@ -190,39 +219,44 @@
       display: none;
     }
     body.fx-portal-home.portal-video-mode .portal-battle-hero .portal-hero-emblem .sakubijak-logo-full {
-      max-width: min(118px, 22vw);
+      max-width: var(--portal-logo);
+      padding: clamp(2px, 0.4vh, 6px) 0;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-copy {
-      margin: 2px auto 0;
-      padding: 0 8px 2px;
+      margin: clamp(1px, 0.4vh, 4px) auto 0;
+      padding: 0 clamp(6px, 2vw, 12px) clamp(1px, 0.3vh, 4px);
       max-width: 100%;
     }
     body.fx-portal-home.portal-video-mode .sakubijak-name {
       margin: 0;
-      font-size: clamp(1rem, 2.1vw, 1.35rem);
+      font-size: var(--portal-name);
+      line-height: 1.15;
     }
     body.fx-portal-home.portal-video-mode .sakubijak-motto {
-      margin: 1px 0 0;
-      font-size: clamp(0.72rem, 1.6vw, 0.88rem);
+      margin: clamp(1px, 0.25vh, 3px) 0 0;
+      font-size: var(--portal-motto);
+      line-height: 1.3;
     }
     body.fx-portal-home.portal-video-mode .portal-ta {
-      margin-top: 6px;
-      padding: 3px 10px;
-      font-size: 9px;
+      margin-top: clamp(3px, 0.6vh, 8px);
+      padding: clamp(2px, 0.5vh, 4px) clamp(8px, 1.5vw, 12px);
+      font-size: var(--portal-ta-fs);
     }
     body.fx-portal-home.portal-video-mode .portal-grid {
       flex: 1 1 auto;
       min-height: 0;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: hidden;
       align-content: start;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 4px;
+      grid-template-columns: repeat(var(--portal-grid-cols), minmax(0, 1fr));
+      gap: var(--portal-grid-gap);
+      margin-bottom: clamp(2px, 0.5vh, 6px);
+      -webkit-overflow-scrolling: touch;
     }
     body.fx-portal-home.portal-video-mode .portal-app-card {
       min-height: 0;
-      padding: 10px 8px 8px;
-      border-radius: 14px;
+      padding: var(--portal-card-pad-y) var(--portal-card-pad-x);
+      border-radius: clamp(10px, 1.6vw, 16px);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
@@ -230,27 +264,29 @@
       display: none;
     }
     body.fx-portal-home.portal-video-mode .portal-app-card h3 {
-      font-size: 11px;
+      font-size: var(--portal-title);
       line-height: 1.25;
-      margin-bottom: 6px;
+      margin-bottom: clamp(4px, 0.6vh, 8px);
     }
     body.fx-portal-home.portal-video-mode .portal-app-icon {
-      width: 44px;
-      height: 44px;
-      margin-bottom: 6px;
+      width: var(--portal-icon);
+      height: var(--portal-icon);
+      margin-bottom: clamp(4px, 0.6vh, 8px);
     }
     body.fx-portal-home.portal-video-mode .portal-app-foot {
       margin-top: auto;
+      gap: 4px;
     }
     body.fx-portal-home.portal-video-mode .portal-badge,
     body.fx-portal-home.portal-video-mode .portal-app-action {
-      font-size: 9px;
+      font-size: var(--portal-badge-fs);
     }
     body.fx-portal-home.portal-video-mode .portal-footer {
       flex-shrink: 0;
       margin: 0;
-      padding: 2px 0 4px;
-      font-size: 10px;
+      padding: clamp(2px, 0.4vh, 6px) clamp(6px, 2vw, 12px) clamp(3px, 0.6vh, 8px);
+      font-size: var(--portal-footer-fs);
+      line-height: 1.35;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-name,
     body.fx-portal-home.portal-video-mode .portal-hero-copy .sakubijak-motto {
@@ -259,43 +295,46 @@
     body.fx-portal-home.portal-video-mode .portal-ta {
       text-shadow: 0 1px 12px rgba(0,0,0,.8);
     }
+    body.fx-portal-home.portal-video-mode .portal-hero-video {
+      transform: scale(var(--portal-video-scale, 1.02));
+      transform-origin: center center;
+    }
+    /* Desktop lebar */
+    @media (min-width: 1400px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 4;
+        --portal-icon: clamp(44px, 3.2vw, 58px);
+        --portal-grid-gap: 12px;
+      }
+      body.fx-portal-home.portal-video-mode .portal-wrap {
+        max-width: min(94vw, 1180px);
+      }
+    }
+    /* Laptop / tablet landscape */
+    @media (max-width: 1199px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 4;
+        --portal-logo: clamp(68px, 11vw, 112px);
+      }
+    }
     @media (max-width: 992px) {
-      body.fx-portal-home.portal-video-mode .portal-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 3;
+        --portal-logo: clamp(64px, 13vw, 100px);
       }
     }
-    @media (max-width: 640px) {
-      body.fx-portal-home.portal-video-mode .portal-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
-      }
-      body.fx-portal-home.portal-video-mode .portal-battle-hero .portal-hero-emblem .sakubijak-logo-full {
-        max-width: min(96px, 26vw);
-      }
-    }
-    @media (max-height: 720px) {
-      body.fx-portal-home.portal-video-mode .portal-battle-hero .portal-hero-emblem .sakubijak-logo-full {
-        max-width: min(88px, 20vw);
-      }
-      body.fx-portal-home.portal-video-mode .portal-app-icon {
-        width: 36px;
-        height: 36px;
-      }
-      body.fx-portal-home.portal-video-mode .portal-app-card {
-        padding: 8px 6px 6px;
-      }
-    }
+    /* Tablet portrait */
     @media (max-width: 768px) {
-      body.fx-portal-home.portal-video-mode #portal-screen {
-        padding: 6px 10px 4px;
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 2;
+        --portal-pad-x: clamp(8px, 2.5vw, 14px);
+        --portal-logo: clamp(60px, 16vw, 92px);
+        --portal-icon: clamp(34px, 8vw, 46px);
+        --portal-radius: clamp(12px, 3vw, 18px);
       }
       body.fx-portal-home.portal-video-mode .portal-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 6px !important;
-      }
-      body.fx-portal-home.portal-video-mode .portal-app-card {
-        min-height: 0 !important;
-        padding: 8px 6px 6px !important;
+        overflow-y: auto;
+        scrollbar-width: thin;
       }
       body.fx-portal-home.portal-video-mode .portal-hero-stage {
         min-height: 0 !important;
@@ -304,6 +343,88 @@
       body.fx-portal-home.portal-video-mode .portal-hero-copy {
         margin-top: 2px !important;
         padding-bottom: 0 !important;
+      }
+      body.fx-portal-home.portal-video-mode .portal-app-card {
+        min-height: 0 !important;
+      }
+    }
+    /* HP */
+    @media (max-width: 480px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 2;
+        --portal-pad-x: 8px;
+        --portal-pad-y: 5px;
+        --portal-logo: clamp(52px, 18vw, 76px);
+        --portal-name: clamp(0.82rem, 4.2vw, 1.05rem);
+        --portal-motto: clamp(0.65rem, 3.2vw, 0.82rem);
+        --portal-icon: clamp(30px, 9vw, 40px);
+        --portal-title: clamp(9px, 2.8vw, 11px);
+        --portal-grid-gap: 6px;
+        --portal-card-pad-y: 7px;
+        --portal-card-pad-x: 6px;
+        --portal-video-scale: 1.05;
+      }
+      body.fx-portal-home.portal-video-mode .portal-app-foot {
+        flex-wrap: wrap;
+      }
+    }
+    @media (max-width: 360px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-logo: clamp(48px, 17vw, 64px);
+        --portal-title: 9px;
+        --portal-badge-fs: 7px;
+      }
+    }
+    /* Layar pendek (HP landscape / laptop kecil) */
+    @media (max-height: 740px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-logo: clamp(48px, 11vh, 84px);
+        --portal-header-gap: 2px;
+        --portal-icon: clamp(30px, 5.5vh, 42px);
+        --portal-card-pad-y: 6px;
+      }
+      body.fx-portal-home.portal-video-mode .portal-grid {
+        overflow-y: auto;
+      }
+    }
+    @media (max-height: 600px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 4;
+        --portal-logo: clamp(40px, 10vh, 64px);
+        --portal-name: clamp(0.75rem, 2.5vh, 0.95rem);
+        --portal-motto: clamp(0.62rem, 2vh, 0.78rem);
+        --portal-icon: clamp(28px, 5vh, 36px);
+        --portal-title: 9px;
+        --portal-ta-fs: 7px;
+      }
+      body.fx-portal-home.portal-video-mode .portal-battle-hero {
+        padding-top: 2px;
+        padding-bottom: 0;
+      }
+      body.fx-portal-home.portal-video-mode .portal-ta {
+        margin-top: 2px;
+        padding: 2px 8px;
+      }
+    }
+    @media (max-height: 480px) and (orientation: landscape) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 4;
+        --portal-logo: clamp(36px, 14vh, 56px);
+        --portal-icon: clamp(26px, 6vh, 34px);
+        --portal-grid-gap: 5px;
+      }
+      body.fx-portal-home.portal-video-mode .portal-header {
+        margin-bottom: 0;
+      }
+      body.fx-portal-home.portal-video-mode .sakubijak-motto {
+        display: none;
+      }
+    }
+    /* HP landscape lebar */
+    @media (max-width: 900px) and (orientation: landscape) and (max-height: 520px) {
+      body.fx-portal-home.portal-video-mode {
+        --portal-grid-cols: 4;
+        --portal-logo: clamp(40px, 12vh, 60px);
       }
     }
     body:not(.fx-portal-home) #sipkeu-fx-layer,
@@ -9007,13 +9128,20 @@ function fitPortalHeroVideo() {
     if (!vw || !vh || !cw || !ch) return;
     const videoRatio = vw / vh;
     const boxRatio = cw / ch;
+    const narrow = window.matchMedia('(max-width: 768px)').matches;
+    const short = window.matchMedia('(max-height: 740px)').matches;
+    const landscape = window.matchMedia('(orientation: landscape)').matches;
     v.style.objectFit = 'cover';
-    if (videoRatio > boxRatio * 1.08) {
+    if (landscape && short) {
+      v.style.objectPosition = videoRatio > boxRatio ? 'center 48%' : 'center 34%';
+    } else if (narrow && short) {
+      v.style.objectPosition = videoRatio > boxRatio ? 'center 44%' : 'center 32%';
+    } else if (videoRatio > boxRatio * 1.08) {
       v.style.objectPosition = 'center center';
     } else if (videoRatio < boxRatio * 0.92) {
-      v.style.objectPosition = 'center 36%';
+      v.style.objectPosition = narrow ? 'center 34%' : 'center 36%';
     } else {
-      v.style.objectPosition = 'center 42%';
+      v.style.objectPosition = narrow ? 'center 38%' : 'center 42%';
     }
   };
   if (v.readyState >= 1) apply();
@@ -9072,6 +9200,14 @@ function bindPortalFxVisibility() {
     else if (isPortalHomeVisible()) playPortalHeroVideo();
   });
   window.addEventListener('resize', () => {
+    if (isPortalHomeVisible()) fitPortalHeroVideo();
+  });
+  window.addEventListener('orientationchange', () => {
+    window.setTimeout(() => {
+      if (isPortalHomeVisible()) fitPortalHeroVideo();
+    }, 120);
+  });
+  window.visualViewport?.addEventListener('resize', () => {
     if (isPortalHomeVisible()) fitPortalHeroVideo();
   });
 }
