@@ -293,92 +293,392 @@
       margin-bottom: clamp(2px, 0.5vh, 6px);
       -webkit-overflow-scrolling: touch;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card {
+    body.fx-portal-home.portal-video-mode .portal-app-card.portal-card-v2 {
       min-height: 0;
-      padding: var(--portal-card-pad-y) var(--portal-card-pad-x);
+      padding: 0;
       border-radius: clamp(12px, 1.6vw, 16px);
-      background: linear-gradient(155deg, rgba(15, 23, 42, 0.88) 0%, rgba(10, 14, 26, 0.82) 100%) !important;
-      border: 1px solid var(--portal-surface-border) !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
       backdrop-filter: blur(18px) saturate(1.15);
       -webkit-backdrop-filter: blur(18px) saturate(1.15);
       transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      display: grid;
+      gap: 0;
+      overflow: hidden;
+      align-content: stretch;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card::before {
-      content: '';
-      position: absolute;
-      inset: auto;
-      top: 0;
-      left: 14%;
-      right: 14%;
-      height: 2px;
-      opacity: 0.75;
-      background: linear-gradient(90deg, transparent, var(--portal-accent), transparent);
-      pointer-events: none;
-      z-index: 2;
-      transition: none;
+    body.fx-portal-home.portal-video-mode .portal-card-v2::before {
+      display: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card:hover::before {
-      opacity: 1;
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-card-kicker {
+      grid-column: 1 / -1;
+      padding: clamp(5px, 0.7vh, 8px) clamp(8px, 1.2vw, 12px) 0;
+      font-size: clamp(7px, 0.95vw, 9px);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.9;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(201, 168, 76, 0.42) !important;
-      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(201, 168, 76, 0.1) !important;
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(6px, 0.9vh, 10px) clamp(8px, 1.2vw, 12px) 0;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card h3 {
-      color: #f1f5f9 !important;
+    body.fx-portal-home.portal-video-mode .portal-card-v2 h3 {
+      font-size: var(--portal-title);
+      line-height: 1.28;
+      margin: 0;
+      padding: 0 clamp(8px, 1.2vw, 12px);
       font-weight: 600;
       text-shadow: none !important;
       letter-spacing: 0.01em;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card .portal-app-action {
-      color: #93c5fd !important;
+    body.fx-portal-home.portal-video-mode .portal-card-v2 p {
+      display: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-icon {
-      border: 2px solid rgba(201, 168, 76, 0.28) !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
-      background: rgba(15, 23, 42, 0.55) !important;
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-app-icon {
+      width: var(--portal-icon);
+      height: var(--portal-icon);
+      margin: 0;
+      flex-shrink: 0;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card.portal-theme-gaji .portal-app-icon {
-      background: linear-gradient(145deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
-    }
-    body.fx-portal-home.portal-video-mode .portal-app-card.portal-theme-gaji .portal-app-icon i {
-      font-size: clamp(20px, 3.5vw, 28px) !important;
-      color: #93c5fd !important;
-    }
-    body.fx-portal-home.portal-video-mode .portal-badge-live {
-      background: rgba(16, 185, 129, 0.14) !important;
-      color: #6ee7b7 !important;
-      border: 1px solid rgba(16, 185, 129, 0.32) !important;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    body.fx-portal-home.portal-video-mode .portal-app-foot {
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-app-foot {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-top: auto;
       gap: 6px;
+      padding: clamp(5px, 0.7vh, 8px) clamp(8px, 1.2vw, 12px) clamp(7px, 0.9vh, 10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-badge,
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-app-action {
+      font-size: var(--portal-badge-fs);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-badge-live {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Layout: Row — One Piece / Sekretariat */
+    body.fx-portal-home.portal-video-mode .portal-layout-row {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto 1fr auto;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-row .portal-card-top {
+      grid-row: 2 / span 2;
+      grid-column: 1;
+      align-self: start;
+      padding-top: clamp(4px, 0.5vh, 8px);
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-row h3 {
+      grid-row: 2;
+      grid-column: 2;
+      align-self: end;
+      padding-bottom: 2px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-row .portal-app-foot {
+      grid-column: 1 / -1;
+    }
+
+    /* Layout: Stack — Frozen / PAUD */
+    body.fx-portal-home.portal-video-mode .portal-layout-stack {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-stack .portal-card-top {
+      justify-content: center;
+      padding-bottom: 2px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-stack h3 {
+      text-align: center;
+      padding-bottom: 2px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-stack .portal-app-foot {
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Layout: Band — Doraemon / SD */
+    body.fx-portal-home.portal-video-mode .portal-layout-band {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto 1fr auto;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-band .portal-card-band {
+      grid-row: 1;
+      grid-column: 1 / -1;
+      height: clamp(24px, 3.5vh, 34px);
+      margin: 0;
+      border-radius: clamp(12px, 1.6vw, 16px) clamp(12px, 1.6vw, 16px) 0 0;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-band .portal-card-kicker {
+      grid-row: 2;
+      text-align: center;
       padding-top: 2px;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card p {
-      display: none;
+    body.fx-portal-home.portal-video-mode .portal-layout-band .portal-card-top {
+      grid-row: 3;
+      margin-top: calc(var(--portal-icon) * -0.38);
+      padding-top: 0;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-card h3 {
-      font-size: var(--portal-title);
-      line-height: 1.25;
-      margin-bottom: clamp(4px, 0.6vh, 8px);
+    body.fx-portal-home.portal-video-mode .portal-layout-band h3 {
+      grid-row: 4;
+      text-align: center;
     }
-    body.fx-portal-home.portal-video-mode .portal-app-icon {
-      width: var(--portal-icon);
-      height: var(--portal-icon);
-      margin-bottom: clamp(4px, 0.6vh, 8px);
+    body.fx-portal-home.portal-video-mode .portal-layout-band .portal-app-foot {
+      grid-row: 5;
     }
-    body.fx-portal-home.portal-video-mode .portal-badge,
-    body.fx-portal-home.portal-video-mode .portal-app-action {
-      font-size: var(--portal-badge-fs);
+
+    /* Layout: Accent — Naruto / SMP */
+    body.fx-portal-home.portal-video-mode .portal-layout-accent {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto 1fr auto;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-accent .portal-card-accent-bar {
+      grid-row: 1 / -1;
+      grid-column: 1;
+      width: 4px;
+      margin: 10px 0 10px 10px;
+      border-radius: 999px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-accent .portal-card-kicker {
+      grid-column: 2;
+      padding-left: 4px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-accent .portal-card-top,
+    body.fx-portal-home.portal-video-mode .portal-layout-accent h3,
+    body.fx-portal-home.portal-video-mode .portal-layout-accent .portal-app-foot {
+      grid-column: 2;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-accent .portal-card-top {
+      justify-content: flex-start;
+      padding-top: clamp(4px, 0.5vh, 8px);
+      padding-left: 4px;
+    }
+
+    /* Layout: Tech — Gundam / Kas Belanja */
+    body.fx-portal-home.portal-video-mode .portal-layout-tech {
+      grid-template-columns: 1fr;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      position: relative;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-tech .portal-card-tech-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.12;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(167, 139, 250, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(167, 139, 250, 0.35) 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-tech .portal-card-top {
+      justify-content: flex-start;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-tech h3 {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: 0.03em;
+    }
+
+    /* Layout: Corporate — Gaji ASN */
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto 1fr auto;
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-card-kicker,
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-card-top,
+    body.fx-portal-home.portal-video-mode .portal-card-v2 h3,
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-app-foot {
+      position: relative;
+      z-index: 2;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate .portal-card-corp-strip {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      height: 3px;
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6, #1e3a8a);
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate .portal-card-kicker {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate .portal-card-top {
+      grid-row: 3 / span 2;
+      grid-column: 1;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate h3 {
+      grid-row: 3;
+      grid-column: 2;
+      align-self: center;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-corporate .portal-app-foot {
+      grid-column: 1 / -1;
+      grid-row: 5;
+    }
+
+    /* Layout: Holo — SAO Command Center */
+    body.fx-portal-home.portal-video-mode .portal-layout-holo {
+      grid-template-columns: 1fr;
+      border-width: 1px;
+      border-style: solid;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-holo .portal-card-holo-ring {
+      position: absolute;
+      inset: 6px;
+      border-radius: inherit;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      pointer-events: none;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-holo .portal-card-top {
+      justify-content: center;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-holo h3 {
+      text-align: center;
+    }
+    body.fx-portal-home.portal-video-mode .portal-layout-holo .portal-app-foot {
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* ── Tema per portal (video mode) ── */
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece.portal-card-v2 {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(10, 18, 32, 0.9) 55%, rgba(251, 191, 36, 0.12) 100%) !important;
+      border: 1px solid rgba(251, 191, 36, 0.35) !important;
+      box-shadow: 0 4px 22px rgba(14, 165, 233, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece .portal-card-kicker { color: #fde68a; }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece h3 { color: #f0f9ff !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece .portal-app-action { color: #fde047 !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece .portal-app-icon {
+      border-color: rgba(251, 191, 36, 0.55) !important;
+      background: radial-gradient(circle at 35% 30%, rgba(254, 243, 199, 0.35), rgba(14, 165, 233, 0.5) 58%) !important;
+      box-shadow: 0 0 18px rgba(14, 165, 233, 0.35) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece:hover {
+      border-color: rgba(251, 191, 36, 0.6) !important;
+      box-shadow: 0 10px 32px rgba(14, 165, 233, 0.28) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen.portal-card-v2 {
+      background: linear-gradient(160deg, rgba(186, 230, 253, 0.2) 0%, rgba(12, 30, 55, 0.92) 52%, rgba(147, 197, 253, 0.14) 100%) !important;
+      border: 1px solid rgba(186, 230, 253, 0.38) !important;
+      box-shadow: 0 4px 22px rgba(56, 189, 248, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen .portal-card-kicker { color: #bae6fd; }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen h3 { color: #f0f9ff !important; text-shadow: 0 0 16px rgba(125, 211, 252, 0.25) !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen .portal-app-action { color: #7dd3fc !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen .portal-app-icon {
+      border-color: rgba(186, 230, 253, 0.55) !important;
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.4), rgba(125, 211, 252, 0.5) 58%) !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen:hover {
+      border-color: rgba(186, 230, 253, 0.65) !important;
+      box-shadow: 0 10px 32px rgba(56, 189, 248, 0.25) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon.portal-card-v2 {
+      background: linear-gradient(155deg, rgba(10, 18, 32, 0.92) 0%, rgba(10, 18, 32, 0.88) 100%) !important;
+      border: 1px solid rgba(0, 160, 233, 0.38) !important;
+      box-shadow: 0 4px 20px rgba(0, 160, 233, 0.14) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon .portal-card-band {
+      background: linear-gradient(90deg, #00a0e9, #4fc3f7, #00a0e9);
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon .portal-card-kicker { color: #7dd3fc; }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon h3 { color: #e0f2fe !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon .portal-app-action { color: #38bdf8 !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon .portal-app-icon {
+      border-color: rgba(0, 160, 233, 0.55) !important;
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.35), rgba(0, 160, 233, 0.55) 60%) !important;
+      box-shadow: 0 0 18px rgba(0, 160, 233, 0.35) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto.portal-card-v2 {
+      background: linear-gradient(145deg, rgba(255, 107, 0, 0.14) 0%, rgba(15, 23, 42, 0.92) 50%, rgba(220, 38, 38, 0.1) 100%) !important;
+      border: 1px solid rgba(255, 107, 0, 0.32) !important;
+      box-shadow: 0 4px 20px rgba(255, 107, 0, 0.12) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto .portal-card-accent-bar {
+      background: linear-gradient(180deg, #ff6b00, #fbbf24, #dc2626);
+      box-shadow: 0 0 12px rgba(255, 107, 0, 0.45);
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto .portal-card-kicker { color: #fdba74; }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto h3 { color: #fff7ed !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto .portal-app-action { color: #fb923c !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto .portal-app-icon {
+      border-color: rgba(255, 107, 0, 0.5) !important;
+      background: radial-gradient(circle at 35% 30%, rgba(254, 243, 199, 0.3), rgba(255, 107, 0, 0.45) 58%) !important;
+      box-shadow: 0 0 18px rgba(255, 107, 0, 0.28) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam.portal-card-v2 {
+      background: linear-gradient(145deg, rgba(76, 29, 149, 0.32) 0%, rgba(15, 23, 42, 0.92) 48%, rgba(127, 29, 29, 0.16) 100%) !important;
+      border: 1px solid rgba(167, 139, 250, 0.38) !important;
+      box-shadow: 0 4px 22px rgba(147, 51, 234, 0.18) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam .portal-card-kicker { color: #c4b5fd; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam h3 { color: #f5f3ff !important; text-shadow: 0 0 14px rgba(167, 139, 250, 0.25) !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam .portal-app-action { color: #a78bfa !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam .portal-app-icon {
+      border-color: rgba(167, 139, 250, 0.55) !important;
+      background: linear-gradient(145deg, rgba(76, 29, 149, 0.4), rgba(127, 29, 29, 0.25)) !important;
+      box-shadow: 0 0 20px rgba(147, 51, 234, 0.3) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji.portal-card-v2 {
+      background: linear-gradient(155deg, rgba(30, 58, 138, 0.28) 0%, rgba(15, 23, 42, 0.9) 55%, rgba(59, 130, 246, 0.12) 100%) !important;
+      border: 1px solid rgba(59, 130, 246, 0.28) !important;
+      box-shadow: 0 4px 20px rgba(30, 58, 138, 0.18) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji .portal-card-kicker { color: #93c5fd; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji h3 { color: #eff6ff !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji .portal-app-action { color: #60a5fa !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji .portal-app-icon {
+      border-color: rgba(59, 130, 246, 0.4) !important;
+      background: linear-gradient(145deg, rgba(30, 58, 138, 0.45), rgba(15, 23, 42, 0.65)) !important;
+      box-shadow: 0 4px 16px rgba(30, 58, 138, 0.25) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji .portal-app-icon i {
+      font-size: clamp(20px, 3.5vw, 28px) !important;
+      color: #93c5fd !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-theme-settings.portal-card-v2 {
+      background: linear-gradient(155deg, rgba(56, 189, 248, 0.12) 0%, rgba(2, 6, 23, 0.92) 45%, rgba(129, 140, 248, 0.14) 100%) !important;
+      border-color: rgba(56, 189, 248, 0.42) !important;
+      box-shadow: 0 4px 24px rgba(56, 189, 248, 0.16), inset 0 0 24px rgba(56, 189, 248, 0.06) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-card-kicker { color: #67e8f9; }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings h3 { color: #ecfeff !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-app-action { color: #38bdf8 !important; }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-app-icon.sao-portal-icon {
+      border-color: rgba(56, 189, 248, 0.55) !important;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.35)) !important;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.28) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-badge-live {
+      background: rgba(56, 189, 248, 0.14) !important;
+      color: #7dd3fc !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+    }
+
+    body.fx-portal-home.portal-video-mode .portal-card-v2:hover {
+      transform: translateY(-3px);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-v2 .portal-badge-live {
+      background: rgba(16, 185, 129, 0.14) !important;
+      color: #6ee7b7 !important;
+      border: 1px solid rgba(16, 185, 129, 0.32) !important;
+    }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece .portal-app-icon img,
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen .portal-app-icon img,
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon .portal-app-icon img,
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto .portal-app-icon img {
+      object-fit: contain;
     }
     body.fx-portal-home.portal-video-mode .portal-footer {
       flex-shrink: 0;
@@ -6197,8 +6497,11 @@
     </header>
 
     <div class="portal-grid">
-      <div class="portal-app-card portal-theme-onepiece portal-active" data-portal-id="sekretariat" onclick="openPortalApp('sekretariat')">
-        <div class="portal-app-icon"><img src="/assets/op-runners/luffy.png?v=6" alt="Luffy — SIPKEU Sekretariat" loading="lazy" decoding="async" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-row portal-theme-onepiece portal-active" data-portal-id="sekretariat" onclick="openPortalApp('sekretariat')">
+        <span class="portal-card-kicker">Grand Line · Sekretariat</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><img src="/assets/op-runners/luffy.png?v=6" alt="SIPKEU Sekretariat" loading="lazy" decoding="async" /></div>
+        </div>
         <h3>SIPKEU Sekretariat</h3>
         <p>Penatausahaan keuangan Sekretariat Dinas Pendidikan · TA 2026.</p>
         <div class="portal-app-foot">
@@ -6207,8 +6510,11 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-frozen portal-active" data-portal-id="paud" onclick="openPortalApp('paud')">
-        <div class="portal-app-icon"><img src="/assets/frozen-runners/elsa.png?v=3" alt="Elsa — SIPKEU PAUD" loading="lazy" decoding="async" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-stack portal-theme-frozen portal-active" data-portal-id="paud" onclick="openPortalApp('paud')">
+        <span class="portal-card-kicker">Arendelle · PAUD</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><img src="/assets/frozen-runners/elsa.png?v=3" alt="SIPKEU PAUD" loading="lazy" decoding="async" /></div>
+        </div>
         <h3>SIPKEU PAUD &amp; Kesetaraan</h3>
         <p>Penatausahaan keuangan bidang PAUD &amp; Kesetaraan · TA 2026.</p>
         <div class="portal-app-foot">
@@ -6217,8 +6523,12 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-doraemon portal-active" data-portal-id="sd" onclick="openPortalApp('sd')">
-        <div class="portal-app-icon"><img src="/assets/doraemon-runners/doraemon.png?v=1" alt="Doraemon — SIPKEU SD" loading="lazy" decoding="async" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-band portal-theme-doraemon portal-active" data-portal-id="sd" onclick="openPortalApp('sd')">
+        <div class="portal-card-band" aria-hidden="true"></div>
+        <span class="portal-card-kicker">Nobita · Sekolah Dasar</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><img src="/assets/doraemon-runners/doraemon.png?v=1" alt="SIPKEU SD" loading="lazy" decoding="async" /></div>
+        </div>
         <h3>SIPKEU Sekolah Dasar</h3>
         <p>Penatausahaan keuangan Bidang Pembinaan Sekolah Dasar · TA 2026.</p>
         <div class="portal-app-foot">
@@ -6227,8 +6537,12 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-naruto portal-active" data-portal-id="smp" onclick="openPortalApp('smp')">
-        <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=2" alt="Naruto — SIPKEU SMP" loading="lazy" decoding="async" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-accent portal-theme-naruto portal-active" data-portal-id="smp" onclick="openPortalApp('smp')">
+        <span class="portal-card-accent-bar" aria-hidden="true"></span>
+        <span class="portal-card-kicker">Konoha · SMP</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><img src="/assets/naruto-smp-runners/naruto.png?v=2" alt="SIPKEU SMP" loading="lazy" decoding="async" /></div>
+        </div>
         <h3>SIPKEU Sekolah Menengah Pertama</h3>
         <p>Penatausahaan keuangan Bidang Pembinaan SMP · TA 2026.</p>
         <div class="portal-app-foot">
@@ -6237,8 +6551,12 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-gundam portal-active" data-portal-id="kas-belanja" onclick="openPortalApp('kas-belanja')">
-        <div class="portal-app-icon"><img class="ds-kas-portal-icon" src="/assets/ds-kas-runners/tanjiro.png?v=1" alt="Tanjiro — Realisasi Kas Belanja" loading="lazy" decoding="async" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-tech portal-theme-gundam portal-active" data-portal-id="kas-belanja" onclick="openPortalApp('kas-belanja')">
+        <div class="portal-card-tech-grid" aria-hidden="true"></div>
+        <span class="portal-card-kicker">Mobile Suit · Kas Belanja</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><img class="ds-kas-portal-icon" src="/assets/ds-kas-runners/tanjiro.png?v=1" alt="Realisasi Kas Belanja" loading="lazy" decoding="async" /></div>
+        </div>
         <h3>Realisasi Anggaran Kas Belanja</h3>
         <p>Monitoring dan laporan realisasi anggaran kas belanja · TA 2026.</p>
         <div class="portal-app-foot">
@@ -6247,18 +6565,26 @@
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-gaji portal-active" data-portal-id="gaji-asn" onclick="openPortalApp('gaji-asn')">
-        <div class="portal-app-icon"><i class="bi bi-cpu" aria-hidden="true"></i></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-corporate portal-theme-gaji portal-active" data-portal-id="gaji-asn" onclick="openPortalApp('gaji-asn')">
+        <div class="portal-card-corp-strip" aria-hidden="true"></div>
+        <span class="portal-card-kicker">Kepegawaian · ASN</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon"><i class="bi bi-cpu" aria-hidden="true"></i></div>
+        </div>
         <h3>Gaji dan Tunjangan ASN</h3>
-        <p>Anggaran gaji, realisasi PNS/PPPK, TPP, TPG, Tamsil, kebutuhan &amp; rekap · TA 2026 · Material Light.</p>
+        <p>Anggaran gaji, realisasi PNS/PPPK, TPP, TPG, Tamsil, kebutuhan &amp; rekap · TA 2026.</p>
         <div class="portal-app-foot">
           <span class="portal-badge portal-badge-live">Aktif</span>
           <span class="portal-app-action">Buka Aplikasi <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
 
-      <div class="portal-app-card portal-theme-settings portal-active" onclick="openPortalApp('pengaturan')">
-        <div class="portal-app-icon sao-portal-icon"><img src="/assets/sao-icons/crystal.svg?v=1" alt="SAO Command Center" loading="lazy" /></div>
+      <div class="portal-app-card portal-card-v2 portal-layout-holo portal-theme-settings portal-active" onclick="openPortalApp('pengaturan')">
+        <div class="portal-card-holo-ring" aria-hidden="true"></div>
+        <span class="portal-card-kicker">Aincrad · Command Center</span>
+        <div class="portal-card-top">
+          <div class="portal-app-icon sao-portal-icon"><img src="/assets/sao-icons/crystal.svg?v=1" alt="SAO Command Center" loading="lazy" /></div>
+        </div>
         <h3>SAO Command Center</h3>
         <p>Super Admin · Kendali penuh semua portal SIPKEU, keamanan &amp; hak akses · TA 2026.</p>
         <div class="portal-app-foot">
