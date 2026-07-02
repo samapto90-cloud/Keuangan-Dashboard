@@ -530,7 +530,14 @@
     body[data-ui-mode] #settings-sidebar {
       box-shadow: var(--spatial-sidebar-shadow);
       border-right: 1px solid var(--spatial-border);
-      transform: translateZ(0);
+    }
+    @media (min-width: 992px) {
+      body[data-ui-mode] #sidebar,
+      body[data-ui-mode] #kas-sidebar,
+      body[data-ui-mode] #gaji-sidebar,
+      body[data-ui-mode] #settings-sidebar {
+        transform: translateZ(0);
+      }
     }
     body[data-ui-mode] .topbar,
     body[data-ui-mode] .kas-topbar,
@@ -2287,6 +2294,10 @@
     .sidebar-backdrop {
       display: none; position: fixed; inset: 0; z-index: 1040;
       background: rgba(0,0,0,.55);
+      pointer-events: auto;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .table-scroll-hint {
       display: none; font-size: 11px; color: var(--text-muted);
@@ -2295,21 +2306,32 @@
     .table-scroll-hint i { color: var(--water); }
 
     @media (max-width: 991px) {
-      #sidebar, #kas-sidebar, #gaji-sidebar {
+      #sidebar, #kas-sidebar, #gaji-sidebar, #settings-sidebar {
         transform: translateX(-105%);
         transition: transform .28s cubic-bezier(.4,0,.2,1);
         box-shadow: 8px 0 40px rgba(0,0,0,.5);
       }
+      body[data-ui-mode] #sidebar,
+      body[data-ui-mode] #kas-sidebar,
+      body[data-ui-mode] #gaji-sidebar,
+      body[data-ui-mode] #settings-sidebar {
+        transform: translateX(-105%);
+      }
       body.sidebar-open #sidebar,
       body.kas-sidebar-open #kas-sidebar,
-      body.gaji-sidebar-open #gaji-sidebar {
+      body.gaji-sidebar-open #gaji-sidebar,
+      body.settings-sidebar-open #settings-sidebar,
+      body[data-ui-mode].sidebar-open #sidebar,
+      body[data-ui-mode].kas-sidebar-open #kas-sidebar,
+      body[data-ui-mode].gaji-sidebar-open #gaji-sidebar,
+      body[data-ui-mode].settings-sidebar-open #settings-sidebar {
         transform: translateX(0);
         z-index: 1050;
       }
       body.sidebar-open .sidebar-backdrop[data-for="main"],
       body.kas-sidebar-open .sidebar-backdrop[data-for="kas"],
       body.gaji-sidebar-open .sidebar-backdrop[data-for="gaji"] { display: block; }
-      body.sidebar-open, body.kas-sidebar-open, body.gaji-sidebar-open { overflow: hidden; }
+      body.sidebar-open, body.kas-sidebar-open, body.gaji-sidebar-open, body.settings-sidebar-open { overflow: hidden; }
 
       #main, #kas-main, #gaji-main { margin-left: 0 !important; }
       .mobile-nav-btn { display: inline-flex; }
@@ -4723,8 +4745,11 @@
       .sao-stat-value { font-size: 1.35rem; }
     }
     .settings-sidebar-backdrop {
-      display: none; position: absolute; inset: 0; z-index: 2;
+      display: none; position: fixed; inset: 0; z-index: 1040;
       background: rgba(0,0,0,.55); cursor: pointer;
+      pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .settings-mobile-topbar {
       display: none; align-items: center; gap: 12px; margin-bottom: 16px;
@@ -10962,7 +10987,9 @@ window.addEventListener('resize', () => {
 });
 
 function toggleSettingsMobileSidebar() {
-  document.body.classList.toggle('settings-sidebar-open');
+  const willOpen = !document.body.classList.contains('settings-sidebar-open');
+  closeMobileSidebar();
+  document.body.classList.toggle('settings-sidebar-open', willOpen);
 }
 function closeSettingsMobileSidebar() {
   document.body.classList.remove('settings-sidebar-open');
@@ -11831,19 +11858,42 @@ function playBreathSlash() {
 
 function closeMobileSidebar() {
   document.body.classList.remove('sidebar-open', 'kas-sidebar-open', 'gaji-sidebar-open');
+  closeSettingsMobileSidebar();
 }
 
 function toggleMobileSidebar(which) {
-  if (which === 'kas') {
-    document.body.classList.toggle('kas-sidebar-open');
-    document.body.classList.remove('sidebar-open', 'gaji-sidebar-open');
-  } else if (which === 'gaji') {
-    document.body.classList.toggle('gaji-sidebar-open');
-    document.body.classList.remove('sidebar-open', 'kas-sidebar-open');
-  } else {
-    document.body.classList.toggle('sidebar-open');
-    document.body.classList.remove('kas-sidebar-open', 'gaji-sidebar-open');
+  const openClass = which === 'kas' ? 'kas-sidebar-open' : which === 'gaji' ? 'gaji-sidebar-open' : 'sidebar-open';
+  const willOpen = !document.body.classList.contains(openClass);
+  closeMobileSidebar();
+  if (willOpen) {
+    if (which === 'kas') document.body.classList.add('kas-sidebar-open');
+    else if (which === 'gaji') document.body.classList.add('gaji-sidebar-open');
+    else document.body.classList.add('sidebar-open');
   }
+}
+
+function initMobileSidebarUx() {
+  if (document.documentElement.dataset.mobileSidebarUx) return;
+  document.documentElement.dataset.mobileSidebarUx = '1';
+  const onBackdropTap = (e) => {
+    const t = e.target;
+    if (t?.classList?.contains('settings-sidebar-backdrop')) closeSettingsMobileSidebar();
+    else if (t?.classList?.contains('sidebar-backdrop')) closeMobileSidebar();
+  };
+  document.addEventListener('click', onBackdropTap);
+  document.addEventListener('touchend', (e) => {
+    const t = e.target;
+    if (t?.classList?.contains('sidebar-backdrop') || t?.classList?.contains('settings-sidebar-backdrop')) {
+      e.preventDefault();
+      onBackdropTap(e);
+    }
+  }, { passive: false });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMobileSidebar();
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 992) closeMobileSidebar();
+  });
 }
 
 function showPage(name, el) {
@@ -21727,6 +21777,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initPotonganFormListeners();
   initSettingsNav();
   initPortalUiModeSystem();
+  initMobileSidebarUx();
   syncBattleProjLayout();
   resetAllShells();
   setFxLayerActive(true);
