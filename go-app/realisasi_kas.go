@@ -202,6 +202,229 @@ func buildKasReport(state KasBelanjaState, bulan string) []KasReportRow {
 	return rows
 }
 
+type kasPeriodRange struct {
+	FromIdx int
+	ToIdx   int
+	Label   string
+	Jenis   string
+}
+
+func kasPeriodRangeForKey(periode string) (kasPeriodRange, bool) {
+	periode = strings.ToLower(strings.TrimSpace(periode))
+	switch periode {
+	case "tw1":
+		return kasPeriodRange{0, 2, "TRIWULAN I (JANUARI – MARET)", "triwulan"}, true
+	case "tw2":
+		return kasPeriodRange{3, 5, "TRIWULAN II (APRIL – JUNI)", "triwulan"}, true
+	case "tw3":
+		return kasPeriodRange{6, 8, "TRIWULAN III (JULI – SEPTEMBER)", "triwulan"}, true
+	case "tw4":
+		return kasPeriodRange{9, 11, "TRIWULAN IV (OKTOBER – DESEMBER)", "triwulan"}, true
+	case "sem1":
+		return kasPeriodRange{0, 5, "SEMESTER I (JANUARI – JUNI)", "semester"}, true
+	case "sem2":
+		return kasPeriodRange{6, 11, "SEMESTER II (JULI – DESEMBER)", "semester"}, true
+	case "tahun":
+		return kasPeriodRange{0, 11, "TAHUNAN (JANUARI – DESEMBER)", "tahun"}, true
+	default:
+		return kasPeriodRange{}, false
+	}
+}
+
+// buildKasReportRange mengagregasi laporan kas untuk rentang bulan [fromIdx..toIdx]
+// dengan menjumlahkan nilai kolom 4 & 5 dari setiap bulan, kolom 3 dari bulan pertama,
+// dan kolom 6 dari sisa akhir bulan terakhir periode.
+func buildKasReportRange(state KasBelanjaState, fromIdx, toIdx int) []KasReportRow {
+	return buildKasPeriodResult(state, fromIdx, toIdx).Report
+}
+
+type KasMonthlyReportSnap struct {
+	Bulan  string         `json:"bulan"`
+	Report []KasReportRow `json:"report"`
+}
+
+type kasPeriodResult struct {
+	Report         []KasReportRow
+	MonthlyReports []KasMonthlyReportSnap
+}
+
+func kasRowByKode(rows []KasReportRow, kode string) (KasReportRow, bool) {
+	for _, r := range rows {
+		if r.Kode == kode {
+			return r, true
+		}
+	}
+	return KasReportRow{}, false
+}
+
+func buildKasPeriodResult(state KasBelanjaState, fromIdx, toIdx int) kasPeriodResult {
+	if fromIdx < 0 {
+		fromIdx = 0
+	}
+	if toIdx >= len(bulanKeys) {
+		toIdx = len(bulanKeys) - 1
+	}
+	if fromIdx > toIdx {
+		fromIdx, toIdx = toIdx, fromIdx
+	}
+
+	sisaPrev := map[string]float64{}
+	for m := 0; m < fromIdx; m++ {
+		computeKasMonth(state, bulanKeys[m], sisaPrev)
+	}
+
+	tempSisa := make(map[string]float64, len(sisaPrev))
+	for k, v := range sisaPrev {
+		tempSisa[k] = v
+	}
+
+	angSum := map[string]float64{}
+	realSum := map[string]float64{}
+	monthly := make([]KasMonthlyReportSnap, 0, toIdx-fromIdx+1)
+	var firstRows, lastRows []KasReportRow
+
+	for m := fromIdx; m <= toIdx; m++ {
+		rows := computeKasMonth(state, bulanKeys[m], tempSisa)
+		monthly = append(monthly, KasMonthlyReportSnap{
+			Bulan:  bulanKeys[m],
+			Report: append([]KasReportRow(nil), rows...),
+		})
+		if m == fromIdx {
+			firstRows = rows
+		}
+		lastRows = rows
+		for _, row := range rows {
+			if row.Kode == "" {
+				continue
+			}
+			angSum[row.Kode] += row.AnggaranKas
+			realSum[row.Kode] += row.Realisasi
+		}
+	}
+
+	out := make([]KasReportRow, 0, len(angkasTemplate)+1)
+	var belanjaDaerah KasReportRow
+	hasBelanjaDaerah := false
+	for _, tpl := range angkasTemplate {
+		kode := tpl.Kode
+		ang := angSum[kode]
+		real := realSum[kode]
+		sisaLalu := 0.0
+		if r, ok := kasRowByKode(firstRows, kode); ok {
+			sisaLalu = r.SisaBulanLalu
+		}
+		sisaSD := sisaLalu + ang - real
+		if r, ok := kasRowByKode(lastRows, kode); ok {
+			sisaSD = r.SisaSD
+		}
+		persen := 0.0
+		if ang > 0 {
+			persen = (real / ang) * 100
+		}
+		row := KasReportRow{
+			Kode:          kode,
+			Uraian:        tpl.Uraian,
+			Level:         tpl.Level,
+			SisaBulanLalu: sisaLalu,
+			AnggaranKas:   ang,
+			Realisasi:     real,
+			SisaSD:        sisaSD,
+			Persen:        persen,
+			Editable:      true,
+		}
+		out = append(out, row)
+		if kode == "5." {
+			belanjaDaerah = row
+			hasBelanjaDaerah = true
+		}
+	}
+
+	total := KasReportRow{Uraian: "TOTAL BELANJA", Editable: true}
+	if hasBelanjaDaerah {
+		total.SisaBulanLalu = belanjaDaerah.SisaBulanLalu
+		total.AnggaranKas = belanjaDaerah.AnggaranKas
+		total.Realisasi = belanjaDaerah.Realisasi
+		total.SisaSD = belanjaDaerah.SisaSD
+		total.Persen = belanjaDaerah.Persen
+	}
+	out = append(out, total)
+	return kasPeriodResult{Report: out, MonthlyReports: monthly}
+}
+
+func verifyKasPeriodMonthlySum(monthly []KasMonthlyReportSnap, report []KasReportRow) bool {
+	if len(monthly) == 0 {
+		return true
+	}
+	angSum := map[string]float64{}
+	realSum := map[string]float64{}
+	for _, snap := range monthly {
+		for _, row := range snap.Report {
+			if row.Kode == "" {
+				continue
+			}
+			angSum[row.Kode] += row.AnggaranKas
+			realSum[row.Kode] += row.Realisasi
+		}
+	}
+	const eps = 0.01
+	for _, row := range report {
+		if row.Kode == "" {
+			continue
+		}
+		if absFloat(row.AnggaranKas-angSum[row.Kode]) > eps || absFloat(row.Realisasi-realSum[row.Kode]) > eps {
+			return false
+		}
+	}
+	return true
+}
+
+func absFloat(v float64) float64 {
+	if v < 0 {
+		return -v
+	}
+	return v
+}
+
+func handleKasLaporanTahunan(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid"})
+		return
+	}
+	periode := normalizeBulanKey(r.URL.Query().Get("periode"))
+	if periode == "" {
+		periode = "tw1"
+	}
+	pr, ok := kasPeriodRangeForKey(periode)
+	if !ok {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Periode tidak valid"})
+		return
+	}
+	kasMu.RLock()
+	state := kasState
+	bundle := buildKasPeriodResult(state, pr.FromIdx, pr.ToIdx)
+	kasMu.RUnlock()
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"tahun":            state.Tahun,
+		"periode":          periode,
+		"periode_label":    pr.Label,
+		"periode_jenis":    pr.Jenis,
+		"from_bulan":       bulanKeys[pr.FromIdx],
+		"to_bulan":         bulanKeys[pr.ToIdx],
+		"report":           bundle.Report,
+		"monthly_reports":  bundle.MonthlyReports,
+		"monthly_sum_ok":   verifyKasPeriodMonthlySum(bundle.MonthlyReports, bundle.Report),
+		"rak_rows":         state.RakRows,
+		"realisasi":        state.Realisasi,
+		"total_pagu":       totalPaguFromRak(state.RakRows),
+		"version":          state.Version,
+		"version_label":    state.VersionLabel,
+		"bulan_list":       bulanKeys,
+	})
+}
 
 func totalPaguFromRak(rows []RakBelanjaRow) float64 {
 	var total float64

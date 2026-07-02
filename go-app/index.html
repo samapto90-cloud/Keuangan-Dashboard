@@ -71,6 +71,50 @@
       --wisteria: var(--leaf);
       --sidebar-bg: linear-gradient(180deg, #0a0e1a 0%, #141c32 45%, #0f1528 100%);
       --sidebar-text: #94a3b8;
+      /* Spatial UI — dark default */
+      --spatial-bg: #060a14;
+      --spatial-bg-mid: #0c1222;
+      --spatial-surface: rgba(12, 18, 32, 0.88);
+      --spatial-surface-2: rgba(18, 26, 46, 0.92);
+      --spatial-surface-glass: rgba(8, 14, 28, 0.72);
+      --spatial-text: #e2e8f0;
+      --spatial-text-muted: #94a3b8;
+      --spatial-border: rgba(148, 163, 184, 0.18);
+      --spatial-accent: #38bdf8;
+      --spatial-glow-1: rgba(56, 189, 248, 0.1);
+      --spatial-glow-2: rgba(255, 107, 0, 0.07);
+      --spatial-elev-1: 0 4px 6px rgba(0, 0, 0, 0.22), 0 14px 36px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      --spatial-elev-2: 0 8px 16px rgba(0, 0, 0, 0.28), 0 24px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      --spatial-elev-3: 0 16px 32px rgba(0, 0, 0, 0.35), 0 40px 80px rgba(0, 0, 0, 0.4);
+      --spatial-sidebar-shadow: 12px 0 48px rgba(0, 0, 0, 0.45), inset -1px 0 0 rgba(255, 255, 255, 0.05);
+      --spatial-topbar-bg: rgba(8, 14, 28, 0.82);
+      --spatial-input-bg: rgba(15, 23, 42, 0.85);
+      --spatial-input-border: rgba(148, 163, 184, 0.22);
+    }
+    body[data-ui-mode="light"] {
+      --spatial-bg: #e8edf5;
+      --spatial-bg-mid: #f1f5f9;
+      --spatial-surface: rgba(255, 255, 255, 0.94);
+      --spatial-surface-2: #ffffff;
+      --spatial-surface-glass: rgba(255, 255, 255, 0.82);
+      --spatial-text: #0f172a;
+      --spatial-text-muted: #64748b;
+      --spatial-border: rgba(15, 23, 42, 0.1);
+      --spatial-accent: #2563eb;
+      --spatial-glow-1: rgba(59, 130, 246, 0.14);
+      --spatial-glow-2: rgba(251, 146, 60, 0.1);
+      --spatial-elev-1: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 32px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      --spatial-elev-2: 0 8px 20px rgba(15, 23, 42, 0.12), 0 24px 48px rgba(15, 23, 42, 0.14);
+      --spatial-elev-3: 0 20px 48px rgba(15, 23, 42, 0.16);
+      --spatial-sidebar-shadow: 8px 0 40px rgba(15, 23, 42, 0.08), inset -1px 0 0 rgba(255, 255, 255, 0.8);
+      --spatial-topbar-bg: rgba(255, 255, 255, 0.88);
+      --spatial-input-bg: #ffffff;
+      --spatial-input-border: rgba(15, 23, 42, 0.14);
+      --bg-deep: #e8edf5;
+      --glass: rgba(255, 255, 255, 0.92);
+      --glass-border: rgba(15, 23, 42, 0.1);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -139,6 +183,7 @@
       overflow: hidden;
       height: 100dvh;
       height: 100svh;
+      background: #060a14;
       --portal-accent: #c9a84c;
       --portal-accent-soft: rgba(201, 168, 76, 0.35);
       --portal-surface: rgba(12, 18, 32, 0.82);
@@ -176,6 +221,12 @@
       z-index: 0;
       border-radius: 0;
       background: #060a14;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    body.fx-portal-home.portal-video-mode .portal-hero-video {
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
     body.fx-portal-home.portal-video-mode .portal-video-scrim {
       background:
@@ -206,26 +257,61 @@
       left: max(14px, env(safe-area-inset-left, 0px));
       transform: none;
       width: auto;
-      max-width: min(340px, 46vw);
+      max-width: none;
       margin: 0;
       z-index: 10;
     }
-    body.fx-portal-home.portal-video-mode .portal-battle-hero.portal-brand-bar {
-      background: linear-gradient(135deg, rgba(8, 14, 28, 0.88) 0%, rgba(12, 20, 38, 0.8) 100%);
-      backdrop-filter: blur(16px) saturate(1.15);
-      -webkit-backdrop-filter: blur(16px) saturate(1.15);
-      margin-bottom: 0;
-      padding: 10px 14px 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(201, 168, 76, 0.22);
-      border-left: 3px solid #c9a84c;
+    body.fx-portal-home.portal-video-mode .portal-brand-minimal {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-battle-hero:not(.portal-brand-bar) {
+    body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-logo {
+      flex-shrink: 0;
+      width: clamp(36px, 4.5vw, 44px);
+      height: auto;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+    }
+    body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-name {
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(0.92rem, 1.1vw + 0.3rem, 1.05rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: #f8fafc;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+      animation: none !important;
+    }
+    @media (max-width: 480px) {
+      body.fx-portal-home.portal-video-mode .portal-header {
+        max-width: none;
+      }
+      body.fx-portal-home.portal-video-mode .portal-brand-minimal {
+        gap: 8px;
+      }
+      body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-logo {
+        width: clamp(32px, 8vw, 38px);
+      }
+      body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-name {
+        font-size: clamp(0.82rem, 3.8vw, 0.92rem);
+      }
+    }
+    body.fx-portal-home.portal-video-mode .portal-battle-hero:not(.portal-brand-minimal) {
       background: rgba(6, 10, 22, 0.32);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -239,73 +325,6 @@
       align-items: center;
       gap: clamp(8px, 1.5vw, 14px);
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .portal-hero-stage {
-      flex-shrink: 0;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .portal-hero-emblem .sakubijak-logo-full {
-      max-width: 44px;
-      padding: 0;
-      filter: none;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .portal-hero-copy {
-      min-width: 0;
-      flex: 1;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .sakubijak-name {
-      margin: 0;
-      font-size: clamp(0.82rem, 1.1vw + 0.35rem, 0.98rem);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #f8fafc;
-      line-height: 1.2;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .sakubijak-motto {
-      margin: 3px 0 0;
-      font-size: clamp(0.62rem, 0.7vw + 0.3rem, 0.74rem);
-      font-weight: 500;
-      color: rgba(201, 168, 76, 0.92);
-      letter-spacing: 0.02em;
-      line-height: 1.35;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    body.fx-portal-home.portal-video-mode .portal-brand-bar .portal-ta {
-      margin: 0;
-      flex-shrink: 0;
-      padding: 3px 8px;
-      font-size: 7px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #e8dcc0;
-      background: rgba(26, 58, 107, 0.65);
-      border: 1px solid rgba(201, 168, 76, 0.28);
-      border-radius: 6px;
-      line-height: 1.2;
-    }
-    @media (max-width: 480px) {
-      body.fx-portal-home.portal-video-mode .portal-header {
-        max-width: min(280px, 72vw);
-      }
-      body.fx-portal-home.portal-video-mode .portal-brand-bar {
-        padding: 8px 10px 8px 10px;
-        gap: 10px;
-      }
-      body.fx-portal-home.portal-video-mode .portal-brand-bar .portal-hero-emblem .sakubijak-logo-full {
-        max-width: 38px;
-      }
-      body.fx-portal-home.portal-video-mode .portal-brand-bar .sakubijak-motto {
-        font-size: 0.58rem;
-      }
     }
     body.fx-portal-home.portal-video-mode .portal-modules-dock,
     body.fx-portal-home.portal-video-mode .portal-footer {
@@ -385,9 +404,7 @@
       width: 100%;
       margin-top: auto;
       padding: clamp(8px, 1.2vh, 14px) clamp(8px, 1.5vw, 14px) clamp(4px, 0.6vh, 8px);
-      background: linear-gradient(180deg, transparent 0%, rgba(4, 8, 18, 0.28) 22%, rgba(4, 8, 18, 0.5) 100%);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
       border-radius: clamp(16px, 2vw, 22px) clamp(16px, 2vw, 22px) 0 0;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -411,6 +428,177 @@
       margin-bottom: clamp(4px, 0.6vh, 8px);
       padding: 0 4px;
     }
+    .portal-modules-head-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    /* ── Spatial UI: mode toggle + 3D depth ── */
+    .spatial-ui-mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 999px;
+      background: var(--spatial-surface-glass, rgba(8, 14, 28, 0.72));
+      border: 1px solid var(--spatial-border, rgba(148, 163, 184, 0.18));
+      box-shadow: var(--spatial-elev-1, 0 4px 14px rgba(0, 0, 0, 0.25));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .spatial-ui-mode-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--spatial-text-muted, #94a3b8);
+      padding: 0 6px 0 8px;
+      white-space: nowrap;
+    }
+    .spatial-ui-mode-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--spatial-text-muted, #94a3b8);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      font-size: 14px;
+    }
+    .spatial-ui-mode-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      color: var(--spatial-text, #e2e8f0);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .spatial-ui-mode-btn.active {
+      color: #fff;
+      background: linear-gradient(145deg, var(--spatial-accent, #38bdf8), #2563eb);
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    body[data-ui-mode="light"] .spatial-ui-mode-btn.active {
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .spatial-ui-mode--sidebar {
+      margin-bottom: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .spatial-ui-mode--topbar {
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .spatial-ui-mode--login {
+      margin: 0 auto 12px;
+    }
+    body[data-ui-mode] {
+      background: var(--spatial-bg);
+      color: var(--spatial-text);
+    }
+    body[data-ui-mode] #main,
+    body[data-ui-mode] #kas-main,
+    body[data-ui-mode] #gaji-main,
+    body[data-ui-mode] .settings-main {
+      background: var(--spatial-bg);
+      position: relative;
+      z-index: 1;
+    }
+    body[data-ui-mode] #main::before,
+    body[data-ui-mode] #kas-main::before,
+    body[data-ui-mode] #gaji-main::before,
+    body[data-ui-mode] .settings-main::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      left: var(--kas-sidebar-width, 272px);
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 55% 42% at 12% 8%, var(--spatial-glow-1), transparent 58%),
+        radial-gradient(ellipse 48% 38% at 88% 12%, var(--spatial-glow-2), transparent 55%),
+        linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+    }
+    body[data-ui-mode] #sidebar,
+    body[data-ui-mode] #kas-sidebar,
+    body[data-ui-mode] #gaji-sidebar,
+    body[data-ui-mode] #settings-sidebar {
+      box-shadow: var(--spatial-sidebar-shadow);
+      border-right: 1px solid var(--spatial-border);
+      transform: translateZ(0);
+    }
+    body[data-ui-mode] .topbar,
+    body[data-ui-mode] .kas-topbar,
+    body[data-ui-mode] .gaji-topbar-wrap,
+    body[data-ui-mode] .settings-mobile-topbar {
+      background: var(--spatial-topbar-bg);
+      border-bottom: 1px solid var(--spatial-border);
+      box-shadow: var(--spatial-elev-1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    body[data-ui-mode] .stat-card,
+    body[data-ui-mode] .kas-stat,
+    body[data-ui-mode] .sao-stat,
+    body[data-ui-mode] .settings-card,
+    body[data-ui-mode] .kas-card,
+    body[data-ui-mode] .card-chart,
+    body[data-ui-mode] .table-card,
+    body[data-ui-mode] .form-card,
+    body[data-ui-mode] .gaji-dash-hero,
+    body[data-ui-mode] .gaji-panel-card {
+      background: var(--spatial-surface) !important;
+      border: 1px solid var(--spatial-border) !important;
+      box-shadow: var(--spatial-elev-1) !important;
+      color: var(--spatial-text);
+      transform-style: preserve-3d;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+    }
+    body[data-ui-mode] .stat-card:hover,
+    body[data-ui-mode] .kas-stat:hover,
+    body[data-ui-mode] .sao-stat:hover {
+      transform: translateY(-4px) translateZ(12px);
+      box-shadow: var(--spatial-elev-2) !important;
+    }
+    body[data-ui-mode] .stat-card .label,
+    body[data-ui-mode] .kas-stat .lbl,
+    body[data-ui-mode] .sao-stat-label {
+      color: var(--spatial-text-muted) !important;
+    }
+    body[data-ui-mode] .stat-card .value,
+    body[data-ui-mode] .kas-stat .val,
+    body[data-ui-mode] .sao-stat-value {
+      color: var(--spatial-text) !important;
+      text-shadow: none;
+    }
+    body[data-ui-mode] .page-title,
+    body[data-ui-mode] .sao-page-head h4,
+    body[data-ui-mode] .kas-card h6,
+    body[data-ui-mode] .card-chart h6 {
+      color: var(--spatial-text) !important;
+    }
+    body[data-ui-mode] .form-control,
+    body[data-ui-mode] .kas-table input.kas-input {
+      background: var(--spatial-input-bg) !important;
+      border-color: var(--spatial-input-border) !important;
+      color: var(--spatial-text) !important;
+    }
+    body[data-ui-mode] #login-screen .login-card {
+      background: var(--spatial-surface);
+      border: 1px solid var(--spatial-border);
+      box-shadow: var(--spatial-elev-3);
+      color: var(--spatial-text);
+    }
+    body[data-ui-mode] #login-screen .form-label { color: var(--spatial-text-muted); }
+    body.fx-portal-home.portal-video-mode .portal-grid {
+      perspective: 1100px;
+      perspective-origin: 50% 35%;
+    }
     body.fx-portal-home.portal-video-mode .portal-modules-head h2 {
       margin: 0;
       font-size: clamp(9px, 1.1vw, 11px);
@@ -431,15 +619,33 @@
       align-items: center;
       gap: clamp(6px, 0.9vw, 10px);
       padding: clamp(6px, 0.8vh, 9px) clamp(8px, 1vw, 11px);
-      border-radius: 12px;
-      background: rgba(8, 14, 28, 0.34);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.16);
-      backdrop-filter: blur(14px) saturate(1.3);
-      -webkit-backdrop-filter: blur(14px) saturate(1.3);
-      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      border-radius: 14px;
+      background: var(--spatial-surface-glass, rgba(8, 14, 28, 0.78));
+      border: 1px solid var(--spatial-border, rgba(255, 255, 255, 0.12));
+      box-shadow: var(--spatial-elev-1, 0 4px 6px rgba(0,0,0,.22), 0 14px 36px rgba(0,0,0,.28));
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, background 0.2s ease, border-color 0.2s ease;
       cursor: pointer;
       overflow: hidden;
+      transform-style: preserve-3d;
+      transform: translateZ(0) rotateX(1.5deg);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-clean:hover {
+      transform: translateY(-5px) translateZ(18px) rotateX(0deg) scale(1.015);
+      box-shadow: var(--spatial-elev-2, 0 8px 16px rgba(0,0,0,.28), 0 24px 48px rgba(0,0,0,.35));
+      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--spatial-surface-2, rgba(12, 18, 32, 0.9));
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean {
+      background: var(--spatial-surface);
+      border-color: var(--spatial-border);
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label,
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean h3 {
+      color: var(--spatial-text);
+      text-shadow: none;
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-modules-dock {
+      background: linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(241,245,249,0.92) 100%);
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean::before {
       content: '';
@@ -455,11 +661,23 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean::after {
       display: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-card-clean:hover {
-      transform: translateY(-2px);
-      background: rgba(12, 20, 38, 0.48);
-      border-color: color-mix(in srgb, var(--card-accent, #c9a84c) 38%, rgba(255, 255, 255, 0.16));
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+    body[data-ui-mode] #main::before {
+      left: var(--sidebar-width, 260px);
+    }
+    body[data-ui-mode] #kas-main::before,
+    body[data-ui-mode] #gaji-main::before {
+      left: var(--kas-sidebar-width, 272px);
+    }
+    body[data-ui-mode] .settings-main::before {
+      left: 280px;
+    }
+    @media (max-width: 991px) {
+      body[data-ui-mode] #main::before,
+      body[data-ui-mode] #kas-main::before,
+      body[data-ui-mode] #gaji-main::before,
+      body[data-ui-mode] .settings-main::before {
+        left: 0;
+      }
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon {
       width: var(--portal-icon);
@@ -467,13 +685,14 @@
       margin: 0 0 0 6px;
       flex-shrink: 0;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(0, 0, 0, 0.28);
-      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(0,0,0,0.35));
+      box-shadow: 0 6px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      transform: translateZ(12px);
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon.sao-portal-icon img {
       width: 58%;
@@ -599,6 +818,295 @@
     body.fx-portal-home.portal-video-mode .portal-ta {
       text-shadow: none;
     }
+    /* ── Summon button + lightning reveal ── */
+    body.fx-portal-home.portal-video-mode .portal-wrap.ds-animate {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    body.fx-portal-home.portal-video-mode .portal-summon-zone {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 4;
+      min-height: 0;
+      padding: clamp(12px, 3vh, 28px) clamp(12px, 4vw, 24px);
+      transition: flex 0.03s linear, padding 0.03s linear;
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-summon-zone {
+      flex: 0 0 auto;
+      padding: clamp(6px, 1vh, 10px) clamp(12px, 4vw, 24px) 0;
+    }
+    .portal-lightning-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.18s ease-out;
+    }
+    .portal-lightning-canvas.portal-lightning-live {
+      opacity: 1;
+    }
+    .portal-lightning-flash {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(420px, 88vw);
+      height: min(280px, 42vh);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      border-radius: 50%;
+      background: radial-gradient(ellipse 70% 65% at 50% 50%, rgba(56, 189, 248, 0.22) 0%, rgba(14, 116, 144, 0.08) 45%, transparent 72%);
+    }
+    .portal-summon-zone.portal-lightning-flash .portal-lightning-flash {
+      animation: portal-lightning-screen 0.22s ease-out forwards;
+    }
+    @keyframes portal-lightning-screen {
+      0% { opacity: 0; }
+      22% { opacity: 0.55; }
+      100% { opacity: 0; }
+    }
+    .portal-summon-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(10px, 1.6vw, 14px);
+      padding: clamp(14px, 2.2vh, 18px) clamp(22px, 3.5vw, 32px);
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(8, 14, 28, 0.72) 0%, rgba(18, 32, 58, 0.58) 48%, rgba(8, 14, 28, 0.75) 100%);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      color: #f8fafc;
+      font-size: clamp(0.82rem, 1.35vw, 0.95rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 8px 32px rgba(0, 0, 0, 0.45),
+        0 0 40px rgba(56, 189, 248, 0.12);
+      transition:
+        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.45s ease,
+        border-color 0.45s ease,
+        padding 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+        font-size 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.55s ease;
+      animation: portal-summon-pulse 3.2s ease-in-out infinite;
+      will-change: transform;
+    }
+    .portal-summon-btn.portal-summon-btn--activating {
+      transform: scale(0.97);
+      animation: none;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        0 0 64px rgba(56, 189, 248, 0.35);
+    }
+    .portal-summon-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(212, 175, 55, 0.85);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        0 0 56px rgba(56, 189, 248, 0.28);
+    }
+    .portal-summon-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    body.portal-modules-open .portal-summon-btn {
+      animation: none;
+      padding: clamp(8px, 1.4vh, 11px) clamp(16px, 2.8vw, 22px);
+      font-size: clamp(0.68rem, 1.1vw, 0.78rem);
+      border-color: rgba(148, 163, 184, 0.45);
+      background: linear-gradient(135deg, rgba(8, 14, 28, 0.55) 0%, rgba(18, 32, 58, 0.42) 100%);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+    @keyframes portal-summon-pulse {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 32px rgba(0,0,0,0.45), 0 0 32px rgba(56,189,248,0.1); }
+      50% { box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 8px 32px rgba(0,0,0,0.45), 0 0 52px rgba(56,189,248,0.22); }
+    }
+    .portal-summon-btn-glow {
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(from 180deg, transparent, rgba(56, 189, 248, 0.15), transparent, rgba(212, 175, 55, 0.12), transparent);
+      animation: portal-summon-spin 6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes portal-summon-spin {
+      to { transform: rotate(360deg); }
+    }
+    .portal-summon-btn-shimmer {
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      animation: portal-summon-shimmer 4.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes portal-summon-shimmer {
+      0%, 70%, 100% { left: -120%; }
+      85% { left: 140%; }
+    }
+    .portal-summon-btn-icon {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(34px, 5vw, 42px);
+      height: clamp(34px, 5vw, 42px);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.35), rgba(26, 58, 107, 0.5));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: #7dd3fc;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1), height 0.55s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.55s ease, color 0.45s ease, border-color 0.45s ease, background 0.45s ease, transform 0.35s ease;
+    }
+    .portal-summon-btn-icon i {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+    body.portal-modules-open .portal-summon-btn-icon i {
+      transform: rotate(0deg);
+    }
+    .portal-summon-btn-text {
+      position: relative;
+      z-index: 1;
+      transition: opacity 0.3s ease;
+    }
+    .portal-summon-label-close { display: none; opacity: 0; }
+    body.portal-modules-open .portal-summon-label-open { display: none; }
+    body.portal-modules-open .portal-summon-label-close { display: inline; opacity: 1; }
+    body.portal-modules-open .portal-summon-btn-icon {
+      width: clamp(28px, 4vw, 34px);
+      height: clamp(28px, 4vw, 34px);
+      font-size: clamp(0.85rem, 1.6vw, 1rem);
+      color: #94a3b8;
+      border-color: rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.5);
+      text-shadow: none;
+    }
+    body.fx-portal-home.portal-video-mode .portal-modules-dock {
+      transition:
+        opacity 0.03s linear,
+        transform 0.03s linear,
+        visibility 0.03s linear,
+        padding 0.03s linear,
+        border-color 0.03s linear;
+      will-change: opacity, transform;
+    }
+    body.fx-portal-home.portal-video-mode:not(.portal-modules-open) .portal-modules-dock {
+      flex: 0 0 0;
+      max-height: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      pointer-events: none;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      border-color: transparent;
+      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
+    }
+    body.fx-portal-home.portal-video-mode:not(.portal-modules-open) .portal-footer {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, visibility 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-footer {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 0.03s linear, transform 0.03s linear, visibility 0.03s linear;
+    }
+    body.portal-modules-open .portal-summon-btn-glow,
+    body.portal-modules-open .portal-summon-btn-shimmer {
+      display: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .portal-summon-btn { animation: none; }
+      .portal-summon-btn-glow,
+      .portal-summon-btn-shimmer { animation: none; display: none; }
+      .portal-summon-zone.portal-lightning-flash .portal-lightning-flash { animation: none; opacity: 0; }
+      body.fx-portal-home.portal-video-mode.portal-modules-open .portal-card-clean {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-modules-dock {
+      flex-shrink: 0;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      max-height: 40vh;
+      padding: clamp(8px, 1.2vh, 14px) clamp(8px, 1.5vw, 14px) clamp(4px, 0.6vh, 8px);
+      border-top-color: rgba(255, 255, 255, 0.08);
+      transition:
+        opacity 0.03s linear,
+        transform 0.03s linear,
+        visibility 0.03s linear,
+        padding 0.03s linear,
+        border-color 0.03s linear;
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-closing:not(.portal-modules-open) .portal-modules-dock {
+      flex: 0 0 0;
+      max-height: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      pointer-events: none;
+      overflow: hidden;
+      padding: 0;
+      margin-top: auto;
+      border-top-color: transparent;
+      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
+      transition:
+        opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.24s,
+        padding 0.24s ease,
+        border-color 0.24s ease;
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-closing:not(.portal-modules-open) .portal-footer {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-closing .portal-card-clean {
+      animation: portal-card-hide 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes portal-card-hide {
+      to { opacity: 0; transform: translateY(8px) scale(0.99); }
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-card-clean {
+      opacity: 0;
+      animation: portal-card-reveal 0.03s linear forwards;
+      animation-delay: 0s;
+    }
+    @keyframes portal-card-reveal {
+      0% { opacity: 0; transform: translateY(2px) scale(0.998); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-card-clean:nth-child(n) {
+      animation-delay: 0s;
+    }
     /* Desktop lebar */
     @media (min-width: 1400px) {
       body.fx-portal-home.portal-video-mode {
@@ -665,6 +1173,17 @@
       }
       body.fx-portal-home.portal-video-mode .portal-app-foot {
         flex-wrap: wrap;
+      }
+      body.fx-portal-home.portal-video-mode .portal-summon-btn {
+        padding: 12px 18px;
+        gap: 10px;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+      }
+      body.fx-portal-home.portal-video-mode .portal-summon-btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
       }
     }
     @media (max-width: 360px) {
@@ -1148,11 +1667,30 @@
     .topbar .breadcrumb { margin: 0; font-size: 12px; --bs-breadcrumb-divider-color: #64748b; }
     .topbar .breadcrumb-item, .topbar .breadcrumb-item.active { color: var(--text-muted) !important; }
     .topbar .breadcrumb-item.active { color: var(--water) !important; }
+    body[data-ui-mode="light"] #settings-app-shell.visible {
+      background: var(--spatial-bg) !important;
+      color: var(--spatial-text);
+    }
+    body[data-ui-mode="light"] #settings-sidebar {
+      background: var(--spatial-surface) !important;
+    }
+    body[data-ui-mode="light"] .topbar .user-badge div div:first-child,
+    body[data-ui-mode="light"] #kas-main .kas-topbar .page-title,
+    body[data-ui-mode="light"] .gaji-topbar-title-block .page-title {
+      color: var(--spatial-text) !important;
+    }
     .topbar .user-badge {
-      display: flex; align-items: center; gap: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       background: rgba(56,189,248,.06); padding: 8px 16px; border-radius: 40px;
       border: 1px solid rgba(56,189,248,.2);
       box-shadow: 0 0 20px rgba(56,189,248,.08);
+    }
+    #kas-main .kas-topbar .kas-bulan-picker + .spatial-ui-mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .topbar .user-badge .avatar {
       width: 36px; height: 36px; border-radius: 50%;
@@ -4471,7 +5009,7 @@
     .kas-bulan-c-november { background: rgba(6,182,212,.22); color: #67e8f9; }
     .kas-bulan-c-desember { background: rgba(34,197,94,.22); color: #86efac; }
     #kas-print { display: none; font-family: Arial, sans-serif; color: #000; background: #fff; }
-    #kas-print .kp-page, #kas-laporan-preview .kp-page {
+    #kas-print .kp-page, #kas-laporan-preview .kp-page, #kas-tahunan-preview .kp-page {
       width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm; max-width: 210mm;
       margin: 0 auto;
       padding: 1.5cm 1.1cm 1.3cm 1.1cm;
@@ -4493,30 +5031,34 @@
       display: flex; flex-direction: column; min-height: 0;
     }
     #kas-print .kp-page-1 .kp-page-body,
-    #kas-laporan-preview .kp-page-1 .kp-page-body {
+    #kas-laporan-preview .kp-page-1 .kp-page-body,
+    #kas-tahunan-preview .kp-page-1 .kp-page-body {
       display: flex; flex-direction: column;
     }
-    #kas-print .kp-page-1 .kp-rekon, #kas-laporan-preview .kp-page-1 .kp-rekon {
+    #kas-print .kp-page-1 .kp-rekon, #kas-laporan-preview .kp-page-1 .kp-rekon, #kas-tahunan-preview .kp-page-1 .kp-rekon {
       width: 100%; margin-top: calc(8px * var(--kp-fit, 1)); flex: 0 0 auto;
     }
     #kas-print .kp-page-2 .kp-page-body,
-    #kas-laporan-preview .kp-page-2 .kp-page-body {
+    #kas-laporan-preview .kp-page-2 .kp-page-body,
+    #kas-tahunan-preview .kp-page-2 .kp-page-body {
       display: flex; flex-direction: column;
       overflow: hidden;
     }
     #kas-print .kp-page-2 .kp-pen-content,
-    #kas-laporan-preview .kp-page-2 .kp-pen-content {
+    #kas-laporan-preview .kp-page-2 .kp-pen-content,
+    #kas-tahunan-preview .kp-page-2 .kp-pen-content {
       flex: 1 1 auto; min-height: 0;
       display: flex; flex-direction: column;
       overflow: hidden;
     }
     #kas-print .kp-page-2 .kp-table-wrap,
-    #kas-laporan-preview .kp-page-2 .kp-table-wrap {
+    #kas-laporan-preview .kp-page-2 .kp-table-wrap,
+    #kas-tahunan-preview .kp-page-2 .kp-table-wrap {
       flex: 0 1 auto; min-height: 0; max-height: 100%;
       overflow: hidden;
       transform-origin: top center;
     }
-    #kas-print .kp-page-2 .kp-ttd-row, #kas-laporan-preview .kp-page-2 .kp-ttd-row {
+    #kas-print .kp-page-2 .kp-ttd-row, #kas-laporan-preview .kp-page-2 .kp-ttd-row, #kas-tahunan-preview .kp-page-2 .kp-ttd-row {
       flex: 0 0 auto; margin-top: 0;
       padding-top: calc(6px * var(--kp-fit, 1));
       display: flex; justify-content: flex-end; width: 100%;
@@ -4573,8 +5115,65 @@
     .kas-laporan-tgl input[type="date"]:focus {
       outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.2);
     }
-    #kas-print .kp-page:last-child, #kas-laporan-preview .kp-page:last-child { page-break-after: auto; break-after: auto; }
-    #kas-laporan-preview { display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 8px 0; }
+    #kas-print .kp-page:last-child, #kas-laporan-preview .kp-page:last-child, #kas-tahunan-preview .kp-page:last-child { page-break-after: auto; break-after: auto; }
+    #kas-laporan-preview, #kas-tahunan-preview {
+      display: flex; flex-direction: column; gap: 20px; align-items: center;
+      padding: 16px 12px; font-family: Arial, sans-serif; color: #000;
+      background: linear-gradient(180deg, #dce3ef 0%, #c8d2e4 100%);
+      border-radius: 12px; overflow: auto;
+    }
+    #kas-tahunan-preview .kp-page {
+      box-shadow: 0 8px 32px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.06);
+    }
+    .kas-tahunan-period-panel {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
+      padding: 14px 16px; margin-bottom: 16px;
+      background: rgba(15,23,42,.55); border: 1px solid rgba(96,165,250,.22);
+      border-radius: 14px;
+    }
+    .kas-tahunan-period-panel label { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; display: block; }
+    .kas-tahunan-summary-table {
+      width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px;
+      background: rgba(15,23,42,.45); border: 1px solid rgba(148,163,184,.15); border-radius: 12px; overflow: hidden;
+    }
+    .kas-tahunan-summary-table th, .kas-tahunan-summary-table td {
+      padding: 10px 14px; border-bottom: 1px solid rgba(148,163,184,.1); vertical-align: middle;
+    }
+    .kas-tahunan-summary-table th {
+      background: rgba(30,41,59,.8); font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+      color: #94a3b8; font-weight: 700; text-align: left;
+    }
+    .kas-tahunan-summary-table td.kas-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: #e2e8f0; }
+    .kas-tahunan-summary-table tr:last-child td { border-bottom: none; }
+    .kas-tahunan-summary-table tr.kas-tahunan-total td { background: rgba(59,130,246,.12); color: #93c5fd; font-weight: 800; }
+    .kas-tahunan-monthly-audit {
+      width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px;
+      background: rgba(15,23,42,.45); border: 1px solid rgba(148,163,184,.15); border-radius: 12px; overflow: hidden;
+    }
+    .kas-tahunan-monthly-audit th, .kas-tahunan-monthly-audit td {
+      padding: 8px 10px; border: 1px solid rgba(148,163,184,.12); vertical-align: middle;
+    }
+    .kas-tahunan-monthly-audit th {
+      background: rgba(30,41,59,.85); font-size: 9px; text-transform: uppercase; letter-spacing: .05em;
+      color: #94a3b8; font-weight: 700; text-align: center; white-space: nowrap;
+    }
+    .kas-tahunan-monthly-audit td.kas-num { text-align: right; font-variant-numeric: tabular-nums; color: #e2e8f0; }
+    .kas-tahunan-monthly-audit tr.kas-audit-total td { background: rgba(59,130,246,.15); font-weight: 800; color: #93c5fd; }
+    .kas-tahunan-monthly-audit tr.kas-audit-sum td { background: rgba(34,197,94,.1); font-weight: 700; color: #86efac; }
+    .kas-tahunan-monthly-audit-wrap { overflow-x: auto; margin-bottom: 12px; }
+    .kas-tahunan-monthly-audit-wrap h6 { font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px; }
+    .kas-tahunan-balance-ok {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #86efac;
+      padding: 6px 12px; margin-bottom: 12px; border-radius: 999px;
+      background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.25);
+    }
+    .kp-period-badge {
+      display: inline-block; margin-top: calc(4px * var(--kp-fit, 1));
+      padding: calc(3px * var(--kp-fit, 1)) calc(10px * var(--kp-fit, 1));
+      font-size: calc(9pt * var(--kp-fit, 1)); font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; border: 1px solid #333; border-radius: 4px;
+      background: #f3f4f6;
+    }
     .kp-title { text-align: center; margin-bottom: calc(10px * var(--kp-fit, 1)); }
     .kp-logo {
       text-align: center;
@@ -6075,6 +6674,7 @@
     }
 
     #kas-laporan-preview { font-family: Arial, sans-serif; color: #000; }
+    #kas-tahunan-preview { font-family: Arial, sans-serif; color: #000; }
     @page { size: A4 portrait; margin: 0; }
     @media print {
       body.kas-printing * { visibility: hidden; }
@@ -6096,6 +6696,9 @@
       body.kas-printing #kas-print .kp-rekon-box { border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       body.kas-printing #kas-print .kp-rekon-row { border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       body.kas-printing #kas-print .kp-rekon-row-title { background: #d9d9d9 !important; border-bottom: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.kas-printing #kas-print .kp-period-badge { border: 1px solid #000 !important; background: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.kas-printing #kas-print thead th { background: #d9d9d9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.kas-printing #kas-print tbody tr.row-total td { background: #d9d9d9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
     .btn-logout {
       margin-top: 8px; width: 100%; padding: 8px 12px; border-radius: 10px;
@@ -6355,50 +6958,35 @@
     <div class="portal-video-scrim"></div>
   </div>
   <div class="portal-wrap ds-animate">
-    <header class="portal-header portal-battle-hero portal-brand-bar">
-      <div class="portal-hero-stage">
-        <div class="fx-dom-battle" aria-hidden="true">
-          <div class="fx-arena-floor">
-            <span class="fx-arena-ring fx-arena-ring-2" aria-hidden="true"></span>
-            <span class="fx-arena-ring fx-arena-ring-3" aria-hidden="true"></span>
-            <span class="fx-arena-ring fx-arena-ring-4" aria-hidden="true"></span>
-          </div>
-          <div class="fx-fighter fx-naruto-side">
-            <div class="fx-aura-sparks fx-naruto-sparks" aria-hidden="true"></div>
-            <div class="fx-kyubi-tails"></div>
-            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/naruto.png?v=2" alt="" decoding="async" loading="lazy" />
-          </div>
-          <div class="fx-fighter fx-sasuke-side">
-            <div class="fx-aura-sparks fx-sasuke-sparks" aria-hidden="true"></div>
-            <div class="fx-susanoo-shell"></div>
-            <img class="fx-fighter-img" src="/assets/naruto-smp-runners/sasuke.png?v=2" alt="" decoding="async" loading="lazy" />
-          </div>
-          <div class="fx-proj fx-proj-rasengan"></div>
-          <div class="fx-proj fx-proj-chidori"></div>
-          <div class="fx-clash-flash"></div>
-          <div class="fx-clash-ring fx-clash-ring-a"></div>
-          <div class="fx-clash-ring fx-clash-ring-b"></div>
-          <div class="fx-clash-ring fx-clash-ring-c"></div>
-          <div class="fx-clash-sparks"></div>
-        </div>
-        <div class="portal-hero-emblem">
-          <div class="sakubijak-logo-bounce">
-            <img class="sakubijak-logo-full" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
-          </div>
-        </div>
-      </div>
-      <div class="portal-hero-copy">
-        <div class="portal-brand-title-row">
-          <p class="sakubijak-name" aria-label="Sakubijak">Sakubijak</p>
-          <span class="portal-ta">TA 2026</span>
-        </div>
-        <p class="sakubijak-motto">Keuangan Bijak untuk Semua</p>
-      </div>
+    <header class="portal-header portal-brand-minimal">
+      <img class="portal-brand-logo" src="/assets/sakubijak-logo-transparent.png?v=7" alt="Lambang Sakubijak" loading="eager" decoding="async" fetchpriority="high" />
+      <p class="portal-brand-name" aria-label="Sakubijak">Sakubijak</p>
     </header>
 
-    <div class="portal-modules-dock">
+    <div class="portal-summon-zone" id="portal-summon-zone">
+      <div class="portal-lightning-flash" id="portal-lightning-flash" aria-hidden="true"></div>
+      <canvas class="portal-lightning-canvas" id="portal-lightning-canvas" aria-hidden="true"></canvas>
+      <button type="button" class="portal-summon-btn" id="portal-summon-btn" onclick="togglePortalModules()" aria-expanded="false" aria-controls="portal-modules-dock">
+        <span class="portal-summon-btn-glow" aria-hidden="true"></span>
+        <span class="portal-summon-btn-icon"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i></span>
+        <span class="portal-summon-btn-text">
+          <span class="portal-summon-label-open">Buka Modul SIPKEU</span>
+          <span class="portal-summon-label-close">Tutup Modul</span>
+        </span>
+        <span class="portal-summon-btn-shimmer" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="portal-modules-dock" id="portal-modules-dock">
     <div class="portal-modules-head">
-      <h2>Modul SIPKEU</h2>
+      <div class="portal-modules-head-row">
+        <h2>Modul SIPKEU</h2>
+        <div class="spatial-ui-mode" data-portal-ui="portal-home" role="group" aria-label="Tema tampilan">
+          <span class="spatial-ui-mode-label">Tema</span>
+          <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+          <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+        </div>
+      </div>
       <p>Pilih aplikasi penatausahaan keuangan · TA 2026</p>
     </div>
 
@@ -6514,6 +7102,11 @@
       <div class="login-app-label" id="login-app-label">SIPKEU Sekretariat</div>
       <h4>SIPKEU Portal</h4>
       <p id="login-app-desc">Dinas Pendidikan Kota Batam · Tahun Anggaran 2026</p>
+    </div>
+    <div class="spatial-ui-mode spatial-ui-mode--login" data-portal-ui="app-dynamic" role="group" aria-label="Tema tampilan portal">
+      <span class="spatial-ui-mode-label">Tema</span>
+      <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+      <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
     </div>
     <div class="login-error" id="login-error"></div>
     <form id="login-form" onsubmit="doLogin(event)">
@@ -6908,6 +7501,11 @@ function initManualNumericInputUX() {
     <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Portal Aplikasi</a>
   </nav>
   <div class="sidebar-footer">
+    <div class="spatial-ui-mode spatial-ui-mode--sidebar" data-portal-ui="app-dynamic" role="group" aria-label="Tema tampilan">
+      <span class="spatial-ui-mode-label">Tema</span>
+      <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+      <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+    </div>
     <div style="color:var(--naruto);font-weight:600;margin-bottom:3px">TA 2026 — Dinas Pendidikan</div>
     <div id="sidebar-user-role" style="font-size:11px;margin-bottom:6px">—</div>
     <button type="button" class="btn-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left me-1"></i>Logout</button>
@@ -6924,6 +7522,10 @@ function initManualNumericInputUX() {
       <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item text-muted" id="topbar-app-name">SIPKEU Sekretariat</li><li class="breadcrumb-item active" id="topbar-crumb">Dashboard</li></ol></nav>
     </div>
     <div class="user-badge">
+      <div class="spatial-ui-mode spatial-ui-mode--topbar" data-portal-ui="app-dynamic" role="group" aria-label="Tema tampilan">
+        <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+      </div>
       <div class="avatar" id="topbar-avatar">HA</div>
       <div>
         <div style="font-size:12px;font-weight:700;color:#fff" id="topbar-pa-nama">Pengguna Anggaran</div>
@@ -7520,6 +8122,10 @@ function initManualNumericInputUX() {
           <span class="kas-nav-icon"><i class="bi bi-file-earmark-spreadsheet"></i></span>
           <span class="kas-nav-text">Laporan Angkas<span class="kas-nav-desc">Preview laporan resmi</span></span>
         </a>
+        <a href="#" class="kas-nav-link" id="kas-nav-laporan-tahunan" onclick="showKasPage('laporan-tahunan',this);return false">
+          <span class="kas-nav-icon"><i class="bi bi-calendar3-range"></i></span>
+          <span class="kas-nav-text">Laporan Kas Tahunan<span class="kas-nav-desc">Triwulan, semester &amp; tahun</span></span>
+        </a>
       </div>
 
       <div class="kas-nav-section">
@@ -7532,6 +8138,11 @@ function initManualNumericInputUX() {
     </nav>
 
     <div class="kas-sidebar-footer">
+      <div class="spatial-ui-mode spatial-ui-mode--sidebar" data-portal-ui="kas-belanja" role="group" aria-label="Tema tampilan">
+        <span class="spatial-ui-mode-label">Tema</span>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+      </div>
       <div class="kas-user-card">
         <div class="kas-user-avatar" id="kas-user-avatar">AD</div>
         <div>
@@ -7565,6 +8176,10 @@ function initManualNumericInputUX() {
           <option value="juli">Juli</option><option value="agustus">Agustus</option><option value="september">September</option>
           <option value="oktober">Oktober</option><option value="november">November</option><option value="desember">Desember</option>
         </select>
+      </div>
+      <div class="spatial-ui-mode spatial-ui-mode--topbar" data-portal-ui="kas-belanja" role="group" aria-label="Tema tampilan">
+        <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
       </div>
     </div>
 
@@ -7711,6 +8326,46 @@ function initManualNumericInputUX() {
         <div id="kas-laporan-preview" class="p-3" style="background:#1a2238;border-radius:12px;overflow:auto"></div>
       </div>
     </div>
+
+    <!-- Laporan Kas Tahunan -->
+    <div id="kas-page-laporan-tahunan" class="kas-page">
+      <div class="kas-card">
+        <div class="kas-toolbar justify-content-between flex-wrap">
+          <div>
+            <h6 class="mb-0"><i class="bi bi-calendar3-range me-2 text-warning"></i>Laporan Kas Tahunan</h6>
+            <small>Rekap anggaran kas &amp; realisasi per triwulan, semester, atau tahun anggaran</small>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <label class="kas-laporan-tgl mb-0">
+              <i class="bi bi-calendar3"></i>
+              <span>Tanggal cetak</span>
+              <input type="date" id="kas-tahunan-tgl-cetak" onchange="renderKasTahunanPreview()">
+            </label>
+            <button class="btn btn-outline-warning btn-sm" onclick="exportKasTahunanExcel()"><i class="bi bi-download me-1"></i>Excel</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="saveKasTahunanPdf()"><i class="bi bi-file-earmark-pdf me-1"></i>Simpan PDF</button>
+            <button class="btn btn-warning btn-sm" onclick="printKasTahunanLaporan()"><i class="bi bi-printer me-1"></i>Cetak</button>
+          </div>
+        </div>
+        <div class="kas-tahunan-period-panel">
+          <div>
+            <label for="kas-tahunan-jenis">Jenis Periode</label>
+            <select class="form-select form-select-sm" id="kas-tahunan-jenis" onchange="onKasTahunanJenisChange()">
+              <option value="triwulan">Triwulan (3 bulan)</option>
+              <option value="semester">Semester (6 bulan)</option>
+              <option value="tahun">Tahunan (12 bulan)</option>
+            </select>
+          </div>
+          <div>
+            <label for="kas-tahunan-periode">Pilihan Periode</label>
+            <select class="form-select form-select-sm" id="kas-tahunan-periode" onchange="loadKasTahunanData()"></select>
+          </div>
+        </div>
+        <div id="kas-tahunan-balance"></div>
+        <div id="kas-tahunan-summary-wrap"></div>
+        <div id="kas-tahunan-monthly-audit-wrap"></div>
+        <div id="kas-tahunan-preview"></div>
+      </div>
+    </div>
     </div><!-- /kas-content -->
   </div><!-- /kas-main -->
 </div><!-- /kas-app-shell -->
@@ -7784,6 +8439,11 @@ function initManualNumericInputUX() {
       </div>
     </nav>
     <div class="kas-sidebar-footer gaji-sidebar-footer">
+      <div class="spatial-ui-mode spatial-ui-mode--sidebar" data-portal-ui="gaji-asn" role="group" aria-label="Tema tampilan">
+        <span class="spatial-ui-mode-label">Tema</span>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+        <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+      </div>
       <div class="kas-user-card gaji-user-card">
         <div class="kas-user-avatar" id="gaji-user-avatar">AD</div>
         <div class="gaji-user-info">
@@ -7804,6 +8464,10 @@ function initManualNumericInputUX() {
           <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item text-muted">Gaji &amp; Tunjangan</li><li class="breadcrumb-item active" id="gaji-topbar-crumb">Dashboard</li></ol></nav>
         </div>
         <div class="gaji-topbar-actions">
+          <div class="spatial-ui-mode spatial-ui-mode--topbar" data-portal-ui="gaji-asn" role="group" aria-label="Tema tampilan">
+            <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+            <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+          </div>
           <div class="gaji-bulan-dropdown" id="gaji-bulan-picker">
             <label for="gaji-bulan-select" class="gaji-bulan-label"><i class="bi bi-calendar-event"></i><span>Bulan</span></label>
             <select id="gaji-bulan-select" class="gaji-bulan-select" onchange="onGajiBulanChange()" aria-label="Pilih bulan periode">
@@ -8173,6 +8837,11 @@ function initManualNumericInputUX() {
         <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Kembali ke Portal</a>
       </nav>
       <div style="padding:14px 20px;border-top:1px solid rgba(56,189,248,.12)">
+        <div class="spatial-ui-mode spatial-ui-mode--sidebar" data-portal-ui="pengaturan" role="group" aria-label="Tema tampilan" style="margin-bottom:12px">
+          <span class="spatial-ui-mode-label">Tema</span>
+          <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
+          <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
+        </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <img src="/assets/sao-icons/avatar-yui.svg?v=1" alt="" style="width:36px;height:36px;border-radius:10px;border:1px solid rgba(129,140,248,.4)" />
           <div style="font-size:12px;color:#94a3b8" id="settings-user-label">—</div>
@@ -9491,7 +10160,179 @@ function pausePortalHeroVideo() {
   document.getElementById('portal-hero-video')?.pause();
 }
 
+let portalModulesOpen = false;
+let portalLightningRaf = 0;
+
+function resetPortalModulesReveal() {
+  portalModulesOpen = false;
+  document.body.classList.remove('portal-modules-open', 'portal-modules-closing');
+  document.getElementById('portal-summon-zone')?.classList.remove('portal-lightning-flash');
+  const btn = document.getElementById('portal-summon-btn');
+  if (btn) {
+    btn.setAttribute('aria-expanded', 'false');
+    btn.removeAttribute('data-busy');
+    btn.classList.remove('portal-summon-btn--activating');
+    const icon = btn.querySelector('.portal-summon-btn-icon i');
+    if (icon) icon.className = 'bi bi-lightning-charge-fill';
+  }
+  stopPortalLightningFx();
+}
+
+function closePortalModulesSmooth() {
+  const btn = document.getElementById('portal-summon-btn');
+  if (btn?.dataset.busy === '1') return;
+  if (btn) {
+    btn.dataset.busy = '1';
+    btn.classList.remove('portal-summon-btn--activating');
+    const icon = btn.querySelector('.portal-summon-btn-icon i');
+    if (icon) icon.className = 'bi bi-lightning-charge-fill';
+  }
+  document.body.classList.remove('portal-modules-open');
+  document.body.classList.add('portal-modules-closing');
+  setTimeout(() => {
+    portalModulesOpen = false;
+    document.body.classList.remove('portal-modules-closing');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.removeAttribute('data-busy');
+    }
+  }, 280);
+}
+
+function togglePortalModules() {
+  if (!isPortalHomeVisible()) return;
+  const btn = document.getElementById('portal-summon-btn');
+  if (btn?.dataset.busy === '1') return;
+  const opening = !portalModulesOpen;
+  if (opening) {
+    portalModulesOpen = true;
+    document.body.classList.add('portal-modules-open');
+    if (btn) {
+      btn.dataset.busy = '1';
+      btn.setAttribute('aria-expanded', 'true');
+      btn.classList.remove('portal-summon-btn--activating');
+      const icon = btn.querySelector('.portal-summon-btn-icon i');
+      if (icon) icon.className = 'bi bi-chevron-down';
+      requestAnimationFrame(() => btn.removeAttribute('data-busy'));
+    }
+    playPortalLightningBurst();
+  } else {
+    closePortalModulesSmooth();
+  }
+}
+
+function stopPortalLightningFx() {
+  if (portalLightningRaf) cancelAnimationFrame(portalLightningRaf);
+  portalLightningRaf = 0;
+  const canvas = document.getElementById('portal-lightning-canvas');
+  if (!canvas) return;
+  canvas.classList.remove('portal-lightning-live');
+  const ctx = canvas.getContext('2d');
+  if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function buildLightningSegments(x1, y1, x2, y2, displace) {
+  if (displace < 2) return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
+  const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+  const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace * 0.35;
+  const left = buildLightningSegments(x1, y1, midX, midY, displace / 2);
+  const right = buildLightningSegments(midX, midY, x2, y2, displace / 2);
+  return left.slice(0, -1).concat(right);
+}
+
+function drawLightningBolt(ctx, segments, alpha, width, color) {
+  if (segments.length < 2) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = color;
+  ctx.shadowBlur = width * 3;
+  ctx.beginPath();
+  ctx.moveTo(segments[0].x, segments[0].y);
+  for (let i = 1; i < segments.length; i++) ctx.lineTo(segments[i].x, segments[i].y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function playPortalLightningBurst() {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion) return;
+  const canvas = document.getElementById('portal-lightning-canvas');
+  const btn = document.getElementById('portal-summon-btn');
+  if (!canvas || !btn) return;
+  stopPortalLightningFx();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  canvas.classList.add('portal-lightning-live');
+  const summonZone = document.getElementById('portal-summon-zone');
+  summonZone?.classList.add('portal-lightning-flash');
+
+  const rect = btn.getBoundingClientRect();
+  const targetX = rect.left + rect.width / 2;
+  const targetY = rect.top + rect.height / 2;
+  const bolts = [];
+  const boltCount = window.innerWidth < 768 ? 2 : 3;
+  for (let i = 0; i < boltCount; i++) {
+    const startX = targetX + (Math.random() - 0.5) * window.innerWidth * 0.35;
+    const startY = -20 - Math.random() * 80;
+    bolts.push({
+      main: buildLightningSegments(startX, startY, targetX + (Math.random() - 0.5) * 48, targetY, 120 + Math.random() * 60),
+      branches: [],
+    });
+    if (Math.random() > 0.35) {
+      const main = bolts[bolts.length - 1].main;
+      const idx = Math.floor(main.length * (0.35 + Math.random() * 0.35));
+      const p = main[idx];
+      if (p) {
+        bolts[bolts.length - 1].branches.push(
+          buildLightningSegments(p.x, p.y, p.x + (Math.random() - 0.5) * 140, p.y + 60 + Math.random() * 80, 40)
+        );
+      }
+    }
+  }
+
+  let start = 0;
+  const duration = 260;
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  const tick = (ts) => {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / duration, 1);
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const fadeIn = Math.min(elapsed / 40, 1);
+    const fadeOut = progress > 0.3 ? easeOutCubic(1 - (progress - 0.3) / 0.7) : 1;
+    const fade = fadeIn * fadeOut;
+    bolts.forEach((bolt, bi) => {
+      const flicker = 0.88 + Math.sin(elapsed * 0.04 + bi * 1.2) * 0.12;
+      drawLightningBolt(ctx, bolt.main, fade * flicker, 2 + bi * 0.12, 'rgba(125, 211, 252, 0.85)');
+      drawLightningBolt(ctx, bolt.main, fade * flicker * 0.35, 3.5 + bi * 0.3, 'rgba(14, 116, 144, 0.2)');
+      bolt.branches.forEach((branch) => {
+        drawLightningBolt(ctx, branch, fade * flicker * 0.5, 1, 'rgba(56, 189, 248, 0.55)');
+      });
+    });
+    if (elapsed < duration) {
+      portalLightningRaf = requestAnimationFrame(tick);
+    } else {
+      portalLightningRaf = 0;
+      canvas.classList.remove('portal-lightning-live');
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      setTimeout(() => summonZone?.classList.remove('portal-lightning-flash'), 40);
+    }
+  };
+  portalLightningRaf = requestAnimationFrame(tick);
+}
+
 function stopAllPortalFx() {
+  resetPortalModulesReveal();
   setPortalHomeFx(false);
   pausePortalHeroVideo();
   setFxLayerActive(false);
@@ -9515,7 +10356,9 @@ function showPortal() {
   loadPortalStatus();
   const portal = document.getElementById('portal-screen');
   if (portal) portal.scrollTop = 0;
+  resetPortalModulesReveal();
   setPortalHomeFx(true);
+  applyPortalUiMode('portal-home');
   clearFxCanvasHide();
   playPortalHeroVideo();
   schedulePortalFx();
@@ -9633,6 +10476,65 @@ function applyPortalStatusUI() {
 }
 
 const PORTAL_THEME_CLASSES = ['theme-inuyasha', 'theme-gundam', 'theme-gaji', 'theme-doraemon', 'theme-shinchan', 'theme-onepiece', 'theme-frozen', 'theme-naruto', 'theme-settings', 'theme-sao'];
+
+const PORTAL_UI_MODE_KEY = 'sipkeu_portal_ui_mode_';
+
+function resolvePortalUiId(groupEl) {
+  const fixed = groupEl?.dataset?.portalUi;
+  if (fixed && fixed !== 'app-dynamic') return fixed;
+  return selectedPortalApp || 'sekretariat';
+}
+
+function getPortalUiMode(portalId) {
+  const v = localStorage.getItem(PORTAL_UI_MODE_KEY + (portalId || 'portal-home'));
+  return v === 'light' ? 'light' : 'dark';
+}
+
+function setPortalUiMode(mode, portalId) {
+  const pid = portalId || resolvePortalUiId(document.querySelector('.spatial-ui-mode'));
+  const next = mode === 'light' ? 'light' : 'dark';
+  localStorage.setItem(PORTAL_UI_MODE_KEY + pid, next);
+  applyPortalUiMode(pid);
+}
+
+function syncPortalUiModeButtons(portalId, mode) {
+  document.querySelectorAll('.spatial-ui-mode').forEach(group => {
+    if (resolvePortalUiId(group) !== portalId) return;
+    group.querySelectorAll('.spatial-ui-mode-btn').forEach(btn => {
+      const on = btn.dataset.mode === mode;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  });
+}
+
+function applyPortalUiMode(portalId) {
+  const pid = portalId || selectedPortalApp || 'portal-home';
+  const mode = getPortalUiMode(pid);
+  document.body.dataset.uiMode = mode;
+  document.body.dataset.spatialUi = '1';
+  document.body.dataset.portalUi = pid;
+  document.documentElement.dataset.uiMode = mode;
+  syncPortalUiModeButtons(pid, mode);
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.content = mode === 'light' ? '#e8edf5' : '#060a14';
+}
+
+function initPortalUiModeSystem() {
+  if (document.documentElement.dataset.portalUiInited) return;
+  document.documentElement.dataset.portalUiInited = '1';
+  document.querySelectorAll('.spatial-ui-mode').forEach(group => {
+    group.querySelectorAll('.spatial-ui-mode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setPortalUiMode(btn.dataset.mode, resolvePortalUiId(group));
+      });
+    });
+  });
+  applyPortalUiMode('portal-home');
+}
+
 function isAdminOnlyPortal(id) {
   return id === 'kas-belanja' || id === 'gaji-asn';
 }
@@ -9664,6 +10566,7 @@ function showLogin(appKey) {
   document.getElementById('login-app-desc').textContent = 'Dinas Pendidikan Kota Batam · Tahun Anggaran 2026';
   applyPortalTheme(document.getElementById('login-screen'), selectedPortalApp);
   applyPortalTheme(document.body, selectedPortalApp);
+  applyPortalUiMode(selectedPortalApp);
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.remove('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
@@ -9852,6 +10755,7 @@ function showApp() {
   stopAllPortalFx();
   document.body.classList.remove('gaji-app-active');
   applyPortalTheme(document.body, selectedPortalApp);
+  applyPortalUiMode(selectedPortalApp);
   applyRoleUI();
 }
 
@@ -9866,6 +10770,7 @@ function showKasApp() {
   clearPortalThemes(document.body);
   document.body.classList.remove('gaji-app-active');
   document.body.classList.add('theme-gundam');
+  applyPortalUiMode('kas-belanja');
   if (currentUser) {
     const parts = (currentUser.name || 'AD').split(/\s+/);
     const av = document.getElementById('kas-user-avatar');
@@ -9885,6 +10790,7 @@ function showGajiApp() {
   document.getElementById('gaji-app-shell')?.classList.add('visible');
   clearPortalThemes(document.body);
   document.body.classList.add('theme-gaji', 'gaji-app-active');
+  applyPortalUiMode('gaji-asn');
   if (currentUser) {
     const parts = (currentUser.name || 'AD').split(/\s+/);
     const av = document.getElementById('gaji-user-avatar');
@@ -9909,6 +10815,7 @@ function showSettingsApp() {
   clearPortalThemes(document.body);
   document.body.classList.remove('gaji-app-active');
   document.body.classList.add('theme-sao');
+  applyPortalUiMode('pengaturan');
   const el = document.getElementById('settings-user-label');
   if (el && currentUser) el.textContent = (currentUser.name || '—') + ' · Super Admin';
 }
@@ -16719,10 +17626,13 @@ function showKasPage(page, navEl) {
   document.getElementById('kas-page-' + page)?.classList.add('active');
   document.querySelectorAll('#kas-sidebar .kas-nav-link').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
-  const titles = { dashboard:'Dashboard Realisasi', import:'Upload RAK APBD', realisasi:'Input Realisasi', laporan:'Laporan Angkas' };
+  const titles = { dashboard:'Dashboard Realisasi', import:'Upload RAK APBD', realisasi:'Input Realisasi', laporan:'Laporan Angkas', 'laporan-tahunan':'Laporan Kas Tahunan' };
   document.getElementById('kas-topbar-title').textContent = titles[page] || 'Kas Belanja';
   document.getElementById('kas-topbar-crumb').textContent = titles[page] || page;
+  const bulanPicker = document.getElementById('kas-bulan-picker');
+  if (bulanPicker) bulanPicker.style.display = page === 'laporan-tahunan' ? 'none' : '';
   if (page === 'laporan') { initKasTglCetak(); renderKasLaporanPreview(); }
+  if (page === 'laporan-tahunan') { initKasTahunanPicker(); initKasTahunanTglCetak(); loadKasTahunanData(); }
   if (page === 'dashboard') renderKasFlameChart();
   closeMobileSidebar();
 }
@@ -17226,13 +18136,15 @@ const KAS_PEN_HIERARCHY = [
 ];
 
 function kasRakMap() {
+  return kasRakMapFromState(kasStateCache);
+}
+
+function kasRakMapFromState(state) {
   const m = {};
-  (kasStateCache.rak_rows || []).forEach(r => {
+  (state?.rak_rows || []).forEach(r => {
     const k = r.kode_rekening;
     if (!k) return;
     if (!m[k]) {
-      // Salin agar tidak mengubah data sumber, dan agar baris dengan kode sama
-      // bisa dijumlahkan (anggaran + rencana kas per bulan).
       m[k] = { ...r, bulan: { ...(r.bulan || {}) }, anggaran: r.anggaran || 0 };
     } else {
       const dst = m[k];
@@ -17401,6 +18313,10 @@ function kasTableHeadHTML(bl, opts = {}) {
   const penTitle = opts.pengecualian
     ? `<tr><th colspan="7" class="kp-pen-title">PENGECUALIAN</th></tr>`
     : '';
+  const col4 = opts.periodMode ? 'PERIODE INI' : 'BULAN INI';
+  const col5 = opts.periodMode ? 'PERIODE INI' : 'BULAN INI';
+  const col6 = opts.periodMode ? 'S/D AKHIR<br>PERIODE' : 'S/D BULAN INI';
+  const col3 = opts.periodMode ? 'SISA AWAL<br>PERIODE' : 'BULAN LALU';
   return `<thead>
       ${penTitle}
       <tr class="kp-th-main">
@@ -17409,10 +18325,10 @@ function kasTableHeadHTML(bl, opts = {}) {
         <th colspan="5">${bl}</th>
       </tr>
       <tr class="kp-th-main">
-        <th class="col-num">SISA ANGGARAN KAS<br>BULAN LALU</th>
-        <th class="col-num">ANGGARAN KAS<br>BULAN INI</th>
-        <th class="col-num">REALISASI<br>BULAN INI</th>
-        <th class="col-num">SISA ANGGARAN KAS<br>S/D BULAN INI</th>
+        <th class="col-num">SISA ANGGARAN KAS<br>${col3}</th>
+        <th class="col-num">ANGGARAN KAS<br>${col4}</th>
+        <th class="col-num">REALISASI<br>${col5}</th>
+        <th class="col-num">SISA ANGGARAN KAS<br>${col6}</th>
         <th class="col-num">%</th>
       </tr>
       <tr class="kp-th-idx">
@@ -17495,8 +18411,8 @@ function kasRekonValues() {
   return { anggaranKasSD, realisasiSD };
 }
 
-function kasRekonBlockHTML() {
-  const { anggaranKasSD, realisasiSD } = kasRekonValues();
+function kasRekonBlockHTML(rekonOverride) {
+  const { anggaranKasSD, realisasiSD } = rekonOverride || kasRekonValues();
   return `<div class="kp-rekon">
     <p class="kp-rekon-title">REKONSILIASI BPKAD</p>
     <div class="kp-rekon-rows">
@@ -17542,16 +18458,21 @@ function kasRowsToHTML(rows, opts = {}) {
   }).join('');
 }
 
-function kasTitleBlockHTML(bl) {
+function kasTitleBlockHTML(bl, opts = {}) {
+  const metaKey = opts.metaKey || 'BULAN';
+  const periodBadge = opts.periodRange
+    ? `<p class="kp-period-badge">${opts.periodRange}</p>`
+    : '';
   return `<div class="kp-title">
     <div class="kp-logo"><img src="/assets/logo-batam.png?v=3" alt="Logo Pemerintah Kota Batam" /></div>
     <h4>REALISASI ANGGARAN KAS BELANJA</h4>
     <p>DINAS PENDIDIKAN KOTA BATAM</p>
     <p>TAHUN ANGGARAN 2026</p>
+    ${periodBadge}
   </div>
   <div class="kp-meta">
     <div><strong>SKPD</strong>&nbsp;&nbsp;&nbsp;&nbsp;: DINAS PENDIDIKAN</div>
-    <div><strong>BULAN</strong>&nbsp;&nbsp;&nbsp;: ${bl}</div>
+    <div><strong>${metaKey}</strong>&nbsp;&nbsp;&nbsp;: ${bl}</div>
   </div>`;
 }
 
@@ -17870,7 +18791,7 @@ function kasExcelRowValues(r, pen) {
   ];
 }
 
-function kasExcelPushHeader(data, bl, merges) {
+function kasExcelPushHeader(data, bl, merges, metaKey = 'BULAN') {
   for (let i = 0; i < 3; i++) data.push(kasExcelBlank());
   const t0 = data.length;
   data.push(['REALISASI ANGGARAN KAS BELANJA', '', '', '', '', '', '', '']);
@@ -17884,7 +18805,7 @@ function kasExcelPushHeader(data, bl, merges) {
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
   data.push(['SKPD', ':', 'DINAS PENDIDIKAN', '', '', '', '', '']);
-  data.push(['BULAN', ':', bl, '', '', '', '', '']);
+  data.push([metaKey, ':', bl, '', '', '', '', '']);
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
 }
@@ -17895,9 +18816,12 @@ function kasExcelPushTableHeader(data, bl, opts, merges) {
     data.push(['PENGECUALIAN', '', '', '', '', '', '', '']);
     merges.push({ s: { r: pr, c: 0 }, e: { r: pr, c: 7 } });
   }
+  const col4 = opts.periodMode ? 'ANGGARAN KAS PERIODE INI' : 'ANGGARAN KAS BULAN INI';
+  const col5 = opts.periodMode ? 'REALISASI PERIODE INI' : 'REALISASI BULAN INI';
+  const col6 = opts.periodMode ? 'SISA ANGGARAN KAS S/D AKHIR PERIODE' : 'SISA ANGGARAN KAS S/D BULAN INI';
   const h1 = data.length;
   data.push(['KODE REKENING', 'URAIAN', '', bl, '', '', '', '']);
-  data.push(['', '', 'SISA ANGGARAN KAS BULAN LALU', 'ANGGARAN KAS BULAN INI', 'REALISASI BULAN INI', 'SISA ANGGARAN KAS S/D BULAN INI', '%', '']);
+  data.push(['', '', 'SISA ANGGARAN KAS BULAN LALU', col4, col5, col6, '%', '']);
   data.push(kasExcelBlank());
   data.push(['1', '2', '', '3', '4', '5', '6=(3+4)-5', '7=5/4*100']);
   merges.push(
@@ -17912,10 +18836,10 @@ function kasExcelPushRows(data, rows, pen) {
   rows.forEach(r => data.push(kasExcelRowValues(r, pen)));
 }
 
-function kasExcelPushRekon(data) {
+function kasExcelPushRekon(data, rekonOverride) {
   data.push(kasExcelBlank());
   data.push(kasExcelBlank());
-  const { anggaranKasSD, realisasiSD } = kasRekonValues();
+  const { anggaranKasSD, realisasiSD } = rekonOverride || kasRekonValues();
   data.push(['REKONSILIASI BPKAD', '', '', '', '', '', '', '']);
   data.push(['ANALIS KEUANGAN PUSAT DAN DAERAH', '', '', '', '', '', '', '']);
   data.push(['', '', '', '', '', '', formatKasAmount(anggaranKasSD), '']);
@@ -18010,7 +18934,575 @@ async function exportKasExcel() {
   XLSX.writeFile(wb, kasPdfFilename().replace('.pdf', '.xlsx'));
 }
 
-// ── Gaji dan Tunjangan ASN ───────────────────────────────────────────────
+// ── Laporan Kas Tahunan (triwulan / semester / tahun) ───────────────────
+const KAS_TAHUNAN_OPTIONS = {
+  triwulan: [
+    { id: 'tw1', label: 'Triwulan I — Januari s/d Maret' },
+    { id: 'tw2', label: 'Triwulan II — April s/d Juni' },
+    { id: 'tw3', label: 'Triwulan III — Juli s/d September' },
+    { id: 'tw4', label: 'Triwulan IV — Oktober s/d Desember' },
+  ],
+  semester: [
+    { id: 'sem1', label: 'Semester I — Januari s/d Juni' },
+    { id: 'sem2', label: 'Semester II — Juli s/d Desember' },
+  ],
+  tahun: [
+    { id: 'tahun', label: 'Tahunan — Januari s/d Desember' },
+  ],
+};
+let kasTahunanReportCache = [];
+let kasTahunanStateCache = {};
+
+function normalizeKasReportRows(rows) {
+  return (rows || []).map(r => {
+    const sisaLalu = +(r.sisa_bulan_lalu || 0);
+    const ang = +(r.anggaran_kas || 0);
+    const real = +(r.realisasi || 0);
+    const sisaSd = r.sisa_sd != null ? +r.sisa_sd : (sisaLalu + ang - real);
+    const persen = ang > 0 ? (real / ang) * 100 : 0;
+    return { ...r, sisa_bulan_lalu: sisaLalu, anggaran_kas: ang, realisasi: real, sisa_sd: sisaSd, persen };
+  });
+}
+
+function kasReportRowBalanced(r) {
+  const sisaLalu = +(r.sisa_bulan_lalu || 0);
+  const ang = +(r.anggaran_kas || 0);
+  const real = +(r.realisasi || 0);
+  const sisaSd = +(r.sisa_sd || 0);
+  return Math.abs(sisaSd - (sisaLalu + ang - real)) < 0.02;
+}
+
+function sumMonthlyKodeValues(monthlyReports, kode) {
+  let ang = 0, real = 0;
+  (monthlyReports || []).forEach(snap => {
+    const row = (snap.report || []).find(r => r.kode === kode);
+    if (row) {
+      ang += +(row.anggaran_kas || 0);
+      real += +(row.realisasi || 0);
+    }
+  });
+  return { ang, real };
+}
+
+function verifyKasTahunanMonthlySumClient() {
+  const monthly = kasTahunanStateCache.monthly_reports;
+  if (!monthly?.length || !kasTahunanReportCache.length) return true;
+  const eps = 0.02;
+  for (const row of kasTahunanReportCache) {
+    if (!row.kode && row.uraian !== 'TOTAL BELANJA') continue;
+    let sumAng = 0, sumReal = 0;
+    monthly.forEach(snap => {
+      const mRow = row.uraian === 'TOTAL BELANJA'
+        ? (snap.report || []).find(r => r.uraian === 'TOTAL BELANJA')
+        : (snap.report || []).find(r => r.kode === row.kode);
+      if (mRow) {
+        sumAng += +(mRow.anggaran_kas || 0);
+        sumReal += +(mRow.realisasi || 0);
+      }
+    });
+    if (Math.abs((row.anggaran_kas || 0) - sumAng) > eps || Math.abs((row.realisasi || 0) - sumReal) > eps) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function kasTahunanPeriodRangeLabel(fromBulan, toBulan) {
+  const a = KAS_BULAN_LABEL[fromBulan] || fromBulan;
+  const b = KAS_BULAN_LABEL[toBulan] || toBulan;
+  return `${a} s/d ${b}`;
+}
+
+function defaultKasTahunanPeriode() {
+  const m = new Date().getMonth();
+  if (m <= 2) return 'tw1';
+  if (m <= 5) return 'tw2';
+  if (m <= 8) return 'tw3';
+  return 'tw4';
+}
+
+function defaultKasTahunanJenis() {
+  const m = new Date().getMonth();
+  if (m <= 5) return 'sem1';
+  return 'sem2';
+}
+
+function initKasTahunanPicker() {
+  const jenisEl = document.getElementById('kas-tahunan-jenis');
+  const periodeEl = document.getElementById('kas-tahunan-periode');
+  if (!jenisEl || !periodeEl) return;
+  if (!jenisEl.dataset.inited) {
+    jenisEl.dataset.inited = '1';
+    jenisEl.value = 'triwulan';
+  }
+  onKasTahunanJenisChange(false);
+  if (!periodeEl.value) periodeEl.value = defaultKasTahunanPeriode();
+}
+
+function onKasTahunanJenisChange(reload = true) {
+  const jenisEl = document.getElementById('kas-tahunan-jenis');
+  const periodeEl = document.getElementById('kas-tahunan-periode');
+  if (!jenisEl || !periodeEl) return;
+  const opts = KAS_TAHUNAN_OPTIONS[jenisEl.value] || [];
+  const prev = periodeEl.value;
+  periodeEl.innerHTML = opts.map(o => `<option value="${o.id}">${o.label}</option>`).join('');
+  if (opts.some(o => o.id === prev)) {
+    periodeEl.value = prev;
+  } else if (jenisEl.value === 'triwulan') {
+    periodeEl.value = defaultKasTahunanPeriode();
+  } else if (jenisEl.value === 'semester') {
+    periodeEl.value = defaultKasTahunanJenis();
+  } else if (opts.length) {
+    periodeEl.value = opts[0].id;
+  }
+  if (reload) loadKasTahunanData();
+}
+
+function getKasTahunanPeriode() {
+  return document.getElementById('kas-tahunan-periode')?.value || defaultKasTahunanPeriode();
+}
+
+function initKasTahunanTglCetak() {
+  const el = document.getElementById('kas-tahunan-tgl-cetak');
+  if (el && !el.value) el.value = new Date().toISOString().slice(0, 10);
+}
+
+function getKasTahunanTglCetak() {
+  const el = document.getElementById('kas-tahunan-tgl-cetak');
+  return el?.value || new Date().toISOString().slice(0, 10);
+}
+
+function formatKasTahunanTglCetak(val) {
+  const iso = val || getKasTahunanTglCetak();
+  const d = new Date(iso + 'T12:00:00');
+  if (isNaN(d.getTime())) return `Batam, ${new Date().getFullYear()}`;
+  return `Batam, ${d.getDate()} ${KAS_TGL_BULAN_FULL[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+async function loadKasTahunanData() {
+  const periode = getKasTahunanPeriode();
+  const preview = document.getElementById('kas-tahunan-preview');
+  if (preview) preview.innerHTML = '<div class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Memuat laporan…</div>';
+  try {
+    const res = await apiFetch(API + '/kas-belanja/laporan-tahunan?periode=' + encodeURIComponent(periode));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal memuat laporan');
+    kasTahunanReportCache = normalizeKasReportRows(data.report || []);
+    kasTahunanStateCache = data;
+    renderKasTahunanSummary();
+    renderKasTahunanMonthlyAudit();
+    renderKasTahunanBalanceCheck();
+    renderKasTahunanPreview();
+  } catch (err) {
+    console.error(err);
+    if (preview) preview.innerHTML = `<div class="alert alert-danger py-2 mb-0">${err.message || 'Gagal memuat data'}</div>`;
+  }
+}
+
+function renderKasTahunanSummary() {
+  const wrap = document.getElementById('kas-tahunan-summary-wrap');
+  if (!wrap) return;
+  const label = kasTahunanStateCache.periode_label || '—';
+  const rows = kasTahunanReportCache.filter(r => r.kode || r.uraian === 'TOTAL BELANJA');
+  const body = rows.map(r => {
+    const isTotal = r.uraian === 'TOTAL BELANJA';
+    const indent = r.level === 1 ? 'padding-left:12px' : (r.level === 2 ? 'padding-left:22px' : '');
+    return `<tr class="${isTotal ? 'kas-tahunan-total' : ''}">
+      <td style="${indent}">${r.kode || ''}</td>
+      <td style="${indent}">${r.uraian || ''}</td>
+      <td class="kas-num">${formatKasAmount(r.sisa_bulan_lalu || 0)}</td>
+      <td class="kas-num">${formatKasAmount(r.anggaran_kas || 0)}</td>
+      <td class="kas-num">${formatKasAmount(r.realisasi || 0)}</td>
+      <td class="kas-num">${formatKasAmount(r.sisa_sd || 0)}</td>
+      <td class="kas-num">${(r.persen || 0).toFixed(2)}%</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `
+    <table class="kas-tahunan-summary-table">
+      <thead><tr>
+        <th colspan="7">${label} · ${kasTahunanPeriodRangeLabel(kasTahunanStateCache.from_bulan, kasTahunanStateCache.to_bulan)}</th>
+      </tr>
+      <tr>
+        <th>Kode</th><th>Uraian</th>
+        <th>Sisa Awal (3)</th><th>Anggaran Kas (4)</th><th>Realisasi (5)</th><th>Sisa Akhir (6)</th><th>% (7)</th>
+      </tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
+}
+
+function renderKasTahunanBalanceCheck() {
+  const el = document.getElementById('kas-tahunan-balance');
+  if (!el || !kasTahunanReportCache.length) { if (el) el.innerHTML = ''; return; }
+  const bad = kasTahunanReportCache.filter(r => (r.kode || r.uraian === 'TOTAL BELANJA') && !kasReportRowBalanced(r));
+  const monthlyOk = kasTahunanStateCache.monthly_sum_ok !== false && verifyKasTahunanMonthlySumClient();
+  const msgs = [];
+  if (!monthlyOk) {
+    msgs.push('<div class="alert alert-danger py-2 mb-2" style="font-size:12px"><i class="bi bi-x-circle me-1"></i> Total periode tidak sama dengan penjumlahan nilai per bulan — silakan muat ulang atau hubungi admin.</div>');
+  } else {
+    msgs.push('<div class="kas-tahunan-balance-ok"><i class="bi bi-check-circle-fill"></i> Anggaran &amp; realisasi periode = jumlah semua bulan dalam periode</div>');
+  }
+  if (bad.length) {
+    msgs.push(`<div class="alert alert-warning py-2 mb-0" style="font-size:12px"><i class="bi bi-exclamation-triangle me-1"></i> ${bad.length} baris: Sisa (6) harus = Sisa awal (3) + Anggaran (4) − Realisasi (5)</div>`);
+  } else if (monthlyOk) {
+    msgs.push('<div class="kas-tahunan-balance-ok mt-2"><i class="bi bi-check-circle-fill"></i> Rumus kolom 6 = (3 + 4) − 5 terpenuhi di semua baris</div>');
+  }
+  el.innerHTML = msgs.join('');
+}
+
+function renderKasTahunanMonthlyAudit() {
+  const wrap = document.getElementById('kas-tahunan-monthly-audit-wrap');
+  const monthly = kasTahunanStateCache.monthly_reports;
+  if (!wrap || !monthly?.length) { if (wrap) wrap.innerHTML = ''; return; }
+
+  const focusKodes = kasTahunanReportCache
+    .filter(r => r.kode && (r.level <= 1 || r.uraian === 'TOTAL BELANJA'))
+    .map(r => ({ kode: r.kode, uraian: r.uraian, isTotal: r.uraian === 'TOTAL BELANJA' }));
+  if (!focusKodes.find(r => r.isTotal)) {
+    const t = kasTahunanReportCache.find(r => r.uraian === 'TOTAL BELANJA');
+    if (t) focusKodes.push({ kode: '', uraian: 'TOTAL BELANJA', isTotal: true });
+  }
+
+  const monthHeaders = monthly.map(s => `<th>${KAS_BULAN_LABEL[s.bulan] || s.bulan}</th>`).join('');
+  const rows = focusKodes.map(item => {
+    const key = item.isTotal ? 'TOTAL BELANJA' : item.kode;
+    const periodRow = item.isTotal
+      ? kasTahunanReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {}
+      : kasTahunanReportCache.find(r => r.kode === item.kode) || {};
+    let sumAng = 0, sumReal = 0;
+    const monthCells = monthly.map(snap => {
+      const row = item.isTotal
+        ? (snap.report || []).find(r => r.uraian === 'TOTAL BELANJA')
+        : (snap.report || []).find(r => r.kode === item.kode);
+      const ang = row?.anggaran_kas || 0;
+      const real = row?.realisasi || 0;
+      sumAng += ang;
+      sumReal += real;
+      return `<td class="kas-num">${formatKasAmount(ang)}<br><small style="opacity:.75">R: ${formatKasAmount(real)}</small></td>`;
+    }).join('');
+    const angMatch = Math.abs(sumAng - (periodRow.anggaran_kas || 0)) < 0.02;
+    const realMatch = Math.abs(sumReal - (periodRow.realisasi || 0)) < 0.02;
+    const sumClass = angMatch && realMatch ? 'kas-audit-sum' : '';
+    return `<tr class="${item.isTotal ? 'kas-audit-total' : ''}">
+      <td>${item.kode || ''}</td>
+      <td>${item.uraian || ''}</td>
+      ${monthCells}
+      <td class="kas-num ${sumClass}">${formatKasAmount(sumAng)}<br><small style="opacity:.75">R: ${formatKasAmount(sumReal)}</small></td>
+      <td class="kas-num">${formatKasAmount(periodRow.anggaran_kas || 0)}<br><small style="opacity:.75">R: ${formatKasAmount(periodRow.realisasi || 0)}</small></td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="kas-tahunan-monthly-audit-wrap">
+      <h6><i class="bi bi-table me-1"></i>Verifikasi Penjumlahan per Bulan (Anggaran Kas / Realisasi)</h6>
+      <table class="kas-tahunan-monthly-audit">
+        <thead>
+          <tr><th rowspan="2">Kode</th><th rowspan="2">Uraian</th>${monthHeaders}<th rowspan="2">Σ Bulan</th><th rowspan="2">Laporan Periode</th></tr>
+          <tr>${monthly.map(() => '<th>Ang / Real</th>').join('')}</tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <small class="text-muted">Kolom <strong>Σ Bulan</strong> harus sama dengan <strong>Laporan Periode</strong>. Baris hijau = sudah cocok.</small>
+    </div>`;
+}
+
+function kasTahunanReportRowForKode(kode) {
+  return kasTahunanReportCache.find(r => r.kode === kode) || {};
+}
+
+function kasGetStoredRealisasiFromState(state, bulan, kode) {
+  return (state.realisasi?.[bulan]?.[kode]) || 0;
+}
+
+function kasDetailCumSisaToIdx(rak, kode, toIdx, state) {
+  let cumAng = 0, cumReal = 0;
+  for (let i = 0; i <= toIdx; i++) {
+    const m = KAS_BULAN_KEYS[i];
+    cumAng += kasRakAngkas(rak, m);
+    cumReal += kasGetStoredRealisasiFromState(state, m, kode);
+  }
+  return { cumAng, cumReal };
+}
+
+function kasPenDetailForPeriod(tpl, fromIdx, toIdx, rakMap, state) {
+  const rak = kasFindRak(tpl.kode, rakMap);
+  let angkas = 0, realisasi = 0;
+  for (let i = fromIdx; i <= toIdx; i++) {
+    const m = KAS_BULAN_KEYS[i];
+    angkas += kasRakAngkas(rak, m);
+    realisasi += kasGetStoredRealisasiFromState(state, m, tpl.kode);
+  }
+  const uraian = (rak && (rak.nama_rekening || rak.nama_sub_kegiatan)) ? (rak.nama_rekening || rak.nama_sub_kegiatan).trim() : tpl.uraian;
+  if (tpl.angOnly) {
+    return { kode: tpl.kode, uraian, level: 3, isDetail: true, angOnly: true,
+      sisa_bulan_lalu: null, anggaran_kas: angkas, realisasi: null, sisa_sd: null, persen: null };
+  }
+  const { cumAng, cumReal } = kasDetailCumSisaToIdx(rak, tpl.kode, toIdx, state);
+  const sisaSd = (cumAng || cumReal) ? (cumAng - cumReal) : null;
+  const sisaLalu = sisaSd != null ? (sisaSd - (angkas - realisasi)) : null;
+  const persen = angkas > 0 ? (realisasi / angkas) * 100 : null;
+  return { kode: tpl.kode, uraian, level: 3, isDetail: true,
+    sisa_bulan_lalu: sisaLalu, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
+}
+
+function kasPenMainRowValsPeriod(kode, reportCache) {
+  const main = reportCache.find(r => r.kode === kode) || {};
+  const ang = +(main.anggaran_kas || 0);
+  const real = +(main.realisasi || 0);
+  const sisaLalu = +(main.sisa_bulan_lalu || 0);
+  const sisaSd = main.sisa_sd != null ? +main.sisa_sd : (sisaLalu + ang - real);
+  const persen = ang > 0 ? (real / ang) * 100 : 0;
+  return { anggaran_kas: ang, sisa_sd: sisaSd, realisasi: real, sisa_bulan_lalu: sisaLalu, persen };
+}
+
+function buildKasPengecualianRowsRange(fromBulan, toBulan, reportCache, state, monthlyReports) {
+  const fromIdx = KAS_BULAN_KEYS.indexOf(fromBulan);
+  const toIdx = KAS_BULAN_KEYS.indexOf(toBulan);
+  if (fromIdx < 0 || toIdx < 0) return [];
+
+  const details5102 = KAS_PEN_DETAIL_ROWS.map(t => {
+    if (monthlyReports?.length) {
+      const rakMap = kasRakMapFromState(state);
+      const rak = kasFindRak(t.kode, rakMap);
+      let angkas = 0, realisasi = 0;
+      monthlyReports.forEach(snap => {
+        angkas += kasRakAngkas(rak, snap.bulan);
+        realisasi += kasGetStoredRealisasiFromState(state, snap.bulan, t.kode);
+      });
+      const uraian = (rak && (rak.nama_rekening || rak.nama_sub_kegiatan)) ? (rak.nama_rekening || rak.nama_sub_kegiatan).trim() : t.uraian;
+      const { cumAng, cumReal } = kasDetailCumSisaToIdx(rak, t.kode, toIdx, state);
+      const sisaSd = (cumAng || cumReal) ? (cumAng - cumReal) : null;
+      const sisaLalu = sisaSd != null ? (sisaSd - (angkas - realisasi)) : null;
+      const persen = angkas > 0 ? (realisasi / angkas) * 100 : null;
+      return { kode: t.kode, uraian, level: 3, isDetail: true,
+        sisa_bulan_lalu: sisaLalu, anggaran_kas: angkas, realisasi, sisa_sd: sisaSd, persen };
+    }
+    return kasPenDetailForPeriod(t, fromIdx, toIdx, kasRakMapFromState(state), state);
+  });
+  const pen5102 = kasPenAggDetails(details5102);
+  const vals = {};
+  vals['5.1.02.'] = pen5102;
+  vals['5.1.01.'] = kasPenMainRowValsPeriod('5.1.01.', reportCache);
+  vals['5.1.05.'] = kasPenMainRowValsPeriod('5.1.05.', reportCache);
+  vals['5.1.06.'] = kasPenMainRowValsPeriod('5.1.06.', reportCache);
+  vals['5.3.01.'] = kasPenMainRowValsPeriod('5.3.01.', reportCache);
+  vals['5.1.'] = kasPenAggDetails([
+    kasPenHierarchyRow({ kode: '5.1.01.' }, vals['5.1.01.']),
+    kasPenHierarchyRow({ kode: '5.1.02.' }, pen5102),
+    kasPenHierarchyRow({ kode: '5.1.05.' }, vals['5.1.05.']),
+    kasPenHierarchyRow({ kode: '5.1.06.' }, vals['5.1.06.']),
+  ]);
+  vals['5.3.'] = { ...vals['5.3.01.'] };
+  vals['5.'] = kasPenAggDetails([
+    kasPenHierarchyRow({ kode: '5.1.' }, vals['5.1.']),
+    kasPenHierarchyRow({ kode: '5.3.' }, vals['5.3.']),
+  ]);
+
+  const out = [];
+  KAS_PEN_HIERARCHY.forEach(def => {
+    out.push(kasPenHierarchyRow(def, vals[def.kode] || {}));
+    if (def.insertDetails) details5102.forEach(d => out.push(d));
+  });
+
+  const totalBelanja = reportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  const pen5ang = vals['5.'].anggaran_kas || 0;
+  const pen5real = vals['5.'].realisasi || 0;
+  const penSisaSD = vals['5.'].sisa_sd || 0;
+  const penSisaLalu = vals['5.'].sisa_bulan_lalu || 0;
+  const serapanAngkas = (totalBelanja.anggaran_kas || 0) - pen5ang;
+  const serapanReal = (totalBelanja.realisasi || 0) - pen5real;
+  const serapanSisaSD = (totalBelanja.sisa_sd || 0) - penSisaSD;
+  const serapanSisaLalu = (totalBelanja.sisa_bulan_lalu || 0) - penSisaLalu;
+  out.push({
+    uraian: 'TOTAL BELANJA PENGECUALIAN', level: 0,
+    sisa_bulan_lalu: penSisaLalu, anggaran_kas: pen5ang, realisasi: pen5real,
+    sisa_sd: penSisaSD,
+    persen: pen5ang !== 0 ? (pen5real / pen5ang) * 100 : 0,
+  });
+  out.push({
+    uraian: 'TOTAL SERAPAN ANGGARAN', level: 0, afterTotal: true,
+    sisa_bulan_lalu: serapanSisaLalu, anggaran_kas: serapanAngkas, realisasi: serapanReal,
+    sisa_sd: serapanSisaSD,
+    persen: serapanAngkas !== 0 ? (serapanReal / serapanAngkas) * 100 : 0,
+  });
+  return out;
+}
+
+function kasTahunanRekonValues() {
+  const t = kasTahunanReportCache.find(r => r.uraian === 'TOTAL BELANJA') || {};
+  return { anggaranKasSD: t.anggaran_kas || 0, realisasiSD: t.realisasi || 0 };
+}
+
+function buildKasTahunanHTML() {
+  const pl = kasTahunanStateCache.periode_label || '—';
+  const fromBulan = kasTahunanStateCache.from_bulan;
+  const toBulan = kasTahunanStateCache.to_bulan;
+  const periodRange = kasTahunanPeriodRangeLabel(fromBulan, toBulan);
+  const pengecualianRows = buildKasPengecualianRowsRange(fromBulan, toBulan, kasTahunanReportCache, kasTahunanStateCache, kasTahunanStateCache.monthly_reports);
+  const tglCetak = formatKasTahunanTglCetak();
+  const headOpts = { periodMode: true };
+  const titleOpts = { metaKey: 'PERIODE', periodRange };
+
+  const page1 = `<div class="kp-page kp-page-1">
+  <div class="kp-page-hdr"></div>
+  <div class="kp-page-body">
+  <div class="kp-report-main">
+  ${kasTitleBlockHTML(pl, titleOpts)}
+  <div class="kp-table-wrap">
+  <table class="kp-table">
+    ${kasTableHeadHTML(pl, headOpts)}
+    <tbody>${kasRowsToHTML(kasTahunanReportCache)}</tbody>
+  </table>
+  </div>
+  ${kasRekonBlockHTML(kasTahunanRekonValues())}
+  </div>
+  </div>
+  <div class="kp-page-ftr"></div>
+  </div>`;
+
+  const page2 = `<div class="kp-page kp-page-2">
+  <div class="kp-page-hdr"></div>
+  <div class="kp-page-body">
+  <div class="kp-pen-content">
+  <div class="kp-table-wrap">
+  <table class="kp-table pengecualian-table">
+    ${kasTableHeadHTML(pl, { pengecualian: true, periodMode: true })}
+    <tbody>${kasRowsToHTML(pengecualianRows, { pengecualian: true })}</tbody>
+  </table>
+  </div>
+  <div class="kp-ttd-row">
+  <div class="kp-ttd-single">
+    <div>${tglCetak}</div>
+    <div>PENGGUNA ANGGARAN</div>
+    <div class="kp-ttd-space"></div>
+    <div class="kp-ttd-name">Hendri Arulan, S.Pd., M.M</div>
+    <div>NIP. 19670719 199103 1 009</div>
+  </div>
+  </div>
+  </div>
+  </div>
+  <div class="kp-page-ftr"></div>
+  </div>`;
+
+  return page1 + page2;
+}
+
+function renderKasTahunanPreview() {
+  const el = document.getElementById('kas-tahunan-preview');
+  if (!el) return;
+  if (!kasTahunanReportCache.length) {
+    el.innerHTML = '<div class="text-muted text-center py-4">Belum ada data — upload RAK dan isi realisasi terlebih dahulu.</div>';
+    return;
+  }
+  el.innerHTML = buildKasTahunanHTML();
+  requestAnimationFrame(() => requestAnimationFrame(() => fitKasLaporanPages(el)));
+}
+
+function kasTahunanPdfFilename() {
+  const pl = (kasTahunanStateCache.periode_label || 'Laporan').replace(/[^\w\s-]/g, '').trim();
+  return `Angkas Belanja 2026 - ${pl}.pdf`;
+}
+
+function mountKasTahunanForExport() {
+  const host = document.getElementById('kas-print');
+  host.innerHTML = buildKasTahunanHTML();
+  const prevStyle = host.getAttribute('style') || '';
+  host.style.cssText = 'position:fixed;left:-10000px;top:0;display:block;visibility:visible;background:#fff;z-index:-1;';
+  fitKasLaporanPages(host);
+  return { host, prevStyle };
+}
+
+async function saveKasTahunanPdf() {
+  await ensurePdfLibs();
+  const { host, prevStyle } = mountKasTahunanForExport();
+  const filename = kasTahunanPdfFilename();
+  try {
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const pages = [...host.querySelectorAll('.kp-page')];
+    if (!pages.length) throw new Error('Tidak ada halaman laporan.');
+    if (window.PDFLib?.PDFDocument) {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const pageW = 595.28;
+      const pageH = 841.89;
+      for (const pageEl of pages) {
+        const canvas = await renderKasPageCanvas(pageEl);
+        const page = pdfDoc.addPage([pageW, pageH]);
+        let img;
+        try {
+          img = await pdfDoc.embedJpg(dataUrlToBytes(canvas.toDataURL('image/jpeg', 0.92)));
+        } catch {
+          img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png')));
+        }
+        page.drawImage(img, { x: 0, y: 0, width: pageW, height: pageH });
+      }
+      downloadPdfBlob(await pdfDoc.save(), filename);
+      return;
+    }
+    const h2pdfFn = window.html2pdf;
+    if (typeof h2pdfFn !== 'function') {
+      await ensureHtml2Pdf();
+    }
+    if (typeof window.html2pdf !== 'function') throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+    await window.html2pdf().set({
+      margin: 0,
+      filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    }).from(host).save();
+  } catch (err) {
+    console.error('Simpan PDF gagal:', err);
+    alert('Gagal menyimpan PDF: ' + (err.message || err));
+  } finally {
+    restoreKasPrintHost(host, prevStyle);
+  }
+}
+
+function printKasTahunanLaporan() {
+  const { host, prevStyle } = mountKasTahunanForExport();
+  fitKasLaporanPages(host);
+  host.style.cssText = 'display:block;position:static;background:#fff;width:100%;';
+  document.body.classList.add('kas-printing');
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove('kas-printing');
+    restoreKasPrintHost(host, prevStyle);
+  }, 600);
+}
+
+async function exportKasTahunanExcel() {
+  await ensureXlsx();
+  const pl = kasTahunanStateCache.periode_label || '—';
+  const fromBulan = kasTahunanStateCache.from_bulan;
+  const toBulan = kasTahunanStateCache.to_bulan;
+  const wb = XLSX.utils.book_new();
+  const data = [];
+  const merges = [];
+  kasExcelPushHeader(data, pl, merges, 'PERIODE');
+  kasExcelPushTableHeader(data, pl, { periodMode: true }, merges);
+  const summaryStart = data.length;
+  kasExcelPushRows(data, kasTahunanReportCache, false);
+  kasExcelPushRekon(data, kasTahunanRekonValues());
+  const page2HeaderRow = data.length;
+  kasExcelPushTableHeader(data, pl, { pengecualian: true, periodMode: true }, merges);
+  const pengecualianStart = data.length;
+  kasExcelPushRows(data, buildKasPengecualianRowsRange(fromBulan, toBulan, kasTahunanReportCache, kasTahunanStateCache, kasTahunanStateCache.monthly_reports), true);
+  kasExcelPushTtd(data, merges);
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{ wch: 24 }, { wch: 4 }, { wch: 42 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 }];
+  ws['!merges'] = merges;
+  ws['!rows'] = [{ hpt: 0 }];
+  ws['!rowBreaks'] = [page2HeaderRow];
+  if (!ws['!pageSetup']) ws['!pageSetup'] = {};
+  ws['!pageSetup'].paperSize = 9;
+  ws['!pageSetup'].orientation = 'portrait';
+  ws['!pageSetup'].scale = 85;
+  kasExcelFormatNumbers(ws, summaryStart, page2HeaderRow);
+  kasExcelFormatNumbers(ws, pengecualianStart, data.length);
+  XLSX.utils.book_append_sheet(wb, ws, 'CETAK Realisasi');
+  XLSX.writeFile(wb, kasTahunanPdfFilename().replace('.pdf', '.xlsx'));
+}
+
 const GAJI_GRUPS = [
   { id: 'gaji', label: 'Gaji ASN', icon: 'wallet2' },
   { id: 'tpp', label: 'TPP', icon: 'cash-stack' },
@@ -20234,6 +21726,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initManualNumericInputUX();
   initPotonganFormListeners();
   initSettingsNav();
+  initPortalUiModeSystem();
   syncBattleProjLayout();
   resetAllShells();
   setFxLayerActive(true);

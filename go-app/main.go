@@ -966,6 +966,7 @@ func main() {
         mux.HandleFunc("/data/settings", cors(handleSettings))
         mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
         mux.HandleFunc("/data/anggaran/bulk", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
+        mux.HandleFunc("/data/kas-belanja/laporan-tahunan", cors(requireAuth(handleKasLaporanTahunan)))
         mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
         mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
         mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))
