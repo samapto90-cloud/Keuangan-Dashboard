@@ -62,7 +62,7 @@ function ensureBinary() {
   console.log("==> Build Linux binary (fresh)...");
   const r = spawnSync(
     "go",
-    ["build", "-ldflags", "-s -X main.buildSHA=portal-video", "-o", "keuangan-linux-amd64", "."],
+    ["build", "-ldflags", "-s -X main.buildSHA=aurora-v3", "-o", "keuangan-linux-amd64", "."],
     {
       cwd: goApp,
       env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },

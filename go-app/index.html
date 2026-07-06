@@ -103,8 +103,8 @@
       --aurora-mesh-1: radial-gradient(ellipse 85% 65% at 18% 22%, var(--aurora-violet) 0%, transparent 58%);
       --aurora-mesh-2: radial-gradient(ellipse 75% 55% at 82% 12%, var(--aurora-cyan) 0%, transparent 52%);
       --aurora-mesh-3: radial-gradient(ellipse 70% 60% at 48% 88%, var(--aurora-teal) 0%, transparent 55%);
-      --aurora-glass-bg: rgba(12, 18, 36, 0.38);
-      --aurora-glass-bg-hover: rgba(18, 26, 48, 0.52);
+      --aurora-glass-bg: rgba(12, 18, 36, 0.52);
+      --aurora-glass-bg-hover: rgba(22, 30, 58, 0.68);
       --aurora-glass-border: rgba(255, 255, 255, 0.14);
       --aurora-glass-border-hover: rgba(255, 255, 255, 0.28);
       --aurora-glass-blur: 22px;
@@ -197,6 +197,7 @@
     #portal-screen:not(.hidden) {
       background: var(--aurora-midnight);
       isolation: isolate;
+      font-family: var(--aurora-font);
     }
     #portal-screen:not(.hidden)::before {
       content: '';
@@ -206,9 +207,91 @@
       pointer-events: none;
       background: var(--aurora-midnight);
       background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
-      background-size: 140% 140%, 130% 130%, 125% 125%;
+      background-size: 150% 150%, 140% 140%, 135% 135%;
       background-position: 0% 0%, 100% 0%, 50% 100%;
       animation: auroraMeshDrift 32s var(--aurora-ease) infinite alternate, auroraMeshHue 48s ease-in-out infinite;
+    }
+    #portal-screen:not(.hidden) .portal-video-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+      background: transparent;
+    }
+    #portal-screen:not(.hidden) .portal-hero-video {
+      position: relative;
+      z-index: 0;
+      opacity: 0.2;
+      mix-blend-mode: soft-light;
+      filter: saturate(0.75);
+    }
+    #portal-screen:not(.hidden) .portal-video-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(6, 9, 20, 0.72) 0%, rgba(6, 9, 20, 0.2) 40%, rgba(6, 9, 20, 0.28) 60%, rgba(6, 9, 20, 0.78) 100%),
+        radial-gradient(ellipse 80% 60% at 20% 15%, rgba(109, 40, 217, 0.22), transparent 55%),
+        radial-gradient(ellipse 70% 55% at 85% 20%, rgba(56, 189, 248, 0.18), transparent 52%),
+        radial-gradient(ellipse 65% 50% at 50% 90%, rgba(45, 212, 191, 0.14), transparent 58%);
+    }
+    #portal-screen:not(.hidden) .portal-video-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
+      background-size: 150% 150%, 140% 140%, 135% 135%;
+      background-position: 0% 0%, 100% 0%, 50% 100%;
+      mix-blend-mode: screen;
+      opacity: 0.72;
+      animation: auroraMeshDrift 28s var(--aurora-ease) infinite alternate-reverse, auroraMeshHue 40s ease-in-out infinite;
+    }
+    #portal-screen:not(.hidden) .portal-wrap {
+      position: relative;
+      z-index: 3;
+    }
+    #portal-screen:not(.hidden) .portal-header {
+      position: fixed;
+      z-index: 12;
+    }
+    #portal-screen:not(.hidden) .portal-brand-minimal {
+      background: var(--aurora-glass-bg);
+      border: 1px solid var(--aurora-glass-border);
+      border-radius: 999px;
+      box-shadow: var(--aurora-glass-shadow), 0 0 1.5rem var(--aurora-glow);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      padding: clamp(0.375rem, 0.8vh, 0.5rem) clamp(0.625rem, 1.5vw, 0.875rem);
+    }
+    #portal-screen:not(.hidden) .portal-brand-minimal .portal-brand-name {
+      font-family: var(--aurora-font);
+      color: var(--aurora-text);
+      text-shadow: 0 0 1rem rgba(56, 189, 248, 0.35);
+    }
+    #portal-screen:not(.hidden) .portal-summon-btn {
+      font-family: var(--aurora-font);
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      background: var(--aurora-glass-bg) !important;
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4) !important;
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4) !important;
+      color: var(--aurora-text) !important;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+        var(--aurora-glass-shadow),
+        0 0 2rem rgba(56, 189, 248, 0.28),
+        0 0 3.5rem rgba(139, 92, 246, 0.18) !important;
+    }
+    #portal-screen:not(.hidden) .portal-summon-btn:hover {
+      transform: translateY(-0.1875rem) !important;
+      border-color: rgba(125, 211, 252, 0.65) !important;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+        var(--aurora-glass-shadow-hover),
+        0 0 2.5rem rgba(56, 189, 248, 0.38),
+        0 0 4rem rgba(139, 92, 246, 0.28) !important;
     }
     body.fx-portal-home.portal-video-mode #global-fx-vignette,
     body.fx-portal-home.portal-video-mode .fx-burst-canvas,
@@ -222,9 +305,10 @@
       overflow-x: hidden;
     }
     @media (prefers-reduced-motion: reduce) {
-      #portal-screen:not(.hidden)::before {
+      #portal-screen:not(.hidden)::before,
+      #portal-screen:not(.hidden) .portal-video-bg::after {
         animation: none;
-        opacity: 0.92;
+        opacity: 0.85;
       }
     }
     body.fx-portal-home.portal-video-mode #sipkeu-fx-layer {
@@ -3603,6 +3687,71 @@
     }
     body:not(.portal-video-mode) .portal-app-card.portal-theme-gaji .portal-app-action { color: #1E3A8A; }
     body:not(.portal-video-mode) .portal-app-card.portal-theme-gaji h3 { text-shadow: none; color: #0f172a; }
+
+    /* Aurora portal — override legacy .portal-app-card (tidak bergantung class body) */
+    #portal-screen:not(.hidden) .portal-app-card.portal-card-clean {
+      flex-direction: row !important;
+      align-items: center !important;
+      min-height: 0 !important;
+      padding: clamp(0.375rem, 0.8vh, 0.5625rem) clamp(0.5rem, 1vw, 0.6875rem) !important;
+      border-radius: var(--portal-radius) !important;
+      background: var(--aurora-glass-bg) !important;
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4) !important;
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4) !important;
+      border: 1px solid var(--aurora-glass-border) !important;
+      box-shadow: var(--aurora-glass-shadow) !important;
+      transition: var(--aurora-transition) !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-card-clean:hover {
+      transform: translateY(-0.3125rem) !important;
+      border-color: var(--aurora-glass-border-hover) !important;
+      background: var(--aurora-glass-bg-hover) !important;
+      box-shadow: var(--aurora-glass-shadow-hover) !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-card-clean::before {
+      inset: auto !important;
+      left: 0 !important;
+      top: 16% !important;
+      bottom: 16% !important;
+      right: auto !important;
+      width: 0.1875rem !important;
+      border-radius: 0 0.25rem 0.25rem 0 !important;
+      background: var(--card-accent, #38bdf8) !important;
+      opacity: 0.92 !important;
+      box-shadow: 0 0 0.75rem var(--aurora-glow, rgba(56, 189, 248, 0.35)) !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-card-clean .portal-app-icon {
+      width: var(--portal-icon) !important;
+      height: var(--portal-icon) !important;
+      margin: 0 0 0 0.375rem !important;
+      border-radius: 0.75rem !important;
+      margin-bottom: 0 !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-card-clean h3 {
+      font-family: var(--aurora-font) !important;
+      color: var(--aurora-text) !important;
+      text-shadow: none !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-theme-gaji {
+      background: var(--aurora-glass-bg) !important;
+      border-color: var(--aurora-glass-border) !important;
+    }
+    #portal-screen:not(.hidden) .portal-app-card.portal-theme-gaji h3 {
+      color: var(--aurora-text) !important;
+    }
+    #portal-screen:not(.hidden) .portal-modules-dock {
+      background: var(--aurora-glass-bg) !important;
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35) !important;
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35) !important;
+      border-top: 1px solid var(--aurora-glass-border) !important;
+      box-shadow: var(--aurora-glass-shadow) !important;
+      width: 100% !important;
+      border-radius: clamp(1rem, 2vw, 1.375rem) clamp(1rem, 2vw, 1.375rem) 0 0 !important;
+    }
+    #portal-screen:not(.hidden) .portal-wrap {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
 
     /* Aurora portal — override legacy .portal-app-card yang muncul setelahnya di cascade */
     body.portal-video-mode #portal-screen .portal-app-card.portal-card-clean {
