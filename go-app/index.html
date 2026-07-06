@@ -42,6 +42,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Bangers&family=Orbitron:wght@600;700&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet" />
   </noscript>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap');
     :root {
       --sidebar-width: 268px;
       --chakra: #3b82f6;
@@ -90,6 +91,30 @@
       --spatial-topbar-bg: rgba(8, 14, 28, 0.82);
       --spatial-input-bg: rgba(15, 23, 42, 0.85);
       --spatial-input-border: rgba(148, 163, 184, 0.22);
+      /* Aurora Glassmorphism — portal & dashboard */
+      --aurora-font: 'Plus Jakarta Sans', 'Inter', 'Outfit', system-ui, sans-serif;
+      --aurora-midnight: #060914;
+      --aurora-midnight-2: #0c1228;
+      --aurora-blue-deep: #0f172a;
+      --aurora-violet: rgba(109, 40, 217, 0.42);
+      --aurora-violet-soft: rgba(139, 92, 246, 0.22);
+      --aurora-teal: rgba(45, 212, 191, 0.28);
+      --aurora-cyan: rgba(56, 189, 248, 0.32);
+      --aurora-mesh-1: radial-gradient(ellipse 85% 65% at 18% 22%, var(--aurora-violet) 0%, transparent 58%);
+      --aurora-mesh-2: radial-gradient(ellipse 75% 55% at 82% 12%, var(--aurora-cyan) 0%, transparent 52%);
+      --aurora-mesh-3: radial-gradient(ellipse 70% 60% at 48% 88%, var(--aurora-teal) 0%, transparent 55%);
+      --aurora-glass-bg: rgba(12, 18, 36, 0.38);
+      --aurora-glass-bg-hover: rgba(18, 26, 48, 0.52);
+      --aurora-glass-border: rgba(255, 255, 255, 0.14);
+      --aurora-glass-border-hover: rgba(255, 255, 255, 0.28);
+      --aurora-glass-blur: 22px;
+      --aurora-glass-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      --aurora-glass-shadow-hover: 0 0.75rem 2.25rem rgba(0, 0, 0, 0.35), 0 0 2rem var(--aurora-glow, rgba(56, 189, 248, 0.18)), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      --aurora-glow: rgba(56, 189, 248, 0.22);
+      --aurora-text: #f1f5f9;
+      --aurora-text-muted: #94a3b8;
+      --aurora-transition: all 0.3s ease-in-out;
+      --aurora-ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
     body[data-ui-mode="light"] {
       --spatial-bg: #e8edf5;
@@ -115,6 +140,21 @@
       --glass-border: rgba(15, 23, 42, 0.1);
       --text-main: #0f172a;
       --text-muted: #64748b;
+      --aurora-midnight: #e8edf5;
+      --aurora-midnight-2: #f1f5f9;
+      --aurora-violet: rgba(124, 58, 237, 0.16);
+      --aurora-violet-soft: rgba(139, 92, 246, 0.12);
+      --aurora-teal: rgba(20, 184, 166, 0.14);
+      --aurora-cyan: rgba(14, 165, 233, 0.16);
+      --aurora-glass-bg: rgba(255, 255, 255, 0.58);
+      --aurora-glass-bg-hover: rgba(255, 255, 255, 0.78);
+      --aurora-glass-border: rgba(15, 23, 42, 0.1);
+      --aurora-glass-border-hover: rgba(37, 99, 235, 0.28);
+      --aurora-glass-shadow: 0 0.25rem 1.25rem rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      --aurora-glass-shadow-hover: 0 0.625rem 1.75rem rgba(15, 23, 42, 0.12), 0 0 1.5rem var(--aurora-glow, rgba(37, 99, 235, 0.14)), inset 0 1px 0 rgba(255, 255, 255, 1);
+      --aurora-glow: rgba(37, 99, 235, 0.18);
+      --aurora-text: #0f172a;
+      --aurora-text-muted: #64748b;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -183,25 +223,37 @@
       overflow: hidden;
       height: 100dvh;
       height: 100svh;
-      background: #060a14;
-      --portal-accent: #c9a84c;
-      --portal-accent-soft: rgba(201, 168, 76, 0.35);
-      --portal-surface: rgba(12, 18, 32, 0.82);
-      --portal-surface-border: rgba(148, 163, 184, 0.2);
-      --portal-pad-x: clamp(10px, 2.2vw, 22px);
-      --portal-pad-y: clamp(6px, 1.4vh, 14px);
-      --portal-radius: clamp(14px, 2.2vw, 22px);
-      --portal-logo: clamp(40px, 6.5vw, 56px);
+      background: var(--aurora-midnight);
+      font-family: var(--aurora-font);
+      --portal-accent: #5eead4;
+      --portal-accent-soft: rgba(94, 234, 212, 0.35);
+      --portal-surface: var(--aurora-glass-bg);
+      --portal-surface-border: var(--aurora-glass-border);
+      --portal-pad-x: clamp(0.625rem, 2.2vw, 1.375rem);
+      --portal-pad-y: clamp(0.375rem, 1.4vh, 0.875rem);
+      --portal-radius: clamp(0.875rem, 2.2vw, 1.375rem);
+      --portal-logo: clamp(2.5rem, 6.5vw, 3.5rem);
       --portal-name: clamp(0.78rem, 1.2vw + 0.4rem, 1.05rem);
       --portal-motto: clamp(0.62rem, 0.8vw + 0.35rem, 0.78rem);
-      --portal-icon: clamp(28px, 3.2vw, 38px);
-      --portal-title: clamp(9px, 1vw, 11px);
-      --portal-badge-fs: clamp(8px, 1.1vw, 10px);
-      --portal-footer-fs: clamp(9px, 1.5vw, 11px);
-      --portal-header-gap: clamp(4px, 0.8vh, 10px);
+      --portal-icon: clamp(1.75rem, 3.2vw, 2.375rem);
+      --portal-title: clamp(0.5625rem, 1vw, 0.6875rem);
+      --portal-badge-fs: clamp(0.5rem, 1.1vw, 0.5625rem);
+      --portal-footer-fs: clamp(0.5625rem, 1.5vw, 0.6875rem);
+      --portal-header-gap: clamp(0.25rem, 0.8vh, 0.625rem);
+    }
+    @keyframes auroraMeshDrift {
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.88; }
+      33% { transform: translate3d(2%, -1.5%, 0) scale(1.04); opacity: 0.95; }
+      66% { transform: translate3d(-1.5%, 2%, 0) scale(1.02); opacity: 0.9; }
+      100% { transform: translate3d(1%, 1%, 0) scale(1.05); opacity: 0.92; }
+    }
+    @keyframes auroraMeshHue {
+      0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+      50% { filter: hue-rotate(18deg) saturate(1.08); }
     }
     body.fx-portal-home.portal-video-mode #portal-screen {
-      background: #060a14;
+      background: var(--aurora-midnight);
+      isolation: isolate;
       padding:
         max(var(--portal-pad-y), env(safe-area-inset-top, 0px))
         max(var(--portal-pad-x), env(safe-area-inset-right, 0px))
@@ -215,23 +267,43 @@
       max-height: 100dvh;
       max-height: 100svh;
     }
-    body.fx-portal-home.portal-video-mode .portal-video-bg {
+    body.fx-portal-home.portal-video-mode #portal-screen::before {
+      content: '';
       position: fixed;
       inset: 0;
       z-index: 0;
+      pointer-events: none;
+      background: var(--aurora-midnight);
+      background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
+      background-size: 140% 140%, 130% 130%, 125% 125%;
+      background-position: 0% 0%, 100% 0%, 50% 100%;
+      animation: auroraMeshDrift 32s var(--aurora-ease) infinite alternate, auroraMeshHue 48s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body.fx-portal-home.portal-video-mode #portal-screen::before {
+        animation: none;
+        opacity: 0.92;
+      }
+    }
+    body.fx-portal-home.portal-video-mode .portal-video-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
       border-radius: 0;
-      background: #060a14;
+      background: transparent;
       transform: translateZ(0);
       backface-visibility: hidden;
     }
     body.fx-portal-home.portal-video-mode .portal-hero-video {
       transform: translateZ(0);
       backface-visibility: hidden;
+      opacity: 0.35;
+      mix-blend-mode: luminosity;
     }
     body.fx-portal-home.portal-video-mode .portal-video-scrim {
       background:
-        linear-gradient(180deg, rgba(4, 8, 18, 0.42) 0%, rgba(4, 8, 18, 0.06) 38%, rgba(4, 8, 18, 0.12) 58%, rgba(4, 8, 18, 0.62) 100%),
-        radial-gradient(ellipse 70% 55% at 50% 42%, transparent 42%, rgba(4, 8, 18, 0.35) 100%);
+        linear-gradient(180deg, rgba(6, 9, 20, 0.55) 0%, rgba(6, 9, 20, 0.15) 38%, rgba(6, 9, 20, 0.25) 58%, rgba(6, 9, 20, 0.72) 100%),
+        radial-gradient(ellipse 72% 58% at 50% 42%, transparent 38%, rgba(6, 9, 20, 0.45) 100%);
     }
     body.fx-portal-home.portal-video-mode .portal-wrap {
       position: relative;
@@ -265,15 +337,15 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 10px;
+      gap: 0.625rem;
       margin: 0;
-      padding: 0;
-      background: none;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
+      padding: clamp(0.375rem, 0.8vh, 0.5rem) clamp(0.625rem, 1.5vw, 0.875rem);
+      background: var(--aurora-glass-bg);
+      border: 1px solid var(--aurora-glass-border);
+      border-radius: 999px;
+      box-shadow: var(--aurora-glass-shadow);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.25);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.25);
     }
     body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-logo {
       flex-shrink: 0;
@@ -286,15 +358,15 @@
     body.fx-portal-home.portal-video-mode .portal-brand-minimal .portal-brand-name {
       margin: 0;
       padding: 0;
-      font-family: 'Outfit', sans-serif;
+      font-family: var(--aurora-font);
       font-size: clamp(0.92rem, 1.1vw + 0.3rem, 1.05rem);
       font-weight: 700;
-      letter-spacing: 0.01em;
+      letter-spacing: 0.02em;
       text-transform: none;
-      color: #f8fafc;
+      color: var(--aurora-text);
       line-height: 1.2;
       white-space: nowrap;
-      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+      text-shadow: 0 0 1.25rem rgba(56, 189, 248, 0.25);
       animation: none !important;
     }
     @media (max-width: 480px) {
@@ -312,19 +384,19 @@
       }
     }
     body.fx-portal-home.portal-video-mode .portal-battle-hero:not(.portal-brand-minimal) {
-      background: rgba(6, 10, 22, 0.32);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--aurora-glass-bg);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.25);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.25);
       margin-bottom: 0;
-      padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 18px);
+      padding: clamp(0.375rem, 1vh, 0.625rem) clamp(0.75rem, 2vw, 1.125rem);
       border-bottom: none;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--aurora-glass-border);
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: clamp(8px, 1.5vw, 14px);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+      gap: clamp(0.5rem, 1.5vw, 0.875rem);
+      box-shadow: var(--aurora-glass-shadow);
     }
     body.fx-portal-home.portal-video-mode .portal-modules-dock,
     body.fx-portal-home.portal-video-mode .portal-footer {
@@ -370,15 +442,17 @@
     }
     body.fx-portal-home.portal-video-mode .sakubijak-name {
       margin: 0;
+      font-family: var(--aurora-font);
       font-size: var(--portal-name);
       line-height: 1.15;
       animation: none !important;
-      color: #f8fafc;
+      color: var(--aurora-text);
       font-weight: 800;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
     body.fx-portal-home.portal-video-mode .sakubijak-motto {
-      margin: 1px 0 0;
+      margin: 0.0625rem 0 0;
+      font-family: var(--aurora-font);
       font-size: var(--portal-motto);
       line-height: 1.25;
       animation: none !important;
@@ -403,21 +477,24 @@
       flex-shrink: 0;
       width: 100%;
       margin-top: auto;
-      padding: clamp(8px, 1.2vh, 14px) clamp(8px, 1.5vw, 14px) clamp(4px, 0.6vh, 8px);
-      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
-      border-radius: clamp(16px, 2vw, 22px) clamp(16px, 2vw, 22px) 0 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: clamp(0.5rem, 1.2vh, 0.875rem) clamp(0.5rem, 1.5vw, 0.875rem) clamp(0.25rem, 0.6vh, 0.5rem);
+      background: var(--aurora-glass-bg);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      border-radius: clamp(1rem, 2vw, 1.375rem) clamp(1rem, 2vw, 1.375rem) 0 0;
+      border-top: 1px solid var(--aurora-glass-border);
+      box-shadow: var(--aurora-glass-shadow);
     }
     body.fx-portal-home.portal-video-mode .portal-grid {
       flex: 0 1 auto;
       min-height: 0;
-      max-height: 40vh;
+      max-height: min(42vh, 28rem);
       overflow-x: hidden;
       overflow-y: auto;
       align-content: start;
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: clamp(6px, 0.9vw, 10px);
+      gap: clamp(0.375rem, 1vw, 0.625rem);
       margin-bottom: 0;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
@@ -425,8 +502,18 @@
     body.fx-portal-home.portal-video-mode .portal-modules-head {
       flex-shrink: 0;
       text-align: center;
-      margin-bottom: clamp(4px, 0.6vh, 8px);
-      padding: 0 4px;
+      margin-bottom: clamp(0.25rem, 0.6vh, 0.5rem);
+      padding: 0 0.25rem;
+    }
+    body.fx-portal-home.portal-video-mode .portal-modules-head h2 {
+      margin: 0;
+      font-family: var(--aurora-font);
+      font-size: clamp(0.5625rem, 1.1vw, 0.6875rem);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--aurora-text-muted);
+      text-shadow: none;
     }
     .portal-modules-head-row {
       display: flex;
@@ -434,6 +521,13 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
+    }
+    body.fx-portal-home.portal-video-mode .spatial-ui-mode {
+      background: var(--aurora-glass-bg);
+      border-color: var(--aurora-glass-border);
+      box-shadow: var(--aurora-glass-shadow);
+      backdrop-filter: blur(14px) saturate(1.25);
+      -webkit-backdrop-filter: blur(14px) saturate(1.25);
     }
     /* ── Spatial UI: mode toggle + 3D depth ── */
     .spatial-ui-mode {
@@ -498,14 +592,15 @@
       margin: 0 auto 12px;
     }
     body[data-ui-mode] {
-      background: var(--spatial-bg);
+      background: var(--aurora-midnight, var(--spatial-bg));
       color: var(--spatial-text);
+      font-family: var(--aurora-font, 'Outfit', system-ui, sans-serif);
     }
     body[data-ui-mode] #main,
     body[data-ui-mode] #kas-main,
     body[data-ui-mode] #gaji-main,
     body[data-ui-mode] .settings-main {
-      background: var(--spatial-bg);
+      background: var(--aurora-midnight, var(--spatial-bg));
       position: relative;
       z-index: 1;
     }
@@ -519,10 +614,19 @@
       left: var(--kas-sidebar-width, 272px);
       pointer-events: none;
       z-index: 0;
-      background:
-        radial-gradient(ellipse 55% 42% at 12% 8%, var(--spatial-glow-1), transparent 58%),
-        radial-gradient(ellipse 48% 38% at 88% 12%, var(--spatial-glow-2), transparent 55%),
-        linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+      background: var(--aurora-midnight, var(--spatial-bg));
+      background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
+      background-size: 140% 140%, 130% 130%, 125% 125%;
+      background-position: 0% 0%, 100% 0%, 50% 100%;
+      animation: auroraMeshDrift 36s var(--aurora-ease, ease) infinite alternate;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body[data-ui-mode] #main::before,
+      body[data-ui-mode] #kas-main::before,
+      body[data-ui-mode] #gaji-main::before,
+      body[data-ui-mode] .settings-main::before {
+        animation: none;
+      }
     }
     body[data-ui-mode] #sidebar,
     body[data-ui-mode] #kas-sidebar,
@@ -543,11 +647,11 @@
     body[data-ui-mode] .kas-topbar,
     body[data-ui-mode] .gaji-topbar-wrap,
     body[data-ui-mode] .settings-mobile-topbar {
-      background: var(--spatial-topbar-bg);
-      border-bottom: 1px solid var(--spatial-border);
-      box-shadow: var(--spatial-elev-1);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--aurora-glass-bg, var(--spatial-topbar-bg));
+      border-bottom: 1px solid var(--aurora-glass-border, var(--spatial-border));
+      box-shadow: var(--aurora-glass-shadow, var(--spatial-elev-1));
+      backdrop-filter: blur(var(--aurora-glass-blur, 14px)) saturate(1.25);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur, 14px)) saturate(1.25);
     }
     body[data-ui-mode] .stat-card,
     body[data-ui-mode] .kas-stat,
@@ -559,18 +663,20 @@
     body[data-ui-mode] .form-card,
     body[data-ui-mode] .gaji-dash-hero,
     body[data-ui-mode] .gaji-panel-card {
-      background: var(--spatial-surface) !important;
-      border: 1px solid var(--spatial-border) !important;
-      box-shadow: var(--spatial-elev-1) !important;
+      background: var(--aurora-glass-bg, var(--spatial-surface)) !important;
+      border: 1px solid var(--aurora-glass-border, var(--spatial-border)) !important;
+      box-shadow: var(--aurora-glass-shadow, var(--spatial-elev-1)) !important;
       color: var(--spatial-text);
-      transform-style: preserve-3d;
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+      backdrop-filter: blur(12px) saturate(1.2);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+      transition: var(--aurora-transition, transform 0.28s ease, box-shadow 0.28s ease);
     }
     body[data-ui-mode] .stat-card:hover,
     body[data-ui-mode] .kas-stat:hover,
     body[data-ui-mode] .sao-stat:hover {
-      transform: translateY(-4px) translateZ(12px);
-      box-shadow: var(--spatial-elev-2) !important;
+      transform: translateY(-0.25rem);
+      box-shadow: var(--aurora-glass-shadow-hover, var(--spatial-elev-2)) !important;
+      border-color: var(--aurora-glass-border-hover, var(--spatial-border)) !important;
     }
     body[data-ui-mode] .stat-card .label,
     body[data-ui-mode] .kas-stat .lbl,
@@ -596,74 +702,129 @@
       color: var(--spatial-text) !important;
     }
     body[data-ui-mode] #login-screen .login-card {
-      background: var(--spatial-surface);
-      border: 1px solid var(--spatial-border);
-      box-shadow: var(--spatial-elev-3);
+      position: relative;
+      z-index: 1;
+      background: var(--aurora-glass-bg, var(--spatial-surface));
+      border: 1px solid var(--aurora-glass-border, var(--spatial-border));
+      box-shadow: var(--aurora-glass-shadow, var(--spatial-elev-3));
+      backdrop-filter: blur(var(--aurora-glass-blur, 16px)) saturate(1.25);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur, 16px)) saturate(1.25);
       color: var(--spatial-text);
+    }
+    body[data-ui-mode] #login-screen {
+      background: var(--aurora-midnight, var(--spatial-bg));
+    }
+    body[data-ui-mode] #login-screen::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
+      background-size: 140% 140%, 130% 130%, 125% 125%;
+      background-position: 0% 0%, 100% 0%, 50% 100%;
+      animation: auroraMeshDrift 36s var(--aurora-ease, ease) infinite alternate;
+      opacity: 0.85;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body[data-ui-mode] #login-screen::before {
+        animation: none;
+      }
     }
     body[data-ui-mode] #login-screen .form-label { color: var(--spatial-text-muted); }
     body.fx-portal-home.portal-video-mode .portal-grid {
-      perspective: 1100px;
-      perspective-origin: 50% 35%;
-    }
-    body.fx-portal-home.portal-video-mode .portal-modules-head h2 {
-      margin: 0;
-      font-size: clamp(9px, 1.1vw, 11px);
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(226, 232, 240, 0.75);
-      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+      perspective: none;
     }
     body.fx-portal-home.portal-video-mode .portal-modules-head p {
       display: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-card-clean {
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6) {
       grid-column: span 3;
       min-height: 0;
       position: relative;
       display: flex;
       align-items: center;
-      gap: clamp(6px, 0.9vw, 10px);
-      padding: clamp(6px, 0.8vh, 9px) clamp(8px, 1vw, 11px);
-      border-radius: 14px;
-      background: var(--spatial-surface-glass, rgba(8, 14, 28, 0.78));
-      border: 1px solid var(--spatial-border, rgba(255, 255, 255, 0.12));
-      box-shadow: var(--spatial-elev-1, 0 4px 6px rgba(0,0,0,.22), 0 14px 36px rgba(0,0,0,.28));
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, background 0.2s ease, border-color 0.2s ease;
+      gap: clamp(0.375rem, 0.9vw, 0.625rem);
+      padding: clamp(0.375rem, 0.8vh, 0.5625rem) clamp(0.5rem, 1vw, 0.6875rem);
+      border-radius: var(--portal-radius);
+      background: var(--aurora-glass-bg);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
+      border: 1px solid var(--aurora-glass-border);
+      box-shadow: var(--aurora-glass-shadow);
+      transition: var(--aurora-transition);
       cursor: pointer;
       overflow: hidden;
-      transform-style: preserve-3d;
-      transform: translateZ(0) rotateX(1.5deg);
+      transform: translateY(0);
+      will-change: transform, box-shadow, border-color;
     }
-    body.fx-portal-home.portal-video-mode .portal-card-clean:hover {
-      transform: translateY(-5px) translateZ(18px) rotateX(0deg) scale(1.015);
-      box-shadow: var(--spatial-elev-2, 0 8px 16px rgba(0,0,0,.28), 0 24px 48px rgba(0,0,0,.35));
-      border-color: rgba(255, 255, 255, 0.2);
-      background: var(--spatial-surface-2, rgba(12, 18, 32, 0.9));
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6):hover {
+      transform: translateY(-0.3125rem);
+      border-color: var(--aurora-glass-border-hover);
+      background: var(--aurora-glass-bg-hover);
+      box-shadow: var(--aurora-glass-shadow-hover);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) {
+      grid-column: span 3;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: clamp(0.375rem, 0.9vw, 0.625rem);
+      padding: clamp(0.375rem, 0.8vh, 0.5625rem) clamp(0.5rem, 1vw, 0.6875rem);
+      border-radius: var(--portal-radius);
+      background: var(--aurora-glass-bg);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
+      border: 1px solid var(--aurora-glass-border);
+      box-shadow: var(--aurora-glass-shadow);
+      transition: var(--aurora-transition);
+      cursor: pointer;
+      overflow: hidden;
+      transform: translateY(0);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7):hover {
+      transform: translateY(-0.3125rem);
+      border-color: var(--aurora-glass-border-hover);
+      background: var(--aurora-glass-bg-hover);
+      box-shadow: var(--aurora-glass-shadow-hover);
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean {
-      background: var(--spatial-surface);
-      border-color: var(--spatial-border);
+      background: var(--aurora-glass-bg);
+      border-color: var(--aurora-glass-border);
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label,
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean h3 {
-      color: var(--spatial-text);
+      color: var(--aurora-text);
       text-shadow: none;
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-modules-dock {
-      background: linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(241,245,249,0.92) 100%);
+      background: var(--aurora-glass-bg);
+      border-top-color: var(--aurora-glass-border);
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-footer {
+      background: var(--aurora-glass-bg);
+      color: var(--aurora-text-muted);
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode #portal-screen {
+      background: var(--aurora-midnight);
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 18%;
-      bottom: 18%;
-      width: 3px;
-      border-radius: 0 4px 4px 0;
-      background: var(--card-accent, #c9a84c);
-      opacity: 0.9;
+      top: 16%;
+      bottom: 16%;
+      width: 0.1875rem;
+      border-radius: 0 0.25rem 0.25rem 0;
+      background: var(--card-accent, #38bdf8);
+      opacity: 0.92;
+      box-shadow: 0 0 0.75rem var(--aurora-glow, rgba(56, 189, 248, 0.35));
+      transition: var(--aurora-transition);
+    }
+    body.fx-portal-home.portal-video-mode .portal-card-clean:hover::before {
+      opacity: 1;
+      box-shadow: 0 0 1.25rem var(--aurora-glow, rgba(56, 189, 248, 0.45));
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean::after {
       display: none;
@@ -689,17 +850,16 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon {
       width: var(--portal-icon);
       height: var(--portal-icon);
-      margin: 0 0 0 6px;
+      margin: 0 0 0 0.375rem;
       flex-shrink: 0;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(0,0,0,0.35));
-      box-shadow: 0 6px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+      border-radius: 0.75rem;
+      border: 1px solid var(--aurora-glass-border);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.22));
+      box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      transform: translateZ(12px);
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon.sao-portal-icon img {
       width: 58%;
@@ -721,12 +881,13 @@
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label {
       display: block;
-      font-size: clamp(7px, 0.9vw, 9px);
+      font-family: var(--aurora-font);
+      font-size: clamp(0.4375rem, 0.9vw, 0.5625rem);
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--card-accent-soft, rgba(148, 163, 184, 0.75));
-      margin-bottom: 2px;
+      color: var(--card-accent-soft, var(--aurora-text-muted));
+      margin-bottom: 0.125rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -734,11 +895,12 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean h3 {
       margin: 0;
       padding: 0;
+      font-family: var(--aurora-font);
       font-size: var(--portal-title);
-      line-height: 1.3;
-      font-weight: 600;
-      color: #f8fafc !important;
-      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.75) !important;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--aurora-text) !important;
+      text-shadow: none !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -773,13 +935,13 @@
       color: var(--card-accent, #c9a84c);
       transform: translateX(2px);
     }
-    body.fx-portal-home.portal-video-mode .portal-theme-onepiece { --card-accent: #38bdf8; --card-accent-soft: rgba(56, 189, 248, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-frozen { --card-accent: #7dd3fc; --card-accent-soft: rgba(125, 211, 252, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-doraemon { --card-accent: #00a0e9; --card-accent-soft: rgba(0, 160, 233, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-naruto { --card-accent: #fb923c; --card-accent-soft: rgba(251, 146, 60, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-gundam { --card-accent: #a78bfa; --card-accent-soft: rgba(167, 139, 250, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-gaji { --card-accent: #60a5fa; --card-accent-soft: rgba(96, 165, 250, 0.75); }
-    body.fx-portal-home.portal-video-mode .portal-theme-settings { --card-accent: #22d3ee; --card-accent-soft: rgba(34, 211, 238, 0.75); }
+    body.fx-portal-home.portal-video-mode .portal-theme-onepiece { --card-accent: #38bdf8; --card-accent-soft: rgba(56, 189, 248, 0.85); --aurora-glow: rgba(56, 189, 248, 0.32); }
+    body.fx-portal-home.portal-video-mode .portal-theme-frozen { --card-accent: #7dd3fc; --card-accent-soft: rgba(125, 211, 252, 0.85); --aurora-glow: rgba(125, 211, 252, 0.28); }
+    body.fx-portal-home.portal-video-mode .portal-theme-doraemon { --card-accent: #00a0e9; --card-accent-soft: rgba(0, 160, 233, 0.85); --aurora-glow: rgba(0, 160, 233, 0.3); }
+    body.fx-portal-home.portal-video-mode .portal-theme-naruto { --card-accent: #fb923c; --card-accent-soft: rgba(251, 146, 60, 0.85); --aurora-glow: rgba(251, 146, 60, 0.28); }
+    body.fx-portal-home.portal-video-mode .portal-theme-gundam { --card-accent: #a78bfa; --card-accent-soft: rgba(167, 139, 250, 0.85); --aurora-glow: rgba(167, 139, 250, 0.3); }
+    body.fx-portal-home.portal-video-mode .portal-theme-gaji { --card-accent: #60a5fa; --card-accent-soft: rgba(96, 165, 250, 0.85); --aurora-glow: rgba(96, 165, 250, 0.28); }
+    body.fx-portal-home.portal-video-mode .portal-theme-settings { --card-accent: #22d3ee; --card-accent-soft: rgba(34, 211, 238, 0.85); --aurora-glow: rgba(34, 211, 238, 0.28); }
     body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-badge-live {
       background: rgba(34, 211, 238, 0.12) !important;
       color: #67e8f9 !important;
@@ -806,11 +968,15 @@
     body.fx-portal-home.portal-video-mode .portal-footer {
       flex-shrink: 0;
       margin: 0;
-      padding: clamp(3px, 0.5vh, 6px) clamp(6px, 2vw, 12px);
+      padding: clamp(0.1875rem, 0.5vh, 0.375rem) clamp(0.375rem, 2vw, 0.75rem);
+      font-family: var(--aurora-font);
       font-size: var(--portal-footer-fs);
       line-height: 1.35;
-      color: rgba(148, 163, 184, 0.65);
-      background: rgba(4, 8, 18, 0.45);
+      color: var(--aurora-text-muted);
+      background: rgba(6, 9, 20, 0.42);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--aurora-glass-border);
       animation: none !important;
       font-weight: 500;
       letter-spacing: 0.02em;
@@ -1006,6 +1172,30 @@
       background: rgba(15, 23, 42, 0.5);
       text-shadow: none;
     }
+    body.fx-portal-home.portal-video-mode .portal-summon-btn {
+      font-family: var(--aurora-font);
+      border-color: var(--aurora-glass-border-hover);
+      background: var(--aurora-glass-bg);
+      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
+      color: var(--aurora-text);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--aurora-glass-shadow), 0 0 2.5rem var(--aurora-glow);
+      transition: var(--aurora-transition);
+    }
+    body.fx-portal-home.portal-video-mode .portal-summon-btn:hover {
+      transform: translateY(-0.1875rem);
+      border-color: var(--aurora-glass-border-hover);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset, var(--aurora-glass-shadow-hover);
+    }
+    body.fx-portal-home.portal-video-mode .portal-summon-btn:active,
+    body.fx-portal-home.portal-video-mode .portal-summon-btn.portal-summon-btn--activating {
+      transform: translateY(0);
+    }
+    body.fx-portal-home.portal-video-mode.portal-modules-open .portal-summon-btn {
+      border-color: var(--aurora-glass-border);
+      background: var(--aurora-glass-bg);
+      box-shadow: var(--aurora-glass-shadow);
+    }
     body.fx-portal-home.portal-video-mode .portal-modules-dock {
       transition:
         opacity 0.03s linear,
@@ -1026,7 +1216,7 @@
       padding: 0;
       margin: 0;
       border-color: transparent;
-      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
+      background: var(--aurora-glass-bg);
     }
     body.fx-portal-home.portal-video-mode:not(.portal-modules-open) .portal-footer {
       opacity: 0;
@@ -1082,7 +1272,7 @@
       padding: 0;
       margin-top: auto;
       border-top-color: transparent;
-      background: linear-gradient(180deg, rgba(4, 8, 18, 0.72) 0%, rgba(4, 8, 18, 0.88) 100%);
+      background: var(--aurora-glass-bg);
       transition:
         opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
         transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
@@ -1100,7 +1290,7 @@
       animation: portal-card-hide 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     @keyframes portal-card-hide {
-      to { opacity: 0; transform: translateY(8px) scale(0.99); }
+      to { opacity: 0; transform: translateY(0.5rem); }
     }
     body.fx-portal-home.portal-video-mode.portal-modules-open .portal-card-clean {
       opacity: 0;
@@ -1108,8 +1298,8 @@
       animation-delay: 0s;
     }
     @keyframes portal-card-reveal {
-      0% { opacity: 0; transform: translateY(2px) scale(0.998); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
+      0% { opacity: 0; transform: translateY(0.125rem); }
+      100% { opacity: 1; transform: translateY(0); }
     }
     body.fx-portal-home.portal-video-mode.portal-modules-open .portal-card-clean:nth-child(n) {
       animation-delay: 0s;
