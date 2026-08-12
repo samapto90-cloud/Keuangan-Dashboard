@@ -123,6 +123,7 @@ func persistModule(mod *SipkeuModule) {
 	invalidateTransactionsCache(mod.ID)
 	invalidateSettingsCache(mod.ID)
 	invalidateAdminRekapCache()
+	invalidateRealisasiCache(mod.ID)
 }
 
 func loadAllModulesFromDisk() {

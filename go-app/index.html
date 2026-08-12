@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -2087,6 +2087,84 @@
     .stat-leaf .icon-wrap { background: rgba(34,197,94,.12); color: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,.25); }
     .stat-sage { --card-glow: rgba(16,185,129,.35); }
     .stat-sage .icon-wrap { background: rgba(16,185,129,.12); color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,.25); }
+
+    /* ── Realisasi Dashboard (SIPKEU) ── */
+    .rls-filter-panel {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.12);
+      border-radius: 14px; padding: 16px 18px; margin-bottom: 1rem;
+      backdrop-filter: blur(8px);
+    }
+    .rls-filter-panel .form-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
+    .rls-filter-panel .form-select, .rls-filter-panel .form-control { font-size: 12px; }
+    .rls-stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 1rem; }
+    @media (max-width: 1200px) { .rls-stat-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 576px) { .rls-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    .rls-stat-card {
+      background: rgba(15,23,42,.6); border: 1px solid rgba(56,189,248,.1);
+      border-radius: 12px; padding: 14px 16px; transition: transform .2s, box-shadow .2s;
+    }
+    .rls-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .rls-stat-card .rls-label { font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
+    .rls-stat-card .rls-value { font-size: 17px; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+    .rls-stat-card.rls-accent-green .rls-value { color: #4ade80; }
+    .rls-stat-card.rls-accent-orange .rls-value { color: #fb923c; }
+    .rls-stat-card.rls-accent-blue .rls-value { color: #38bdf8; }
+    .rls-chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1rem; }
+    @media (max-width: 992px) { .rls-chart-grid { grid-template-columns: 1fr; } }
+    .rls-chart-box {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.1);
+      border-radius: 14px; padding: 16px; min-height: 280px;
+    }
+    .rls-chart-box h6 { font-size: 13px; font-weight: 700; color: #bae6fd; margin-bottom: 4px; }
+    .rls-chart-box small { color: #64748b; font-size: 11px; }
+    .rls-chart-canvas { position: relative; height: 220px; margin-top: 10px; }
+    .rls-alert-over {
+      background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35);
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 1rem; font-size: 13px; color: #fecaca;
+    }
+    .rls-table-wrap { max-height: 520px; overflow: auto; }
+    .rls-table-wrap thead th { position: sticky; top: 0; z-index: 2; background: #0f172a !important; }
+    .rls-table-wrap tbody tr { cursor: pointer; transition: background .15s; }
+    .rls-table-wrap tbody tr:hover { background: rgba(56,189,248,.08) !important; }
+    .rls-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .rls-badge.belum { background: rgba(100,116,139,.25); color: #94a3b8; }
+    .rls-badge.rendah { background: rgba(59,130,246,.2); color: #93c5fd; }
+    .rls-badge.sedang { background: rgba(234,179,8,.2); color: #fde047; }
+    .rls-badge.tinggi { background: rgba(249,115,22,.2); color: #fdba74; }
+    .rls-badge.perlu_perhatian { background: rgba(251,191,36,.25); color: #fcd34d; }
+    .rls-badge.selesai { background: rgba(34,197,94,.2); color: #86efac; }
+    .rls-badge.over_budget { background: rgba(239,68,68,.25); color: #fca5a5; }
+    .rls-footer-meta { font-size: 11px; color: #64748b; padding: 12px 0 4px; border-top: 1px solid rgba(56,189,248,.08); margin-top: 12px; }
+    .rls-drawer-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 10050;
+      opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+    }
+    .rls-drawer-backdrop.open { opacity: 1; visibility: visible; }
+    .rls-drawer {
+      position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh;
+      background: #0f172a; border-left: 1px solid rgba(56,189,248,.15); z-index: 10051;
+      transform: translateX(100%); transition: transform .3s ease; overflow-y: auto;
+      padding: 20px;
+    }
+    .rls-drawer.open { transform: translateX(0); }
+    .rls-drawer-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .rls-drawer-head h5 { font-size: 16px; font-weight: 800; color: #f1f5f9; margin: 0; }
+    .rls-drawer-section { margin-bottom: 16px; }
+    .rls-drawer-section h6 { font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px; }
+    .rls-kv { display: grid; grid-template-columns: 120px 1fr; gap: 4px 12px; font-size: 12px; margin-bottom: 4px; }
+    .rls-kv dt { color: #64748b; }
+    .rls-kv dd { color: #e2e8f0; margin: 0; }
+    .rls-pptk-table tbody tr { cursor: pointer; }
+    .rls-search-input { max-width: 220px; }
+    .rls-pagination { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+    .rls-sisa-pos { color: #4ade80; font-weight: 700; }
+    .rls-sisa-neg { color: #f87171; font-weight: 700; }
+    [data-theme="light"] .rls-filter-panel,
+    [data-theme="light"] .rls-stat-card,
+    [data-theme="light"] .rls-chart-box { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-stat-card .rls-value { color: #0f172a; }
+    [data-theme="light"] .rls-drawer { background: #fff; }
+    [data-theme="light"] .rls-drawer-head h5 { color: #0f172a; }
     .pagu-progress-wrap { margin-top: 8px; }
     .pagu-progress-bar { height: 10px; border-radius: 999px; background: rgba(56,189,248,.12); overflow: hidden; }
     .pagu-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #22c55e, #fbbf24, #ef4444); transition: width .6s ease; }
@@ -2730,9 +2808,9 @@
       body.kwitansi-printing * { visibility: hidden; }
       body.kwitansi-printing #kwitansi-print,
       body.kwitansi-printing #kwitansi-print * { visibility: visible; }
-      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #rekap-print,
-      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #rekap-print * { visibility: visible; }
-      #kwitansi-print, #rekap-print, #np2d-print, #register-print { display: none !important; }
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #realisasi-print,
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #realisasi-print * { visibility: visible; }
+      #kwitansi-print, #realisasi-print, #np2d-print, #register-print { display: none !important; }
       body.np2d-printing,
       html:has(body.np2d-printing) {
         height: 297mm !important; max-height: 297mm !important;
@@ -2819,7 +2897,9 @@
         object-position: center center;
         -webkit-print-color-adjust: exact; print-color-adjust: exact;
       }
-      body:not(.kwitansi-printing) #rekap-print {
+      body.realisasi-printing #realisasi-print,
+      body.realisasi-printing #realisasi-print * { visibility: visible; }
+      body.realisasi-printing #realisasi-print { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
         display: block !important; position: fixed; top: 0; left: 0;
         width: 100%; z-index: 99999; background: #fff; color: #000;
       }
@@ -2849,7 +2929,7 @@
         page-break-after: auto; break-after: auto;
       }
     }
-    #kwitansi-print, #rekap-print, #register-print { display: none; }
+    #kwitansi-print, #realisasi-print, #register-print { display: none; }
     #np2d-print { display: none; }
     #np2d-print .kw-wrap { padding: 6mm 8mm 5mm; }
     .np-wrap { color: #000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.45; }
@@ -8005,7 +8085,7 @@ function initManualNumericInputUX() {
     <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi <span class="nav-pending-badge" id="nav-pending-badge">0</span></a>
     <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
     <div class="nav-label mt-2 nav-label-admin">Laporan</div>
-    <a href="#" data-perm="view_rekap" class="nav-admin-only" onclick="showPage('rekap',this)"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
+    <a href="#" data-perm="view_rekap" class="nav-admin-only" onclick="showPage('realisasi',this)"><i class="bi bi-graph-up-arrow"></i> Realisasi</a>
     <div class="nav-label mt-2 nav-label-admin">Pengaturan</div>
     <a href="#" data-perm="view_pejabat" class="nav-admin-only" onclick="showPage('pengaturan',this)"><i class="bi bi-person-gear"></i> Pejabat Keuangan</a>
     <div class="nav-label mt-2 nav-label-admin">Data</div>
@@ -8528,38 +8608,142 @@ function initManualNumericInputUX() {
     </div>
   </div>
 
-  <!-- ══ REKAP ══ -->
-  <div id="page-rekap" class="page">
-    <div class="table-card ds-animate" style="--ds-delay:.05s">
-      <div class="card-head">
-        <h6 id="rekap-title"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Rekapitulasi Anggaran</h6>
-        <div class="d-flex gap-2 flex-wrap align-items-center">
-          <select class="form-select form-select-sm" id="rekap-mode" style="width:auto;min-width:180px" onchange="onRekapModeChange()">
-            <option value="kegiatan">Per Kegiatan</option>
-            <option value="sub">Per Sub Kegiatan</option>
-            <option value="bulan">Per Bulan</option>
-          </select>
-          <button class="btn btn-sm btn-outline-success" onclick="exportRekapExcel()"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="cetakRekapPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+  <!-- ══ REALISASI ══ -->
+  <div id="page-realisasi" class="page">
+    <div class="rls-filter-panel ds-animate" style="--ds-delay:.03s">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h6 class="mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Filter Realisasi</h6>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetRealisasiFilters()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter</button>
+      </div>
+      <div class="row g-2">
+        <div class="col-md-4 col-lg-2">
+          <label class="form-label">Tahun Anggaran</label>
+          <select class="form-select form-select-sm" id="rls-filter-tahun" onchange="scheduleRealisasiLoad()"></select>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label">Sekolah / Kegiatan</label>
+          <select class="form-select form-select-sm" id="rls-filter-kegiatan" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label">Sub Kegiatan</label>
+          <select class="form-select form-select-sm" id="rls-filter-sub" onchange="onRealisasiSubChange()"><option value="">Semua</option></select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+          <label class="form-label">Kode Rekening</label>
+          <select class="form-select form-select-sm" id="rls-filter-kode" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+          <label class="form-label">PPTK</label>
+          <select class="form-select form-select-sm" id="rls-filter-pptk" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+          <label class="form-label">Periode (Bulan)</label>
+          <select class="form-select form-select-sm" id="rls-filter-bulan" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
         </div>
       </div>
-      <div class="table-wrapper">
-        <table class="table">
-          <thead id="rekap-thead"><tr>
-            <th>No</th><th>Kegiatan</th>
-            <th class="text-end">Anggaran (Rp)</th>
-            <th class="text-end">Realisasi (Rp)</th>
-            <th class="text-end">Sisa (Rp)</th>
-            <th class="text-end">Jml Trx</th>
-            <th class="text-end">Pajak (Rp)</th>
-            <th class="text-end">% Realisasi</th>
+    </div>
+
+    <div id="rls-over-alert" class="rls-alert-over d-none ds-animate" style="--ds-delay:.05s">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <strong>Perhatian:</strong> terdapat realisasi yang melebihi anggaran aktif pada kode rekening ini.
+      <span id="rls-over-count"></span>
+    </div>
+
+    <div class="rls-stat-grid ds-animate" style="--ds-delay:.08s">
+      <div class="rls-stat-card rls-accent-green"><div class="rls-label">Total Anggaran</div><div class="rls-value" id="rls-stat-anggaran">—</div></div>
+      <div class="rls-stat-card rls-accent-blue"><div class="rls-label">Total Transaksi</div><div class="rls-value" id="rls-stat-trx">—</div></div>
+      <div class="rls-stat-card rls-accent-orange"><div class="rls-label">Total Realisasi</div><div class="rls-value" id="rls-stat-realisasi">—</div></div>
+      <div class="rls-stat-card"><div class="rls-label">Sisa Anggaran</div><div class="rls-value" id="rls-stat-sisa">—</div></div>
+      <div class="rls-stat-card"><div class="rls-label">% Realisasi</div><div class="rls-value" id="rls-stat-pct">—</div></div>
+      <div class="rls-stat-card rls-accent-blue"><div class="rls-label">Jumlah PPTK</div><div class="rls-value" id="rls-stat-pptk">—</div></div>
+    </div>
+
+    <div class="rls-chart-grid ds-animate" style="--ds-delay:.12s">
+      <div class="rls-chart-box">
+        <h6>Anggaran vs Realisasi per Sub Kegiatan</h6><small>Perbandingan pagu dan realisasi</small>
+        <div class="rls-chart-canvas"><canvas id="rls-chart-sub"></canvas></div>
+      </div>
+      <div class="rls-chart-box">
+        <h6>Realisasi per Bulan</h6><small>Berdasarkan tanggal transaksi</small>
+        <div class="rls-chart-canvas"><canvas id="rls-chart-month"></canvas></div>
+      </div>
+      <div class="rls-chart-box">
+        <h6>Top Kode Rekening</h6><small>Realisasi terbesar</small>
+        <div class="rls-chart-canvas"><canvas id="rls-chart-rekening"></canvas></div>
+      </div>
+      <div class="rls-chart-box">
+        <h6>Distribusi Status Realisasi</h6><small>Belum · Rendah · Sedang · Tinggi · Selesai</small>
+        <div class="rls-chart-canvas"><canvas id="rls-chart-status"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card ds-animate" style="--ds-delay:.16s">
+      <div class="card-head">
+        <h6><i class="bi bi-table me-2 text-primary"></i>Tabel Realisasi</h6>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <input type="search" class="form-control form-control-sm rls-search-input" id="rls-search" placeholder="Cari sub / kode / PPTK…" oninput="scheduleRealisasiLoad()" />
+          <button class="btn btn-sm btn-outline-success" onclick="exportRealisasiExcel()"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="cetakRealisasiPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+        </div>
+      </div>
+      <div class="table-wrapper rls-table-wrap">
+        <table class="table table-sm">
+          <thead><tr>
+            <th>No</th><th>Sub Kegiatan</th><th>Kode Rekening</th><th>Uraian Rekening</th><th>PPTK</th>
+            <th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th><th>Status</th>
           </tr></thead>
-          <tbody id="rekap-tbody"><tr><td colspan="8" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
-          <tfoot id="rekap-tfoot"></tfoot>
+          <tbody id="rls-tbody"><tr><td colspan="10" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
       </div>
-      <div class="p-3 border-top" style="font-size:12px;color:var(--text-muted)">
-        <i class="bi bi-info-circle me-1"></i>Pagu <strong>Anggaran</strong> diambil dari data impor <code>Anggaran.xlsx</code> (tidak dapat diedit). Gunakan dropdown untuk melihat rekap per kegiatan, sub kegiatan, atau bulan.
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 border-top">
+        <div class="rls-pagination">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="rls-prev" onclick="rlsChangePage(-1)">← Prev</button>
+          <span id="rls-page-info">—</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="rls-next" onclick="rlsChangePage(1)">Next →</button>
+        </div>
+        <div class="rls-footer-meta">
+          <i class="bi bi-database me-1"></i><strong>Sumber Data:</strong> Menu Transaksi ·
+          <span id="rls-meta-updated">—</span> ·
+          <span id="rls-meta-count">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card ds-animate mt-3" style="--ds-delay:.2s">
+      <div class="card-head"><h6><i class="bi bi-people me-2 text-primary"></i>Realisasi Berdasarkan PPTK</h6></div>
+      <div class="table-wrapper">
+        <table class="table table-sm rls-pptk-table">
+          <thead><tr>
+            <th>PPTK</th><th>Sub Kegiatan</th><th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th><th>Status</th>
+          </tr></thead>
+          <tbody id="rls-pptk-tbody"><tr><td colspan="7" class="text-center text-muted py-3">—</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="rls-drawer-backdrop" id="rls-drawer-backdrop" onclick="closeRealisasiDrawer()"></div>
+  <div class="rls-drawer" id="rls-drawer" role="dialog" aria-label="Detail Realisasi">
+    <div class="rls-drawer-head">
+      <h5 id="rls-drawer-title">Detail Realisasi</h5>
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeRealisasiDrawer()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="rls-drawer-section">
+      <h6>Informasi Anggaran</h6>
+      <dl class="rls-kv" id="rls-drawer-info"></dl>
+    </div>
+    <div class="rls-drawer-section">
+      <h6>Ringkasan</h6>
+      <dl class="rls-kv" id="rls-drawer-summary"></dl>
+    </div>
+    <div class="rls-drawer-section">
+      <h6>Daftar Transaksi</h6>
+      <div class="table-wrapper">
+        <table class="table table-sm">
+          <thead><tr><th>Tanggal</th><th>Nomor Bukti</th><th>Uraian</th><th class="text-end">Nilai</th><th>PPTK</th></tr></thead>
+          <tbody id="rls-drawer-trx"></tbody>
+          <tfoot><tr><td colspan="3" class="text-end fw-bold">TOTAL</td><td class="text-end fw-bold" id="rls-drawer-total">—</td><td></td></tr></tfoot>
+        </table>
       </div>
     </div>
   </div>
@@ -9552,37 +9736,38 @@ function initManualNumericInputUX() {
 <div id="register-print"></div>
 
 <!-- ══ REKAP PRINT (PDF) ══ -->
-<div id="rekap-print">
+<div id="realisasi-print">
   <div class="rk-wrap">
     <div class="rk-header">
-      <h4 id="rk-print-title">Rekapitulasi Anggaran per Kegiatan</h4>
-      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rk-tahun">2026</span></p>
+      <h4 id="rls-print-title">SIPKEU SEKOLAH MENENGAH PERTAMA</h4>
+      <p><strong>LAPORAN REALISASI ANGGARAN</strong></p>
+      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rls-print-tahun">2026</span></p>
     </div>
     <div class="rk-meta">
-      <div>Dicetak: <span id="rk-tanggal">—</span></div>
-      <div>PA: <span id="rk-pa">—</span> · Bendahara: <span id="rk-bend">—</span></div>
+      <div>Sekolah/Kegiatan: <span id="rls-print-kegiatan">Semua</span></div>
+      <div>Periode: <span id="rls-print-periode">Semua</span> · PPTK: <span id="rls-print-pptk">Semua</span></div>
+      <div>Dicetak: <span id="rls-print-tanggal">—</span></div>
     </div>
     <table class="rk-table">
-      <thead id="rk-print-thead"><tr>
-        <th>No</th><th>Kegiatan</th>
-        <th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th>
-        <th class="text-end">Trx</th><th class="text-end">Pajak</th><th class="text-end">%</th>
+      <thead><tr>
+        <th>No</th><th>Sub Kegiatan</th><th>Kode Rek.</th><th>Uraian</th><th>PPTK</th>
+        <th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th>
       </tr></thead>
-      <tbody id="rk-print-tbody"></tbody>
-      <tfoot id="rk-print-tfoot"></tfoot>
+      <tbody id="rls-print-tbody"></tbody>
+      <tfoot id="rls-print-tfoot"></tfoot>
     </table>
     <div class="rk-ttd">
       <div class="rk-ttd-box">
-        <div id="rk-pa-jabatan">Pengguna Anggaran,</div>
+        <div>Pengguna Anggaran,</div>
         <div class="rk-ttd-space"></div>
-        <div><strong id="rk-pa-nama">—</strong></div>
-        <div id="rk-pa-nip">—</div>
+        <div><strong id="rls-print-pa-nama">—</strong></div>
+        <div id="rls-print-pa-nip">—</div>
       </div>
       <div class="rk-ttd-box">
-        <div id="rk-bend-jabatan">Bendahara Pengeluaran,</div>
+        <div>Bendahara Pengeluaran,</div>
         <div class="rk-ttd-space"></div>
-        <div><strong id="rk-bend-nama">—</strong></div>
-        <div id="rk-bend-nip">—</div>
+        <div><strong id="rls-print-bend-nama">—</strong></div>
+        <div id="rls-print-bend-nip">—</div>
       </div>
     </div>
   </div>
@@ -10099,9 +10284,10 @@ const GAJI_RAK_VERSION_LABELS = {
   'apbdp-pergeseran-3': 'APBDP 3',
 };
 let importAnggaranData = [];
-let rekapRowsCache = [];
-let rekapTransactionsCache = [];
-let rekapMode = 'kegiatan';
+let realisasiReportCache = null;
+let realisasiPage = 1;
+let realisasiLoadTimer = null;
+let realisasiCharts = {};
 let allTransactions = [];
 const txFetchCache = { portal: '', data: null, ts: 0 };
 const settingsFetchCache = { portal: '', data: null, ts: 0 };
@@ -10110,7 +10296,7 @@ const pageNavState = {
   dashboard: { loadedAt: 0 },
   transaksi: { loadedAt: 0 },
   register: { loadedAt: 0 },
-  rekap: { loadedAt: 0, mode: '' },
+  realisasi: { loadedAt: 0 },
   pengaturan: { loadedAt: 0 },
 };
 const DATA_CACHE_MS = 55000;
@@ -10124,7 +10310,7 @@ function invalidateTxCache() {
   txFetchCache.data = null;
   txFetchCache.ts = 0;
   invalidateDashboardCache();
-  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap');
+  invalidatePageData('dashboard', 'transaksi', 'register', 'realisasi');
 }
 
 function invalidateDashboardCache() {
@@ -10155,7 +10341,7 @@ function invalidateSettingsCache() {
   settingsFetchCache.data = null;
   settingsFetchCache.ts = 0;
   invalidateDashboardCache();
-  invalidatePageData('pengaturan', 'dashboard', 'rekap');
+  invalidatePageData('pengaturan', 'dashboard', 'realisasi');
 }
 
 async function fetchAllTransactions(force = false) {
@@ -10199,11 +10385,10 @@ let registerRowsCache = [];
 function clearAppDataCaches() {
   allTransactions = [];
   registerRowsCache = [];
-  rekapTransactionsCache = [];
-  rekapRowsCache = [];
+  realisasiReportCache = null;
   invalidateTxCache();
   invalidateSettingsCache();
-  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap', 'pengaturan');
+  invalidatePageData('dashboard', 'transaksi', 'register', 'realisasi', 'pengaturan');
 }
 
 function resetImportAnggaranDraft() {
@@ -10573,7 +10758,7 @@ function endPortalSession() {
   sessionStorage.removeItem('sipkeu_in_app');
   invalidateTxCache();
   invalidateSettingsCache();
-  invalidatePageData('dashboard', 'transaksi', 'register', 'rekap', 'pengaturan');
+  invalidatePageData('dashboard', 'transaksi', 'register', 'realisasi', 'pengaturan');
 }
 
 function resolvePortalApp(serverModule) {
@@ -11346,7 +11531,7 @@ const SETTINGS_PORTAL_LABELS = {
 };
 const OPERATOR_PERM_DEFS = [
   { key: 'view_dashboard', label: 'Lihat Dashboard' },
-  { key: 'view_rekap', label: 'Lihat Rekapitulasi' },
+  { key: 'view_rekap', label: 'Lihat Realisasi' },
   { key: 'view_pejabat', label: 'Lihat Pejabat Keuangan' },
   { key: 'add_transaksi', label: 'Tambah Transaksi' },
   { key: 'edit_transaksi', label: 'Edit Transaksi' },
@@ -12386,7 +12571,7 @@ function initMobileSidebarUx() {
 }
 
 function showPage(name, el) {
-  const pagePerms = { dashboard: 'view_dashboard', rekap: 'view_rekap', pengaturan: 'view_pejabat', register: 'view_register' };
+  const pagePerms = { dashboard: 'view_dashboard', realisasi: 'view_rekap', pengaturan: 'view_pejabat', register: 'view_register' };
   const need = pagePerms[name];
   if (need && !canDo(need)) {
     if (canAccessTransaksi()) return showPage('transaksi', document.getElementById('nav-transaksi'));
@@ -12399,7 +12584,7 @@ function showPage(name, el) {
   const pageEl = document.getElementById('page-' + name);
   pageEl.classList.add('active');
   if (el) el.classList.add('active');
-  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', rekap:'Rekapitulasi', pengaturan:'Pejabat Keuangan' };
+  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', realisasi:'Realisasi', pengaturan:'Pejabat Keuangan' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
   document.getElementById('topbar-crumb').textContent = titles[name] || name;
   closeMobileSidebar();
@@ -12413,12 +12598,9 @@ function showPage(name, el) {
     if (!pageIsFresh('register') || !allTransactions.length) {
       loadRegister(false).then(() => touchPage('register')).catch(() => {});
     }
-  } else if (name === 'rekap') {
-    const mode = document.getElementById('rekap-mode')?.value || rekapMode;
-    if (!pageIsFresh('rekap') || pageNavState.rekap.mode !== mode || !rekapRowsCache.length) {
-      loadRekap(false).then(() => touchPage('rekap', { mode })).catch(() => {});
-    } else {
-      renderRekapTable();
+  } else if (name === 'realisasi') {
+    if (!pageIsFresh('realisasi') || !realisasiReportCache) {
+      loadRealisasi(false).then(() => touchPage('realisasi')).catch(() => {});
     }
   } else if (name === 'pengaturan') {
     if (!pageIsFresh('pengaturan')) {
@@ -14523,321 +14705,415 @@ async function saveSettings() {
   alert('Pengaturan pejabat berhasil disimpan.');
 }
 
-function getAnggaranForKegiatan(kegiatan, realisasi) {
-  if (appSettings.anggaran_kegiatan && appSettings.anggaran_kegiatan[kegiatan] > 0) {
-    return appSettings.anggaran_kegiatan[kegiatan];
-  }
-  if (realisasi > 0) {
-    const padded = Math.ceil(realisasi * 1.25 / 1000000);
-    return Math.max(padded, 100) * 1000000;
-  }
-  return 0;
+// ── Realisasi (derived from Transaksi, server-side aggregation) ─────────────
+const RLS_STATUS_COLORS = {
+  belum: '#64748b', rendah: '#3b82f6', sedang: '#eab308', tinggi: '#f97316',
+  perlu_perhatian: '#fbbf24', selesai: '#22c55e', over_budget: '#ef4444',
+};
+
+function rlsBadgeHtml(status, label) {
+  const lbl = label || status;
+  return `<span class="rls-badge ${status}">${escapeHtmlRegister(lbl)}</span>`;
 }
 
-async function saveAnggaranKegiatan(kegiatan, value) {
-  if (!appSettings.anggaran_kegiatan) appSettings.anggaran_kegiatan = {};
-  appSettings.anggaran_kegiatan[kegiatan] = value;
-  await apiFetch(API + '/settings', {
-    method: 'PUT',
-    body: JSON.stringify({ anggaran_kegiatan: { [kegiatan]: value } }),
+function getRealisasiFilterParams() {
+  return {
+    tahun: document.getElementById('rls-filter-tahun')?.value || '',
+    kegiatan: document.getElementById('rls-filter-kegiatan')?.value || '',
+    sub_kegiatan: document.getElementById('rls-filter-sub')?.value || '',
+    kode_rekening: document.getElementById('rls-filter-kode')?.value || '',
+    pptk: document.getElementById('rls-filter-pptk')?.value || '',
+    bulan: document.getElementById('rls-filter-bulan')?.value || '',
+    search: document.getElementById('rls-search')?.value?.trim() || '',
+    page: realisasiPage,
+    page_size: 25,
+  };
+}
+
+function buildRealisasiQuery(extra = {}) {
+  const p = { ...getRealisasiFilterParams(), ...extra };
+  const q = new URLSearchParams();
+  Object.entries(p).forEach(([k, v]) => { if (v !== '' && v != null) q.set(k, v); });
+  return q.toString();
+}
+
+function scheduleRealisasiLoad() {
+  clearTimeout(realisasiLoadTimer);
+  realisasiLoadTimer = setTimeout(() => loadRealisasi(false), 320);
+}
+
+function onRealisasiSubChange() {
+  realisasiPage = 1;
+  scheduleRealisasiLoad();
+}
+
+function resetRealisasiFilters() {
+  ['rls-filter-kegiatan', 'rls-filter-sub', 'rls-filter-kode', 'rls-filter-pptk', 'rls-filter-bulan'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
-  invalidateSettingsCache();
+  const search = document.getElementById('rls-search');
+  if (search) search.value = '';
+  realisasiPage = 1;
+  loadRealisasi(true);
 }
 
-function formatBulanLabel(yyyyMm) {
-  if (!yyyyMm || yyyyMm.length < 7) return yyyyMm || '—';
-  const d = new Date(yyyyMm + '-01T00:00:00');
-  return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+function rlsChangePage(delta) {
+  const total = realisasiReportCache?.total_rows || 0;
+  const maxPage = Math.max(1, Math.ceil(total / 25));
+  realisasiPage = Math.min(maxPage, Math.max(1, realisasiPage + delta));
+  loadRealisasi(false);
 }
 
-function getAnggaranForSub(kegiatan, subKegiatan) {
-  if (!appSettings.rak?.length) return 0;
-  return appSettings.rak
-    .filter(r => r.kegiatan === kegiatan && r.sub_kegiatan === subKegiatan)
-    .reduce((s, r) => s + (r.anggaran || 0), 0);
+function fillRealisasiFilterSelect(id, options, valueKey, labelFn, keepValue) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const cur = keepValue ? el.value : '';
+  const isSemuaFirst = id !== 'rls-filter-tahun';
+  let html = isSemuaFirst ? '<option value="">Semua</option>' : '';
+  (options || []).forEach(opt => {
+    if (typeof opt === 'string') {
+      html += `<option value="${escapeHtmlRegister(opt)}">${escapeHtmlRegister(opt)}</option>`;
+    } else {
+      const val = opt[valueKey] ?? opt.kode ?? opt.value ?? '';
+      const lbl = labelFn ? labelFn(opt) : (opt.label || val);
+      html += `<option value="${escapeHtmlRegister(val)}">${escapeHtmlRegister(lbl)}</option>`;
+    }
+  });
+  el.innerHTML = html;
+  if (cur && [...el.options].some(o => o.value === cur)) el.value = cur;
 }
 
-function rekapRowFromStats(stats, anggaran) {
-  const realisasi = stats.nilai;
-  const sisa = anggaran - realisasi;
-  const pct = anggaran ? ((realisasi / anggaran) * 100).toFixed(1) : '0.0';
-  return { count: stats.count, pajak: stats.pajak, anggaran, realisasi, sisa, pct };
-}
-
-function buildRekapRowsKegiatan(transactions) {
-  const map = {};
-  if (appSettings.anggaran_kegiatan) {
-    Object.keys(appSettings.anggaran_kegiatan).forEach(kegiatan => {
-      map[kegiatan] = { count: 0, nilai: 0, pajak: 0 };
+function applyRealisasiFilterOptions(opts) {
+  if (!opts) return;
+  fillRealisasiFilterSelect('rls-filter-tahun', opts.tahun || ['2026'], null, null, true);
+  fillRealisasiFilterSelect('rls-filter-kegiatan', opts.kegiatan, null, null, true);
+  fillRealisasiFilterSelect('rls-filter-sub', opts.sub_kegiatan, null, null, true);
+  fillRealisasiFilterSelect('rls-filter-pptk', opts.pptk, null, null, true);
+  fillRealisasiFilterSelect('rls-filter-bulan', [{ value: '', label: 'Semua' }, ...(opts.bulan || [])], 'value', o => o.label, true);
+  const kodeEl = document.getElementById('rls-filter-kode');
+  if (kodeEl) {
+    const cur = kodeEl.value;
+    let html = '<option value="">Semua</option>';
+    (opts.kode_rekening || []).forEach(k => {
+      html += `<option value="${escapeHtmlRegister(k.kode)}">${escapeHtmlRegister(k.kode)} — ${escapeHtmlRegister(k.uraian || '')}</option>`;
     });
+    kodeEl.innerHTML = html;
+    if (cur && [...kodeEl.options].some(o => o.value === cur)) kodeEl.value = cur;
   }
-  transactions.forEach(t => {
-    if (!t.kegiatan) return;
-    if (!map[t.kegiatan]) map[t.kegiatan] = { count: 0, nilai: 0, pajak: 0 };
-    map[t.kegiatan].count++;
-    map[t.kegiatan].nilai += t.nilai || 0;
-    map[t.kegiatan].pajak += t.pajak || 0;
-  });
-  return Object.entries(map).map(([kegiatan, v]) => ({
-    kegiatan,
-    ...rekapRowFromStats(v, getAnggaranForKegiatan(kegiatan, v.nilai)),
-  })).sort((a, b) => b.anggaran - a.anggaran || b.realisasi - a.realisasi);
 }
 
-function buildRekapRowsSub(transactions) {
-  const map = {};
-  if (appSettings.rak?.length) {
-    appSettings.rak.forEach(r => {
-      if (!r.kegiatan || !r.sub_kegiatan) return;
-      const key = r.kegiatan + '\0' + r.sub_kegiatan;
-      if (!map[key]) map[key] = { kegiatan: r.kegiatan, sub_kegiatan: r.sub_kegiatan, count: 0, nilai: 0, pajak: 0 };
-    });
+function animateRlsStat(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function renderRealisasiSummary(s) {
+  if (!s) return;
+  animateRlsStat('rls-stat-anggaran', formatRupiah(s.total_anggaran || 0));
+  animateRlsStat('rls-stat-trx', String(s.total_transaksi ?? 0));
+  animateRlsStat('rls-stat-realisasi', formatRupiah(s.total_realisasi || 0));
+  const sisaEl = document.getElementById('rls-stat-sisa');
+  if (sisaEl) {
+    sisaEl.textContent = formatRupiah(s.sisa_anggaran ?? 0);
+    sisaEl.className = 'rls-value ' + ((s.sisa_anggaran ?? 0) >= 0 ? 'rls-sisa-pos' : 'rls-sisa-neg');
   }
-  transactions.forEach(t => {
-    if (!t.kegiatan || !t.sub_kegiatan) return;
-    const key = t.kegiatan + '\0' + t.sub_kegiatan;
-    if (!map[key]) map[key] = { kegiatan: t.kegiatan, sub_kegiatan: t.sub_kegiatan, count: 0, nilai: 0, pajak: 0 };
-    map[key].count++;
-    map[key].nilai += t.nilai || 0;
-    map[key].pajak += t.pajak || 0;
-  });
-  return Object.values(map).map(v => ({
-    kegiatan: v.kegiatan,
-    sub_kegiatan: v.sub_kegiatan,
-    ...rekapRowFromStats(v, getAnggaranForSub(v.kegiatan, v.sub_kegiatan)),
-  })).sort((a, b) => a.kegiatan.localeCompare(b.kegiatan) || a.sub_kegiatan.localeCompare(b.sub_kegiatan));
-}
-
-function buildRekapRowsBulan(transactions) {
-  const map = {};
-  transactions.forEach(t => {
-    if (!t.tanggal || t.tanggal.length < 7) return;
-    const bulan = t.tanggal.slice(0, 7);
-    if (!map[bulan]) map[bulan] = { bulan, count: 0, nilai: 0, pajak: 0 };
-    map[bulan].count++;
-    map[bulan].nilai += t.nilai || 0;
-    map[bulan].pajak += t.pajak || 0;
-  });
-  return Object.values(map).map(v => ({
-    bulan: v.bulan,
-    bulan_label: formatBulanLabel(v.bulan),
-    ...rekapRowFromStats(v, 0),
-    sisa: null,
-    pct: null,
-  })).sort((a, b) => a.bulan.localeCompare(b.bulan));
-}
-
-function buildRekapRows(transactions, mode = rekapMode) {
-  if (mode === 'sub') return buildRekapRowsSub(transactions);
-  if (mode === 'bulan') return buildRekapRowsBulan(transactions);
-  return buildRekapRowsKegiatan(transactions);
-}
-
-function rekapModeLabel(mode = rekapMode) {
-  return { kegiatan: 'Per Kegiatan', sub: 'Per Sub Kegiatan', bulan: 'Per Bulan' }[mode] || mode;
-}
-
-function rekapColspan(mode = rekapMode) {
-  return mode === 'sub' ? 9 : mode === 'bulan' ? 5 : 8;
-}
-
-function renderRekapThead() {
-  const thead = document.getElementById('rekap-thead');
-  if (rekapMode === 'sub') {
-    thead.innerHTML = `<tr>
-      <th>No</th><th>Kegiatan</th><th>Sub Kegiatan</th>
-      <th class="text-end">Anggaran (Rp)</th><th class="text-end">Realisasi (Rp)</th><th class="text-end">Sisa (Rp)</th>
-      <th class="text-end">Jml Trx</th><th class="text-end">Pajak (Rp)</th><th class="text-end">% Realisasi</th>
-    </tr>`;
-  } else if (rekapMode === 'bulan') {
-    thead.innerHTML = `<tr>
-      <th>No</th><th>Bulan</th>
-      <th class="text-end">Realisasi (Rp)</th><th class="text-end">Jml Trx</th><th class="text-end">Pajak (Rp)</th>
-    </tr>`;
-  } else {
-    thead.innerHTML = `<tr>
-      <th>No</th><th>Kegiatan</th>
-      <th class="text-end">Anggaran (Rp)</th><th class="text-end">Realisasi (Rp)</th><th class="text-end">Sisa (Rp)</th>
-      <th class="text-end">Jml Trx</th><th class="text-end">Pajak (Rp)</th><th class="text-end">% Realisasi</th>
-    </tr>`;
+  animateRlsStat('rls-stat-pct', ((s.persen_realisasi || 0).toFixed ? s.persen_realisasi.toFixed(1) : parseFloat(s.persen_realisasi || 0).toFixed(1)) + '%');
+  animateRlsStat('rls-stat-pptk', String(s.jumlah_pptk ?? 0));
+  const alertEl = document.getElementById('rls-over-alert');
+  const overCount = s.over_budget_count || 0;
+  if (alertEl) {
+    alertEl.classList.toggle('d-none', overCount <= 0);
+    const oc = document.getElementById('rls-over-count');
+    if (oc) oc.textContent = overCount ? ` (${overCount} baris)` : '';
   }
-  document.getElementById('rekap-title').innerHTML =
-    `<i class="bi bi-bar-chart-line me-2 text-primary"></i>Rekapitulasi ${rekapModeLabel()}`;
 }
 
-function renderRekapPctBar(pct) {
-  return `<div class="d-flex align-items-center gap-2 justify-content-end">
-    <div class="progress flex-grow-1" style="height:7px;width:70px"><div class="progress-bar bg-primary" style="width:${Math.min(100, parseFloat(pct))}%"></div></div>
-    <span style="font-size:12px;font-weight:700;width:42px">${pct}%</span>
-  </div>`;
-}
-
-function renderRekapTable() {
-  const tbody = document.getElementById('rekap-tbody');
-  const tfoot = document.getElementById('rekap-tfoot');
-  const cols = rekapColspan();
-  renderRekapThead();
-  if (!rekapRowsCache.length) {
-    tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-muted py-4">Belum ada data</td></tr>`;
-    tfoot.innerHTML = '';
+function renderRealisasiTable(data) {
+  const tbody = document.getElementById('rls-tbody');
+  if (!tbody) return;
+  const rows = data?.rows || [];
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">Belum ada data realisasi</td></tr>';
     return;
   }
-
-  if (rekapMode === 'bulan') {
-    let totReal = 0, totPajak = 0, totTrx = 0;
-    tbody.innerHTML = rekapRowsCache.map((r, i) => {
-      totReal += r.realisasi; totPajak += r.pajak; totTrx += r.count;
-      return `<tr>
-        <td class="table-num">${i + 1}</td>
-        <td style="font-size:12px"><strong>${r.bulan_label}</strong></td>
-        <td class="text-end"><span class="badge-rupiah">${formatRupiah(r.realisasi)}</span></td>
-        <td class="text-end">${r.count}</td>
-        <td class="text-end"><span class="badge-pajak">${formatRupiah(r.pajak)}</span></td>
-      </tr>`;
-    }).join('');
-    tfoot.innerHTML = `<tr>
-      <td colspan="2" class="text-end fw-bold">JUMLAH</td>
-      <td class="text-end fw-bold">${formatRupiah(totReal)}</td>
-      <td class="text-end fw-bold">${totTrx}</td>
-      <td class="text-end fw-bold">${formatRupiah(totPajak)}</td>
-    </tr>`;
-    return;
-  }
-
-  let totAng = 0, totReal = 0, totSisa = 0, totPajak = 0, totTrx = 0;
-  tbody.innerHTML = rekapRowsCache.map((r, i) => {
-    totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa; totPajak += r.pajak; totTrx += r.count;
-    const sisaCls = r.sisa >= 0 ? 'sisa-positif' : 'sisa-negatif';
-    const subCol = rekapMode === 'sub'
-      ? `<td style="max-width:220px;font-size:12px">${r.sub_kegiatan}</td>` : '';
-    return `<tr>
-      <td class="table-num">${i + 1}</td>
-      <td style="max-width:280px;font-size:12px"><strong>${r.kegiatan}</strong></td>
-      ${subCol}
-      <td class="text-end"><span class="anggaran-readonly" title="Pagu dari Anggaran.xlsx (terkunci)">${formatRupiah(r.anggaran)}</span></td>
+  const startNo = ((data.page || 1) - 1) * (data.page_size || 25);
+  tbody.innerHTML = rows.map((r, i) => {
+    const sisaCls = r.sisa >= 0 ? 'rls-sisa-pos' : 'rls-sisa-neg';
+    return `<tr onclick="openRealisasiDrawer('${encodeURIComponent(r.row_key)}')" title="Klik untuk lihat transaksi sumber">
+      <td class="table-num">${startNo + i + 1}</td>
+      <td style="max-width:180px;font-size:12px">${escapeHtmlRegister(r.sub_kegiatan)}</td>
+      <td style="font-size:12px"><code>${escapeHtmlRegister(r.kode_rekening)}</code></td>
+      <td style="max-width:200px;font-size:12px">${escapeHtmlRegister(r.uraian_rekening)}</td>
+      <td style="font-size:12px">${escapeHtmlRegister(r.pptk)}</td>
+      <td class="text-end">${formatRupiah(r.anggaran)}</td>
       <td class="text-end"><span class="badge-rupiah">${formatRupiah(r.realisasi)}</span></td>
       <td class="text-end ${sisaCls}">${formatRupiah(r.sisa)}</td>
-      <td class="text-end">${r.count}</td>
-      <td class="text-end"><span class="badge-pajak">${formatRupiah(r.pajak)}</span></td>
-      <td class="text-end">${renderRekapPctBar(r.pct)}</td>
+      <td class="text-end">${(r.pct || 0).toFixed(1)}%</td>
+      <td>${rlsBadgeHtml(r.status, r.status_label)}</td>
     </tr>`;
   }).join('');
-  const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : '0.0';
-  const labelSpan = rekapMode === 'sub' ? 3 : 2;
-  tfoot.innerHTML = `<tr>
-    <td colspan="${labelSpan}" class="text-end fw-bold">JUMLAH</td>
-    <td class="text-end fw-bold">${formatRupiah(totAng)}</td>
-    <td class="text-end fw-bold">${formatRupiah(totReal)}</td>
-    <td class="text-end fw-bold ${totSisa >= 0 ? 'sisa-positif' : 'sisa-negatif'}">${formatRupiah(totSisa)}</td>
-    <td class="text-end fw-bold">${totTrx}</td>
-    <td class="text-end fw-bold">${formatRupiah(totPajak)}</td>
-    <td class="text-end fw-bold">${totPct}%</td>
-  </tr>`;
 }
 
-function onRekapModeChange() {
-  rekapMode = document.getElementById('rekap-mode').value;
-  rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
-  renderRekapTable();
-  touchPage('rekap', { mode: rekapMode });
-}
-
-function fillRekapPrint() {
-  syncPortalPejabat();
-  document.getElementById('rk-print-title').textContent = `Rekapitulasi Anggaran ${rekapModeLabel()}`;
-  document.getElementById('rk-tahun').textContent = DB.tahun || 2026;
-  document.getElementById('rk-tanggal').textContent = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-  document.getElementById('rk-pa').textContent = DB.pa?.nama || '—';
-  document.getElementById('rk-bend').textContent = DB.bendahara?.nama || '—';
-  document.getElementById('rk-pa-nama').textContent = DB.pa?.nama || '—';
-  document.getElementById('rk-pa-nip').textContent = DB.pa?.nip || '—';
-  document.getElementById('rk-bend-nama').textContent = DB.bendahara?.nama || '—';
-  document.getElementById('rk-bend-nip').textContent = DB.bendahara?.nip || '—';
-
-  const printThead = document.getElementById('rk-print-thead');
-  if (rekapMode === 'sub') {
-    printThead.innerHTML = `<tr><th>No</th><th>Kegiatan</th><th>Sub Kegiatan</th><th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">Trx</th><th class="text-end">Pajak</th><th class="text-end">%</th></tr>`;
-  } else if (rekapMode === 'bulan') {
-    printThead.innerHTML = `<tr><th>No</th><th>Bulan</th><th class="text-end">Realisasi</th><th class="text-end">Trx</th><th class="text-end">Pajak</th></tr>`;
-  } else {
-    printThead.innerHTML = `<tr><th>No</th><th>Kegiatan</th><th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">Trx</th><th class="text-end">Pajak</th><th class="text-end">%</th></tr>`;
-  }
-
-  if (rekapMode === 'bulan') {
-    let totReal = 0, totPajak = 0, totTrx = 0;
-    document.getElementById('rk-print-tbody').innerHTML = rekapRowsCache.map((r, i) => {
-      totReal += r.realisasi; totPajak += r.pajak; totTrx += r.count;
-      return `<tr><td>${i + 1}</td><td>${r.bulan_label}</td><td class="text-end">${formatRupiah(r.realisasi)}</td><td class="text-end">${r.count}</td><td class="text-end">${formatRupiah(r.pajak)}</td></tr>`;
-    }).join('');
-    document.getElementById('rk-print-tfoot').innerHTML = `<tr><td colspan="2" class="text-end"><strong>JUMLAH</strong></td><td class="text-end"><strong>${formatRupiah(totReal)}</strong></td><td class="text-end"><strong>${totTrx}</strong></td><td class="text-end"><strong>${formatRupiah(totPajak)}</strong></td></tr>`;
+function renderRealisasiPPTKTable(rows) {
+  const tbody = document.getElementById('rls-pptk-tbody');
+  if (!tbody) return;
+  if (!rows?.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Belum ada data PPTK</td></tr>';
     return;
   }
-
-  let totAng = 0, totReal = 0, totSisa = 0, totPajak = 0, totTrx = 0;
-  document.getElementById('rk-print-tbody').innerHTML = rekapRowsCache.map((r, i) => {
-    totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa; totPajak += r.pajak; totTrx += r.count;
-    const subCol = rekapMode === 'sub' ? `<td>${r.sub_kegiatan}</td>` : '';
-    return `<tr>
-      <td>${i + 1}</td><td>${r.kegiatan}</td>${subCol}
+  tbody.innerHTML = rows.map(r => {
+    const sisaCls = r.sisa >= 0 ? 'rls-sisa-pos' : 'rls-sisa-neg';
+    const pptkEnc = encodeURIComponent(r.pptk || '');
+    return `<tr onclick="openRealisasiPPTKDrawer('${pptkEnc}')" title="Klik untuk detail PPTK">
+      <td><strong>${escapeHtmlRegister(r.pptk || '—')}</strong></td>
+      <td style="font-size:12px">${escapeHtmlRegister(r.sub_kegiatan)}</td>
       <td class="text-end">${formatRupiah(r.anggaran)}</td>
       <td class="text-end">${formatRupiah(r.realisasi)}</td>
-      <td class="text-end">${formatRupiah(r.sisa)}</td>
-      <td class="text-end">${r.count}</td>
-      <td class="text-end">${formatRupiah(r.pajak)}</td>
-      <td class="text-end">${r.pct}%</td>
+      <td class="text-end ${sisaCls}">${formatRupiah(r.sisa)}</td>
+      <td class="text-end">${(r.pct || 0).toFixed(1)}%</td>
+      <td>${rlsBadgeHtml(r.status, r.status_label)}</td>
     </tr>`;
   }).join('');
-  const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : '0.0';
-  const labelSpan = rekapMode === 'sub' ? 3 : 2;
-  document.getElementById('rk-print-tfoot').innerHTML = `<tr>
-    <td colspan="${labelSpan}" class="text-end"><strong>JUMLAH</strong></td>
-    <td class="text-end"><strong>${formatRupiah(totAng)}</strong></td>
-    <td class="text-end"><strong>${formatRupiah(totReal)}</strong></td>
-    <td class="text-end"><strong>${formatRupiah(totSisa)}</strong></td>
-    <td class="text-end"><strong>${totTrx}</strong></td>
-    <td class="text-end"><strong>${formatRupiah(totPajak)}</strong></td>
-    <td class="text-end"><strong>${totPct}%</strong></td>
-  </tr>`;
 }
 
-async function exportRekapExcel() {
-  await ensureXlsx();
-  if (!rekapRowsCache.length) { alert('Belum ada data rekapitulasi.'); return; }
-  let header, rows, totRow;
-  const slug = { kegiatan: 'Kegiatan', sub: 'Sub_Kegiatan', bulan: 'Bulan' }[rekapMode];
+function destroyRealisasiCharts() {
+  Object.values(realisasiCharts).forEach(c => { try { c.destroy(); } catch (_) {} });
+  realisasiCharts = {};
+}
 
-  if (rekapMode === 'bulan') {
-    header = ['No', 'Bulan', 'Realisasi (Rp)', 'Jml Transaksi', 'Pajak (Rp)'];
-    rows = rekapRowsCache.map((r, i) => [i + 1, r.bulan_label, r.realisasi, r.count, r.pajak]);
-    let totReal = 0, totPajak = 0, totTrx = 0;
-    rekapRowsCache.forEach(r => { totReal += r.realisasi; totPajak += r.pajak; totTrx += r.count; });
-    totRow = ['', 'JUMLAH', totReal, totTrx, totPajak];
-  } else if (rekapMode === 'sub') {
-    header = ['No', 'Kegiatan', 'Sub Kegiatan', 'Anggaran (Rp)', 'Realisasi (Rp)', 'Sisa (Rp)', 'Jml Transaksi', 'Pajak (Rp)', '% Realisasi'];
-    rows = rekapRowsCache.map((r, i) => [i + 1, r.kegiatan, r.sub_kegiatan, r.anggaran, r.realisasi, r.sisa, r.count, r.pajak, parseFloat(r.pct)]);
-    let totAng = 0, totReal = 0, totSisa = 0, totPajak = 0, totTrx = 0;
-    rekapRowsCache.forEach(r => { totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa; totPajak += r.pajak; totTrx += r.count; });
-    const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : 0;
-    totRow = ['', 'JUMLAH', '', totAng, totReal, totSisa, totTrx, totPajak, totPct];
-  } else {
-    header = ['No', 'Kegiatan', 'Anggaran (Rp)', 'Realisasi (Rp)', 'Sisa (Rp)', 'Jml Transaksi', 'Pajak (Rp)', '% Realisasi'];
-    rows = rekapRowsCache.map((r, i) => [i + 1, r.kegiatan, r.anggaran, r.realisasi, r.sisa, r.count, r.pajak, parseFloat(r.pct)]);
-    let totAng = 0, totReal = 0, totSisa = 0, totPajak = 0, totTrx = 0;
-    rekapRowsCache.forEach(r => { totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa; totPajak += r.pajak; totTrx += r.count; });
-    const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : 0;
-    totRow = ['', 'JUMLAH', totAng, totReal, totSisa, totTrx, totPajak, totPct];
+async function renderRealisasiCharts(data) {
+  await ensureChartJS();
+  destroyRealisasiCharts();
+  const tickColor = '#94a3b8';
+  const gridColor = 'rgba(56,189,248,.08)';
+
+  const subEl = document.getElementById('rls-chart-sub');
+  if (subEl && data.chart_sub?.length) {
+    realisasiCharts.sub = new Chart(subEl, {
+      type: 'bar',
+      data: {
+        labels: data.chart_sub.map(x => (x.sub_kegiatan || '').slice(0, 28)),
+        datasets: [
+          { label: 'Anggaran', data: data.chart_sub.map(x => x.anggaran), backgroundColor: 'rgba(74,222,128,.55)' },
+          { label: 'Realisasi', data: data.chart_sub.map(x => x.realisasi), backgroundColor: 'rgba(251,146,60,.65)' },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor, font: { size: 11 } } } },
+        scales: { x: { ticks: { color: tickColor, font: { size: 9 }, maxRotation: 45 }, grid: { display: false } },
+          y: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } } } },
+    });
   }
-  rows.push(totRow);
-  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
-  XLSX.writeFile(wb, `SIPKEU_Rekap_${slug}_${DB.tahun || 2026}.xlsx`);
+
+  const monthEl = document.getElementById('rls-chart-month');
+  if (monthEl) {
+    realisasiCharts.month = new Chart(monthEl, {
+      type: 'line',
+      data: {
+        labels: (data.chart_month || []).map(x => (x.bulan_label || '').split(' ')[0]),
+        datasets: [{ label: 'Realisasi', data: (data.chart_month || []).map(x => x.realisasi), borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,.15)', fill: true, tension: .35 }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor } } },
+        scales: { y: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { display: false } } } },
+    });
+  }
+
+  const rekEl = document.getElementById('rls-chart-rekening');
+  if (rekEl && data.chart_rekening?.length) {
+    realisasiCharts.rek = new Chart(rekEl, {
+      type: 'bar',
+      data: {
+        labels: data.chart_rekening.map(x => x.kode_rekening),
+        datasets: [{ label: 'Realisasi', data: data.chart_rekening.map(x => x.realisasi), backgroundColor: 'rgba(56,189,248,.55)' }],
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: { x: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } }, y: { ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } } } },
+    });
+  }
+
+  const stEl = document.getElementById('rls-chart-status');
+  if (stEl && data.status_distrib?.length) {
+    realisasiCharts.status = new Chart(stEl, {
+      type: 'doughnut',
+      data: {
+        labels: data.status_distrib.map(x => x.label),
+        datasets: [{ data: data.status_distrib.map(x => x.count), backgroundColor: data.status_distrib.map(x => RLS_STATUS_COLORS[x.status] || '#64748b') }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: tickColor, font: { size: 11 } } } } },
+    });
+  }
 }
 
-function cetakRekapPDF() {
-  if (!rekapRowsCache.length) { alert('Belum ada data rekapitulasi.'); return; }
-  fillRekapPrint();
+function renderRealisasiMeta(data) {
+  const updated = data.generated_at ? new Date(data.generated_at).toLocaleString('id-ID') : '—';
+  const elUp = document.getElementById('rls-meta-updated');
+  const elCnt = document.getElementById('rls-meta-count');
+  if (elUp) elUp.textContent = 'Terakhir diperbarui: ' + updated;
+  if (elCnt) elCnt.textContent = `Jumlah transaksi sumber: ${data.source_transaction_count ?? 0} transaksi`;
+  const total = data.total_rows || 0;
+  const page = data.page || 1;
+  const maxPage = Math.max(1, Math.ceil(total / (data.page_size || 25)));
+  const info = document.getElementById('rls-page-info');
+  if (info) info.textContent = `Hal ${page} / ${maxPage} · ${total} baris`;
+  const prev = document.getElementById('rls-prev');
+  const next = document.getElementById('rls-next');
+  if (prev) prev.disabled = page <= 1;
+  if (next) next.disabled = page >= maxPage;
+}
+
+async function loadRealisasi(force = false) {
+  const tbody = document.getElementById('rls-tbody');
+  if (tbody && force) tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">Memuat data…</td></tr>';
+  try {
+    const res = await apiFetch(API + '/realisasi?' + buildRealisasiQuery());
+    const data = await res.json();
+    realisasiReportCache = data;
+    applyRealisasiFilterOptions(data.filter_options);
+    renderRealisasiSummary(data.summary);
+    renderRealisasiTable(data);
+    renderRealisasiPPTKTable(data.pptk_rows);
+    renderRealisasiMeta(data);
+    await renderRealisasiCharts(data);
+    touchPage('realisasi');
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger py-4">Gagal memuat: ${escapeHtmlRegister(err.message)}</td></tr>`;
+  }
+}
+
+async function openRealisasiDrawer(encodedRowKey) {
+  const rowKey = decodeURIComponent(encodedRowKey || '');
+  const row = (realisasiReportCache?.rows || []).find(r => r.row_key === rowKey);
+  document.getElementById('rls-drawer-title').textContent = 'Detail Realisasi — ' + (row?.kode_rekening || '');
+  const tahun = document.getElementById('rls-filter-tahun')?.value || realisasiReportCache?.tahun_label || '2026';
+  document.getElementById('rls-drawer-info').innerHTML = `
+    <dt>Tahun</dt><dd>${escapeHtmlRegister(tahun)}</dd>
+    <dt>Kegiatan</dt><dd>${escapeHtmlRegister(row?.kegiatan || '—')}</dd>
+    <dt>Sub Kegiatan</dt><dd>${escapeHtmlRegister(row?.sub_kegiatan || '—')}</dd>
+    <dt>Kode Rekening</dt><dd>${escapeHtmlRegister(row?.kode_rekening || '—')}</dd>
+    <dt>Uraian</dt><dd>${escapeHtmlRegister(row?.uraian_rekening || '—')}</dd>
+    <dt>PPTK</dt><dd>${escapeHtmlRegister(row?.pptk || '—')}</dd>
+    <dt>Anggaran Aktif</dt><dd>${formatRupiah(row?.anggaran || 0)}</dd>`;
+  document.getElementById('rls-drawer-summary').innerHTML = `
+    <dt>Total Transaksi</dt><dd>${row?.count ?? 0}</dd>
+    <dt>Total Realisasi</dt><dd>${formatRupiah(row?.realisasi || 0)}</dd>
+    <dt>Sisa Anggaran</dt><dd>${formatRupiah(row?.sisa ?? 0)}</dd>
+    <dt>Persentase</dt><dd>${(row?.pct || 0).toFixed(1)}%</dd>`;
+  document.getElementById('rls-drawer-trx').innerHTML = '<tr><td colspan="5" class="text-muted">Memuat transaksi…</td></tr>';
+  document.getElementById('rls-drawer').classList.add('open');
+  document.getElementById('rls-drawer-backdrop').classList.add('open');
+  try {
+    const res = await apiFetch(API + '/realisasi/transactions?' + buildRealisasiQuery({ row_key: rowKey, page: '', page_size: '' }));
+    const payload = await res.json();
+    const txs = payload.transactions || [];
+    document.getElementById('rls-drawer-trx').innerHTML = txs.length ? txs.map(t => `<tr>
+      <td style="font-size:12px">${escapeHtmlRegister(t.tanggal)}</td>
+      <td style="font-size:11px">${escapeHtmlRegister(t.no_bpk || '—')}</td>
+      <td style="font-size:12px">${escapeHtmlRegister(t.uraian || t.pekerjaan || '—')}</td>
+      <td class="text-end">${formatRupiah(t.nilai)}</td>
+      <td style="font-size:12px">${escapeHtmlRegister(t.pptk || '—')}</td>
+    </tr>`).join('') : '<tr><td colspan="5" class="text-muted">Tidak ada transaksi</td></tr>';
+    document.getElementById('rls-drawer-total').textContent = formatRupiah(payload.total || 0);
+  } catch (err) {
+    document.getElementById('rls-drawer-trx').innerHTML = `<tr><td colspan="5" class="text-danger">${escapeHtmlRegister(err.message)}</td></tr>`;
+  }
+}
+
+async function openRealisasiPPTKDrawer(encodedPptk) {
+  const pptk = decodeURIComponent(encodedPptk || '');
+  document.getElementById('rls-filter-pptk').value = pptk;
+  realisasiPage = 1;
+  await loadRealisasi(false);
+  const rows = (realisasiReportCache?.pptk_rows || []).filter(r => r.pptk === pptk);
+  const agg = rows.reduce((a, r) => ({
+    anggaran: a.anggaran + r.anggaran, realisasi: a.realisasi + r.realisasi, count: a.count + r.count, subs: a.subs + (r.sub_kegiatan ? 1 : 0),
+  }), { anggaran: 0, realisasi: 0, count: 0, subs: rows.length });
+  document.getElementById('rls-drawer-title').textContent = 'Detail PPTK — ' + pptk;
+  document.getElementById('rls-drawer-info').innerHTML = `
+    <dt>PPTK</dt><dd>${escapeHtmlRegister(pptk)}</dd>
+    <dt>Jumlah Sub Kegiatan</dt><dd>${agg.subs}</dd>
+    <dt>Total Anggaran</dt><dd>${formatRupiah(agg.anggaran)}</dd>`;
+  document.getElementById('rls-drawer-summary').innerHTML = `
+    <dt>Total Realisasi</dt><dd>${formatRupiah(agg.realisasi)}</dd>
+    <dt>Sisa Anggaran</dt><dd>${formatRupiah(agg.anggaran - agg.realisasi)}</dd>
+    <dt>Persentase</dt><dd>${agg.anggaran ? ((agg.realisasi / agg.anggaran) * 100).toFixed(1) : '0.0'}%</dd>`;
+  document.getElementById('rls-drawer').classList.add('open');
+  document.getElementById('rls-drawer-backdrop').classList.add('open');
+  try {
+    const res = await apiFetch(API + '/realisasi/transactions?' + buildRealisasiQuery({ pptk, page: '', page_size: '' }));
+    const payload = await res.json();
+    const txs = payload.transactions || [];
+    document.getElementById('rls-drawer-trx').innerHTML = txs.length ? txs.map(t => `<tr>
+      <td style="font-size:12px">${escapeHtmlRegister(t.tanggal)}</td>
+      <td style="font-size:11px">${escapeHtmlRegister(t.no_bpk || '—')}</td>
+      <td style="font-size:12px">${escapeHtmlRegister(t.uraian || t.pekerjaan || '—')}</td>
+      <td class="text-end">${formatRupiah(t.nilai)}</td>
+      <td style="font-size:12px">${escapeHtmlRegister(t.pptk || '—')}</td>
+    </tr>`).join('') : '<tr><td colspan="5" class="text-muted">Tidak ada transaksi</td></tr>';
+    document.getElementById('rls-drawer-total').textContent = formatRupiah(payload.total || 0);
+  } catch (err) {
+    document.getElementById('rls-drawer-trx').innerHTML = `<tr><td colspan="5" class="text-danger">${escapeHtmlRegister(err.message)}</td></tr>`;
+  }
+}
+
+function closeRealisasiDrawer() {
+  document.getElementById('rls-drawer')?.classList.remove('open');
+  document.getElementById('rls-drawer-backdrop')?.classList.remove('open');
+}
+
+async function fillRealisasiPrint() {
+  syncPortalPejabat();
+  const f = getRealisasiFilterParams();
+  const data = realisasiReportCache;
+  const allRows = await fetchRealisasiAllRows();
+  const portalTitle = selectedPortalApp === 'smp' ? 'SIPKEU SEKOLAH MENENGAH PERTAMA' : (SIPKEU_PORTAL_PROFILE[selectedPortalApp]?.title || 'SIPKEU');
+  document.getElementById('rls-print-title').textContent = portalTitle;
+  document.getElementById('rls-print-tahun').textContent = f.tahun || data?.tahun_label || DB.tahun || 2026;
+  document.getElementById('rls-print-kegiatan').textContent = f.kegiatan || 'Semua';
+  document.getElementById('rls-print-pptk').textContent = f.pptk || 'Semua';
+  const bulanLabel = f.bulan ? (document.getElementById('rls-filter-bulan')?.selectedOptions?.[0]?.text || f.bulan) : 'Semua';
+  document.getElementById('rls-print-periode').textContent = bulanLabel;
+  document.getElementById('rls-print-tanggal').textContent = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('rls-print-pa-nama').textContent = DB.pa?.nama || '—';
+  document.getElementById('rls-print-pa-nip').textContent = DB.pa?.nip || '—';
+  document.getElementById('rls-print-bend-nama').textContent = DB.bendahara?.nama || '—';
+  document.getElementById('rls-print-bend-nip').textContent = DB.bendahara?.nip || '—';
+  let totAng = 0, totReal = 0, totSisa = 0;
+  document.getElementById('rls-print-tbody').innerHTML = allRows.map((r, i) => {
+    totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa;
+    return `<tr><td>${i + 1}</td><td>${escapeHtmlRegister(r.sub_kegiatan)}</td><td>${escapeHtmlRegister(r.kode_rekening)}</td><td>${escapeHtmlRegister(r.uraian_rekening)}</td><td>${escapeHtmlRegister(r.pptk)}</td><td class="text-end">${formatRupiah(r.anggaran)}</td><td class="text-end">${formatRupiah(r.realisasi)}</td><td class="text-end">${formatRupiah(r.sisa)}</td><td class="text-end">${(r.pct || 0).toFixed(1)}%</td></tr>`;
+  }).join('');
+  const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : '0.0';
+  document.getElementById('rls-print-tfoot').innerHTML = `<tr><td colspan="5" class="text-end"><strong>JUMLAH</strong></td><td class="text-end"><strong>${formatRupiah(totAng)}</strong></td><td class="text-end"><strong>${formatRupiah(totReal)}</strong></td><td class="text-end"><strong>${formatRupiah(totSisa)}</strong></td><td class="text-end"><strong>${totPct}%</strong></td></tr>`;
+}
+
+async function fetchRealisasiAllRows() {
+  const res = await apiFetch(API + '/realisasi?' + buildRealisasiQuery({ page: 1, page_size: 5000 }));
+  const data = await res.json();
+  return data.rows || [];
+}
+
+async function exportRealisasiExcel() {
+  await ensureXlsx();
+  const dataRows = await fetchRealisasiAllRows();
+  if (!dataRows.length) { alert('Belum ada data realisasi.'); return; }
+  const f = getRealisasiFilterParams();
+  const header = ['No', 'Sub Kegiatan', 'Kode Rekening', 'Uraian', 'PPTK', 'Anggaran', 'Realisasi', 'Sisa', '%', 'Status'];
+  const sheetRows = dataRows.map((r, i) => [i + 1, r.sub_kegiatan, r.kode_rekening, r.uraian_rekening, r.pptk, r.anggaran, r.realisasi, r.sisa, r.pct, r.status_label]);
+  const s = realisasiReportCache?.summary || {};
+  sheetRows.push(['', 'JUMLAH', '', '', '', s.total_anggaran, s.total_realisasi, s.sisa_anggaran, s.persen_realisasi, '']);
+  const ws = XLSX.utils.aoa_to_sheet([header, ...sheetRows]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Realisasi');
+  XLSX.writeFile(wb, `SIPKEU_Realisasi_${f.tahun || DB.tahun || 2026}.xlsx`);
+}
+
+function cetakRealisasiPDF() {
+  if (!realisasiReportCache) { alert('Belum ada data realisasi.'); return; }
+  fillRealisasiPrint().then(() => {
+  document.body.classList.add('realisasi-printing');
   window.print();
+  setTimeout(() => document.body.classList.remove('realisasi-printing'), 500);
+  });
 }
 
 // ── Register Pengeluaran ─────────────────────────────────────────────────
@@ -15431,15 +15707,6 @@ function cetakRegisterPDF() {
   openPrintPreview('register-printing', fillRegisterPrint);
 }
 
-// ── Rekap ────────────────────────────────────────────────────────────────
-async function loadRekap(force = false) {
-  await loadSettings(force);
-  rekapMode = document.getElementById('rekap-mode')?.value || rekapMode;
-  rekapTransactionsCache = (await fetchAllTransactions(force)).filter(trxIsApproved);
-  rekapRowsCache = buildRekapRows(rekapTransactionsCache, rekapMode);
-  renderRekapTable();
-  touchPage('rekap', { mode: rekapMode });
-}
 
 // ── Pajak & Potongan (katalog bendahara pemerintah — PMK/DJP) ──
 const PAJAK_POTONGAN_CATALOG = [
@@ -16887,8 +17154,8 @@ async function doImporAnggaran() {
     if (document.getElementById('page-dashboard')?.classList.contains('active')) {
       await loadDashboard();
     }
-    if (document.getElementById('page-rekap')?.classList.contains('active')) {
-      await loadRekap(true);
+    if (document.getElementById('page-realisasi')?.classList.contains('active')) {
+      await loadRealisasi(true);
     }
     alert(result.message || `${versionLabel} — ${result.total_baris || importAnggaranData.length} baris berhasil diimpor.`);
   } catch (err) {

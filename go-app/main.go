@@ -963,6 +963,8 @@ func main() {
         mux.HandleFunc("/data/admin/backfill-np2d", cors(requireAdmin(handleBackfillNP2D)))
         mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
         mux.HandleFunc("/data/dashboard", cors(handleDashboard))
+        mux.HandleFunc("/data/realisasi/transactions", cors(requireAuth(handleRealisasiTransactions)))
+        mux.HandleFunc("/data/realisasi", cors(requireAuth(handleRealisasi)))
         mux.HandleFunc("/data/settings", cors(handleSettings))
         mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
         mux.HandleFunc("/data/anggaran/bulk", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
