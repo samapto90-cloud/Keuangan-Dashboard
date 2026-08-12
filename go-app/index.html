@@ -2089,6 +2089,10 @@
     .stat-sage .icon-wrap { background: rgba(16,185,129,.12); color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,.25); }
 
     /* ── Realisasi Dashboard (SIPKEU) ── */
+    .rls-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .rls-page-head h5 { font-size: 18px; font-weight: 800; color: #f1f5f9; margin: 0 0 4px; }
+    .rls-page-head p { font-size: 12px; color: #94a3b8; margin: 0; }
+    .rls-source-chip { font-size: 11px; color: #64748b; background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.12); border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
     .rls-filter-panel {
       background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.12);
       border-radius: 14px; padding: 16px 18px; margin-bottom: 1rem;
@@ -2096,32 +2100,72 @@
     }
     .rls-filter-panel .form-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
     .rls-filter-panel .form-select, .rls-filter-panel .form-control { font-size: 12px; }
+    .rls-combo { position: relative; }
+    .rls-combo-menu {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30;
+      max-height: 220px; overflow: auto; background: #0f172a;
+      border: 1px solid rgba(56,189,248,.22); border-radius: 8px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.4);
+    }
+    .rls-combo-item { padding: 7px 10px; font-size: 12px; cursor: pointer; color: #e2e8f0; }
+    .rls-combo-item:hover { background: rgba(56,189,248,.14); }
+    .rls-combo-item.disabled { color: #64748b; cursor: default; }
     .rls-stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 1rem; }
     @media (max-width: 1200px) { .rls-stat-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 576px) { .rls-stat-grid { grid-template-columns: repeat(2, 1fr); } }
     .rls-stat-card {
       background: rgba(15,23,42,.6); border: 1px solid rgba(56,189,248,.1);
       border-radius: 12px; padding: 14px 16px; transition: transform .2s, box-shadow .2s;
+      display: flex; gap: 12px; align-items: flex-start;
     }
     .rls-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .rls-stat-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(148,163,184,.12); color: #94a3b8; }
+    .rls-accent-green .rls-stat-icon { background: rgba(74,222,128,.12); color: #4ade80; }
+    .rls-accent-orange .rls-stat-icon { background: rgba(251,146,60,.12); color: #fb923c; }
+    .rls-accent-blue .rls-stat-icon { background: rgba(56,189,248,.12); color: #38bdf8; }
     .rls-stat-card .rls-label { font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
     .rls-stat-card .rls-value { font-size: 17px; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
     .rls-stat-card.rls-accent-green .rls-value { color: #4ade80; }
     .rls-stat-card.rls-accent-orange .rls-value { color: #fb923c; }
     .rls-stat-card.rls-accent-blue .rls-value { color: #38bdf8; }
+    @keyframes rlsPop { 0% { opacity: .45; transform: translateY(5px); } 100% { opacity: 1; transform: none; } }
+    .rls-pop { animation: rlsPop .32s ease; }
     .rls-chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1rem; }
     @media (max-width: 992px) { .rls-chart-grid { grid-template-columns: 1fr; } }
     .rls-chart-box {
       background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.1);
-      border-radius: 14px; padding: 16px; min-height: 280px;
+      border-radius: 14px; padding: 16px 16px 12px; min-height: 300px;
+      display: flex; flex-direction: column;
     }
-    .rls-chart-box h6 { font-size: 13px; font-weight: 700; color: #bae6fd; margin-bottom: 4px; }
-    .rls-chart-box small { color: #64748b; font-size: 11px; }
-    .rls-chart-canvas { position: relative; height: 220px; margin-top: 10px; }
+    .rls-chart-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .rls-chart-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .rls-ci-green { background: rgba(74,222,128,.15); color: #4ade80; }
+    .rls-ci-orange { background: rgba(251,146,60,.15); color: #fb923c; }
+    .rls-ci-blue { background: rgba(56,189,248,.15); color: #38bdf8; }
+    .rls-ci-purple { background: rgba(167,139,250,.15); color: #a78bfa; }
+    .rls-chart-head h6 { font-size: 13px; font-weight: 700; color: #bae6fd; margin: 0 0 2px; }
+    .rls-chart-head small { color: #64748b; font-size: 11px; line-height: 1.35; }
+    .rls-chart-legend { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-bottom: 6px; font-size: 11px; color: #94a3b8; }
+    .rls-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+    .rls-chart-canvas-wrap { position: relative; flex: 1; min-height: 240px; }
+    .rls-chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
+    .rls-chart-empty {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+      color: #64748b; font-size: 12px; text-align: center; padding: 16px;
+    }
+    .rls-chart-empty i { font-size: 28px; opacity: .45; }
     .rls-alert-over {
       background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35);
       border-radius: 10px; padding: 12px 16px; margin-bottom: 1rem; font-size: 13px; color: #fecaca;
     }
+    .rls-over-list { margin: 8px 0 0; padding-left: 18px; font-size: 12px; color: #fecaca; }
+    .rls-th-sort { cursor: pointer; white-space: nowrap; user-select: none; }
+    .rls-th-sort:hover { color: #38bdf8; }
+    .rls-th-sort.active { color: #7dd3fc; }
     .rls-table-wrap { max-height: 520px; overflow: auto; }
     .rls-table-wrap thead th { position: sticky; top: 0; z-index: 2; background: #0f172a !important; }
     .rls-table-wrap tbody tr { cursor: pointer; transition: background .15s; }
@@ -2161,10 +2205,16 @@
     .rls-sisa-neg { color: #f87171; font-weight: 700; }
     [data-theme="light"] .rls-filter-panel,
     [data-theme="light"] .rls-stat-card,
-    [data-theme="light"] .rls-chart-box { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-chart-box,
+    [data-theme="light"] .rls-source-chip { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-page-head h5 { color: #0f172a; }
     [data-theme="light"] .rls-stat-card .rls-value { color: #0f172a; }
     [data-theme="light"] .rls-drawer { background: #fff; }
     [data-theme="light"] .rls-drawer-head h5 { color: #0f172a; }
+    [data-theme="light"] .rls-combo-menu { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-combo-item { color: #0f172a; }
+    [data-theme="light"] .rls-chart-head h6 { color: #0f172a; }
+    [data-theme="light"] .rls-chart-empty { color: #64748b; }
     .pagu-progress-wrap { margin-top: 8px; }
     .pagu-progress-bar { height: 10px; border-radius: 999px; background: rgba(56,189,248,.12); overflow: hidden; }
     .pagu-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #22c55e, #fbbf24, #ef4444); transition: width .6s ease; }
@@ -8610,35 +8660,59 @@ function initManualNumericInputUX() {
 
   <!-- ══ REALISASI ══ -->
   <div id="page-realisasi" class="page">
+    <div class="rls-page-head ds-animate" style="--ds-delay:.02s">
+      <div>
+        <h5 id="rls-page-title">Dashboard Realisasi Anggaran</h5>
+        <p id="rls-page-sub">Monitoring otomatis dari Menu Transaksi — tanpa input ulang</p>
+      </div>
+      <div class="rls-source-chip"><i class="bi bi-link-45deg me-1"></i>Sumber Data: Menu Transaksi</div>
+    </div>
+
     <div class="rls-filter-panel ds-animate" style="--ds-delay:.03s">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <h6 class="mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Filter Realisasi</h6>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetRealisasiFilters()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter</button>
       </div>
       <div class="row g-2">
-        <div class="col-md-4 col-lg-2">
-          <label class="form-label">Tahun Anggaran</label>
-          <select class="form-select form-select-sm" id="rls-filter-tahun" onchange="scheduleRealisasiLoad()"></select>
-        </div>
-        <div class="col-md-4 col-lg-3">
-          <label class="form-label">Sekolah / Kegiatan</label>
-          <select class="form-select form-select-sm" id="rls-filter-kegiatan" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
-        </div>
-        <div class="col-md-4 col-lg-3">
+        <div class="col-md-6 col-lg-4">
           <label class="form-label">Sub Kegiatan</label>
-          <select class="form-select form-select-sm" id="rls-filter-sub" onchange="onRealisasiSubChange()"><option value="">Semua</option></select>
+          <div class="rls-combo" data-target="rls-filter-sub">
+            <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Cari sub kegiatan…" autocomplete="off" />
+            <select id="rls-filter-sub" hidden><option value="">Semua</option></select>
+            <div class="rls-combo-menu" hidden></div>
+          </div>
         </div>
-        <div class="col-md-4 col-lg-2">
+        <div class="col-md-6 col-lg-4">
           <label class="form-label">Kode Rekening</label>
-          <select class="form-select form-select-sm" id="rls-filter-kode" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+          <div class="rls-combo" data-target="rls-filter-kode">
+            <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Pilih sub dulu, lalu cari kode…" autocomplete="off" />
+            <select id="rls-filter-kode" hidden><option value="">Semua</option></select>
+            <div class="rls-combo-menu" hidden></div>
+          </div>
         </div>
-        <div class="col-md-4 col-lg-2">
+        <div class="col-md-6 col-lg-4">
           <label class="form-label">PPTK</label>
-          <select class="form-select form-select-sm" id="rls-filter-pptk" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+          <div class="rls-combo" data-target="rls-filter-pptk">
+            <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Cari PPTK…" autocomplete="off" />
+            <select id="rls-filter-pptk" hidden><option value="">Semua</option></select>
+            <div class="rls-combo-menu" hidden></div>
+          </div>
         </div>
-        <div class="col-md-4 col-lg-2">
+        <div class="col-md-4 col-lg-3">
           <label class="form-label">Periode (Bulan)</label>
-          <select class="form-select form-select-sm" id="rls-filter-bulan" onchange="scheduleRealisasiLoad()"><option value="">Semua</option></select>
+          <div class="rls-combo" data-target="rls-filter-bulan">
+            <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Semua bulan…" autocomplete="off" />
+            <select id="rls-filter-bulan" hidden><option value="">Semua</option></select>
+            <div class="rls-combo-menu" hidden></div>
+          </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label">Tanggal Awal</label>
+          <input type="date" class="form-control form-control-sm" id="rls-filter-dari" onchange="onRealisasiDateChange()" />
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label">Tanggal Akhir</label>
+          <input type="date" class="form-control form-control-sm" id="rls-filter-sampai" onchange="onRealisasiDateChange()" />
         </div>
       </div>
     </div>
@@ -8647,33 +8721,62 @@ function initManualNumericInputUX() {
       <i class="bi bi-exclamation-triangle-fill me-2"></i>
       <strong>Perhatian:</strong> terdapat realisasi yang melebihi anggaran aktif pada kode rekening ini.
       <span id="rls-over-count"></span>
+      <ul class="rls-over-list" id="rls-over-list"></ul>
     </div>
 
     <div class="rls-stat-grid ds-animate" style="--ds-delay:.08s">
-      <div class="rls-stat-card rls-accent-green"><div class="rls-label">Total Anggaran</div><div class="rls-value" id="rls-stat-anggaran">—</div></div>
-      <div class="rls-stat-card rls-accent-blue"><div class="rls-label">Total Transaksi</div><div class="rls-value" id="rls-stat-trx">—</div></div>
-      <div class="rls-stat-card rls-accent-orange"><div class="rls-label">Total Realisasi</div><div class="rls-value" id="rls-stat-realisasi">—</div></div>
-      <div class="rls-stat-card"><div class="rls-label">Sisa Anggaran</div><div class="rls-value" id="rls-stat-sisa">—</div></div>
-      <div class="rls-stat-card"><div class="rls-label">% Realisasi</div><div class="rls-value" id="rls-stat-pct">—</div></div>
-      <div class="rls-stat-card rls-accent-blue"><div class="rls-label">Jumlah PPTK</div><div class="rls-value" id="rls-stat-pptk">—</div></div>
+      <div class="rls-stat-card rls-accent-green"><div class="rls-stat-icon"><i class="bi bi-wallet2"></i></div><div><div class="rls-label">Total Anggaran</div><div class="rls-value" id="rls-stat-anggaran">—</div></div></div>
+      <div class="rls-stat-card rls-accent-blue"><div class="rls-stat-icon"><i class="bi bi-receipt"></i></div><div><div class="rls-label">Total Transaksi</div><div class="rls-value" id="rls-stat-trx">—</div></div></div>
+      <div class="rls-stat-card rls-accent-orange"><div class="rls-stat-icon"><i class="bi bi-cash-stack"></i></div><div><div class="rls-label">Total Realisasi</div><div class="rls-value" id="rls-stat-realisasi">—</div></div></div>
+      <div class="rls-stat-card"><div class="rls-stat-icon"><i class="bi bi-piggy-bank"></i></div><div><div class="rls-label">Sisa Anggaran</div><div class="rls-value" id="rls-stat-sisa">—</div></div></div>
+      <div class="rls-stat-card"><div class="rls-stat-icon"><i class="bi bi-percent"></i></div><div><div class="rls-label">% Realisasi</div><div class="rls-value" id="rls-stat-pct">—</div></div></div>
+      <div class="rls-stat-card rls-accent-blue"><div class="rls-stat-icon"><i class="bi bi-people"></i></div><div><div class="rls-label">Jumlah PPTK</div><div class="rls-value" id="rls-stat-pptk">—</div></div></div>
     </div>
 
     <div class="rls-chart-grid ds-animate" style="--ds-delay:.12s">
       <div class="rls-chart-box">
-        <h6>Anggaran vs Realisasi per Sub Kegiatan</h6><small>Perbandingan pagu dan realisasi</small>
-        <div class="rls-chart-canvas"><canvas id="rls-chart-sub"></canvas></div>
+        <div class="rls-chart-head">
+          <div class="rls-chart-icon rls-ci-green"><i class="bi bi-bar-chart-steps"></i></div>
+          <div><h6>Anggaran vs Realisasi per Sub Kegiatan</h6><small>Batang hijau = pagu · oranye = realisasi</small></div>
+        </div>
+        <div class="rls-chart-legend">
+          <span><span class="rls-legend-dot" style="background:#4ade80"></span>Anggaran</span>
+          <span><span class="rls-legend-dot" style="background:#fb923c"></span>Realisasi</span>
+        </div>
+        <div class="rls-chart-canvas-wrap">
+          <canvas id="rls-chart-sub"></canvas>
+          <div class="rls-chart-empty" id="rls-chart-sub-empty" hidden><i class="bi bi-bar-chart"></i><span>Belum ada data sub kegiatan</span></div>
+        </div>
       </div>
       <div class="rls-chart-box">
-        <h6>Realisasi per Bulan</h6><small>Berdasarkan tanggal transaksi</small>
-        <div class="rls-chart-canvas"><canvas id="rls-chart-month"></canvas></div>
+        <div class="rls-chart-head">
+          <div class="rls-chart-icon rls-ci-orange"><i class="bi bi-graph-up"></i></div>
+          <div><h6>Realisasi per Bulan</h6><small>Tren nominal berdasarkan tanggal transaksi</small></div>
+        </div>
+        <div class="rls-chart-canvas-wrap">
+          <canvas id="rls-chart-month"></canvas>
+          <div class="rls-chart-empty" id="rls-chart-month-empty" hidden><i class="bi bi-calendar3"></i><span>Belum ada transaksi pada periode ini</span></div>
+        </div>
       </div>
       <div class="rls-chart-box">
-        <h6>Top Kode Rekening</h6><small>Realisasi terbesar</small>
-        <div class="rls-chart-canvas"><canvas id="rls-chart-rekening"></canvas></div>
+        <div class="rls-chart-head">
+          <div class="rls-chart-icon rls-ci-blue"><i class="bi bi-sort-numeric-down-alt"></i></div>
+          <div><h6>Top Kode Rekening</h6><small>10 kode rekening dengan realisasi terbesar</small></div>
+        </div>
+        <div class="rls-chart-canvas-wrap">
+          <canvas id="rls-chart-rekening"></canvas>
+          <div class="rls-chart-empty" id="rls-chart-rekening-empty" hidden><i class="bi bi-list-ol"></i><span>Belum ada realisasi per kode rekening</span></div>
+        </div>
       </div>
       <div class="rls-chart-box">
-        <h6>Distribusi Status Realisasi</h6><small>Belum · Rendah · Sedang · Tinggi · Selesai</small>
-        <div class="rls-chart-canvas"><canvas id="rls-chart-status"></canvas></div>
+        <div class="rls-chart-head">
+          <div class="rls-chart-icon rls-ci-purple"><i class="bi bi-pie-chart"></i></div>
+          <div><h6>Distribusi Status Realisasi</h6><small>Belum · Rendah · Sedang · Tinggi · Selesai · Over Budget</small></div>
+        </div>
+        <div class="rls-chart-canvas-wrap">
+          <canvas id="rls-chart-status"></canvas>
+          <div class="rls-chart-empty" id="rls-chart-status-empty" hidden><i class="bi bi-pie-chart"></i><span>Belum ada baris realisasi</span></div>
+        </div>
       </div>
     </div>
 
@@ -8689,8 +8792,16 @@ function initManualNumericInputUX() {
       <div class="table-wrapper rls-table-wrap">
         <table class="table table-sm">
           <thead><tr>
-            <th>No</th><th>Sub Kegiatan</th><th>Kode Rekening</th><th>Uraian Rekening</th><th>PPTK</th>
-            <th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th><th>Status</th>
+            <th>No</th>
+            <th class="rls-th-sort" data-sort="sub_kegiatan" onclick="rlsSortBy('sub_kegiatan')">Sub Kegiatan</th>
+            <th class="rls-th-sort" data-sort="kode_rekening" onclick="rlsSortBy('kode_rekening')">Kode Rekening</th>
+            <th>Uraian Rekening</th>
+            <th class="rls-th-sort" data-sort="pptk" onclick="rlsSortBy('pptk')">PPTK</th>
+            <th class="text-end rls-th-sort" data-sort="anggaran" onclick="rlsSortBy('anggaran')">Anggaran</th>
+            <th class="text-end rls-th-sort" data-sort="realisasi" onclick="rlsSortBy('realisasi')">Realisasi</th>
+            <th class="text-end rls-th-sort" data-sort="sisa" onclick="rlsSortBy('sisa')">Sisa</th>
+            <th class="text-end rls-th-sort" data-sort="pct" onclick="rlsSortBy('pct')">%</th>
+            <th>Status</th>
           </tr></thead>
           <tbody id="rls-tbody"><tr><td colspan="10" class="text-center text-muted py-4">Memuat data…</td></tr></tbody>
         </table>
@@ -9744,7 +9855,7 @@ function initManualNumericInputUX() {
       <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rls-print-tahun">2026</span></p>
     </div>
     <div class="rk-meta">
-      <div>Sekolah/Kegiatan: <span id="rls-print-kegiatan">Semua</span></div>
+      <div>Sub Kegiatan: <span id="rls-print-sub">Semua</span> · Kode Rekening: <span id="rls-print-kode">Semua</span></div>
       <div>Periode: <span id="rls-print-periode">Semua</span> · PPTK: <span id="rls-print-pptk">Semua</span></div>
       <div>Dicetak: <span id="rls-print-tanggal">—</span></div>
     </div>
@@ -10286,8 +10397,11 @@ const GAJI_RAK_VERSION_LABELS = {
 let importAnggaranData = [];
 let realisasiReportCache = null;
 let realisasiPage = 1;
+let realisasiSort = 'realisasi';
+let realisasiSortDir = 'desc';
 let realisasiLoadTimer = null;
 let realisasiCharts = {};
+let rlsCombosBound = false;
 let allTransactions = [];
 const txFetchCache = { portal: '', data: null, ts: 0 };
 const settingsFetchCache = { portal: '', data: null, ts: 0 };
@@ -14716,15 +14830,28 @@ function rlsBadgeHtml(status, label) {
   return `<span class="rls-badge ${status}">${escapeHtmlRegister(lbl)}</span>`;
 }
 
+function deriveRealisasiTahun() {
+  const dari = document.getElementById('rls-filter-dari')?.value || '';
+  const sampai = document.getElementById('rls-filter-sampai')?.value || '';
+  if (dari.length >= 4) return dari.slice(0, 4);
+  if (sampai.length >= 4) return sampai.slice(0, 4);
+  return realisasiReportCache?.tahun_label || String(DB.tahun || 2026);
+}
+
 function getRealisasiFilterParams() {
+  const dari = document.getElementById('rls-filter-dari')?.value || '';
+  const sampai = document.getElementById('rls-filter-sampai')?.value || '';
   return {
-    tahun: document.getElementById('rls-filter-tahun')?.value || '',
-    kegiatan: document.getElementById('rls-filter-kegiatan')?.value || '',
+    tahun: deriveRealisasiTahun(),
     sub_kegiatan: document.getElementById('rls-filter-sub')?.value || '',
     kode_rekening: document.getElementById('rls-filter-kode')?.value || '',
     pptk: document.getElementById('rls-filter-pptk')?.value || '',
     bulan: document.getElementById('rls-filter-bulan')?.value || '',
+    dari: dari && sampai && dari > sampai ? sampai : dari,
+    sampai: dari && sampai && dari > sampai ? dari : sampai,
     search: document.getElementById('rls-search')?.value?.trim() || '',
+    sort: realisasiSort,
+    sort_dir: realisasiSortDir,
     page: realisasiPage,
     page_size: 25,
   };
@@ -14744,17 +14871,50 @@ function scheduleRealisasiLoad() {
 
 function onRealisasiSubChange() {
   realisasiPage = 1;
+  const kode = document.getElementById('rls-filter-kode');
+  if (kode) kode.value = '';
   scheduleRealisasiLoad();
 }
 
+function onRealisasiDateChange() {
+  const dari = document.getElementById('rls-filter-dari');
+  const sampai = document.getElementById('rls-filter-sampai');
+  if (dari?.value && sampai?.value && dari.value > sampai.value) {
+    sampai.value = dari.value;
+  }
+  realisasiPage = 1;
+  scheduleRealisasiLoad();
+}
+
+function rlsSortBy(field) {
+  if (realisasiSort === field) {
+    realisasiSortDir = realisasiSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    realisasiSort = field;
+    realisasiSortDir = field === 'sub_kegiatan' || field === 'kode_rekening' || field === 'pptk' ? 'asc' : 'desc';
+  }
+  realisasiPage = 1;
+  document.querySelectorAll('.rls-th-sort').forEach(th => {
+    th.classList.toggle('active', th.getAttribute('data-sort') === realisasiSort);
+  });
+  loadRealisasi(false);
+}
+
 function resetRealisasiFilters() {
-  ['rls-filter-kegiatan', 'rls-filter-sub', 'rls-filter-kode', 'rls-filter-pptk', 'rls-filter-bulan'].forEach(id => {
+  ['rls-filter-sub', 'rls-filter-kode', 'rls-filter-pptk', 'rls-filter-bulan'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const dari = document.getElementById('rls-filter-dari');
+  const sampai = document.getElementById('rls-filter-sampai');
+  if (dari) dari.value = '';
+  if (sampai) sampai.value = '';
   const search = document.getElementById('rls-search');
   if (search) search.value = '';
   realisasiPage = 1;
+  realisasiSort = 'realisasi';
+  realisasiSortDir = 'desc';
+  syncRlsComboInputs();
   loadRealisasi(true);
 }
 
@@ -14769,7 +14929,7 @@ function fillRealisasiFilterSelect(id, options, valueKey, labelFn, keepValue) {
   const el = document.getElementById(id);
   if (!el) return;
   const cur = keepValue ? el.value : '';
-  const isSemuaFirst = id !== 'rls-filter-tahun';
+  const isSemuaFirst = true;
   let html = isSemuaFirst ? '<option value="">Semua</option>' : '';
   (options || []).forEach(opt => {
     if (typeof opt === 'string') {
@@ -14786,11 +14946,9 @@ function fillRealisasiFilterSelect(id, options, valueKey, labelFn, keepValue) {
 
 function applyRealisasiFilterOptions(opts) {
   if (!opts) return;
-  fillRealisasiFilterSelect('rls-filter-tahun', opts.tahun || ['2026'], null, null, true);
-  fillRealisasiFilterSelect('rls-filter-kegiatan', opts.kegiatan, null, null, true);
   fillRealisasiFilterSelect('rls-filter-sub', opts.sub_kegiatan, null, null, true);
   fillRealisasiFilterSelect('rls-filter-pptk', opts.pptk, null, null, true);
-  fillRealisasiFilterSelect('rls-filter-bulan', [{ value: '', label: 'Semua' }, ...(opts.bulan || [])], 'value', o => o.label, true);
+  fillRealisasiFilterSelect('rls-filter-bulan', opts.bulan || [], 'value', o => o.label, true);
   const kodeEl = document.getElementById('rls-filter-kode');
   if (kodeEl) {
     const cur = kodeEl.value;
@@ -14800,12 +14958,84 @@ function applyRealisasiFilterOptions(opts) {
     });
     kodeEl.innerHTML = html;
     if (cur && [...kodeEl.options].some(o => o.value === cur)) kodeEl.value = cur;
+    else kodeEl.value = '';
   }
+  initRlsCombos();
+  syncRlsComboInputs();
+}
+
+function initRlsCombos() {
+  if (rlsCombosBound) return;
+  rlsCombosBound = true;
+  document.querySelectorAll('.rls-combo').forEach(wrap => {
+    const selId = wrap.getAttribute('data-target');
+    const sel = document.getElementById(selId);
+    const input = wrap.querySelector('.rls-combo-input');
+    const menu = wrap.querySelector('.rls-combo-menu');
+    if (!sel || !input || !menu) return;
+    const renderMenu = (q) => {
+      const needle = String(q || '').toLowerCase();
+      const selectedLabel = sel.selectedOptions[0]?.textContent || '';
+      const query = needle && needle !== selectedLabel.toLowerCase() ? needle : '';
+      const items = [...sel.options].filter(o => !query || o.textContent.toLowerCase().includes(query) || o.value.toLowerCase().includes(query));
+      menu.innerHTML = items.length
+        ? items.slice(0, 80).map(o => `<div class="rls-combo-item" data-value="${escapeHtmlRegister(o.value)}">${escapeHtmlRegister(o.textContent)}</div>`).join('')
+        : '<div class="rls-combo-item disabled">Tidak ada hasil</div>';
+      menu.hidden = false;
+    };
+    input.addEventListener('focus', () => renderMenu(''));
+    input.addEventListener('input', () => renderMenu(input.value));
+    menu.addEventListener('mousedown', (e) => {
+      const item = e.target.closest('.rls-combo-item');
+      if (!item || item.classList.contains('disabled')) return;
+      e.preventDefault();
+      sel.value = item.getAttribute('data-value') || '';
+      input.value = item.textContent;
+      menu.hidden = true;
+      realisasiPage = 1;
+      if (selId === 'rls-filter-sub') onRealisasiSubChange();
+      else scheduleRealisasiLoad();
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { menu.hidden = true; }, 160);
+      const match = [...sel.options].find(o => o.textContent === input.value || o.value === input.value);
+      if (match) {
+        sel.value = match.value;
+        input.value = match.textContent;
+      } else {
+        input.value = sel.selectedOptions[0]?.textContent || '';
+      }
+    });
+  });
+}
+
+function syncRlsComboInputs() {
+  document.querySelectorAll('.rls-combo').forEach(wrap => {
+    const sel = document.getElementById(wrap.getAttribute('data-target'));
+    const input = wrap.querySelector('.rls-combo-input');
+    if (sel && input) input.value = sel.selectedOptions[0]?.textContent || '';
+  });
+}
+
+function syncRealisasiPageHead(data) {
+  const portal = PORTAL_APPS[selectedPortalApp]?.label || data?.portal_label || 'SIPKEU';
+  const title = document.getElementById('rls-page-title');
+  const sub = document.getElementById('rls-page-sub');
+  if (title) title.textContent = 'Dashboard Realisasi Anggaran';
+  if (sub) sub.textContent = `Filter: Sub Kegiatan · Kode Rekening · PPTK · Periode · ${portal}`;
+  document.querySelectorAll('.rls-th-sort').forEach(th => {
+    th.classList.toggle('active', th.getAttribute('data-sort') === realisasiSort);
+  });
 }
 
 function animateRlsStat(id, text) {
   const el = document.getElementById(id);
-  if (el) el.textContent = text;
+  if (!el) return;
+  if (el.textContent === text) return;
+  el.classList.remove('rls-pop');
+  void el.offsetWidth;
+  el.textContent = text;
+  el.classList.add('rls-pop');
 }
 
 function renderRealisasiSummary(s) {
@@ -14827,6 +15057,13 @@ function renderRealisasiSummary(s) {
     const oc = document.getElementById('rls-over-count');
     if (oc) oc.textContent = overCount ? ` (${overCount} baris)` : '';
   }
+}
+
+function renderOverBudgetList(rows) {
+  const list = document.getElementById('rls-over-list');
+  if (!list) return;
+  const over = (rows || []).slice(0, 6);
+  list.innerHTML = over.map(r => `<li><code>${escapeHtmlRegister(r.kode_rekening)}</code> ${escapeHtmlRegister(r.uraian_rekening || '')} — Realisasi ${formatRupiah(r.realisasi)} / Anggaran ${formatRupiah(r.anggaran)}</li>`).join('');
 }
 
 function renderRealisasiTable(data) {
@@ -14882,64 +15119,291 @@ function destroyRealisasiCharts() {
   realisasiCharts = {};
 }
 
+function rlsChartTheme() {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    tick: light ? '#475569' : '#94a3b8',
+    grid: light ? 'rgba(15,23,42,.08)' : 'rgba(56,189,248,.08)',
+    tooltipBg: light ? '#fff' : '#0f172a',
+    tooltipTitle: light ? '#0f172a' : '#f1f5f9',
+    tooltipBody: light ? '#334155' : '#cbd5e1',
+    tooltipBorder: light ? '#e2e8f0' : 'rgba(56,189,248,.25)',
+  };
+}
+
+function rlsChartMoney(v) {
+  const n = Number(v) || 0;
+  if (Math.abs(n) >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2) + ' M';
+  if (Math.abs(n) >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1) + ' jt';
+  if (Math.abs(n) >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' rb';
+  return formatRupiah(n);
+}
+
+function rlsChartFullMoney(v) {
+  return formatRupiah(Number(v) || 0);
+}
+
+function rlsToggleChartEmpty(canvasId, emptyId, showEmpty) {
+  const canvas = document.getElementById(canvasId);
+  const empty = document.getElementById(emptyId);
+  if (canvas) canvas.style.visibility = showEmpty ? 'hidden' : 'visible';
+  if (empty) empty.hidden = !showEmpty;
+}
+
+function rlsChartBaseOptions(theme) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: theme.tooltipBg,
+        titleColor: theme.tooltipTitle,
+        bodyColor: theme.tooltipBody,
+        borderColor: theme.tooltipBorder,
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 8,
+        callbacks: {
+          label(ctx) {
+            const label = ctx.dataset.label || '';
+            const val = ctx.parsed.y ?? ctx.parsed.x ?? ctx.raw;
+            return (label ? label + ': ' : '') + rlsChartFullMoney(val);
+          },
+        },
+      },
+    },
+  };
+}
+
 async function renderRealisasiCharts(data) {
   await ensureChartJS();
   destroyRealisasiCharts();
-  const tickColor = '#94a3b8';
-  const gridColor = 'rgba(56,189,248,.08)';
+  const theme = rlsChartTheme();
+  const base = rlsChartBaseOptions(theme);
 
+  const subData = data.chart_sub || [];
+  const hasSub = subData.some(x => (x.anggaran || 0) > 0 || (x.realisasi || 0) > 0);
+  rlsToggleChartEmpty('rls-chart-sub', 'rls-chart-sub-empty', !hasSub);
   const subEl = document.getElementById('rls-chart-sub');
-  if (subEl && data.chart_sub?.length) {
+  if (subEl && hasSub) {
     realisasiCharts.sub = new Chart(subEl, {
       type: 'bar',
       data: {
-        labels: data.chart_sub.map(x => (x.sub_kegiatan || '').slice(0, 28)),
+        labels: subData.map(x => {
+          const s = (x.sub_kegiatan || '—').trim();
+          return s.length > 32 ? s.slice(0, 30) + '…' : s;
+        }),
         datasets: [
-          { label: 'Anggaran', data: data.chart_sub.map(x => x.anggaran), backgroundColor: 'rgba(74,222,128,.55)' },
-          { label: 'Realisasi', data: data.chart_sub.map(x => x.realisasi), backgroundColor: 'rgba(251,146,60,.65)' },
+          {
+            label: 'Anggaran',
+            data: subData.map(x => x.anggaran),
+            backgroundColor: 'rgba(74,222,128,.72)',
+            hoverBackgroundColor: 'rgba(74,222,128,.95)',
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+          {
+            label: 'Realisasi',
+            data: subData.map(x => x.realisasi),
+            backgroundColor: 'rgba(251,146,60,.78)',
+            hoverBackgroundColor: 'rgba(251,146,60,.95)',
+            borderRadius: 6,
+            borderSkipped: false,
+          },
         ],
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor, font: { size: 11 } } } },
-        scales: { x: { ticks: { color: tickColor, font: { size: 9 }, maxRotation: 45 }, grid: { display: false } },
-          y: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } } } },
+      options: {
+        ...base,
+        plugins: {
+          ...base.plugins,
+          legend: { display: true, position: 'top', align: 'end', labels: { color: theme.tick, boxWidth: 12, font: { size: 11 } } },
+          tooltip: {
+            ...base.plugins.tooltip,
+            callbacks: {
+              title(items) {
+                const i = items[0]?.dataIndex ?? 0;
+                return subData[i]?.sub_kegiatan || items[0]?.label || '';
+              },
+              label(ctx) {
+                return (ctx.dataset.label || '') + ': ' + rlsChartFullMoney(ctx.parsed.y);
+              },
+            },
+          },
+        },
+        scales: {
+          x: { ticks: { color: theme.tick, font: { size: 10 }, maxRotation: 40, minRotation: 0 }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: theme.tick, callback: v => rlsChartMoney(v) }, grid: { color: theme.grid } },
+        },
+      },
     });
   }
 
+  const monthData = data.chart_month || [];
+  const hasMonth = monthData.some(x => (x.realisasi || 0) > 0);
+  rlsToggleChartEmpty('rls-chart-month', 'rls-chart-month-empty', !hasMonth);
   const monthEl = document.getElementById('rls-chart-month');
-  if (monthEl) {
+  if (monthEl && hasMonth) {
     realisasiCharts.month = new Chart(monthEl, {
       type: 'line',
       data: {
-        labels: (data.chart_month || []).map(x => (x.bulan_label || '').split(' ')[0]),
-        datasets: [{ label: 'Realisasi', data: (data.chart_month || []).map(x => x.realisasi), borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,.15)', fill: true, tension: .35 }],
+        labels: monthData.map(x => (x.bulan_label || '').split(' ')[0]),
+        datasets: [{
+          label: 'Realisasi',
+          data: monthData.map(x => x.realisasi),
+          borderColor: '#fb923c',
+          backgroundColor: 'rgba(251,146,60,.2)',
+          pointBackgroundColor: '#fb923c',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.38,
+        }],
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor } } },
-        scales: { y: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { display: false } } } },
+      options: {
+        ...base,
+        plugins: {
+          ...base.plugins,
+          tooltip: {
+            ...base.plugins.tooltip,
+            callbacks: {
+              title(items) {
+                const i = items[0]?.dataIndex ?? 0;
+                return monthData[i]?.bulan_label || items[0]?.label || '';
+              },
+              label(ctx) {
+                return 'Realisasi: ' + rlsChartFullMoney(ctx.parsed.y);
+              },
+            },
+          },
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: theme.tick, callback: v => rlsChartMoney(v) }, grid: { color: theme.grid } },
+          x: { ticks: { color: theme.tick, font: { size: 11 } }, grid: { display: false } },
+        },
+      },
     });
   }
 
+  const rekData = (data.chart_rekening || []).filter(x => (x.realisasi || 0) > 0);
+  rlsToggleChartEmpty('rls-chart-rekening', 'rls-chart-rekening-empty', !rekData.length);
   const rekEl = document.getElementById('rls-chart-rekening');
-  if (rekEl && data.chart_rekening?.length) {
+  if (rekEl && rekData.length) {
+    const rekColors = rekData.map((_, i) => `hsla(${200 + i * 14}, 82%, 58%, .78)`);
     realisasiCharts.rek = new Chart(rekEl, {
       type: 'bar',
       data: {
-        labels: data.chart_rekening.map(x => x.kode_rekening),
-        datasets: [{ label: 'Realisasi', data: data.chart_rekening.map(x => x.realisasi), backgroundColor: 'rgba(56,189,248,.55)' }],
+        labels: rekData.map(x => x.kode_rekening),
+        datasets: [{
+          label: 'Realisasi',
+          data: rekData.map(x => x.realisasi),
+          backgroundColor: rekColors,
+          hoverBackgroundColor: rekData.map((_, i) => `hsla(${200 + i * 14}, 90%, 52%, .95)`),
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
       },
-      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-        scales: { x: { ticks: { color: tickColor, callback: v => 'Rp ' + (v / 1e6).toFixed(1) + 'jt' }, grid: { color: gridColor } }, y: { ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } } } },
+      options: {
+        ...base,
+        indexAxis: 'y',
+        plugins: {
+          ...base.plugins,
+          tooltip: {
+            ...base.plugins.tooltip,
+            callbacks: {
+              title(items) {
+                const i = items[0]?.dataIndex ?? 0;
+                return rekData[i]?.kode_rekening || '';
+              },
+              afterTitle(items) {
+                const i = items[0]?.dataIndex ?? 0;
+                return rekData[i]?.uraian || '';
+              },
+              label(ctx) {
+                return 'Realisasi: ' + rlsChartFullMoney(ctx.parsed.x);
+              },
+            },
+          },
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { color: theme.tick, callback: v => rlsChartMoney(v) }, grid: { color: theme.grid } },
+          y: { ticks: { color: theme.tick, font: { size: 10, weight: '600' } }, grid: { display: false } },
+        },
+      },
     });
   }
 
+  const stData = data.status_distrib || [];
+  const stTotal = stData.reduce((s, x) => s + (x.count || 0), 0);
+  rlsToggleChartEmpty('rls-chart-status', 'rls-chart-status-empty', !stTotal);
   const stEl = document.getElementById('rls-chart-status');
-  if (stEl && data.status_distrib?.length) {
+  if (stEl && stTotal) {
     realisasiCharts.status = new Chart(stEl, {
       type: 'doughnut',
       data: {
-        labels: data.status_distrib.map(x => x.label),
-        datasets: [{ data: data.status_distrib.map(x => x.count), backgroundColor: data.status_distrib.map(x => RLS_STATUS_COLORS[x.status] || '#64748b') }],
+        labels: stData.map(x => x.label),
+        datasets: [{
+          data: stData.map(x => x.count),
+          backgroundColor: stData.map(x => RLS_STATUS_COLORS[x.status] || '#64748b'),
+          borderWidth: 2,
+          borderColor: theme.tooltipBg,
+          hoverOffset: 8,
+        }],
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: tickColor, font: { size: 11 } } } } },
+      options: {
+        ...base,
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: theme.tick,
+              font: { size: 11 },
+              padding: 10,
+              generateLabels(chart) {
+                const ds = chart.data.datasets[0];
+                return chart.data.labels.map((lbl, i) => ({
+                  text: `${lbl} (${ds.data[i]})`,
+                  fillStyle: ds.backgroundColor[i],
+                  hidden: false,
+                  index: i,
+                }));
+              },
+            },
+          },
+          tooltip: {
+            ...base.plugins.tooltip,
+            callbacks: {
+              label(ctx) {
+                const pct = stTotal ? ((ctx.raw / stTotal) * 100).toFixed(1) : '0.0';
+                return `${ctx.label}: ${ctx.raw} baris (${pct}%)`;
+              },
+            },
+          },
+        },
+      },
+      plugins: [{
+        id: 'rlsStatusCenter',
+        afterDraw(chart) {
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const cx = (chartArea.left + chartArea.right) / 2;
+          const cy = (chartArea.top + chartArea.bottom) / 2;
+          ctx.fillStyle = theme.tick;
+          ctx.font = '600 11px system-ui,sans-serif';
+          ctx.fillText('Total', cx, cy - 10);
+          ctx.fillStyle = theme.tooltipTitle;
+          ctx.font = '800 20px system-ui,sans-serif';
+          ctx.fillText(String(stTotal), cx, cy + 10);
+          ctx.restore();
+        },
+      }],
     });
   }
 }
@@ -14969,7 +15433,9 @@ async function loadRealisasi(force = false) {
     const data = await res.json();
     realisasiReportCache = data;
     applyRealisasiFilterOptions(data.filter_options);
+    syncRealisasiPageHead(data);
     renderRealisasiSummary(data.summary);
+    renderOverBudgetList(data.over_budget_rows);
     renderRealisasiTable(data);
     renderRealisasiPPTKTable(data.pptk_rows);
     renderRealisasiMeta(data);
@@ -14984,10 +15450,9 @@ async function openRealisasiDrawer(encodedRowKey) {
   const rowKey = decodeURIComponent(encodedRowKey || '');
   const row = (realisasiReportCache?.rows || []).find(r => r.row_key === rowKey);
   document.getElementById('rls-drawer-title').textContent = 'Detail Realisasi — ' + (row?.kode_rekening || '');
-  const tahun = document.getElementById('rls-filter-tahun')?.value || realisasiReportCache?.tahun_label || '2026';
+  const tahun = deriveRealisasiTahun();
   document.getElementById('rls-drawer-info').innerHTML = `
-    <dt>Tahun</dt><dd>${escapeHtmlRegister(tahun)}</dd>
-    <dt>Kegiatan</dt><dd>${escapeHtmlRegister(row?.kegiatan || '—')}</dd>
+    <dt>Tahun Anggaran</dt><dd>${escapeHtmlRegister(tahun)}</dd>
     <dt>Sub Kegiatan</dt><dd>${escapeHtmlRegister(row?.sub_kegiatan || '—')}</dd>
     <dt>Kode Rekening</dt><dd>${escapeHtmlRegister(row?.kode_rekening || '—')}</dd>
     <dt>Uraian</dt><dd>${escapeHtmlRegister(row?.uraian_rekening || '—')}</dd>
@@ -15027,10 +15492,12 @@ async function openRealisasiPPTKDrawer(encodedPptk) {
   const agg = rows.reduce((a, r) => ({
     anggaran: a.anggaran + r.anggaran, realisasi: a.realisasi + r.realisasi, count: a.count + r.count, subs: a.subs + (r.sub_kegiatan ? 1 : 0),
   }), { anggaran: 0, realisasi: 0, count: 0, subs: rows.length });
+  const kodeCount = rows.reduce((n, r) => n + (r.kode_count || 0), 0);
   document.getElementById('rls-drawer-title').textContent = 'Detail PPTK — ' + pptk;
   document.getElementById('rls-drawer-info').innerHTML = `
     <dt>PPTK</dt><dd>${escapeHtmlRegister(pptk)}</dd>
     <dt>Jumlah Sub Kegiatan</dt><dd>${agg.subs}</dd>
+    <dt>Jumlah Kode Rekening</dt><dd>${kodeCount}</dd>
     <dt>Total Anggaran</dt><dd>${formatRupiah(agg.anggaran)}</dd>`;
   document.getElementById('rls-drawer-summary').innerHTML = `
     <dt>Total Realisasi</dt><dd>${formatRupiah(agg.realisasi)}</dd>
@@ -15065,13 +15532,18 @@ async function fillRealisasiPrint() {
   const f = getRealisasiFilterParams();
   const data = realisasiReportCache;
   const allRows = await fetchRealisasiAllRows();
-  const portalTitle = selectedPortalApp === 'smp' ? 'SIPKEU SEKOLAH MENENGAH PERTAMA' : (SIPKEU_PORTAL_PROFILE[selectedPortalApp]?.title || 'SIPKEU');
+  const portalTitle = (PORTAL_APPS[selectedPortalApp]?.label || 'SIPKEU').toUpperCase();
   document.getElementById('rls-print-title').textContent = portalTitle;
   document.getElementById('rls-print-tahun').textContent = f.tahun || data?.tahun_label || DB.tahun || 2026;
-  document.getElementById('rls-print-kegiatan').textContent = f.kegiatan || 'Semua';
+  document.getElementById('rls-print-sub').textContent = f.sub_kegiatan || 'Semua';
+  document.getElementById('rls-print-kode').textContent = f.kode_rekening || 'Semua';
   document.getElementById('rls-print-pptk').textContent = f.pptk || 'Semua';
   const bulanLabel = f.bulan ? (document.getElementById('rls-filter-bulan')?.selectedOptions?.[0]?.text || f.bulan) : 'Semua';
-  document.getElementById('rls-print-periode').textContent = bulanLabel;
+  let periode = bulanLabel;
+  if (f.dari || f.sampai) {
+    periode = `${f.dari || '…'} – ${f.sampai || '…'}`;
+  }
+  document.getElementById('rls-print-periode').textContent = periode;
   document.getElementById('rls-print-tanggal').textContent = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
   document.getElementById('rls-print-pa-nama').textContent = DB.pa?.nama || '—';
   document.getElementById('rls-print-pa-nip').textContent = DB.pa?.nip || '—';
@@ -15097,10 +15569,11 @@ async function exportRealisasiExcel() {
   const dataRows = await fetchRealisasiAllRows();
   if (!dataRows.length) { alert('Belum ada data realisasi.'); return; }
   const f = getRealisasiFilterParams();
-  const header = ['No', 'Sub Kegiatan', 'Kode Rekening', 'Uraian', 'PPTK', 'Anggaran', 'Realisasi', 'Sisa', '%', 'Status'];
-  const sheetRows = dataRows.map((r, i) => [i + 1, r.sub_kegiatan, r.kode_rekening, r.uraian_rekening, r.pptk, r.anggaran, r.realisasi, r.sisa, r.pct, r.status_label]);
+  const header = ['No', 'Tahun Anggaran', 'Sub Kegiatan', 'Kode Rekening', 'Uraian', 'PPTK', 'Anggaran', 'Realisasi', 'Sisa', '%', 'Status'];
+  const tahun = f.tahun || realisasiReportCache?.tahun_label || DB.tahun || 2026;
+  const sheetRows = dataRows.map((r, i) => [i + 1, tahun, r.sub_kegiatan, r.kode_rekening, r.uraian_rekening, r.pptk, r.anggaran, r.realisasi, r.sisa, r.pct, r.status_label]);
   const s = realisasiReportCache?.summary || {};
-  sheetRows.push(['', 'JUMLAH', '', '', '', s.total_anggaran, s.total_realisasi, s.sisa_anggaran, s.persen_realisasi, '']);
+  sheetRows.push(['', '', 'JUMLAH', '', '', '', s.total_anggaran, s.total_realisasi, s.sisa_anggaran, s.persen_realisasi, '']);
   const ws = XLSX.utils.aoa_to_sheet([header, ...sheetRows]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Realisasi');

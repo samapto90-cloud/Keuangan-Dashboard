@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -15,6 +16,8 @@ type realisasiFilters struct {
 	KodeRekening string
 	PPTK         string
 	Bulan        string
+	Dari         string
+	Sampai       string
 	Search       string
 	Page         int
 	PageSize     int
@@ -25,6 +28,7 @@ type realisasiFilters struct {
 type RealisasiRow struct {
 	RowKey         string  `json:"row_key"`
 	Kegiatan       string  `json:"kegiatan"`
+	Sekolah        string  `json:"sekolah"`
 	SubKegiatan    string  `json:"sub_kegiatan"`
 	KodeRekening   string  `json:"kode_rekening"`
 	UraianRekening string  `json:"uraian_rekening"`
@@ -56,9 +60,9 @@ type RealisasiChartSub struct {
 }
 
 type RealisasiChartMonth struct {
-	Bulan     string  `json:"bulan"`
-	BulanLabel string `json:"bulan_label"`
-	Realisasi float64 `json:"realisasi"`
+	Bulan      string  `json:"bulan"`
+	BulanLabel string  `json:"bulan_label"`
+	Realisasi  float64 `json:"realisasi"`
 }
 
 type RealisasiChartRekening struct {
@@ -81,23 +85,24 @@ type RealisasiPPTKRow struct {
 	Sisa        float64 `json:"sisa"`
 	Pct         float64 `json:"pct"`
 	Count       int     `json:"count"`
+	KodeCount   int     `json:"kode_count"`
 	Status      string  `json:"status"`
 	StatusLabel string  `json:"status_label"`
 }
 
 type RealisasiFilterOptions struct {
-	Tahun         []string            `json:"tahun"`
-	Kegiatan      []string            `json:"kegiatan"`
-	SubKegiatan   []string            `json:"sub_kegiatan"`
-	KodeRekening  []filterKodeOption  `json:"kode_rekening"`
-	PPTK          []string            `json:"pptk"`
-	Bulan         []filterBulanOption `json:"bulan"`
+	Tahun        []string            `json:"tahun"`
+	Kegiatan     []string            `json:"kegiatan"`
+	SubKegiatan  []string            `json:"sub_kegiatan"`
+	KodeRekening []filterKodeOption  `json:"kode_rekening"`
+	PPTK         []string            `json:"pptk"`
+	Bulan        []filterBulanOption `json:"bulan"`
 }
 
 type filterKodeOption struct {
-	Kode  string `json:"kode"`
+	Kode   string `json:"kode"`
 	Uraian string `json:"uraian"`
-	Sub   string `json:"sub_kegiatan"`
+	Sub    string `json:"sub_kegiatan"`
 }
 
 type filterBulanOption struct {
@@ -106,32 +111,32 @@ type filterBulanOption struct {
 }
 
 type RealisasiReport struct {
-	Summary       RealisasiSummary        `json:"summary"`
-	Rows          []RealisasiRow          `json:"rows"`
-	TotalRows     int                     `json:"total_rows"`
-	Page          int                     `json:"page"`
-	PageSize      int                     `json:"page_size"`
-	ChartSub      []RealisasiChartSub     `json:"chart_sub"`
-	ChartMonth    []RealisasiChartMonth   `json:"chart_month"`
+	Summary       RealisasiSummary         `json:"summary"`
+	Rows          []RealisasiRow           `json:"rows"`
+	TotalRows     int                      `json:"total_rows"`
+	Page          int                      `json:"page"`
+	PageSize      int                      `json:"page_size"`
+	ChartSub      []RealisasiChartSub      `json:"chart_sub"`
+	ChartMonth    []RealisasiChartMonth    `json:"chart_month"`
 	ChartRekening []RealisasiChartRekening `json:"chart_rekening"`
-	StatusDistrib []RealisasiStatusBucket `json:"status_distrib"`
-	PPTKRows      []RealisasiPPTKRow      `json:"pptk_rows"`
-	OverBudget    []RealisasiRow          `json:"over_budget_rows"`
-	FilterOptions RealisasiFilterOptions  `json:"filter_options"`
-	SourceCount   int                     `json:"source_transaction_count"`
-	GeneratedAt   string                  `json:"generated_at"`
-	PortalLabel   string                  `json:"portal_label"`
-	TahunLabel    string                  `json:"tahun_label"`
+	StatusDistrib []RealisasiStatusBucket  `json:"status_distrib"`
+	PPTKRows      []RealisasiPPTKRow       `json:"pptk_rows"`
+	OverBudget    []RealisasiRow           `json:"over_budget_rows"`
+	FilterOptions RealisasiFilterOptions   `json:"filter_options"`
+	SourceCount   int                      `json:"source_transaction_count"`
+	GeneratedAt   string                   `json:"generated_at"`
+	PortalLabel   string                   `json:"portal_label"`
+	TahunLabel    string                   `json:"tahun_label"`
 }
 
 var realisasiStatusLabels = map[string]string{
-	"belum":            "Belum Realisasi",
-	"rendah":           "Rendah",
-	"sedang":           "Sedang",
-	"tinggi":           "Tinggi",
-	"perlu_perhatian":  "Perlu Perhatian",
-	"selesai":          "Selesai",
-	"over_budget":      "Over Budget",
+	"belum":           "Belum Realisasi",
+	"rendah":          "Rendah",
+	"sedang":          "Sedang",
+	"tinggi":          "Tinggi",
+	"perlu_perhatian": "Perlu Perhatian",
+	"selesai":         "Selesai",
+	"over_budget":     "Over Budget",
 }
 
 var realisasiMonthNames = []string{
@@ -149,26 +154,45 @@ func parseRealisasiFilters(r *http.Request) realisasiFilters {
 	if pageSize < 1 {
 		pageSize = 25
 	}
-	if pageSize > 200 {
-		pageSize = 200
+	if pageSize > 5000 {
+		pageSize = 5000
 	}
 	sortDir := strings.ToLower(strings.TrimSpace(q.Get("sort_dir")))
 	if sortDir != "asc" {
 		sortDir = "desc"
 	}
+	sekolah := strings.TrimSpace(q.Get("sekolah"))
+	kegiatan := strings.TrimSpace(q.Get("kegiatan"))
+	if kegiatan == "" {
+		kegiatan = sekolah
+	}
 	return realisasiFilters{
 		Tahun:        strings.TrimSpace(q.Get("tahun")),
-		Kegiatan:     strings.TrimSpace(q.Get("kegiatan")),
+		Kegiatan:     kegiatan,
 		SubKegiatan:  strings.TrimSpace(q.Get("sub_kegiatan")),
 		KodeRekening: strings.TrimSpace(q.Get("kode_rekening")),
 		PPTK:         strings.TrimSpace(q.Get("pptk")),
 		Bulan:        strings.TrimSpace(q.Get("bulan")),
+		Dari:         strings.TrimSpace(q.Get("dari")),
+		Sampai:       strings.TrimSpace(q.Get("sampai")),
 		Search:       strings.TrimSpace(q.Get("search")),
 		Page:         page,
 		PageSize:     pageSize,
 		Sort:         strings.TrimSpace(q.Get("sort")),
 		SortDir:      sortDir,
 	}
+}
+
+func roundMoney(v float64) float64 {
+	return math.Round(v*100) / 100
+}
+
+func trxDateKey(tanggal string) string {
+	t := strings.TrimSpace(tanggal)
+	if len(t) >= 10 {
+		return t[:10]
+	}
+	return t
 }
 
 func realisasiRowKey(kegiatan, sub, kode, pekerjaan, pptk string) string {
@@ -196,6 +220,13 @@ func transactionMatchesRealisasiFilters(t Transaction, rak []RakRow, f realisasi
 		if len(t.Tanggal) < 7 || t.Tanggal[5:7] != f.Bulan {
 			return false
 		}
+	}
+	dk := trxDateKey(t.Tanggal)
+	if f.Dari != "" && (dk == "" || dk < f.Dari) {
+		return false
+	}
+	if f.Sampai != "" && (dk == "" || dk > f.Sampai) {
+		return false
 	}
 	if f.Kegiatan != "" && normRekap(t.Kegiatan) != normRekap(f.Kegiatan) {
 		return false
@@ -303,18 +334,18 @@ func buildRealisasiFilterOptions(mod *SipkeuModule, f realisasiFilters) Realisas
 		k := normRekap(r.KodeRekening)
 		if k != "" {
 			kodeMap[k] = filterKodeOption{
-				Kode:  k,
+				Kode:   k,
 				Uraian: normRekap(r.Pekerjaan),
-				Sub:   normRekap(r.SubKegiatan),
+				Sub:    normRekap(r.SubKegiatan),
 			}
 		}
 	}
 
 	opts := RealisasiFilterOptions{
-		Tahun:    sortedKeys(tahunSet),
-		Kegiatan: sortedKeys(kegiatanSet),
+		Tahun:       sortedKeys(tahunSet),
+		Kegiatan:    sortedKeys(kegiatanSet),
 		SubKegiatan: sortedKeys(subSet),
-		PPTK:     sortedKeys(pptkSet),
+		PPTK:        sortedKeys(pptkSet),
 	}
 	if len(opts.Tahun) == 0 {
 		opts.Tahun = []string{"2026"}
@@ -368,14 +399,16 @@ func buildRealisasiForModule(mod *SipkeuModule, f realisasiFilters) RealisasiRep
 		}
 		key := realisasiRowKey(r.Kegiatan, r.SubKegiatan, r.KodeRekening, r.Pekerjaan, r.PPTK)
 		if rowMap[key] == nil {
+			keg := normRekap(r.Kegiatan)
 			rowMap[key] = &RealisasiRow{
 				RowKey:         key,
-				Kegiatan:       normRekap(r.Kegiatan),
+				Kegiatan:       keg,
+				Sekolah:        keg,
 				SubKegiatan:    normRekap(r.SubKegiatan),
 				KodeRekening:   normRekap(r.KodeRekening),
 				UraianRekening: normRekap(r.Pekerjaan),
 				PPTK:           normRekap(r.PPTK),
-				Anggaran:       r.Anggaran,
+				Anggaran:       roundMoney(r.Anggaran),
 			}
 		}
 	}
@@ -395,18 +428,20 @@ func buildRealisasiForModule(mod *SipkeuModule, f realisasiFilters) RealisasiRep
 		row := rowMap[key]
 		if row == nil {
 			pptk := pptkForTransaction(rak, t)
+			keg := normRekap(t.Kegiatan)
 			row = &RealisasiRow{
 				RowKey:         key,
-				Kegiatan:       normRekap(t.Kegiatan),
+				Kegiatan:       keg,
+				Sekolah:        keg,
 				SubKegiatan:    normRekap(t.SubKegiatan),
 				KodeRekening:   normRekap(t.KodeRekening),
 				UraianRekening: normRekap(t.Pekerjaan),
 				PPTK:           pptk,
-				Anggaran:       anggaranPekerjaanForSnapshot(rak, t.Kegiatan, t.SubKegiatan, t.KodeRekening, t.Pekerjaan),
+				Anggaran:       roundMoney(anggaranPekerjaanForSnapshot(rak, t.Kegiatan, t.SubKegiatan, t.KodeRekening, t.Pekerjaan)),
 			}
 			rowMap[key] = row
 		}
-		row.Realisasi += t.Nilai
+		row.Realisasi = roundMoney(row.Realisasi + t.Nilai)
 		row.Count++
 	}
 
@@ -415,7 +450,7 @@ func buildRealisasiForModule(mod *SipkeuModule, f realisasiFilters) RealisasiRep
 	for _, row := range rowMap {
 		if f.Search != "" {
 			hay := strings.ToLower(strings.Join([]string{
-				row.SubKegiatan, row.KodeRekening, row.UraianRekening, row.PPTK,
+				row.Kegiatan, row.SubKegiatan, row.KodeRekening, row.UraianRekening, row.PPTK,
 			}, " "))
 			if !strings.Contains(hay, search) {
 				continue
@@ -424,7 +459,7 @@ func buildRealisasiForModule(mod *SipkeuModule, f realisasiFilters) RealisasiRep
 		if row.Realisasi <= 0 && row.Anggaran <= 0 {
 			continue
 		}
-		row.Sisa = row.Anggaran - row.Realisasi
+		row.Sisa = roundMoney(row.Anggaran - row.Realisasi)
 		row.Pct = rekapPct(row.Realisasi, row.Anggaran)
 		row.Status = computeRealisasiStatus(row.Pct, row.Realisasi, row.Anggaran)
 		row.StatusLabel = realisasiStatusLabel(row.Status)
@@ -476,6 +511,7 @@ func sortRealisasiRows(rows []RealisasiRow, sortField, sortDir string) {
 	less := func(i, j int) bool {
 		var vi, vj float64
 		var si, sj string
+		str := false
 		switch sortField {
 		case "anggaran":
 			vi, vj = rows[i].Anggaran, rows[j].Anggaran
@@ -486,13 +522,21 @@ func sortRealisasiRows(rows []RealisasiRow, sortField, sortDir string) {
 		case "pct":
 			vi, vj = rows[i].Pct, rows[j].Pct
 		case "sub_kegiatan":
-			si, sj = rows[i].SubKegiatan, rows[j].SubKegiatan
-			return si < sj
+			si, sj, str = rows[i].SubKegiatan, rows[j].SubKegiatan, true
 		case "kode_rekening":
-			si, sj = rows[i].KodeRekening, rows[j].KodeRekening
-			return si < sj
+			si, sj, str = rows[i].KodeRekening, rows[j].KodeRekening, true
+		case "pptk":
+			si, sj, str = rows[i].PPTK, rows[j].PPTK, true
+		case "sekolah", "kegiatan":
+			si, sj, str = rows[i].Kegiatan, rows[j].Kegiatan, true
 		default:
 			vi, vj = rows[i].Realisasi, rows[j].Realisasi
+		}
+		if str {
+			if sortDir == "asc" {
+				return si < sj
+			}
+			return si > sj
 		}
 		if sortDir == "asc" {
 			return vi < vj
@@ -506,8 +550,8 @@ func summarizeRealisasiRows(rows []RealisasiRow, txs []Transaction) RealisasiSum
 	var sum RealisasiSummary
 	pptkActive := map[string]bool{}
 	for _, row := range rows {
-		sum.TotalAnggaran += row.Anggaran
-		sum.TotalRealisasi += row.Realisasi
+		sum.TotalAnggaran = roundMoney(sum.TotalAnggaran + row.Anggaran)
+		sum.TotalRealisasi = roundMoney(sum.TotalRealisasi + row.Realisasi)
 		if row.OverBudget {
 			sum.OverBudgetCount++
 		}
@@ -516,7 +560,7 @@ func summarizeRealisasiRows(rows []RealisasiRow, txs []Transaction) RealisasiSum
 		}
 	}
 	sum.TotalTransaksi = len(txs)
-	sum.SisaAnggaran = sum.TotalAnggaran - sum.TotalRealisasi
+	sum.SisaAnggaran = roundMoney(sum.TotalAnggaran - sum.TotalRealisasi)
 	sum.PersenRealisasi = rekapPct(sum.TotalRealisasi, sum.TotalAnggaran)
 	sum.JumlahPPTK = len(pptkActive)
 	return sum
@@ -532,8 +576,8 @@ func buildRealisasiChartSub(rows []RealisasiRow) []RealisasiChartSub {
 		if m[sub] == nil {
 			m[sub] = &RealisasiChartSub{SubKegiatan: sub}
 		}
-		m[sub].Anggaran += row.Anggaran
-		m[sub].Realisasi += row.Realisasi
+		m[sub].Anggaran = roundMoney(m[sub].Anggaran + row.Anggaran)
+		m[sub].Realisasi = roundMoney(m[sub].Realisasi + row.Realisasi)
 	}
 	out := make([]RealisasiChartSub, 0, len(m))
 	for _, v := range m {
@@ -556,7 +600,7 @@ func buildRealisasiChartMonth(txs []Transaction, tahun string) []RealisasiChartM
 		if tahun != "" && !strings.HasPrefix(bulan, tahun) {
 			continue
 		}
-		m[bulan] += t.Nilai
+		m[bulan] = roundMoney(m[bulan] + t.Nilai)
 	}
 	out := make([]RealisasiChartMonth, 0, 12)
 	prefix := tahun
@@ -622,26 +666,37 @@ func buildRealisasiStatusDistrib(rows []RealisasiRow) []RealisasiStatusBucket {
 
 func buildRealisasiPPTKRows(rows []RealisasiRow) []RealisasiPPTKRow {
 	type key struct{ pptk, sub string }
-	m := map[key]*RealisasiPPTKRow{}
+	type acc struct {
+		row   *RealisasiPPTKRow
+		kodes map[string]bool
+	}
+	m := map[key]*acc{}
 	for _, row := range rows {
 		k := key{pptk: row.PPTK, sub: row.SubKegiatan}
 		if m[k] == nil {
-			m[k] = &RealisasiPPTKRow{PPTK: row.PPTK, SubKegiatan: row.SubKegiatan}
+			m[k] = &acc{
+				row:   &RealisasiPPTKRow{PPTK: row.PPTK, SubKegiatan: row.SubKegiatan},
+				kodes: map[string]bool{},
+			}
 		}
-		m[k].Anggaran += row.Anggaran
-		m[k].Realisasi += row.Realisasi
-		m[k].Count += row.Count
+		m[k].row.Anggaran = roundMoney(m[k].row.Anggaran + row.Anggaran)
+		m[k].row.Realisasi = roundMoney(m[k].row.Realisasi + row.Realisasi)
+		m[k].row.Count += row.Count
+		if row.KodeRekening != "" {
+			m[k].kodes[row.KodeRekening] = true
+		}
 	}
 	out := make([]RealisasiPPTKRow, 0, len(m))
 	for _, v := range m {
-		if v.PPTK == "" && v.Realisasi <= 0 {
+		if v.row.PPTK == "" && v.row.Realisasi <= 0 {
 			continue
 		}
-		v.Sisa = v.Anggaran - v.Realisasi
-		v.Pct = rekapPct(v.Realisasi, v.Anggaran)
-		v.Status = computeRealisasiStatus(v.Pct, v.Realisasi, v.Anggaran)
-		v.StatusLabel = realisasiStatusLabel(v.Status)
-		out = append(out, *v)
+		v.row.KodeCount = len(v.kodes)
+		v.row.Sisa = roundMoney(v.row.Anggaran - v.row.Realisasi)
+		v.row.Pct = rekapPct(v.row.Realisasi, v.row.Anggaran)
+		v.row.Status = computeRealisasiStatus(v.row.Pct, v.row.Realisasi, v.row.Anggaran)
+		v.row.StatusLabel = realisasiStatusLabel(v.row.Status)
+		out = append(out, *v.row)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Realisasi > out[j].Realisasi })
 	return out
@@ -734,7 +789,7 @@ func handleRealisasiTransactions(w http.ResponseWriter, r *http.Request) {
 	txs := buildRealisasiTransactions(mod, f, rowKey)
 	var total float64
 	for _, t := range txs {
-		total += t.Nilai
+		total = roundMoney(total + t.Nilai)
 	}
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"transactions": txs,

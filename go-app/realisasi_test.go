@@ -192,3 +192,51 @@ func TestComputeRealisasiStatus(t *testing.T) {
 		t.Fatal("50% should be rendah")
 	}
 }
+
+func TestRealisasiFilterDateRange(t *testing.T) {
+	mod := newTestRealisasiModule()
+	mod.mu.Lock()
+	mod.txs = []Transaction{
+		approvedTrx(1, "2026-01-10", "Sub A", "5.1.02.01", 1_000_000, "Budi"),
+		approvedTrx(2, "2026-02-15", "Sub A", "5.1.02.01", 2_000_000, "Budi"),
+		approvedTrx(3, "2026-03-20", "Sub A", "5.1.02.01", 3_000_000, "Budi"),
+	}
+	mod.mu.Unlock()
+	report := buildRealisasiForModule(mod, realisasiFilters{Tahun: "2026", Dari: "2026-01-01", Sampai: "2026-03-31"})
+	if report.Summary.TotalRealisasi != 6_000_000 {
+		t.Fatalf("Q1 expected 6M, got %v", report.Summary.TotalRealisasi)
+	}
+	report = buildRealisasiForModule(mod, realisasiFilters{Tahun: "2026", Dari: "2026-01-01", Sampai: "2026-01-31"})
+	if report.Summary.TotalRealisasi != 1_000_000 {
+		t.Fatalf("January range expected 1M, got %v", report.Summary.TotalRealisasi)
+	}
+}
+
+func TestRealisasiPendingNotCounted(t *testing.T) {
+	mod := newTestRealisasiModule()
+	mod.mu.Lock()
+	mod.txs = []Transaction{
+		approvedTrx(1, "2026-01-10", "Sub A", "5.1.02.01", 1_000_000, "Budi"),
+		{ID: 2, Tanggal: "2026-02-10", Kegiatan: "Pengelolaan Pendidikan Sekolah Menengah Pertama", SubKegiatan: "Sub A", KodeRekening: "5.1.02.01", Pekerjaan: "Belanja Alat Tulis", Nilai: 4_000_000, Status: trxStatusPending},
+	}
+	mod.mu.Unlock()
+	report := buildRealisasiForModule(mod, realisasiFilters{Tahun: "2026"})
+	if report.Summary.TotalRealisasi != 1_000_000 {
+		t.Fatalf("pending must not count, got %v", report.Summary.TotalRealisasi)
+	}
+}
+
+func TestRealisasiSisaFollowsActiveBudget(t *testing.T) {
+	mod := newTestRealisasiModule()
+	mod.mu.Lock()
+	mod.txs = []Transaction{approvedTrx(1, "2026-01-10", "Sub A", "5.1.02.01", 4_000_000, "Budi")}
+	mod.settings.Rak[0].Anggaran = 8_000_000
+	mod.mu.Unlock()
+	report := buildRealisasiForModule(mod, realisasiFilters{Tahun: "2026", SubKegiatan: "Sub A", KodeRekening: "5.1.02.01"})
+	if report.Summary.TotalAnggaran != 8_000_000 {
+		t.Fatalf("active budget expected 8M, got %v", report.Summary.TotalAnggaran)
+	}
+	if report.Summary.SisaAnggaran != 4_000_000 {
+		t.Fatalf("sisa expected 4M, got %v", report.Summary.SisaAnggaran)
+	}
+}

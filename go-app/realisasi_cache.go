@@ -19,8 +19,8 @@ var (
 )
 
 func realisasiCacheKey(moduleID string, f realisasiFilters) string {
-	return fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s",
-		moduleID, f.Tahun, f.Kegiatan, f.SubKegiatan, f.KodeRekening, f.PPTK, f.Bulan, f.Search)
+	return fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%d|%d|%s|%s",
+		moduleID, f.Tahun, f.Kegiatan, f.SubKegiatan, f.KodeRekening, f.PPTK, f.Bulan, f.Dari, f.Sampai, f.Search, f.Page, f.PageSize, f.Sort, f.SortDir)
 }
 
 func invalidateRealisasiCache(moduleID string) {
