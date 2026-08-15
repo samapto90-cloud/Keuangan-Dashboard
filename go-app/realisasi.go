@@ -68,7 +68,12 @@ type RealisasiChartMonth struct {
 type RealisasiChartRekening struct {
 	KodeRekening string  `json:"kode_rekening"`
 	Uraian       string  `json:"uraian"`
+	Anggaran     float64 `json:"anggaran"`
 	Realisasi    float64 `json:"realisasi"`
+	Sisa         float64 `json:"sisa"`
+	Pct          float64 `json:"pct"`
+	Status       string  `json:"status"`
+	StatusLabel  string  `json:"status_label"`
 }
 
 type RealisasiStatusBucket struct {
@@ -134,7 +139,7 @@ var realisasiStatusLabels = map[string]string{
 	"rendah":          "Rendah",
 	"sedang":          "Sedang",
 	"tinggi":          "Tinggi",
-	"perlu_perhatian": "Perlu Perhatian",
+	"perlu_perhatian": "Good Job",
 	"selesai":         "Selesai",
 	"over_budget":     "Over Budget",
 }
@@ -638,7 +643,12 @@ func buildRealisasiChartRekening(rows []RealisasiRow) []RealisasiChartRekening {
 		out = append(out, RealisasiChartRekening{
 			KodeRekening: r.KodeRekening,
 			Uraian:       r.UraianRekening,
+			Anggaran:     r.Anggaran,
 			Realisasi:    r.Realisasi,
+			Sisa:         r.Sisa,
+			Pct:          r.Pct,
+			Status:       r.Status,
+			StatusLabel:  r.StatusLabel,
 		})
 	}
 	return out

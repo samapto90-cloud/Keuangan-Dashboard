@@ -28,6 +28,8 @@ jobs:
         working-directory: deploy/hostinger-web
         env:
           SSH_PASSWORD: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          SKIP_BINARY_REBUILD: "1"
+          BUILD_SHA: ${{ github.sha }}
         run: node deploy-node.mjs
 
       - name: Verify production build

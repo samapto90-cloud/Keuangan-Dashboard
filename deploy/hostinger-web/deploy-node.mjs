@@ -9,6 +9,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "../..");
 const goApp = path.join(root, "go-app");
 
+function loadDotEnv(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  for (const line of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    if (process.env[key]) continue;
+    process.env[key] = trimmed.slice(eq + 1).trim().replace(/^['"]|['"]$/g, "");
+  }
+}
+
+loadDotEnv(path.join(root, "deploy", ".env"));
+
 const host = "145.79.14.155";
 const port = 65002;
 const username = "u657726332";
@@ -57,12 +72,22 @@ function askPassword() {
   });
 }
 
+function gitBuildSHA() {
+  const r = spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: root, encoding: "utf8" });
+  return (r.stdout || "").trim() || "local";
+}
+
 function ensureBinary() {
   const bin = path.join(goApp, "keuangan-linux-amd64");
-  console.log("==> Build Linux binary (fresh)...");
+  if (process.env.SKIP_BINARY_REBUILD === "1" && fs.existsSync(bin)) {
+    console.log("==> Skip rebuild (SKIP_BINARY_REBUILD=1)");
+    return bin;
+  }
+  const sha = process.env.BUILD_SHA || gitBuildSHA();
+  console.log(`==> Build Linux binary (buildSHA=${sha})...`);
   const r = spawnSync(
     "go",
-    ["build", "-ldflags", "-s -X main.buildSHA=aurora-v5", "-o", "keuangan-linux-amd64", "."],
+    ["build", "-ldflags", `-s -w -X main.buildSHA=${sha}`, "-o", "keuangan-linux-amd64", "."],
     {
       cwd: goApp,
       env: { ...process.env, GOOS: "linux", GOARCH: "amd64", CGO_ENABLED: "0" },

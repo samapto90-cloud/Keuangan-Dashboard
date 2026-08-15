@@ -34,6 +34,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,500&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" as="style" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
@@ -117,44 +118,49 @@
       --aurora-ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
     body[data-ui-mode="light"] {
-      --spatial-bg: #e8edf5;
-      --spatial-bg-mid: #f1f5f9;
-      --spatial-surface: rgba(255, 255, 255, 0.94);
+      --spatial-bg: #eef3f9;
+      --spatial-bg-mid: #f7fafc;
+      --spatial-surface: rgba(255, 255, 255, 0.96);
       --spatial-surface-2: #ffffff;
-      --spatial-surface-glass: rgba(255, 255, 255, 0.82);
+      --spatial-surface-glass: rgba(255, 255, 255, 0.88);
       --spatial-text: #0f172a;
-      --spatial-text-muted: #64748b;
+      --spatial-text-muted: #475569;
       --spatial-border: rgba(15, 23, 42, 0.1);
-      --spatial-accent: #2563eb;
-      --spatial-glow-1: rgba(59, 130, 246, 0.14);
-      --spatial-glow-2: rgba(251, 146, 60, 0.1);
-      --spatial-elev-1: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 32px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      --spatial-elev-2: 0 8px 20px rgba(15, 23, 42, 0.12), 0 24px 48px rgba(15, 23, 42, 0.14);
-      --spatial-elev-3: 0 20px 48px rgba(15, 23, 42, 0.16);
-      --spatial-sidebar-shadow: 8px 0 40px rgba(15, 23, 42, 0.08), inset -1px 0 0 rgba(255, 255, 255, 0.8);
-      --spatial-topbar-bg: rgba(255, 255, 255, 0.88);
+      --spatial-accent: #1d4ed8;
+      --spatial-glow-1: rgba(37, 99, 235, 0.12);
+      --spatial-glow-2: rgba(14, 165, 233, 0.1);
+      --spatial-elev-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      --spatial-elev-2: 0 8px 24px rgba(15, 23, 42, 0.1), 0 20px 40px rgba(15, 23, 42, 0.08);
+      --spatial-elev-3: 0 18px 48px rgba(15, 23, 42, 0.12);
+      --spatial-sidebar-shadow: 6px 0 28px rgba(15, 23, 42, 0.06), inset -1px 0 0 rgba(255, 255, 255, 0.9);
+      --spatial-topbar-bg: rgba(255, 255, 255, 0.9);
       --spatial-input-bg: #ffffff;
       --spatial-input-border: rgba(15, 23, 42, 0.14);
-      --bg-deep: #e8edf5;
-      --glass: rgba(255, 255, 255, 0.92);
+      --bg-deep: #eef3f9;
+      --glass: rgba(255, 255, 255, 0.94);
       --glass-border: rgba(15, 23, 42, 0.1);
       --text-main: #0f172a;
-      --text-muted: #64748b;
-      --aurora-midnight: #e8edf5;
-      --aurora-midnight-2: #f1f5f9;
-      --aurora-violet: rgba(124, 58, 237, 0.16);
-      --aurora-violet-soft: rgba(139, 92, 246, 0.12);
-      --aurora-teal: rgba(20, 184, 166, 0.14);
-      --aurora-cyan: rgba(14, 165, 233, 0.16);
-      --aurora-glass-bg: rgba(255, 255, 255, 0.58);
-      --aurora-glass-bg-hover: rgba(255, 255, 255, 0.78);
+      --text-muted: #475569;
+      --aurora-midnight: #eef3f9;
+      --aurora-midnight-2: #f7fafc;
+      --aurora-violet: rgba(14, 165, 233, 0.14);
+      --aurora-violet-soft: rgba(56, 189, 248, 0.1);
+      --aurora-teal: rgba(13, 148, 136, 0.12);
+      --aurora-cyan: rgba(37, 99, 235, 0.12);
+      --aurora-glass-bg: rgba(255, 255, 255, 0.78);
+      --aurora-glass-bg-hover: rgba(255, 255, 255, 0.94);
       --aurora-glass-border: rgba(15, 23, 42, 0.1);
-      --aurora-glass-border-hover: rgba(37, 99, 235, 0.28);
-      --aurora-glass-shadow: 0 0.25rem 1.25rem rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-      --aurora-glass-shadow-hover: 0 0.625rem 1.75rem rgba(15, 23, 42, 0.12), 0 0 1.5rem var(--aurora-glow, rgba(37, 99, 235, 0.14)), inset 0 1px 0 rgba(255, 255, 255, 1);
-      --aurora-glow: rgba(37, 99, 235, 0.18);
+      --aurora-glass-border-hover: rgba(29, 78, 216, 0.28);
+      --aurora-glass-shadow: 0 0.25rem 1.15rem rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 1);
+      --aurora-glass-shadow-hover: 0 0.7rem 1.75rem rgba(15, 23, 42, 0.1), 0 0 1.25rem rgba(37, 99, 235, 0.1), inset 0 1px 0 #fff;
+      --aurora-glow: rgba(37, 99, 235, 0.14);
       --aurora-text: #0f172a;
-      --aurora-text-muted: #64748b;
+      --aurora-text-muted: #475569;
+      --sidebar-bg: linear-gradient(180deg, #f8fbff 0%, #eef4fb 55%, #e8f0f8 100%);
+      --sidebar-text: #0f172a;
+      --water: #2563eb;
+      --water-deep: #1d4ed8;
+      --water-glow: rgba(37, 99, 235, 0.25);
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -356,9 +362,9 @@
       --portal-logo: clamp(2.5rem, 6.5vw, 3.5rem);
       --portal-name: clamp(0.78rem, 1.2vw + 0.4rem, 1.05rem);
       --portal-motto: clamp(0.62rem, 0.8vw + 0.35rem, 0.78rem);
-      --portal-icon: clamp(1.75rem, 3.2vw, 2.375rem);
-      --portal-title: clamp(0.5625rem, 1vw, 0.6875rem);
-      --portal-badge-fs: clamp(0.5rem, 1.1vw, 0.5625rem);
+      --portal-icon: clamp(2.25rem, 3.6vw, 2.75rem);
+      --portal-title: clamp(0.78rem, 1.15vw, 0.95rem);
+      --portal-badge-fs: clamp(0.625rem, 0.9vw, 0.6875rem);
       --portal-footer-fs: clamp(0.5625rem, 1.5vw, 0.6875rem);
       --portal-header-gap: clamp(0.25rem, 0.8vh, 0.625rem);
     }
@@ -599,24 +605,24 @@
       flex-shrink: 0;
       width: 100%;
       margin-top: auto;
-      padding: clamp(0.5rem, 1.2vh, 0.875rem) clamp(0.5rem, 1.5vw, 0.875rem) clamp(0.25rem, 0.6vh, 0.5rem);
+      padding: clamp(0.85rem, 1.8vh, 1.25rem) clamp(0.75rem, 2vw, 1.25rem) clamp(0.5rem, 1vh, 0.85rem);
       background: var(--aurora-glass-bg);
       backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
       -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.35);
-      border-radius: clamp(1rem, 2vw, 1.375rem) clamp(1rem, 2vw, 1.375rem) 0 0;
+      border-radius: clamp(1.1rem, 2vw, 1.5rem) clamp(1.1rem, 2vw, 1.5rem) 0 0;
       border-top: 1px solid var(--aurora-glass-border);
       box-shadow: var(--aurora-glass-shadow);
     }
     body.fx-portal-home.portal-video-mode .portal-grid {
       flex: 0 1 auto;
       min-height: 0;
-      max-height: min(42vh, 28rem);
+      max-height: min(52vh, 34rem);
       overflow-x: hidden;
       overflow-y: auto;
       align-content: start;
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: clamp(0.375rem, 1vw, 0.625rem);
+      gap: clamp(0.55rem, 1.1vw, 0.85rem);
       margin-bottom: 0;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
@@ -624,17 +630,17 @@
     body.fx-portal-home.portal-video-mode .portal-modules-head {
       flex-shrink: 0;
       text-align: center;
-      margin-bottom: clamp(0.25rem, 0.6vh, 0.5rem);
+      margin-bottom: clamp(0.55rem, 1vh, 0.85rem);
       padding: 0 0.25rem;
     }
     body.fx-portal-home.portal-video-mode .portal-modules-head h2 {
       margin: 0;
       font-family: var(--aurora-font);
-      font-size: clamp(0.5625rem, 1.1vw, 0.6875rem);
-      font-weight: 700;
-      letter-spacing: 0.18em;
+      font-size: clamp(0.72rem, 1.2vw, 0.85rem);
+      font-weight: 800;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--aurora-text-muted);
+      color: var(--aurora-text);
       text-shadow: none;
     }
     .portal-modules-head-row {
@@ -735,7 +741,7 @@
       inset: 0;
       left: var(--kas-sidebar-width, 272px);
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
       background: var(--aurora-midnight, var(--spatial-bg));
       background-image: var(--aurora-mesh-1), var(--aurora-mesh-2), var(--aurora-mesh-3);
       background-size: 140% 140%, 130% 130%, 125% 125%;
@@ -860,15 +866,16 @@
     body.fx-portal-home.portal-video-mode .portal-modules-head p {
       display: none;
     }
-    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6) {
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6),
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) {
       grid-column: span 3;
-      min-height: 0;
+      min-height: 4.75rem;
       position: relative;
       display: flex;
       align-items: center;
-      gap: clamp(0.375rem, 0.9vw, 0.625rem);
-      padding: clamp(0.375rem, 0.8vh, 0.5625rem) clamp(0.5rem, 1vw, 0.6875rem);
-      border-radius: var(--portal-radius);
+      gap: clamp(0.55rem, 1vw, 0.85rem);
+      padding: clamp(0.7rem, 1.2vh, 0.9rem) clamp(0.75rem, 1.2vw, 1rem);
+      border-radius: 1rem;
       background: var(--aurora-glass-bg);
       backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
       -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
@@ -880,53 +887,40 @@
       transform: translateY(0);
       will-change: transform, box-shadow, border-color;
     }
-    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6):hover {
-      transform: translateY(-0.3125rem);
-      border-color: var(--aurora-glass-border-hover);
-      background: var(--aurora-glass-bg-hover);
-      box-shadow: var(--aurora-glass-shadow-hover);
-    }
-    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) {
-      grid-column: span 3;
-      min-height: 0;
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: clamp(0.375rem, 0.9vw, 0.625rem);
-      padding: clamp(0.375rem, 0.8vh, 0.5625rem) clamp(0.5rem, 1vw, 0.6875rem);
-      border-radius: var(--portal-radius);
-      background: var(--aurora-glass-bg);
-      backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
-      -webkit-backdrop-filter: blur(var(--aurora-glass-blur)) saturate(1.4);
-      border: 1px solid var(--aurora-glass-border);
-      box-shadow: var(--aurora-glass-shadow);
-      transition: var(--aurora-transition);
-      cursor: pointer;
-      overflow: hidden;
-      transform: translateY(0);
-    }
+    body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+6):hover,
     body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7):hover {
-      transform: translateY(-0.3125rem);
+      transform: translateY(-0.2rem);
       border-color: var(--aurora-glass-border-hover);
       background: var(--aurora-glass-bg-hover);
       box-shadow: var(--aurora-glass-shadow-hover);
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean {
-      background: var(--aurora-glass-bg);
-      border-color: var(--aurora-glass-border);
+      background: #ffffff;
+      border-color: rgba(15, 23, 42, 0.1);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
     }
-    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label,
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean:hover {
+      background: #ffffff;
+      border-color: rgba(29, 78, 216, 0.28);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label {
+      color: #475569;
+    }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean h3 {
-      color: var(--aurora-text);
+      color: #0f172a;
       text-shadow: none;
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-modules-dock {
-      background: var(--aurora-glass-bg);
-      border-top-color: var(--aurora-glass-border);
+      background: rgba(255, 255, 255, 0.92);
+      border-top-color: rgba(15, 23, 42, 0.1);
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-modules-head h2 {
+      color: #0f172a;
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-footer {
-      background: var(--aurora-glass-bg);
-      color: var(--aurora-text-muted);
+      background: rgba(255, 255, 255, 0.88);
+      color: #475569;
     }
     body[data-ui-mode="light"].fx-portal-home.portal-video-mode #portal-screen {
       background: var(--aurora-midnight);
@@ -959,7 +953,7 @@
       left: var(--kas-sidebar-width, 272px);
     }
     body[data-ui-mode] .settings-main::before {
-      left: 280px;
+      left: 292px;
     }
     @media (max-width: 991px) {
       body[data-ui-mode] #main::before,
@@ -972,16 +966,21 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon {
       width: var(--portal-icon);
       height: var(--portal-icon);
-      margin: 0 0 0 0.375rem;
+      margin: 0 0 0 0.45rem;
       flex-shrink: 0;
-      border-radius: 0.75rem;
+      border-radius: 0.85rem;
       border: 1px solid var(--aurora-glass-border);
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.22));
-      box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.18));
+      box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon {
+      background: #f1f5f9;
+      border-color: rgba(15, 23, 42, 0.1);
+      box-shadow: none;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-app-icon.sao-portal-icon img {
       width: 58%;
@@ -1009,12 +1008,12 @@
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-card-label {
       display: block;
       font-family: var(--aurora-font);
-      font-size: clamp(0.4375rem, 0.9vw, 0.5625rem);
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-size: clamp(0.68rem, 0.95vw, 0.75rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--card-accent-soft, var(--aurora-text-muted));
-      margin-bottom: 0.125rem;
+      color: var(--aurora-text-muted);
+      margin-bottom: 0.2rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1024,8 +1023,8 @@
       padding: 0;
       font-family: var(--aurora-font);
       font-size: var(--portal-title);
-      line-height: 1.35;
-      font-weight: 700;
+      line-height: 1.3;
+      font-weight: 800;
       color: var(--aurora-text) !important;
       text-shadow: none !important;
       display: -webkit-box;
@@ -1045,17 +1044,22 @@
       gap: 4px;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-badge-live {
-      font-size: clamp(7px, 0.85vw, 9px);
-      padding: 3px 8px;
-      background: rgba(16, 185, 129, 0.12) !important;
+      font-size: var(--portal-badge-fs);
+      padding: 0.28rem 0.55rem;
+      background: rgba(16, 185, 129, 0.16) !important;
       color: #5eead4 !important;
-      border: 1px solid rgba(16, 185, 129, 0.28) !important;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      border: 1px solid rgba(16, 185, 129, 0.35) !important;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-card-clean .portal-badge-live {
+      background: #dcfce7 !important;
+      color: #166534 !important;
+      border-color: #86efac !important;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean .portal-card-arrow {
-      font-size: clamp(14px, 1.8vw, 16px);
-      color: rgba(148, 163, 184, 0.45);
+      font-size: 1rem;
+      color: #94a3b8;
       transition: color 0.2s ease, transform 0.2s ease;
     }
     body.fx-portal-home.portal-video-mode .portal-card-clean:hover .portal-card-arrow {
@@ -1070,18 +1074,26 @@
     body.fx-portal-home.portal-video-mode .portal-theme-gaji { --card-accent: #60a5fa; --card-accent-soft: rgba(96, 165, 250, 0.85); --aurora-glow: rgba(96, 165, 250, 0.28); }
     body.fx-portal-home.portal-video-mode .portal-theme-settings { --card-accent: #22d3ee; --card-accent-soft: rgba(34, 211, 238, 0.85); --aurora-glow: rgba(34, 211, 238, 0.28); }
     body.fx-portal-home.portal-video-mode .portal-theme-settings .portal-badge-live {
-      background: rgba(34, 211, 238, 0.12) !important;
-      color: #67e8f9 !important;
-      border-color: rgba(34, 211, 238, 0.28) !important;
+      background: rgba(34, 211, 238, 0.16) !important;
+      color: #a5f3fc !important;
+      border-color: rgba(34, 211, 238, 0.4) !important;
     }
-    @media (min-width: 993px) {
-      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(5) { grid-column: 2 / span 3; }
-      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(6) { grid-column: 5 / span 3; }
-      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) { grid-column: 8 / span 3; }
+    body[data-ui-mode="light"].fx-portal-home.portal-video-mode .portal-theme-settings .portal-badge-live {
+      background: #e0f2fe !important;
+      color: #075985 !important;
+      border-color: #7dd3fc !important;
     }
-    @media (max-width: 992px) {
+    @media (min-width: 1200px) {
+      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(-n+4) { grid-column: span 3; }
+      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(n+5) { grid-column: span 4; }
+    }
+    @media (min-width: 993px) and (max-width: 1199px) {
       body.fx-portal-home.portal-video-mode .portal-card-clean { grid-column: span 4; }
       body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) { grid-column: 5 / span 4; }
+    }
+    @media (max-width: 992px) {
+      body.fx-portal-home.portal-video-mode .portal-card-clean { grid-column: span 6; }
+      body.fx-portal-home.portal-video-mode .portal-card-clean:nth-child(7) { grid-column: span 6; }
     }
     @media (max-width: 768px) {
       body.fx-portal-home.portal-video-mode .portal-grid { overflow-y: auto; }
@@ -1489,8 +1501,8 @@
         --portal-logo: clamp(52px, 18vw, 76px);
         --portal-name: clamp(0.82rem, 4.2vw, 1.05rem);
         --portal-motto: clamp(0.65rem, 3.2vw, 0.82rem);
-        --portal-icon: clamp(30px, 9vw, 40px);
-        --portal-title: clamp(9px, 2.8vw, 11px);
+        --portal-icon: clamp(38px, 10vw, 48px);
+        --portal-title: clamp(0.78rem, 3.2vw, 0.92rem);
         --portal-grid-gap: 6px;
         --portal-card-pad-y: 7px;
         --portal-card-pad-x: 6px;
@@ -1992,12 +2004,67 @@
     .topbar .breadcrumb-item, .topbar .breadcrumb-item.active { color: var(--text-muted) !important; }
     .topbar .breadcrumb-item.active { color: var(--water) !important; }
     body[data-ui-mode="light"] #settings-app-shell.visible {
-      background: var(--spatial-bg) !important;
-      color: var(--spatial-text);
+      --sys-bg: #f3f6fa;
+      --sys-bg-2: #eef3f8;
+      --sys-surface: #ffffff;
+      --sys-surface-2: #f8fafc;
+      --sys-line: rgba(15, 23, 42, 0.1);
+      --sys-text: #0f172a;
+      --sys-muted: #475569;
+      --sys-accent: #0f766e;
+      --sys-accent-2: #1d4ed8;
+      background:
+        radial-gradient(ellipse 70% 45% at 10% -8%, rgba(15,118,110,.1), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 100% 0%, rgba(29,78,216,.08), transparent 50%),
+        linear-gradient(180deg, #f5f8fb 0%, #eef3f8 100%) !important;
+      color: var(--sys-text);
+    }
+    body[data-ui-mode="light"] #settings-app-shell .settings-main::before {
+      background: linear-gradient(180deg, #f5f8fb 0%, #eef3f8 100%) !important;
+      background-image: none !important;
     }
     body[data-ui-mode="light"] #settings-sidebar {
-      background: var(--spatial-surface) !important;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%) !important;
+      border-right: 1px solid rgba(15,23,42,.1) !important;
+      box-shadow: 6px 0 28px rgba(15,23,42,.06) !important;
     }
+    body[data-ui-mode="light"] #settings-sidebar .sao-brand h6 {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .sao-brand small { color: #64748b !important; }
+    body[data-ui-mode="light"] .sao-brand .sao-rank {
+      background: linear-gradient(135deg, #0f766e, #1d4ed8); color: #fff;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .sao-page-head h4 { color: #0f172a !important; }
+    body[data-ui-mode="light"] #settings-app-shell .sao-page-head p { color: #475569 !important; }
+    body[data-ui-mode="light"] #settings-app-shell .settings-card,
+    body[data-ui-mode="light"] #settings-app-shell .sao-stat,
+    body[data-ui-mode="light"] #settings-app-shell .sao-portal-card,
+    body[data-ui-mode="light"] #settings-app-shell .sys-admin-panel {
+      background: #ffffff !important;
+      border-color: rgba(15,23,42,.1) !important;
+      box-shadow: 0 8px 24px rgba(15,23,42,.06) !important;
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .sao-stat-value,
+    body[data-ui-mode="light"] #settings-app-shell .settings-card h5,
+    body[data-ui-mode="light"] #settings-app-shell .sao-portal-card h6,
+    body[data-ui-mode="light"] #settings-app-shell .sys-admin-panel h5 {
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .sao-stat-label,
+    body[data-ui-mode="light"] #settings-app-shell .sao-stat-sub,
+    body[data-ui-mode="light"] #settings-app-shell .sao-portal-meta {
+      color: #64748b !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .sao-table th { color: #64748b !important; }
+    body[data-ui-mode="light"] #settings-app-shell .sao-table td { color: #1e293b !important; }
+    body[data-ui-mode="light"] .settings-mobile-topbar h5 { color: #0f172a !important; }
+    body[data-ui-mode="light"] .settings-user-chip {
+      background: #f1f5f9 !important; border-color: rgba(15,23,42,.08) !important;
+    }
+    body[data-ui-mode="light"] #settings-user-label { color: #334155 !important; }
     body[data-ui-mode="light"] .topbar .user-badge div div:first-child,
     body[data-ui-mode="light"] #kas-main .kas-topbar .page-title,
     body[data-ui-mode="light"] .gaji-topbar-title-block .page-title {
@@ -2097,16 +2164,30 @@
       background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.12);
       border-radius: 14px; padding: 16px 18px; margin-bottom: 1rem;
       backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 40;
+      overflow: visible;
     }
+    .rls-filter-panel .row,
+    .rls-filter-panel [class*="col-"] { overflow: visible; }
+    .rls-filter-panel.rls-filter-panel-open { z-index: 120; }
     .rls-filter-panel .form-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
     .rls-filter-panel .form-select, .rls-filter-panel .form-control { font-size: 12px; }
-    .rls-combo { position: relative; }
+    .rls-combo { position: relative; z-index: 1; }
+    .rls-combo:focus-within { z-index: 130; }
     .rls-combo-menu {
-      position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30;
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 140;
       max-height: 220px; overflow: auto; background: #0f172a;
       border: 1px solid rgba(56,189,248,.22); border-radius: 8px;
       box-shadow: 0 12px 28px rgba(0,0,0,.4);
     }
+    .rls-combo-menu.rls-combo-menu-fixed {
+      position: fixed; right: auto; z-index: 10060;
+    }
+    #page-realisasi .rls-stat-grid,
+    #page-realisasi .rls-chart-grid,
+    #page-realisasi .rls-alert-over,
+    #page-realisasi > .table-card { position: relative; z-index: 1; }
     .rls-combo-item { padding: 7px 10px; font-size: 12px; cursor: pointer; color: #e2e8f0; }
     .rls-combo-item:hover { background: rgba(56,189,248,.14); }
     .rls-combo-item.disabled { color: #64748b; cursor: default; }
@@ -2175,7 +2256,7 @@
     .rls-badge.rendah { background: rgba(59,130,246,.2); color: #93c5fd; }
     .rls-badge.sedang { background: rgba(234,179,8,.2); color: #fde047; }
     .rls-badge.tinggi { background: rgba(249,115,22,.2); color: #fdba74; }
-    .rls-badge.perlu_perhatian { background: rgba(251,191,36,.25); color: #fcd34d; }
+    .rls-badge.perlu_perhatian { background: rgba(34,197,94,.25); color: #86efac; }
     .rls-badge.selesai { background: rgba(34,197,94,.2); color: #86efac; }
     .rls-badge.over_budget { background: rgba(239,68,68,.25); color: #fca5a5; }
     .rls-footer-meta { font-size: 11px; color: #64748b; padding: 12px 0 4px; border-top: 1px solid rgba(56,189,248,.08); margin-top: 12px; }
@@ -2185,34 +2266,510 @@
     }
     .rls-drawer-backdrop.open { opacity: 1; visibility: visible; }
     .rls-drawer {
-      position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh;
-      background: #0f172a; border-left: 1px solid rgba(56,189,248,.15); z-index: 10051;
-      transform: translateX(100%); transition: transform .3s ease; overflow-y: auto;
-      padding: 20px;
+      position: fixed; top: 0; right: 0;
+      width: min(50vw, 920px); min-width: min(50vw, 100vw); height: 100vh;
+      background: #0f172a; border-left: 1px solid rgba(56,189,248,.18); z-index: 10051;
+      transform: translateX(100%); transition: transform .3s ease;
+      overflow-y: auto; padding: 24px 28px 32px;
+      box-shadow: -12px 0 40px rgba(0,0,0,.35);
     }
     .rls-drawer.open { transform: translateX(0); }
-    .rls-drawer-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-    .rls-drawer-head h5 { font-size: 16px; font-weight: 800; color: #f1f5f9; margin: 0; }
-    .rls-drawer-section { margin-bottom: 16px; }
-    .rls-drawer-section h6 { font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px; }
-    .rls-kv { display: grid; grid-template-columns: 120px 1fr; gap: 4px 12px; font-size: 12px; margin-bottom: 4px; }
+    .rls-drawer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+    .rls-drawer-head h5 { font-size: 18px; font-weight: 800; color: #f1f5f9; margin: 0; line-height: 1.35; }
+    .rls-drawer-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;
+    }
+    .rls-drawer-section { margin-bottom: 18px; }
+    .rls-drawer-section h6 { font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 10px; }
+    .rls-drawer-panel {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.12);
+      border-radius: 12px; padding: 14px 16px;
+    }
+    .rls-kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; font-size: 13px; margin-bottom: 4px; }
     .rls-kv dt { color: #64748b; }
-    .rls-kv dd { color: #e2e8f0; margin: 0; }
-    .rls-pptk-table tbody tr { cursor: pointer; }
+    .rls-kv dd { color: #e2e8f0; margin: 0; word-break: break-word; }
+    .rls-drawer .table-wrapper {
+      max-height: min(52vh, 480px); overflow: auto; border-radius: 10px;
+      border: 1px solid rgba(56,189,248,.12);
+    }
+    .rls-drawer .table { margin-bottom: 0; font-size: 12.5px; }
+    .rls-drawer .table thead th {
+      position: sticky; top: 0; z-index: 1; background: #0b1220 !important;
+      font-size: 11px; white-space: nowrap;
+    }
+    @media (max-width: 992px) {
+      .rls-drawer { width: min(92vw, 100vw); min-width: 0; padding: 18px 16px 24px; }
+      .rls-drawer-grid { grid-template-columns: 1fr; }
+      .rls-drawer-head h5 { font-size: 16px; }
+    }
     .rls-search-input { max-width: 220px; }
     .rls-pagination { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
     .rls-sisa-pos { color: #4ade80; font-weight: 700; }
     .rls-sisa-neg { color: #f87171; font-weight: 700; }
+    .rls-top-rek-table tbody tr { transition: background .15s; }
+    .rls-top-rek-table tbody tr:hover { background: rgba(56,189,248,.08) !important; }
+    .rls-top-rek-table code { font-size: 11px; color: #7dd3fc; background: transparent; }
+    #rls-top-rekening-card .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    #rls-top-rekening-card .card-head small { font-size: 11px; }
     [data-theme="light"] .rls-filter-panel,
+    body[data-ui-mode="light"] .rls-filter-panel,
     [data-theme="light"] .rls-stat-card,
+    body[data-ui-mode="light"] .rls-stat-card,
     [data-theme="light"] .rls-chart-box,
-    [data-theme="light"] .rls-source-chip { background: #fff; border-color: #e2e8f0; }
-    [data-theme="light"] .rls-page-head h5 { color: #0f172a; }
-    [data-theme="light"] .rls-stat-card .rls-value { color: #0f172a; }
-    [data-theme="light"] .rls-drawer { background: #fff; }
-    [data-theme="light"] .rls-drawer-head h5 { color: #0f172a; }
-    [data-theme="light"] .rls-combo-menu { background: #fff; border-color: #e2e8f0; }
-    [data-theme="light"] .rls-combo-item { color: #0f172a; }
+    body[data-ui-mode="light"] .rls-chart-box,
+    [data-theme="light"] .rls-source-chip,
+    body[data-ui-mode="light"] .rls-source-chip {
+      background: rgba(255,255,255,.94);
+      border-color: rgba(15,23,42,.1);
+      box-shadow: 0 8px 24px rgba(15,23,42,.06);
+    }
+    [data-theme="light"] .rls-page-head h5,
+    body[data-ui-mode="light"] .rls-page-head h5 { color: #0f172a; }
+    [data-theme="light"] .rls-page-head p,
+    body[data-ui-mode="light"] .rls-page-head p { color: #475569; }
+    [data-theme="light"] .rls-source-chip,
+    body[data-ui-mode="light"] .rls-source-chip { color: #475569; background: #f1f5f9; }
+    [data-theme="light"] .rls-filter-panel .form-label,
+    body[data-ui-mode="light"] .rls-filter-panel .form-label { color: #475569; }
+    [data-theme="light"] .rls-stat-card .rls-label,
+    body[data-ui-mode="light"] .rls-stat-card .rls-label { color: #64748b; }
+    [data-theme="light"] .rls-stat-card .rls-value,
+    body[data-ui-mode="light"] .rls-stat-card .rls-value { color: #0f172a; }
+    [data-theme="light"] .rls-stat-card.rls-accent-green .rls-value,
+    body[data-ui-mode="light"] .rls-stat-card.rls-accent-green .rls-value { color: #15803d; }
+    [data-theme="light"] .rls-stat-card.rls-accent-orange .rls-value,
+    body[data-ui-mode="light"] .rls-stat-card.rls-accent-orange .rls-value { color: #c2410c; }
+    [data-theme="light"] .rls-stat-card.rls-accent-blue .rls-value,
+    body[data-ui-mode="light"] .rls-stat-card.rls-accent-blue .rls-value { color: #1d4ed8; }
+    [data-theme="light"] .rls-drawer,
+    body[data-ui-mode="light"] .rls-drawer {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-left-color: rgba(15,23,42,.1);
+      box-shadow: -16px 0 40px rgba(15,23,42,.12);
+    }
+    [data-theme="light"] .rls-drawer-head h5,
+    body[data-ui-mode="light"] .rls-drawer-head h5 { color: #0f172a; }
+    [data-theme="light"] .rls-drawer-section h6,
+    body[data-ui-mode="light"] .rls-drawer-section h6 { color: #1d4ed8; }
+    [data-theme="light"] .rls-drawer-panel,
+    body[data-ui-mode="light"] .rls-drawer-panel {
+      background: #f8fafc; border-color: rgba(15,23,42,.08);
+    }
+    [data-theme="light"] .rls-kv dt,
+    body[data-ui-mode="light"] .rls-kv dt { color: #64748b; }
+    [data-theme="light"] .rls-kv dd,
+    body[data-ui-mode="light"] .rls-kv dd { color: #0f172a; }
+    [data-theme="light"] .rls-combo-menu,
+    body[data-ui-mode="light"] .rls-combo-menu {
+      background: #fff; border-color: #cbd5e1;
+      box-shadow: 0 12px 28px rgba(15,23,42,.14);
+    }
+    [data-theme="light"] .rls-combo-item,
+    body[data-ui-mode="light"] .rls-combo-item { color: #0f172a; }
+    [data-theme="light"] .rls-combo-item:hover,
+    body[data-ui-mode="light"] .rls-combo-item:hover { background: #eff6ff; }
+    [data-theme="light"] .rls-combo-item.disabled,
+    body[data-ui-mode="light"] .rls-combo-item.disabled { color: #94a3b8; }
+    [data-theme="light"] .rls-chart-head h6,
+    body[data-ui-mode="light"] .rls-chart-head h6 { color: #0f172a; }
+    [data-theme="light"] .rls-chart-head small,
+    body[data-ui-mode="light"] .rls-chart-head small,
+    [data-theme="light"] .rls-chart-legend,
+    body[data-ui-mode="light"] .rls-chart-legend { color: #64748b; }
+    [data-theme="light"] .rls-chart-empty,
+    body[data-ui-mode="light"] .rls-chart-empty { color: #64748b; }
+    [data-theme="light"] .rls-table-wrap thead th,
+    body[data-ui-mode="light"] .rls-table-wrap thead th {
+      background: #f1f5f9 !important; color: #334155;
+    }
+    [data-theme="light"] .rls-footer-meta,
+    body[data-ui-mode="light"] .rls-footer-meta { color: #64748b; border-top-color: rgba(15,23,42,.08); }
+    [data-theme="light"] .rls-th-sort:hover,
+    body[data-ui-mode="light"] .rls-th-sort:hover { color: #1d4ed8; }
+    [data-theme="light"] .rls-th-sort.active,
+    body[data-ui-mode="light"] .rls-th-sort.active { color: #1e40af; }
+    [data-theme="light"] .rls-top-rek-table code,
+    body[data-ui-mode="light"] .rls-top-rek-table code { color: #1d4ed8; }
+    [data-theme="light"] .rls-badge.belum,
+    body[data-ui-mode="light"] .rls-badge.belum { background: #e2e8f0; color: #334155; }
+    [data-theme="light"] .rls-badge.rendah,
+    body[data-ui-mode="light"] .rls-badge.rendah { background: #dbeafe; color: #1e40af; }
+    [data-theme="light"] .rls-badge.sedang,
+    body[data-ui-mode="light"] .rls-badge.sedang { background: #fef3c7; color: #92400e; }
+    [data-theme="light"] .rls-badge.tinggi,
+    body[data-ui-mode="light"] .rls-badge.tinggi { background: #ffedd5; color: #9a3412; }
+    [data-theme="light"] .rls-badge.perlu_perhatian,
+    body[data-ui-mode="light"] .rls-badge.perlu_perhatian { background: #dcfce7; color: #166534; }
+    [data-theme="light"] .rls-badge.selesai,
+    body[data-ui-mode="light"] .rls-badge.selesai { background: #bbf7d0; color: #14532d; }
+    [data-theme="light"] .rls-badge.over_budget,
+    body[data-ui-mode="light"] .rls-badge.over_budget { background: #fee2e2; color: #991b1b; }
+    [data-theme="light"] .rls-pdf-preview-modal,
+    body[data-ui-mode="light"] .rls-pdf-preview-modal { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-pdf-preview-head h5,
+    body[data-ui-mode="light"] .rls-pdf-preview-head h5 { color: #0f172a; }
+    [data-theme="light"] .rls-pdf-preview-head p,
+    body[data-ui-mode="light"] .rls-pdf-preview-head p { color: #64748b; }
+    [data-theme="light"] .rls-pdf-preview-zoom,
+    body[data-ui-mode="light"] .rls-pdf-preview-zoom { background: #f8fafc; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-pdf-preview-zoom button,
+    body[data-ui-mode="light"] .rls-pdf-preview-zoom button { background: #e2e8f0; color: #334155; }
+    [data-theme="light"] .rls-pdf-preview-zoom-label,
+    body[data-ui-mode="light"] .rls-pdf-preview-zoom-label { color: #475569; }
+    [data-theme="light"] .rls-pdf-preview-actions,
+    body[data-ui-mode="light"] .rls-pdf-preview-actions { background: #f8fafc; border-color: #e2e8f0; }
+
+    /* ── Light mode: SIPKEU shell readability ── */
+    body[data-ui-mode="light"] {
+      --sidebar-bg: linear-gradient(180deg, #f8fbff 0%, #eef4fb 55%, #e8f0f8 100%) !important;
+      --sidebar-text: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #sidebar,
+    body[data-ui-mode="light"] #kas-sidebar,
+    body[data-ui-mode="light"] #gaji-sidebar,
+    body[data-ui-mode="light"] #settings-sidebar,
+    body[data-ui-mode="light"].theme-naruto #sidebar,
+    body[data-ui-mode="light"].theme-inuyasha #sidebar,
+    body[data-ui-mode="light"].theme-doraemon #sidebar,
+    body[data-ui-mode="light"].theme-shinchan #sidebar,
+    body[data-ui-mode="light"].theme-onepiece #sidebar,
+    body[data-ui-mode="light"].theme-frozen #sidebar,
+    body[data-ui-mode="light"].theme-sao #sidebar,
+    body[data-ui-mode="light"].theme-settings #sidebar,
+    body[data-ui-mode="light"].theme-gundam #sidebar,
+    body[data-ui-mode="light"].theme-gaji #sidebar {
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 52%, #e8f0f8 100%) !important;
+      color: #0f172a !important;
+      border-right: 1px solid rgba(15,23,42,.1) !important;
+      box-shadow: 6px 0 28px rgba(15,23,42,.06) !important;
+    }
+    body[data-ui-mode="light"] #sidebar .brand,
+    body[data-ui-mode="light"].theme-naruto #sidebar .brand {
+      border-bottom-color: rgba(15,23,42,.08) !important;
+    }
+    body[data-ui-mode="light"] #sidebar .brand h6,
+    body[data-ui-mode="light"] #kas-sidebar .brand h6,
+    body[data-ui-mode="light"] #kas-sidebar .kas-sidebar-brand h6,
+    body[data-ui-mode="light"] #gaji-sidebar h6,
+    body[data-ui-mode="light"] #gaji-sidebar .gaji-pro-brand h6,
+    body[data-ui-mode="light"] #settings-sidebar h6,
+    body[data-ui-mode="light"] #settings-sidebar .sao-brand h6,
+    body[data-ui-mode="light"].theme-naruto #sidebar .brand h6,
+    body[data-ui-mode="light"].theme-inuyasha #sidebar .brand h6,
+    body[data-ui-mode="light"].theme-sao #sidebar .brand h6 {
+      color: #0f172a !important;
+      text-shadow: none !important;
+      -webkit-text-fill-color: #0f172a !important;
+      background: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      filter: none !important;
+      opacity: 1 !important;
+      font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      letter-spacing: .2px !important;
+      line-height: 1.3 !important;
+      max-width: 168px;
+    }
+    body[data-ui-mode="light"] #sidebar .sidebar-footer > div:first-of-type,
+    body[data-ui-mode="light"] #sidebar .sidebar-footer [style*="naruto"],
+    body[data-ui-mode="light"] #sidebar-user-role {
+      color: #475569 !important;
+    }
+    body[data-ui-mode="light"] #sidebar .spatial-ui-mode-label {
+      color: #64748b !important;
+    }
+    body[data-ui-mode="light"] #sidebar .brand small,
+    body[data-ui-mode="light"].theme-naruto #sidebar .brand small {
+      color: #475569 !important;
+      opacity: 1 !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav .nav-label,
+    body[data-ui-mode="light"].theme-naruto #sidebar nav .nav-label,
+    body[data-ui-mode="light"].theme-inuyasha #sidebar nav .nav-label {
+      color: #64748b !important;
+      opacity: 1 !important;
+    }
+    body[data-ui-mode="light"] #sidebar .fire-glow-text,
+    body[data-ui-mode="light"] #sidebar .sidebar-footer {
+      color: #64748b !important;
+      text-shadow: none !important;
+      filter: none !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav a,
+    body[data-ui-mode="light"].theme-naruto #sidebar nav a {
+      color: #334155 !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav a i {
+      color: #475569 !important;
+      filter: none !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav a:hover,
+    body[data-ui-mode="light"].theme-naruto #sidebar nav a:hover {
+      color: #1e40af !important;
+      background: rgba(37,99,235,.08) !important;
+      box-shadow: none !important;
+      transform: none;
+    }
+    body[data-ui-mode="light"] #sidebar nav a:hover i,
+    body[data-ui-mode="light"] #sidebar nav a.active i {
+      color: #1d4ed8 !important;
+      filter: none !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav a.active,
+    body[data-ui-mode="light"].theme-naruto #sidebar nav a.active {
+      color: #1e40af !important;
+      background: rgba(37,99,235,.1) !important;
+      border: 1px solid rgba(37,99,235,.22) !important;
+      box-shadow: none !important;
+    }
+    body[data-ui-mode="light"] #sidebar nav a.active::before,
+    body[data-ui-mode="light"].theme-naruto #sidebar nav a.active::before {
+      background: linear-gradient(180deg, #2563eb, #ea580c) !important;
+    }
+    body[data-ui-mode="light"] #sidebar .btn-logout {
+      color: #475569 !important;
+      border-color: rgba(15,23,42,.12) !important;
+    }
+    body[data-ui-mode="light"] .topbar .page-title { color: #0f172a !important; }
+    body[data-ui-mode="light"] .topbar .user-badge {
+      background: rgba(37,99,235,.06);
+      border-color: rgba(37,99,235,.18);
+      box-shadow: none;
+    }
+    body[data-ui-mode="light"] .topbar .user-badge div div:first-child { color: #0f172a !important; }
+    body[data-ui-mode="light"] .topbar .user-badge div div:last-child { color: #64748b !important; }
+    body[data-ui-mode="light"] .table-card .card-head h6,
+    body[data-ui-mode="light"] .form-card h6 {
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] .table,
+    body[data-ui-mode="light"] .table td,
+    body[data-ui-mode="light"] .table th {
+      color: #0f172a;
+      border-color: rgba(15,23,42,.08) !important;
+    }
+    body[data-ui-mode="light"] .table thead th {
+      color: #334155 !important;
+      background: #f1f5f9 !important;
+    }
+    body[data-ui-mode="light"] .table tbody tr:hover td {
+      background: rgba(37,99,235,.04) !important;
+      color: #0f172a !important;
+      animation: none !important;
+    }
+    body[data-ui-mode="light"] .form-label,
+    body[data-ui-mode="light"] .form-text,
+    body[data-ui-mode="light"] .text-muted { color: #64748b !important; }
+    body[data-ui-mode="light"] .form-control,
+    body[data-ui-mode="light"] .form-select {
+      background: #fff !important;
+      color: #0f172a !important;
+      border-color: rgba(15,23,42,.14) !important;
+    }
+    body[data-ui-mode="light"] .form-control::placeholder { color: #94a3b8 !important; }
+    body[data-ui-mode="light"] .btn-outline-secondary {
+      color: #334155; border-color: #cbd5e1; background: #fff;
+    }
+    body[data-ui-mode="light"] .btn-outline-secondary:hover {
+      color: #0f172a; background: #f1f5f9; border-color: #94a3b8;
+    }
+    body[data-ui-mode="light"] .badge-rupiah {
+      background: rgba(22,163,74,.12); color: #15803d;
+    }
+    body[data-ui-mode="light"] code {
+      color: #1d4ed8; background: rgba(37,99,235,.08);
+    }
+    body[data-ui-mode="light"] #page-operators .rls-page-head h5 { color: #0f172a; }
+    body[data-ui-mode="light"] #page-operators .rls-page-head p { color: #475569; }
+    body[data-ui-mode="light"] .settings-perm-item { color: #334155; }
+    /* Settings portal: readable nav + forms in light mode */
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav .sao-nav-label {
+      color: #64748b !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a {
+      color: #1e293b !important;
+      background: transparent !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a i {
+      color: #475569 !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a:hover {
+      color: #1e40af !important;
+      background: rgba(37,99,235,.08) !important;
+      border-color: rgba(37,99,235,.16) !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a:hover i,
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a.active i {
+      color: #1d4ed8 !important;
+    }
+    body[data-ui-mode="light"] #settings-sidebar .settings-nav a.active {
+      color: #1e3a8a !important;
+      background: rgba(37,99,235,.12) !important;
+      border-color: rgba(37,99,235,.28) !important;
+      font-weight: 700;
+    }
+    body[data-ui-mode="light"] #settings-sidebar #settings-user-label {
+      color: #475569 !important;
+    }
+    body[data-ui-mode="light"] .sao-page-head p { color: #475569 !important; }
+    body[data-ui-mode="light"] .settings-card h5,
+    body[data-ui-mode="light"] #sys-admin-access-form h5 {
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .form-label,
+    body[data-ui-mode="light"] #settings-app-shell .form-label.text-light {
+      color: #334155 !important;
+    }
+    body[data-ui-mode="light"] .settings-portal-tabs button {
+      background: #f1f5f9 !important;
+      border-color: rgba(15,23,42,.14) !important;
+      color: #334155 !important;
+      box-shadow: none;
+    }
+    body[data-ui-mode="light"] .settings-portal-tabs button:hover {
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] .settings-portal-tabs button.active {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+      box-shadow: 0 6px 18px rgba(37,99,235,.28) !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .form-control {
+      background: #fff !important;
+      border-color: rgba(15,23,42,.16) !important;
+      color: #0f172a !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .form-control:focus {
+      background: #fff !important;
+      color: #0f172a !important;
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 0.2rem rgba(37,99,235,.18) !important;
+    }
+    body[data-ui-mode="light"] #settings-app-shell .pwd-toggle-btn { color: #64748b !important; }
+    body[data-ui-mode="light"] #settings-app-shell .pwd-toggle-btn:hover { color: #0f172a !important; }
+    body[data-ui-mode="light"] .sys-admin-panel {
+      background: #f8fafc !important;
+      border-color: rgba(15,23,42,.1) !important;
+    }
+    body[data-ui-mode="light"] .sys-admin-panel-hint,
+    body[data-ui-mode="light"] .sys-admin-reset-hint {
+      color: #475569 !important;
+      background: #eff6ff !important;
+      border-color: rgba(37,99,235,.2) !important;
+    }
+    body[data-ui-mode="light"] .btn-sao-reset {
+      color: #b45309 !important;
+      border-color: rgba(245,158,11,.45) !important;
+      background: #fffbeb !important;
+    }
+    body[data-ui-mode="light"] .btn-sao-reset:hover {
+      background: #fef3c7 !important;
+      color: #92400e !important;
+    }
+    body[data-ui-mode="light"] .sao-portal-card {
+      background: #ffffff !important;
+      border-color: rgba(15,23,42,.12) !important;
+      box-shadow: 0 8px 24px rgba(15,23,42,.08) !important;
+    }
+    body[data-ui-mode="light"] .sao-portal-card.disabled {
+      background: #fff7f7 !important;
+      border-color: rgba(220,38,38,.28) !important;
+    }
+    body[data-ui-mode="light"] .sao-portal-card h6 { color: #0f172a !important; }
+    body[data-ui-mode="light"] .sao-portal-meta { color: #475569 !important; }
+    body[data-ui-mode="light"] .sao-toggle { color: #1e293b !important; }
+    body[data-ui-mode="light"] .sao-badge-live {
+      background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important;
+    }
+    body[data-ui-mode="light"] .sao-badge-off {
+      background: #fee2e2 !important; color: #991b1b !important; border-color: #fca5a5 !important;
+    }
+    body[data-ui-mode="light"] .btn-sao-danger {
+      color: #b91c1c !important; border-color: rgba(185,28,28,.35) !important; background: #fef2f2 !important;
+    }
+    body[data-ui-mode="light"] #main::before,
+    body[data-ui-mode="light"] #kas-main::before,
+    body[data-ui-mode="light"] #gaji-main::before,
+    body[data-ui-mode="light"] .settings-main::before {
+      opacity: 0.7;
+    }
+    body[data-ui-mode="light"] .rls-sisa-pos { color: #15803d; }
+    body[data-ui-mode="light"] .rls-sisa-neg { color: #b91c1c; }
+    body[data-ui-mode="light"] .rls-alert-over {
+      background: #fef2f2; border-color: #fecaca; color: #991b1b;
+    }
+    body[data-ui-mode="light"] .rls-over-list { color: #b91c1c; }
+    .rls-pdf-preview-backdrop {
+      position: fixed; inset: 0; background: rgba(2, 6, 23, .72); z-index: 10070;
+      opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+    }
+    .rls-pdf-preview-backdrop.open { opacity: 1; visibility: visible; }
+    .rls-pdf-preview-modal {
+      position: fixed; inset: 20px; z-index: 10071;
+      background: #0f172a; border: 1px solid rgba(56,189,248,.18);
+      border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,.45);
+      display: flex; flex-direction: column;
+      opacity: 0; visibility: hidden; transform: translateY(12px) scale(.98);
+      transition: opacity .25s, visibility .25s, transform .25s;
+    }
+    .rls-pdf-preview-modal.open { opacity: 1; visibility: visible; transform: none; }
+    .rls-pdf-preview-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      padding: 14px 18px; border-bottom: 1px solid rgba(56,189,248,.12);
+    }
+    .rls-pdf-preview-head-main { flex: 1; min-width: 0; }
+    .rls-pdf-preview-head h5 { margin: 0; font-size: 16px; font-weight: 800; color: #f1f5f9; }
+    .rls-pdf-preview-head p { margin: 2px 0 0; font-size: 11px; color: #94a3b8; }
+    .rls-pdf-preview-zoom {
+      display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+      background: rgba(15,23,42,.55); border: 1px solid rgba(56,189,248,.15);
+      border-radius: 999px; padding: 4px 8px;
+    }
+    .rls-pdf-preview-zoom button {
+      width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
+      background: rgba(56,189,248,.12); color: #bae6fd; font-size: 16px; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .rls-pdf-preview-zoom button:hover:not(:disabled) { background: rgba(56,189,248,.24); color: #fff; }
+    .rls-pdf-preview-zoom button:disabled { opacity: .45; cursor: not-allowed; }
+    .rls-pdf-preview-zoom-label {
+      min-width: 44px; text-align: center; font-size: 12px; font-weight: 700; color: #cbd5e1;
+    }
+    .rls-pdf-preview-wrap {
+      flex: 1; overflow: auto; padding: 16px;
+      background: linear-gradient(180deg, #e8edf2 0%, #dfe6ed 100%);
+    }
+    .rls-pdf-preview-stage {
+      transform-origin: top center;
+      width: max-content; max-width: 100%; margin: 0 auto;
+    }
+    .rls-pdf-preview-wrap .rls-page {
+      width: min(100%, 297mm); min-height: auto; max-height: none; height: auto;
+      margin: 0 auto 16px; box-shadow: 0 4px 28px rgba(0,0,0,.18);
+      page-break-after: auto; break-after: auto;
+    }
+    .rls-pdf-preview-actions {
+      display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px;
+      padding: 12px 18px; border-top: 1px solid rgba(56,189,248,.12);
+      background: rgba(15,23,42,.92);
+    }
+    [data-theme="light"] .rls-pdf-preview-modal { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-pdf-preview-head h5 { color: #0f172a; }
+    [data-theme="light"] .rls-pdf-preview-zoom { background: #f8fafc; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-pdf-preview-zoom button { background: #e2e8f0; color: #334155; }
+    [data-theme="light"] .rls-pdf-preview-zoom-label { color: #475569; }
+    [data-theme="light"] .rls-pdf-preview-actions { background: #f8fafc; border-color: #e2e8f0; }
+    @media (max-width: 768px) {
+      .rls-pdf-preview-modal { inset: 10px; }
+      .rls-pdf-preview-wrap { padding: 10px; }
+      .rls-pdf-preview-head { flex-wrap: wrap; }
+      .rls-pdf-preview-zoom { order: 3; width: 100%; justify-content: center; }
+    }
     [data-theme="light"] .rls-chart-head h6 { color: #0f172a; }
     [data-theme="light"] .rls-chart-empty { color: #64748b; }
     .pagu-progress-wrap { margin-top: 8px; }
@@ -2858,8 +3415,8 @@
       body.kwitansi-printing * { visibility: hidden; }
       body.kwitansi-printing #kwitansi-print,
       body.kwitansi-printing #kwitansi-print * { visibility: visible; }
-      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #realisasi-print,
-      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing) #realisasi-print * { visibility: visible; }
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing):not(.realisasi-printing) #realisasi-print,
+      body:not(.kwitansi-printing):not(.np2d-printing):not(.register-printing):not(.realisasi-printing) #realisasi-print * { visibility: visible; }
       #kwitansi-print, #realisasi-print, #np2d-print, #register-print { display: none !important; }
       body.np2d-printing,
       html:has(body.np2d-printing) {
@@ -2947,11 +3504,30 @@
         object-position: center center;
         -webkit-print-color-adjust: exact; print-color-adjust: exact;
       }
+      body.realisasi-printing,
+      html:has(body.realisasi-printing) {
+        height: auto !important; max-height: none !important; overflow: visible !important;
+      }
+      body.realisasi-printing * { visibility: hidden; }
       body.realisasi-printing #realisasi-print,
       body.realisasi-printing #realisasi-print * { visibility: visible; }
-      body.realisasi-printing #realisasi-print { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
-        display: block !important; position: fixed; top: 0; left: 0;
-        width: 100%; z-index: 99999; background: #fff; color: #000;
+      body.realisasi-printing #realisasi-print {
+        display: flex !important; flex-direction: column !important; align-items: center !important;
+        position: relative !important;
+        width: 100% !important; margin: 0 !important; padding: 0 !important;
+        z-index: 99999; background: #fff; color: #000;
+        overflow: visible !important;
+      }
+      body.realisasi-printing #realisasi-print .rls-page {
+        page-break-after: always; break-after: page;
+        width: 297mm !important; min-height: 210mm !important;
+        margin: 0 auto !important; padding: 5mm 8mm !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        max-height: none !important;
+      }
+      body.realisasi-printing #realisasi-print .rls-page:last-child {
+        page-break-after: auto; break-after: auto;
       }
       body.register-printing,
       html:has(body.register-printing) {
@@ -3083,7 +3659,47 @@
       padding-bottom: 8mm;
     }
 
-    /* ── Rekap Print ── */
+    /* ── Realisasi Print (A4 Landscape) ── */
+    .rls-page {
+      width: 297mm; min-height: 210mm; max-height: 210mm;
+      margin: 0 auto; padding: 5mm 8mm; box-sizing: border-box;
+      background: #fff; color: #111;
+      page-break-after: always; break-after: page;
+      display: flex; justify-content: center; align-items: flex-start;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    .rls-page:last-child { page-break-after: auto; break-after: auto; }
+    .rls-page-inner { width: 100%; max-width: 277mm; margin: 0 auto; }
+    .rls-doc-title { text-align: center; border-bottom: 2px solid #333; padding-bottom: 6px; margin-bottom: 6px; }
+    .rls-doc-title h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .rls-doc-subtitle { margin: 3px 0 0; font-size: 9.5px; font-weight: 700; color: #222; }
+    .rls-doc-meta { margin: 2px 0 0; font-size: 8px; color: #444; }
+    .rls-filter-line { font-size: 7.5px; color: #333; margin-bottom: 4px; line-height: 1.4; }
+    .rls-meta { display: flex; justify-content: flex-end; font-size: 7.5px; margin-bottom: 4px; color: #444; }
+    .rls-meta.rls-meta-cont { border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+    .rls-table { width: 100%; border-collapse: collapse; font-size: 7px; table-layout: fixed; margin: 0 auto; }
+    .rls-table th, .rls-table td { border: 1px solid #333; padding: 2px 3px; vertical-align: top; word-wrap: break-word; overflow-wrap: anywhere; }
+    .rls-table th { background: #ececec; font-weight: 700; text-align: center; font-size: 6.5px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rls-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
+    .rls-table tfoot td { font-weight: 700; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rls-table .rls-num { text-align: right; white-space: nowrap; font-size: 6.5px; }
+    .rls-table .rls-c { text-align: center; }
+    .rls-table .rls-foot-label { text-align: right; }
+    .rls-table code { font-size: 6.5px; background: transparent; color: inherit; padding: 0; }
+    .rls-ttd { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 10px; font-size: 8px; }
+    .rls-ttd-box { text-align: center; }
+    .rls-ttd-space { height: 32px; margin: 2px 10px 0; }
+    #rls-measure-host {
+      position: fixed; left: -16000px; top: 0; z-index: -9999;
+      width: 277mm; visibility: hidden; pointer-events: none; background: #fff;
+    }
+    #rls-capture-host {
+      position: fixed; left: -14000px; top: 0; z-index: -9999;
+      width: 297mm; background: #fff; overflow: visible;
+    }
+
+    /* ── Rekap Print (legacy) ── */
     .rk-wrap { font-family: Arial, sans-serif; max-width: 100%; padding: 16px 20px; font-size: 11px; color: #111; }
     .rk-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 12px; }
     .rk-header h4 { margin: 0; font-size: 14px; font-weight: 800; text-transform: uppercase; }
@@ -5168,46 +5784,94 @@
     #gaji-app-shell.visible { display: block; }
     #settings-app-shell { display: none !important; pointer-events: none !important; }
     #settings-app-shell.visible {
+      --sys-bg: #07111f;
+      --sys-bg-2: #0a1628;
+      --sys-surface: #102033;
+      --sys-surface-2: #14283f;
+      --sys-line: rgba(148, 197, 214, 0.16);
+      --sys-line-strong: rgba(26, 166, 160, 0.42);
+      --sys-text: #e8eef6;
+      --sys-muted: #8fa3b8;
+      --sys-accent: #1aa6a0;
+      --sys-accent-2: #3d8bfd;
+      --sys-accent-soft: rgba(26, 166, 160, 0.14);
+      --sys-warn: #e8b86d;
+      --sys-danger: #f07178;
+      --sys-ok: #3dd68c;
+      --sys-radius: 16px;
+      --sys-font: 'DM Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --sys-display: 'Sora', 'Outfit', system-ui, sans-serif;
       display: block !important; pointer-events: auto !important; min-height: 100vh;
       position: relative; z-index: 7; isolation: isolate;
-      color: #e2e8f0;
+      color: var(--sys-text);
+      font-family: var(--sys-font);
       background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.14), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(129,140,248,.1), transparent),
-        linear-gradient(165deg, rgba(2,6,23,.88) 0%, rgba(12,18,34,.9) 35%, rgba(17,24,39,.92) 70%, rgba(15,23,42,.9) 100%);
+        radial-gradient(ellipse 70% 45% at 12% -5%, rgba(26,166,160,.16), transparent 58%),
+        radial-gradient(ellipse 55% 40% at 95% 8%, rgba(61,139,253,.12), transparent 52%),
+        linear-gradient(165deg, #07111f 0%, #0a1628 48%, #0d1c30 100%);
+      animation: sysShellIn .45s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes sysShellIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     #settings-app-shell::before {
-      content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .35;
-      background-image: linear-gradient(rgba(56,189,248,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,.04) 1px, transparent 1px);
-      background-size: 48px 48px;
+      content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .28; z-index: 0;
+      background-image:
+        linear-gradient(rgba(148,197,214,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,197,214,.045) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 75% 70% at 50% 30%, #000 20%, transparent 85%);
     }
-    .portal-theme-settings { --portal-accent: #38bdf8; border-color: rgba(56,189,248,.4); }
+    body[data-ui-mode] #settings-app-shell .settings-main::before {
+      left: 292px;
+      z-index: -1;
+      animation: none !important;
+      opacity: 1;
+      background:
+        radial-gradient(ellipse 60% 40% at 0% 0%, rgba(26,166,160,.1), transparent 55%),
+        radial-gradient(ellipse 45% 35% at 100% 0%, rgba(61,139,253,.08), transparent 50%),
+        linear-gradient(180deg, #07111f 0%, #0a1628 100%) !important;
+      background-image: none;
+    }
+    body[data-ui-mode] #settings-app-shell .settings-card,
+    body[data-ui-mode] #settings-app-shell .sao-stat,
+    body[data-ui-mode] #settings-app-shell .sao-portal-card,
+    body[data-ui-mode] #settings-app-shell .sys-admin-panel {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .portal-theme-settings { --portal-accent: #1aa6a0; border-color: rgba(26,166,160,.45); }
     .portal-theme-settings .portal-app-icon.sao-portal-icon {
       display: flex; align-items: center; justify-content: center; overflow: hidden;
-      background: linear-gradient(135deg, rgba(56,189,248,.25), rgba(129,140,248,.35));
-      border: 2px solid rgba(56,189,248,.5); box-shadow: 0 0 24px rgba(56,189,248,.25);
+      background: linear-gradient(135deg, rgba(26,166,160,.28), rgba(61,139,253,.28));
+      border: 2px solid rgba(26,166,160,.5); box-shadow: 0 0 24px rgba(26,166,160,.2);
     }
     .portal-theme-settings .portal-app-icon.sao-portal-icon img { width: 72%; height: 72%; object-fit: contain; }
-    body.theme-settings, body.theme-sao { --naruto: #38bdf8; }
+    body.theme-settings, body.theme-sao { --naruto: #1aa6a0; }
     body.theme-sao {
       background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.15), transparent),
-        linear-gradient(165deg, #020617 0%, #0c1222 50%, #0f172a 100%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,166,160,.12), transparent),
+        linear-gradient(165deg, #07111f 0%, #0a1628 50%, #0d1c30 100%);
     }
-    #settings-app-shell .form-control {
-      background: rgba(15,23,42,.85); border: 1px solid rgba(56,189,248,.35); color: #f1f5f9;
+    #settings-app-shell .form-control,
+    #settings-app-shell .form-select {
+      background: rgba(7,17,31,.88); border: 1px solid var(--sys-line); color: var(--sys-text);
+      border-radius: 12px; min-height: 44px; font-family: var(--sys-font); font-size: 14px;
+      transition: border-color .18s, box-shadow .18s, background .18s;
     }
-    #settings-app-shell .form-control:focus {
-      background: rgba(30,41,59,.95); color: #fff; border-color: #38bdf8;
-      box-shadow: 0 0 0 0.2rem rgba(56,189,248,.2), 0 0 16px rgba(56,189,248,.15);
+    #settings-app-shell .form-control:focus,
+    #settings-app-shell .form-select:focus {
+      background: rgba(16,32,51,.98); color: #fff; border-color: var(--sys-accent);
+      box-shadow: 0 0 0 3px rgba(26,166,160,.2);
     }
-    #settings-app-shell .form-control::placeholder { color: #64748b; }
+    #settings-app-shell .form-control::placeholder { color: #6b8099; }
     .sao-layout { display: flex; min-height: 100vh; position: relative; }
     #settings-sidebar {
-      width: 280px; flex-shrink: 0;
-      background: linear-gradient(180deg, rgba(2,6,23,.98) 0%, rgba(15,23,42,.95) 100%);
-      border-right: 1px solid rgba(56,189,248,.25);
-      box-shadow: 4px 0 32px rgba(0,0,0,.4);
+      width: 292px; flex-shrink: 0;
+      background: linear-gradient(180deg, #081524 0%, #0b1a2c 55%, #0a1626 100%);
+      border-right: 1px solid var(--sys-line);
+      box-shadow: 8px 0 40px rgba(0,0,0,.28);
       display: flex; flex-direction: column;
       position: relative; z-index: 3;
     }
@@ -5215,85 +5879,216 @@
       #settings-sidebar { position: relative; transform: none !important; height: auto; min-height: 100vh; }
     }
     #settings-sidebar::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, #f59e0b, transparent);
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--sys-accent), var(--sys-accent-2), transparent);
     }
     .sao-brand {
-      padding: 22px 20px 18px; border-bottom: 1px solid rgba(56,189,248,.15);
+      padding: 24px 20px 20px; border-bottom: 1px solid var(--sys-line);
       display: flex; gap: 14px; align-items: center;
     }
     .sao-brand-icon {
       width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
-      background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.35);
+      background: linear-gradient(145deg, rgba(26,166,160,.22), rgba(61,139,253,.16));
+      border: 1px solid rgba(26,166,160,.4);
       display: flex; align-items: center; justify-content: center; padding: 8px;
-      box-shadow: 0 0 20px rgba(56,189,248,.2);
+      box-shadow: 0 8px 20px rgba(26,166,160,.15);
     }
     .sao-brand-icon img { width: 100%; height: 100%; object-fit: contain; }
-    .sao-brand h6 { color: #7dd3fc; margin: 0; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
-    .sao-brand small { color: #94a3b8; font-size: 10px; display: block; margin-top: 2px; }
-    .sao-brand .sao-rank { font-size: 10px; color: #fbbf24; font-weight: 700; margin-top: 4px; }
-    .settings-nav { padding: 14px 12px; flex: 1; }
+    .sao-brand h6 {
+      font-family: var(--sys-display); color: #f3f7fb; margin: 0;
+      font-weight: 700; font-size: 13px; letter-spacing: .04em; line-height: 1.25;
+    }
+    .sao-brand small { color: var(--sys-muted); font-size: 11px; display: block; margin-top: 3px; font-weight: 500; }
+    .sao-brand .sao-rank {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+      font-size: 10px; color: #0b1220; font-weight: 700; letter-spacing: .04em;
+      background: linear-gradient(135deg, #e8b86d, #f0d29a); padding: 3px 9px; border-radius: 999px;
+    }
+    .settings-nav { padding: 16px 12px; flex: 1; overflow-y: auto; }
     .settings-nav .sao-nav-label {
-      font-size: 9px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
-      color: #64748b; padding: 8px 14px 6px;
+      font-family: var(--sys-display); font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #6f849c; padding: 14px 14px 8px;
     }
     .settings-nav a {
-      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-      color: #cbd5e1; text-decoration: none; border-radius: 10px; margin-bottom: 3px; font-size: 13px;
-      border: 1px solid transparent; transition: all .2s;
+      display: flex; align-items: center; gap: 11px; padding: 11px 14px;
+      color: #c5d3e2; text-decoration: none; border-radius: 12px; margin-bottom: 4px;
+      font-size: 13.5px; font-weight: 500; border: 1px solid transparent;
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
     }
-    .settings-nav a i { width: 18px; text-align: center; color: #64748b; }
-    .settings-nav a:hover, .settings-nav a.active {
-      background: linear-gradient(90deg, rgba(56,189,248,.18), rgba(129,140,248,.1));
-      color: #fff; border-color: rgba(56,189,248,.25);
+    .settings-nav a i { width: 18px; text-align: center; color: #7f94ab; font-size: 1.05rem; }
+    .settings-nav a:hover {
+      background: rgba(26,166,160,.1); color: #fff; border-color: rgba(26,166,160,.2);
+      transform: translateX(2px);
     }
-    .settings-nav a.active i { color: #38bdf8; }
-    .settings-main { flex: 1; padding: 24px 28px; overflow-y: auto; position: relative; min-width: 0; }
-    .sao-page-head { margin-bottom: 22px; }
-    .sao-page-head h4 { color: #e0f2fe; font-weight: 800; margin: 0 0 4px; font-size: 1.35rem; }
-    .sao-page-head p { color: #64748b; font-size: 12px; margin: 0; }
-    .sao-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .settings-nav a.active {
+      background: linear-gradient(105deg, rgba(26,166,160,.22), rgba(61,139,253,.12));
+      color: #fff; border-color: rgba(26,166,160,.35);
+      box-shadow: inset 3px 0 0 var(--sys-accent);
+    }
+    .settings-nav a.active i { color: var(--sys-accent); }
+    .settings-main { flex: 1; padding: 28px 32px 40px; overflow-y: auto; position: relative; min-width: 0; }
+    .sao-page-head { margin-bottom: 26px; position: relative; z-index: 1; }
+    .sao-page-head h4 {
+      font-family: var(--sys-display); color: #f4f8fc; font-weight: 700; margin: 0 0 6px;
+      font-size: 1.55rem; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px;
+    }
+    .sao-page-head h4 i { color: var(--sys-accent); font-size: 1.25rem; }
+    .sao-page-head p { color: var(--sys-muted); font-size: 13.5px; margin: 0; line-height: 1.5; max-width: 62ch; }
+    .sao-stat-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 14px; margin-bottom: 24px; position: relative; z-index: 1;
+    }
     .sao-stat {
-      background: linear-gradient(145deg, rgba(15,23,42,.9), rgba(30,41,59,.6));
-      border: 1px solid rgba(56,189,248,.22); border-radius: 14px; padding: 16px 18px;
-      position: relative; overflow: hidden;
+      background: linear-gradient(160deg, #12253a 0%, #0e1d30 100%);
+      border: 1px solid var(--sys-line); border-radius: var(--sys-radius); padding: 18px 18px 16px;
+      position: relative; overflow: hidden; z-index: 1;
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+      transition: transform .25s ease, border-color .25s, box-shadow .25s;
+    }
+    .sao-stat:hover {
+      transform: translateY(-3px);
+      border-color: rgba(26,166,160,.35);
+      box-shadow: 0 16px 36px rgba(0,0,0,.28);
     }
     .sao-stat::after {
-      content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 60px;
-      background: radial-gradient(circle, rgba(56,189,248,.15), transparent 70%);
+      content: ''; position: absolute; top: -20%; right: -10%; width: 90px; height: 90px;
+      background: radial-gradient(circle, rgba(26,166,160,.2), transparent 70%);
     }
-    .sao-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; }
-    .sao-stat-value { font-size: 1.6rem; font-weight: 800; color: #7dd3fc; line-height: 1.2; margin-top: 4px; }
-    .sao-stat-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .sao-stat-label {
+      font-family: var(--sys-display); font-size: 10px; text-transform: uppercase;
+      letter-spacing: .12em; color: #7f94ab; font-weight: 700;
+    }
+    .sao-stat-value {
+      font-family: var(--sys-display); font-size: 1.75rem; font-weight: 700;
+      color: #f4f8fc; line-height: 1.15; margin-top: 8px; letter-spacing: -.03em;
+    }
+    .sao-stat-sub { font-size: 12px; color: var(--sys-muted); margin-top: 4px; }
     .settings-card {
-      background: linear-gradient(145deg, rgba(15,23,42,.92), rgba(30,41,59,.55));
-      border: 1px solid rgba(56,189,248,.2); border-radius: 14px; padding: 20px; margin-bottom: 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      background: linear-gradient(165deg, #12263c 0%, #0f2034 100%);
+      border: 1px solid var(--sys-line); border-radius: var(--sys-radius); padding: 22px;
+      margin-bottom: 18px; position: relative; z-index: 1;
+      box-shadow: 0 12px 32px rgba(0,0,0,.24);
     }
-    .settings-card h5 { color: #bae6fd; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
-    .settings-portal-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .settings-card h5 {
+      font-family: var(--sys-display); color: #f1f6fb; font-size: 14px; font-weight: 700;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .settings-card h5 i { color: var(--sys-accent); }
+    .settings-portal-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     .settings-portal-tabs button {
-      border: 1px solid rgba(56,189,248,.35); background: rgba(15,23,42,.6); color: #cbd5e1;
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px solid var(--sys-line); background: rgba(7,17,31,.55); color: #d5e1ee;
+      padding: 9px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+      font-family: var(--sys-font); cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s, box-shadow .18s, transform .18s;
+    }
+    .settings-portal-tabs button:hover {
+      background: rgba(26,166,160,.12); color: #fff; border-color: rgba(26,166,160,.35);
+      transform: translateY(-1px);
     }
     .settings-portal-tabs button.active {
-      background: linear-gradient(135deg, #0284c7, #6366f1); color: #fff; border-color: transparent;
-      box-shadow: 0 0 16px rgba(56,189,248,.3);
+      background: linear-gradient(135deg, #14948f, #2f7ae5); color: #fff; border-color: transparent;
+      box-shadow: 0 8px 20px rgba(26,166,160,.28);
     }
-    .sao-portal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .sys-admin-panel {
+      background: rgba(7,17,31,.55); border: 1px solid var(--sys-line);
+      border-radius: 14px; padding: 18px 18px 14px;
+    }
+    .sys-admin-panel h5 {
+      font-family: var(--sys-display); color: #f1f6fb; font-size: 15px; font-weight: 700;
+      margin: 0 0 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .sys-admin-panel h5 .sys-admin-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 4px 9px; border-radius: 999px;
+      background: var(--sys-accent-soft); color: #7ee0d8; border: 1px solid rgba(26,166,160,.4);
+    }
+    .sys-admin-panel-hint {
+      margin: 14px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--sys-muted);
+      background: rgba(26,166,160,.08); border: 1px solid rgba(26,166,160,.18);
+      border-radius: 12px; padding: 11px 13px;
+    }
+    .sys-admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .btn-sao-reset {
+      border: 1px solid rgba(232,184,109,.5); color: var(--sys-warn); background: rgba(232,184,109,.1);
+      font-weight: 700; border-radius: 12px; font-family: var(--sys-font);
+    }
+    .btn-sao-reset:hover {
+      background: rgba(232,184,109,.18); color: #f5d9a6; border-color: rgba(232,184,109,.7);
+    }
+    .sys-admin-reset-hint {
+      display: none; margin-top: 12px; font-size: 13px; line-height: 1.5; color: var(--sys-text);
+      background: rgba(232,184,109,.12); border: 1px solid rgba(232,184,109,.35);
+      border-radius: 12px; padding: 12px 14px;
+    }
+    .sys-admin-reset-hint.show { display: block; }
+    .sys-admin-reset-hint code {
+      font-size: 15px; font-weight: 700; color: var(--sys-warn);
+      background: rgba(7,17,31,.65); padding: 2px 8px; border-radius: 6px;
+    }
+    #settings-app-shell .settings-form-grid .form-label {
+      font-size: 12px; font-weight: 700; letter-spacing: .02em; margin-bottom: 6px;
+      color: #b7c7d8; font-family: var(--sys-font);
+    }
+    .sao-portal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; position: relative; z-index: 1; }
     .sao-portal-card {
-      border: 1px solid rgba(56,189,248,.25); border-radius: 14px; padding: 16px;
-      background: rgba(15,23,42,.7); transition: border-color .2s;
+      position: relative; z-index: 1;
+      border: 1px solid var(--sys-line); border-radius: var(--sys-radius); padding: 18px;
+      background: linear-gradient(165deg, #13283f 0%, #0f2135 100%);
+      box-shadow: 0 12px 28px rgba(0,0,0,.26);
+      transition: border-color .22s, box-shadow .22s, transform .22s;
     }
-    .sao-portal-card.disabled { opacity: .65; border-color: rgba(248,113,113,.35); }
+    .sao-portal-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(26,166,160,.4);
+      box-shadow: 0 16px 36px rgba(0,0,0,.3);
+    }
+    .sao-portal-card.disabled {
+      opacity: 1;
+      border-color: rgba(240,113,120,.4);
+      background: linear-gradient(165deg, #2a1720 0%, #1c1218 100%);
+    }
     .sao-portal-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-    .sao-portal-card h6 { margin: 0; color: #e0f2fe; font-size: 13px; font-weight: 700; }
-    .sao-portal-meta { font-size: 11px; color: #64748b; line-height: 1.5; }
-    .sao-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
-    .sao-badge-live { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.35); }
-    .sao-badge-off { background: rgba(248,113,113,.12); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
-    .sao-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8; margin-top: 10px; }
-    .sao-toggle input { accent-color: #38bdf8; width: 16px; height: 16px; }
+    .sao-portal-card h6 {
+      margin: 0; color: #f4f8fc; font-size: 14px; font-weight: 700;
+      font-family: var(--sys-display); letter-spacing: -.01em;
+    }
+    .sao-portal-meta { font-size: 12.5px; color: #b6c6d8; line-height: 1.55; }
+    .sao-badge { font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 999px; letter-spacing: .04em; }
+    .sao-badge-live { background: rgba(61,214,140,.16); color: #7eecc0; border: 1px solid rgba(61,214,140,.4); }
+    .sao-badge-off { background: rgba(240,113,120,.14); color: #ffb4b8; border: 1px solid rgba(240,113,120,.4); }
+    .sao-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #e8eef6; margin-top: 12px; font-weight: 600; }
+    .sao-toggle input { accent-color: var(--sys-accent); width: 17px; height: 17px; }
+    .sao-btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; position: relative; z-index: 1; }
+    .btn-sao {
+      background: linear-gradient(135deg, #14948f, #2f7ae5); border: none; color: #fff !important; font-weight: 700;
+      box-shadow: 0 10px 24px rgba(26,166,160,.28); padding: .6rem 1.2rem; border-radius: 12px;
+      font-family: var(--sys-font); letter-spacing: .01em;
+    }
+    .btn-sao:hover { filter: brightness(1.08); color: #fff !important; transform: translateY(-1px); }
+    .btn-sao-outline {
+      border: 1px solid rgba(26,166,160,.5) !important; color: #7ee0d8 !important;
+      background: rgba(7,17,31,.45) !important; border-radius: 12px; font-weight: 600;
+    }
+    .btn-sao-outline:hover { background: rgba(26,166,160,.14) !important; color: #d7fffb !important; }
+    .btn-sao-danger {
+      border: 1px solid rgba(240,113,120,.5) !important; color: #ffc0c4 !important;
+      background: rgba(120,30,40,.28) !important; border-radius: 10px;
+    }
+    .btn-sao-danger:hover { background: rgba(180,40,55,.4) !important; color: #fff !important; }
+    .settings-sidebar-foot {
+      padding: 16px 18px 18px; border-top: 1px solid var(--sys-line);
+      background: rgba(0,0,0,.12);
+    }
+    .settings-user-chip {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+      padding: 10px 11px; border-radius: 12px;
+      background: rgba(26,166,160,.08); border: 1px solid rgba(26,166,160,.18);
+    }
+    .settings-user-chip img {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid rgba(26,166,160,.35); object-fit: cover;
+    }
+    #settings-user-label { font-size: 12px; color: #c5d3e2; line-height: 1.35; font-weight: 500; }
     .settings-perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
     .settings-perm-item {
       display: flex; align-items: center; gap: 8px; padding: 8px 12px;
@@ -5302,16 +6097,13 @@
     .settings-perm-item input { width: 16px; height: 16px; accent-color: #38bdf8; }
     .settings-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .sao-table-wrap { overflow-x: auto; }
-    .sao-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-    .sao-table th { color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .5px; padding: 8px 10px; border-bottom: 1px solid rgba(56,189,248,.15); }
-    .sao-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,.04); color: #cbd5e1; }
-    .sao-table tr:hover td { background: rgba(56,189,248,.05); }
-    .sao-btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .btn-sao { background: linear-gradient(135deg, #0284c7, #6366f1); border: none; color: #fff; font-weight: 600; }
-    .btn-sao:hover { filter: brightness(1.1); color: #fff; }
-    .btn-sao-outline { border-color: rgba(56,189,248,.45); color: #7dd3fc; }
-    .btn-sao-outline:hover { background: rgba(56,189,248,.12); color: #bae6fd; }
-    .btn-sao-danger { border-color: rgba(248,113,113,.45); color: #fca5a5; }
+    .sao-table { width: 100%; font-size: 12.5px; border-collapse: collapse; font-family: var(--sys-font, 'DM Sans', sans-serif); }
+    .sao-table th {
+      color: #7f94ab; font-weight: 700; text-transform: uppercase; font-size: 10px;
+      letter-spacing: .08em; padding: 10px 12px; border-bottom: 1px solid rgba(148,197,214,.16);
+    }
+    .sao-table td { padding: 11px 12px; border-bottom: 1px solid rgba(148,197,214,.08); color: #d5e1ee; }
+    .sao-table tr:hover td { background: rgba(26,166,160,.06); }
     @media (max-width: 991px) {
       .settings-form-grid { grid-template-columns: 1fr; }
       .sao-layout { flex-direction: column; }
@@ -5371,9 +6163,12 @@
     }
     .settings-mobile-topbar {
       display: none; align-items: center; gap: 12px; margin-bottom: 16px;
-      padding-bottom: 12px; border-bottom: 1px solid rgba(56,189,248,.15);
+      padding-bottom: 12px; border-bottom: 1px solid rgba(148,197,214,.16);
     }
-    .settings-mobile-topbar h5 { margin: 0; color: #e0f2fe; font-size: 15px; font-weight: 700; flex: 1; }
+    .settings-mobile-topbar h5 {
+      margin: 0; color: #f4f8fc; font-size: 15px; font-weight: 700; flex: 1;
+      font-family: 'Sora', 'Outfit', system-ui, sans-serif;
+    }
     .sao-rekap-toolbar {
       display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 16px;
     }
@@ -5408,8 +6203,15 @@
     @media (max-width: 991px) {
       .sao-rekap-scroll-hint { display: block; }
     }
-    .settings-page { display: none; }
-    .settings-page.active { display: block; }
+    .settings-page { display: none; position: relative; z-index: 1; }
+    .settings-page.active {
+      display: block;
+      animation: sysPageIn .35s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes sysPageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     #app-shell [data-perm] { display: none !important; }
     body.perms-applied #app-shell [data-perm].perm-on { display: flex !important; }
     body.perms-applied #app-shell .trx-admin-tools [data-perm].perm-on { display: inline-flex !important; }
@@ -5593,6 +6395,10 @@
         flex-shrink: 0;
       }
       body.register-printing #register-print .rg-page {
+        box-shadow: 0 4px 28px rgba(0,0,0,.22);
+        margin: 0 auto 16px !important;
+      }
+      body.realisasi-printing #realisasi-print .rls-page {
         box-shadow: 0 4px 28px rgba(0,0,0,.22);
         margin: 0 auto 16px !important;
       }
@@ -8135,9 +8941,10 @@ function initManualNumericInputUX() {
     <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> Transaksi <span class="nav-pending-badge" id="nav-pending-badge">0</span></a>
     <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-journal-text"></i> Register</a>
     <div class="nav-label mt-2 nav-label-admin">Laporan</div>
-    <a href="#" data-perm="view_rekap" class="nav-admin-only" onclick="showPage('realisasi',this)"><i class="bi bi-graph-up-arrow"></i> Realisasi</a>
+    <a href="#" data-perm="view_rekap" onclick="showPage('realisasi',this)"><i class="bi bi-graph-up-arrow"></i> Realisasi</a>
     <div class="nav-label mt-2 nav-label-admin">Pengaturan</div>
     <a href="#" data-perm="view_pejabat" class="nav-admin-only" onclick="showPage('pengaturan',this)"><i class="bi bi-person-gear"></i> Pejabat Keuangan</a>
+    <a href="#" class="nav-admin-only" onclick="showPage('operators',this)"><i class="bi bi-people"></i> Kelola Operator</a>
     <div class="nav-label mt-2 nav-label-admin">Data</div>
     <a href="#" data-perm="import_anggaran" class="nav-admin-only" onclick="showModalImporAnggaran();return false"><i class="bi bi-table"></i> Impor Anggaran & Kegiatan</a>
     <div class="nav-label mt-2">Navigasi</div>
@@ -8149,7 +8956,7 @@ function initManualNumericInputUX() {
       <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
       <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
     </div>
-    <div style="color:var(--naruto);font-weight:600;margin-bottom:3px">TA 2026 — Dinas Pendidikan</div>
+    <div style="color:inherit;font-weight:600;margin-bottom:3px;opacity:.85" id="sidebar-ta-label">TA 2026 — Dinas Pendidikan</div>
     <div id="sidebar-user-role" style="font-size:11px;margin-bottom:6px">—</div>
     <button type="button" class="btn-logout" onclick="doLogout()"><i class="bi bi-box-arrow-left me-1"></i>Logout</button>
     <div class="mt-2 fire-glow-text">Developer by Keuangan Dinas Pendidikan Kota Batam</div>
@@ -8758,25 +9565,27 @@ function initManualNumericInputUX() {
           <div class="rls-chart-empty" id="rls-chart-month-empty" hidden><i class="bi bi-calendar3"></i><span>Belum ada transaksi pada periode ini</span></div>
         </div>
       </div>
-      <div class="rls-chart-box">
-        <div class="rls-chart-head">
-          <div class="rls-chart-icon rls-ci-blue"><i class="bi bi-sort-numeric-down-alt"></i></div>
-          <div><h6>Top Kode Rekening</h6><small>10 kode rekening dengan realisasi terbesar</small></div>
-        </div>
-        <div class="rls-chart-canvas-wrap">
-          <canvas id="rls-chart-rekening"></canvas>
-          <div class="rls-chart-empty" id="rls-chart-rekening-empty" hidden><i class="bi bi-list-ol"></i><span>Belum ada realisasi per kode rekening</span></div>
-        </div>
+    </div>
+
+    <div class="table-card ds-animate mt-0 mb-3" style="--ds-delay:.14s" id="rls-top-rekening-card">
+      <div class="card-head">
+        <h6><i class="bi bi-sort-numeric-down-alt me-2 text-primary"></i>Top Kode Rekening</h6>
+        <small class="text-muted">10 kode rekening dengan realisasi terbesar</small>
       </div>
-      <div class="rls-chart-box">
-        <div class="rls-chart-head">
-          <div class="rls-chart-icon rls-ci-purple"><i class="bi bi-pie-chart"></i></div>
-          <div><h6>Distribusi Status Realisasi</h6><small>Belum · Rendah · Sedang · Tinggi · Selesai · Over Budget</small></div>
-        </div>
-        <div class="rls-chart-canvas-wrap">
-          <canvas id="rls-chart-status"></canvas>
-          <div class="rls-chart-empty" id="rls-chart-status-empty" hidden><i class="bi bi-pie-chart"></i><span>Belum ada baris realisasi</span></div>
-        </div>
+      <div class="table-wrapper">
+        <table class="table table-sm rls-top-rek-table">
+          <thead><tr>
+            <th style="width:40px">No</th>
+            <th>Kode Rekening</th>
+            <th>Uraian</th>
+            <th class="text-end">Anggaran</th>
+            <th class="text-end">Realisasi</th>
+            <th class="text-end">Sisa</th>
+            <th class="text-end" style="width:70px">%</th>
+            <th style="width:110px">Status</th>
+          </tr></thead>
+          <tbody id="rls-top-rek-tbody"><tr><td colspan="8" class="text-center text-muted py-3">Memuat data…</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -8786,7 +9595,7 @@ function initManualNumericInputUX() {
         <div class="d-flex gap-2 flex-wrap align-items-center">
           <input type="search" class="form-control form-control-sm rls-search-input" id="rls-search" placeholder="Cari sub / kode / PPTK…" oninput="scheduleRealisasiLoad()" />
           <button class="btn btn-sm btn-outline-success" onclick="exportRealisasiExcel()"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="cetakRealisasiPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="previewRealisasiPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
         </div>
       </div>
       <div class="table-wrapper rls-table-wrap">
@@ -8820,17 +9629,6 @@ function initManualNumericInputUX() {
       </div>
     </div>
 
-    <div class="table-card ds-animate mt-3" style="--ds-delay:.2s">
-      <div class="card-head"><h6><i class="bi bi-people me-2 text-primary"></i>Realisasi Berdasarkan PPTK</h6></div>
-      <div class="table-wrapper">
-        <table class="table table-sm rls-pptk-table">
-          <thead><tr>
-            <th>PPTK</th><th>Sub Kegiatan</th><th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th><th>Status</th>
-          </tr></thead>
-          <tbody id="rls-pptk-tbody"><tr><td colspan="7" class="text-center text-muted py-3">—</td></tr></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <div class="rls-drawer-backdrop" id="rls-drawer-backdrop" onclick="closeRealisasiDrawer()"></div>
@@ -8839,13 +9637,15 @@ function initManualNumericInputUX() {
       <h5 id="rls-drawer-title">Detail Realisasi</h5>
       <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeRealisasiDrawer()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="rls-drawer-section">
-      <h6>Informasi Anggaran</h6>
-      <dl class="rls-kv" id="rls-drawer-info"></dl>
-    </div>
-    <div class="rls-drawer-section">
-      <h6>Ringkasan</h6>
-      <dl class="rls-kv" id="rls-drawer-summary"></dl>
+    <div class="rls-drawer-grid">
+      <div class="rls-drawer-section rls-drawer-panel mb-0">
+        <h6>Informasi Anggaran</h6>
+        <dl class="rls-kv" id="rls-drawer-info"></dl>
+      </div>
+      <div class="rls-drawer-section rls-drawer-panel mb-0">
+        <h6>Ringkasan</h6>
+        <dl class="rls-kv" id="rls-drawer-summary"></dl>
+      </div>
     </div>
     <div class="rls-drawer-section">
       <h6>Daftar Transaksi</h6>
@@ -8892,6 +9692,67 @@ function initManualNumericInputUX() {
         <button type="button" class="btn btn-primary px-4" id="btn-save-settings" onclick="saveSettings()">
           <i class="bi bi-save me-2"></i>Simpan Pengaturan Pejabat
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ KELOLA OPERATOR (Admin portal) ══ -->
+  <div id="page-operators" class="page">
+    <div class="rls-page-head ds-animate" style="--ds-delay:.02s">
+      <div>
+        <h5>Kelola Akun Operator</h5>
+        <p>Buat dan atur akun operator untuk portal ini. Operator hanya dapat login di portal yang Anda kelola.</p>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-lg-5">
+        <div class="form-card ds-animate" style="--ds-delay:.05s">
+          <h6 id="op-form-title"><i class="bi bi-person-plus me-2"></i>Tambah Operator</h6>
+          <input type="hidden" id="op-edit-id" value="" />
+          <div class="mb-3">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-control" id="op-name" placeholder="Nama operator" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" id="op-username" placeholder="username" autocomplete="off" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" id="op-password-label">Password</label>
+            <input type="password" class="form-control" id="op-password" placeholder="Minimal 6 karakter" autocomplete="new-password" />
+            <div class="form-text" id="op-password-hint">Wajib diisi saat membuat akun baru.</div>
+          </div>
+          <div class="form-check form-switch mb-3" id="op-enabled-wrap" hidden>
+            <input class="form-check-input" type="checkbox" id="op-enabled" checked />
+            <label class="form-check-label" for="op-enabled">Akun aktif</label>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary" id="btn-op-save" onclick="savePortalOperator()"><i class="bi bi-save me-1"></i>Simpan</button>
+            <button type="button" class="btn btn-outline-secondary" id="btn-op-reset" onclick="resetOperatorForm()" hidden>Batal Edit</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="table-card ds-animate" style="--ds-delay:.08s">
+          <div class="card-head">
+            <h6><i class="bi bi-people me-2 text-primary"></i>Daftar Operator Portal</h6>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadPortalOperators(true)"><i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="table table-sm">
+              <thead><tr><th>Nama</th><th>Username</th><th>Status</th><th style="width:140px">Aksi</th></tr></thead>
+              <tbody id="op-tbody"><tr><td colspan="4" class="text-center text-muted py-3">Memuat…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="form-card ds-animate mt-3" style="--ds-delay:.12s">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Hak Akses Operator</h6>
+            <button type="button" class="btn btn-sm btn-primary" onclick="savePortalOperatorPerms()"><i class="bi bi-save me-1"></i>Simpan Hak Akses</button>
+          </div>
+          <p class="text-muted small mb-3">Hak akses ini berlaku untuk semua operator di portal ini.</p>
+          <div class="row g-2" id="op-perm-checkboxes"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -9620,16 +10481,16 @@ function initManualNumericInputUX() {
   </div>
 </div><!-- /gaji-app-shell -->
 
-<!-- ═══════════════ SAO COMMAND CENTER (Super Admin) ═══════════════ -->
+<!-- ═══════════════ ADMINISTRATOR SISTEM SIPKEU (Super Admin) ═══════════════ -->
 <div id="settings-app-shell">
   <div class="sao-layout">
     <aside id="settings-sidebar">
       <div class="sao-brand">
-        <div class="sao-brand-icon"><img src="/assets/sao-icons/crystal.svg?v=1" alt="SAO" /></div>
+        <div class="sao-brand-icon"><img src="/assets/sakubijak-logo-transparent.png?v=7" alt="SIPKEU" /></div>
         <div>
-          <h6>SAO COMMAND CENTER</h6>
+          <h6>ADMINISTRATOR SISTEM</h6>
           <small>SIPKEU · Dinas Pendidikan Batam</small>
-          <div class="sao-rank"><img src="/assets/sao-icons/sword.svg?v=1" alt="" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px" /> SYSTEM ADMINISTRATOR</div>
+          <div class="sao-rank"><i class="bi bi-shield-check"></i> SUPER ADMIN</div>
         </div>
       </div>
       <nav class="settings-nav">
@@ -9637,22 +10498,22 @@ function initManualNumericInputUX() {
         <a href="#" class="active" id="settings-nav-command" data-settings-page="command"><i class="bi bi-grid-1x2-fill"></i> Command Center</a>
         <a href="#" id="settings-nav-portals" data-settings-page="portals"><i class="bi bi-boxes"></i> Kendali Portal</a>
         <a href="#" id="settings-nav-profil" data-settings-page="profil"><i class="bi bi-person-vcard"></i> Kredensial &amp; Profil</a>
-        <a href="#" id="settings-nav-akses" data-settings-page="akses"><i class="bi bi-shield-check"></i> Hak Akses Operator</a>
+        <a href="#" id="settings-nav-akses" data-settings-page="akses"><i class="bi bi-person-badge"></i> Hak Akses Admin</a>
         <div class="sao-nav-label">Laporan</div>
         <a href="#" id="settings-nav-rekap" data-settings-page="rekap"><i class="bi bi-bar-chart-line"></i> Rekapitulasi</a>
         <div class="sao-nav-label">Keamanan</div>
         <a href="#" id="settings-nav-security" data-settings-page="security"><i class="bi bi-shield-lock"></i> Sesi &amp; Audit</a>
         <a href="#" onclick="backToPortal();return false"><i class="bi bi-grid-3x3-gap"></i> Kembali ke Portal</a>
       </nav>
-      <div style="padding:14px 20px;border-top:1px solid rgba(56,189,248,.12)">
+      <div class="settings-sidebar-foot">
         <div class="spatial-ui-mode spatial-ui-mode--sidebar" data-portal-ui="pengaturan" role="group" aria-label="Tema tampilan" style="margin-bottom:12px">
           <span class="spatial-ui-mode-label">Tema</span>
           <button type="button" class="spatial-ui-mode-btn" data-mode="dark" title="Mode Gelap" aria-label="Mode Gelap"><i class="bi bi-moon-stars-fill"></i></button>
           <button type="button" class="spatial-ui-mode-btn" data-mode="light" title="Mode Terang" aria-label="Mode Terang"><i class="bi bi-sun-fill"></i></button>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <img src="/assets/sao-icons/avatar-yui.svg?v=1" alt="" style="width:36px;height:36px;border-radius:10px;border:1px solid rgba(129,140,248,.4)" />
-          <div style="font-size:12px;color:#94a3b8" id="settings-user-label">—</div>
+        <div class="settings-user-chip">
+          <img src="/assets/sakubijak-logo.png?v=1" alt="" />
+          <div id="settings-user-label">—</div>
         </div>
         <button type="button" class="btn btn-sm btn-sao-outline w-100" onclick="doLogout()"><i class="bi bi-box-arrow-left me-1"></i>Keluar</button>
       </div>
@@ -9665,7 +10526,7 @@ function initManualNumericInputUX() {
       </div>
       <div id="settings-page-command" class="settings-page active">
         <div class="sao-page-head">
-          <h4><img src="/assets/sao-icons/crystal.svg?v=1" alt="" style="width:28px;height:28px;vertical-align:-6px;margin-right:8px" />Command Center</h4>
+          <h4><i class="bi bi-speedometer2"></i>Command Center</h4>
           <p>Panel kendali Super Admin — pantau semua portal SIPKEU secara real-time</p>
         </div>
         <div class="sao-stat-grid" id="sao-stat-grid">
@@ -9697,39 +10558,40 @@ function initManualNumericInputUX() {
       <div id="settings-page-profil" class="settings-page">
         <div class="sao-page-head">
           <h4><i class="bi bi-person-vcard me-2"></i>Kredensial &amp; Profil Super Admin</h4>
-          <p>Kelola akun Command Center dan kredensial admin/operator setiap portal</p>
+          <p>Kelola akun Command Center (Super Admin). Akun admin tiap portal diatur di menu Hak Akses Admin.</p>
         </div>
         <div class="settings-card">
-          <h5><img src="/assets/sao-icons/avatar-kirito.svg?v=1" alt="" style="width:22px;height:22px;vertical-align:-4px;margin-right:6px" /> Akun Super Admin</h5>
+          <h5><i class="bi bi-person-badge"></i> Akun Super Admin</h5>
           <div class="settings-form-grid">
-            <div><label class="form-label text-light">Username (NIP)</label><input type="text" class="form-control" id="sys-settings-user"></div>
-            <div><label class="form-label text-light">Password Baru</label>
+            <div><label class="form-label" for="sys-settings-user">Username (NIP)</label><input type="text" class="form-control" id="sys-settings-user"></div>
+            <div><label class="form-label" for="sys-settings-pass">Password Baru</label>
               <div class="pwd-toggle-wrap">
                 <input type="password" class="form-control pwd-field" id="sys-settings-pass" placeholder="Kosongkan jika tidak diubah">
                 <button type="button" class="pwd-toggle-btn" data-pwd-target="sys-settings-pass" aria-label="Tampilkan password" aria-pressed="false"><i class="bi bi-eye"></i></button>
               </div>
             </div>
-            <div class="settings-form-grid" style="grid-column:1/-1"><div><label class="form-label text-light">Nama Lengkap</label><input type="text" class="form-control" id="sys-settings-name"></div></div>
+            <div class="settings-form-grid" style="grid-column:1/-1"><div><label class="form-label" for="sys-settings-name">Nama Lengkap</label><input type="text" class="form-control" id="sys-settings-name"></div></div>
           </div>
         </div>
-        <div class="settings-card">
-          <h5><img src="/assets/sao-icons/avatar-asuna.svg?v=1" alt="" style="width:22px;height:22px;vertical-align:-4px;margin-right:6px" /> Kredensial per Portal</h5>
-          <div class="settings-portal-tabs" id="sys-portal-tabs"></div>
-          <div id="sys-portal-auth-form"></div>
-        </div>
-        <button type="button" class="btn btn-sao px-4" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Pengaturan</button>
+        <button type="button" class="btn btn-sao px-4" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Profil Super Admin</button>
         <div id="sys-save-msg" class="mt-2" style="font-size:13px"></div>
       </div>
       <div id="settings-page-akses" class="settings-page">
         <div class="sao-page-head">
-          <h4><i class="bi bi-shield-check me-2"></i>Hak Akses Operator</h4>
-          <p>Centang fitur operator per portal SIPKEU (Sekretariat, PAUD, SD, SMP). Kas Belanja hanya Admin.</p>
+          <h4><i class="bi bi-person-badge me-2"></i>Hak Akses Admin Portal</h4>
+          <p>Buat atau reset username &amp; password admin untuk setiap portal SIPKEU. Operator dikelola oleh admin portal masing-masing.</p>
         </div>
         <div class="settings-card">
-          <div class="settings-portal-tabs" id="sys-perm-portal-tabs"></div>
-          <div id="sys-perm-checkboxes" class="settings-perm-grid"></div>
+          <h5><i class="bi bi-diagram-3 me-1"></i> Pilih Portal</h5>
+          <div class="settings-portal-tabs" id="sys-admin-portal-tabs"></div>
+          <div id="sys-admin-access-form"></div>
+          <div id="sys-admin-reset-hint" class="sys-admin-reset-hint" role="status"></div>
+          <div class="sys-admin-actions">
+            <button type="button" class="btn btn-sao px-4" onclick="savePortalAdminAccess()"><i class="bi bi-save me-1"></i>Simpan Admin Portal</button>
+            <button type="button" class="btn btn-sao-reset px-4" onclick="resetPortalAdminPassword()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Password</button>
+          </div>
+          <div id="sys-admin-save-msg" class="mt-3" style="font-size:13px"></div>
         </div>
-        <button type="button" class="btn btn-sao px-4" onclick="saveSystemSettings()"><i class="bi bi-save me-1"></i>Simpan Hak Akses</button>
       </div>
       <div id="settings-page-rekap" class="settings-page">
         <div class="sao-page-head">
@@ -9846,41 +10708,33 @@ function initManualNumericInputUX() {
 <!-- ══ REGISTER PRINT (PDF / Cetak) — diisi dinamis per halaman ══ -->
 <div id="register-print"></div>
 
-<!-- ══ REKAP PRINT (PDF) ══ -->
-<div id="realisasi-print">
-  <div class="rk-wrap">
-    <div class="rk-header">
-      <h4 id="rls-print-title">SIPKEU SEKOLAH MENENGAH PERTAMA</h4>
-      <p><strong>LAPORAN REALISASI ANGGARAN</strong></p>
-      <p>PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA <span id="rls-print-tahun">2026</span></p>
+<!-- ══ REALISASI PRINT (PDF) — diisi dinamis per halaman A4 landscape ══ -->
+<div id="realisasi-print"></div>
+<div id="rls-measure-host" aria-hidden="true"></div>
+<div id="rls-capture-host" aria-hidden="true"></div>
+
+<div id="rls-pdf-preview-backdrop" class="rls-pdf-preview-backdrop" onclick="closeRealisasiPdfPreview()"></div>
+<div id="rls-pdf-preview-modal" class="rls-pdf-preview-modal" role="dialog" aria-label="Preview PDF Realisasi">
+  <div class="rls-pdf-preview-head">
+    <div class="rls-pdf-preview-head-main">
+      <h5>Preview PDF Realisasi</h5>
+      <p id="rls-pdf-preview-meta">—</p>
     </div>
-    <div class="rk-meta">
-      <div>Sub Kegiatan: <span id="rls-print-sub">Semua</span> · Kode Rekening: <span id="rls-print-kode">Semua</span></div>
-      <div>Periode: <span id="rls-print-periode">Semua</span> · PPTK: <span id="rls-print-pptk">Semua</span></div>
-      <div>Dicetak: <span id="rls-print-tanggal">—</span></div>
+    <div class="rls-pdf-preview-zoom" onclick="event.stopPropagation()">
+      <button type="button" id="rls-pdf-zoom-out" onclick="rlsPreviewZoomOut()" title="Perkecil tampilan" aria-label="Perkecil"><i class="bi bi-dash-lg"></i></button>
+      <span class="rls-pdf-preview-zoom-label" id="rls-pdf-preview-zoom-label">100%</span>
+      <button type="button" id="rls-pdf-zoom-in" onclick="rlsPreviewZoomIn()" title="Perbesar tampilan" aria-label="Perbesar"><i class="bi bi-plus-lg"></i></button>
+      <button type="button" id="rls-pdf-zoom-reset" onclick="rlsPreviewZoomReset()" title="Reset zoom" aria-label="Reset zoom"><i class="bi bi-aspect-ratio"></i></button>
     </div>
-    <table class="rk-table">
-      <thead><tr>
-        <th>No</th><th>Sub Kegiatan</th><th>Kode Rek.</th><th>Uraian</th><th>PPTK</th>
-        <th class="text-end">Anggaran</th><th class="text-end">Realisasi</th><th class="text-end">Sisa</th><th class="text-end">%</th>
-      </tr></thead>
-      <tbody id="rls-print-tbody"></tbody>
-      <tfoot id="rls-print-tfoot"></tfoot>
-    </table>
-    <div class="rk-ttd">
-      <div class="rk-ttd-box">
-        <div>Pengguna Anggaran,</div>
-        <div class="rk-ttd-space"></div>
-        <div><strong id="rls-print-pa-nama">—</strong></div>
-        <div id="rls-print-pa-nip">—</div>
-      </div>
-      <div class="rk-ttd-box">
-        <div>Bendahara Pengeluaran,</div>
-        <div class="rk-ttd-space"></div>
-        <div><strong id="rls-print-bend-nama">—</strong></div>
-        <div id="rls-print-bend-nip">—</div>
-      </div>
-    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeRealisasiPdfPreview()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="rls-pdf-preview-wrap" class="rls-pdf-preview-wrap">
+    <div id="rls-pdf-preview-stage" class="rls-pdf-preview-stage"></div>
+  </div>
+  <div class="rls-pdf-preview-actions">
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeRealisasiPdfPreview()">Tutup</button>
+    <button type="button" class="btn btn-sm btn-primary" onclick="printRealisasiFromPreview()"><i class="bi bi-printer me-1"></i>Cetak</button>
+    <button type="button" class="btn btn-sm btn-danger" id="btn-rls-save-pdf" onclick="saveRealisasiPdfFromPreview()"><i class="bi bi-download me-1"></i>Simpan PDF</button>
   </div>
 </div>
 
@@ -11325,12 +12179,17 @@ function applyPortalUiMode(portalId) {
   const pid = portalId || selectedPortalApp || 'portal-home';
   const mode = getPortalUiMode(pid);
   document.body.dataset.uiMode = mode;
+  document.body.dataset.theme = mode;
   document.body.dataset.spatialUi = '1';
   document.body.dataset.portalUi = pid;
   document.documentElement.dataset.uiMode = mode;
+  document.documentElement.dataset.theme = mode;
   syncPortalUiModeButtons(pid, mode);
   const metaTheme = document.querySelector('meta[name="theme-color"]');
-  if (metaTheme) metaTheme.content = mode === 'light' ? '#e8edf5' : '#060a14';
+  if (metaTheme) metaTheme.content = mode === 'light' ? '#eef3f9' : '#060a14';
+  if (typeof destroyRealisasiCharts === 'function' && document.getElementById('page-realisasi')?.classList.contains('active') && realisasiReportCache) {
+    renderRealisasiCharts(realisasiReportCache).catch(() => {});
+  }
 }
 
 function initPortalUiModeSystem() {
@@ -11634,7 +12493,6 @@ function showSettingsApp() {
 }
 
 const SETTINGS_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp', 'kas-belanja', 'gaji-asn'];
-const SETTINGS_PERM_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp'];
 const SETTINGS_PORTAL_LABELS = {
   sekretariat: 'Sekretariat',
   paud: 'PAUD',
@@ -11661,8 +12519,7 @@ const OPERATOR_PERM_DEFS = [
 ];
 
 let systemSettingsCache = null;
-let sysActivePortalTab = 'sekretariat';
-let sysActivePermPortal = 'sekretariat';
+let sysActiveAdminPortal = 'sekretariat';
 
 function togglePwdVisible(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -11735,10 +12592,8 @@ function applySystemSettingsToForm() {
   if (u) u.value = systemSettingsCache.settings_portal_username || '';
   if (n) n.value = systemSettingsCache.settings_portal_name || '';
   if (p) p.value = '';
-  renderSysPortalTabs();
-  renderSysPortalAuthForm();
-  renderSysPermPortalTabs();
-  renderSysPermCheckboxes();
+  renderSysAdminPortalTabs();
+  renderSysAdminAccessForm();
 }
 
 async function bootSettingsApp(fromRestore = true) {
@@ -11761,7 +12616,7 @@ const SETTINGS_PAGE_TITLES = {
   command: 'Command Center',
   portals: 'Kendali Portal',
   profil: 'Kredensial & Profil',
-  akses: 'Hak Akses Operator',
+  akses: 'Hak Akses Admin',
   rekap: 'Rekapitulasi',
   security: 'Sesi & Audit',
 };
@@ -12310,120 +13165,170 @@ async function loadSystemSettings() {
   }
 }
 
-function renderSysPortalTabs() {
-  const el = document.getElementById('sys-portal-tabs');
+function renderSysAdminPortalTabs() {
+  const el = document.getElementById('sys-admin-portal-tabs');
   if (!el) return;
   el.innerHTML = SETTINGS_PORTAL_IDS.map(id =>
-    `<button type="button" class="${id === sysActivePortalTab ? 'active' : ''}" onclick="selectSysPortalTab('${id}')">${SETTINGS_PORTAL_LABELS[id]}</button>`
+    `<button type="button" class="${id === sysActiveAdminPortal ? 'active' : ''}" onclick="selectSysAdminPortal('${id}')">${SETTINGS_PORTAL_LABELS[id]}</button>`
   ).join('');
 }
 
-function selectSysPortalTab(id) {
-  sysActivePortalTab = id;
-  renderSysPortalTabs();
-  renderSysPortalAuthForm();
+function selectSysAdminPortal(id) {
+  sysActiveAdminPortal = id;
+  const hint = document.getElementById('sys-admin-reset-hint');
+  if (hint) {
+    hint.textContent = '';
+    hint.classList.remove('show');
+  }
+  const msg = document.getElementById('sys-admin-save-msg');
+  if (msg) msg.innerHTML = '';
+  renderSysAdminPortalTabs();
+  renderSysAdminAccessForm();
 }
 
-function renderSysPortalAuthForm() {
-  const el = document.getElementById('sys-portal-auth-form');
+function renderSysAdminAccessForm() {
+  const el = document.getElementById('sys-admin-access-form');
   if (!el || !systemSettingsCache) return;
-  const p = systemSettingsCache.portals?.[sysActivePortalTab] || {};
-  const isAdminOnly = isAdminOnlyPortal(sysActivePortalTab);
+  const p = systemSettingsCache.portals?.[sysActiveAdminPortal] || {};
+  const label = SETTINGS_PORTAL_LABELS[sysActiveAdminPortal] || sysActiveAdminPortal;
+  const hasUser = !!(p.admin_username || '').trim();
   el.innerHTML = `
-    <div class="settings-form-grid">
-      <div><label class="form-label text-light">Username Admin</label><input type="text" class="form-control" id="sys-admin-user" value="${escHtml(p.admin_username || '')}"></div>
-      <div><label class="form-label text-light">Password Admin</label>${pwdFieldHtml('sys-admin-pass', 'Kosongkan jika tidak diubah')}</div>
-      <div><label class="form-label text-light">Nama Admin</label><input type="text" class="form-control" id="sys-admin-name" value="${escHtml(p.admin_name || '')}"></div>
-      ${isAdminOnly ? `<div style="grid-column:1/-1;font-size:12px" class="text-muted"><i class="bi bi-info-circle me-1"></i>Modul ini hanya memiliki akun Admin (tanpa operator).</div>` : `
-      <div></div>
-      <div><label class="form-label text-light">Username Operator</label><input type="text" class="form-control" id="sys-op-user" value="${escHtml(p.operator_username || '')}"></div>
-      <div><label class="form-label text-light">Password Operator</label>${pwdFieldHtml('sys-op-pass', 'Kosongkan jika tidak diubah')}</div>
-      <div><label class="form-label text-light">Nama Operator</label><input type="text" class="form-control" id="sys-op-name" value="${escHtml(p.operator_name || '')}"></div>`}
+    <div class="sys-admin-panel">
+      <h5>
+        <i class="bi bi-shield-lock"></i>
+        Kredensial Admin — ${escHtml(label)}
+        <span class="sys-admin-badge">${hasUser ? 'Terdaftar' : 'Belum diatur'}</span>
+      </h5>
+      <div class="settings-form-grid">
+        <div>
+          <label class="form-label" for="sys-admin-user">Username Admin</label>
+          <input type="text" class="form-control" id="sys-admin-user" value="${escHtml(p.admin_username || '')}" autocomplete="off" placeholder="contoh: admin">
+        </div>
+        <div>
+          <label class="form-label" for="sys-admin-name">Nama Admin</label>
+          <input type="text" class="form-control" id="sys-admin-name" value="${escHtml(p.admin_name || '')}" autocomplete="off" placeholder="Nama tampilan">
+        </div>
+        <div style="grid-column:1/-1">
+          <label class="form-label" for="sys-admin-pass">Password Baru</label>
+          ${pwdFieldHtml('sys-admin-pass', 'Isi untuk membuat atau mengubah password')}
+        </div>
+      </div>
+      <p class="sys-admin-panel-hint mb-0"><i class="bi bi-info-circle me-1"></i>Kosongkan password jika hanya mengubah username/nama. Tombol <strong>Reset Password</strong> membuat password sementara yang harus segera disalin.</p>
     </div>`;
 }
 
-function renderSysPermPortalTabs() {
-  const el = document.getElementById('sys-perm-portal-tabs');
-  if (!el) return;
-  el.innerHTML = SETTINGS_PERM_PORTAL_IDS.map(id =>
-    `<button type="button" class="${id === sysActivePermPortal ? 'active' : ''}" onclick="selectSysPermPortal('${id}')">${SETTINGS_PORTAL_LABELS[id]}</button>`
-  ).join('');
-}
-
-function selectSysPermPortal(id) {
-  sysActivePermPortal = id;
-  renderSysPermPortalTabs();
-  renderSysPermCheckboxes();
-}
-
-function renderSysPermCheckboxes() {
-  const el = document.getElementById('sys-perm-checkboxes');
-  if (!el || !systemSettingsCache) return;
-  const perms = systemSettingsCache.operator_perms?.[sysActivePermPortal] || {};
-  el.innerHTML = OPERATOR_PERM_DEFS.map(def =>
-    `<label class="settings-perm-item"><input type="checkbox" data-perm-key="${def.key}" ${perms[def.key] ? 'checked' : ''}> ${def.label}</label>`
-  ).join('');
-}
-
-function collectPortalAuthFromForm() {
-  if (!systemSettingsCache?.portals) systemSettingsCache = { portals: {}, operator_perms: {} };
-  const id = sysActivePortalTab;
+function collectPortalAdminFromForm(forcePassword) {
+  if (!systemSettingsCache) systemSettingsCache = { portals: {}, operator_perms: {} };
+  if (!systemSettingsCache.portals) systemSettingsCache.portals = {};
+  const id = sysActiveAdminPortal;
   const cur = systemSettingsCache.portals[id] || {};
-  const adminPass = document.getElementById('sys-admin-pass')?.value || '';
+  const adminPass = (document.getElementById('sys-admin-pass')?.value || '').trim();
+  const username = (document.getElementById('sys-admin-user')?.value || '').trim();
+  const name = (document.getElementById('sys-admin-name')?.value || '').trim();
+  if (!username) throw new Error('Username admin wajib diisi');
+  if (forcePassword && !adminPass) throw new Error('Password admin wajib diisi');
   const entry = {
-    admin_username: document.getElementById('sys-admin-user')?.value.trim() || cur.admin_username,
+    ...cur,
+    admin_username: username,
+    admin_name: name || cur.admin_name || 'Administrator SIPKEU',
     admin_password: adminPass || cur.admin_password || '********',
-    admin_name: document.getElementById('sys-admin-name')?.value.trim() || cur.admin_name,
     operator_username: cur.operator_username || '',
     operator_password: cur.operator_password || '********',
     operator_name: cur.operator_name || '',
   };
-  if (!isAdminOnlyPortal(id)) {
-    const opPass = document.getElementById('sys-op-pass')?.value || '';
-    entry.operator_username = document.getElementById('sys-op-user')?.value.trim() || cur.operator_username;
-    entry.operator_password = opPass || cur.operator_password || '********';
-    entry.operator_name = document.getElementById('sys-op-name')?.value.trim() || cur.operator_name;
-  } else {
+  if (isAdminOnlyPortal(id)) {
     entry.operator_username = '';
     entry.operator_password = '';
     entry.operator_name = '';
   }
   systemSettingsCache.portals[id] = entry;
+  return adminPass;
 }
 
-function collectPermFromForm() {
-  if (!systemSettingsCache.operator_perms) systemSettingsCache.operator_perms = {};
-  const perms = {};
-  document.querySelectorAll('#sys-perm-checkboxes input[data-perm-key]').forEach(cb => {
-    perms[cb.dataset.permKey] = cb.checked;
-  });
-  systemSettingsCache.operator_perms[sysActivePermPortal] = perms;
+function generateTempAdminPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let out = 'Adm';
+  for (let i = 0; i < 7; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+async function putSystemSettingsPayload() {
+  if (systemSettingsCache?.operator_perms) {
+    delete systemSettingsCache.operator_perms['kas-belanja'];
+    delete systemSettingsCache.operator_perms['gaji-asn'];
+  }
+  const payload = {
+    settings_portal_username: document.getElementById('sys-settings-user')?.value.trim() || systemSettingsCache.settings_portal_username,
+    settings_portal_password: document.getElementById('sys-settings-pass')?.value || '',
+    settings_portal_name: document.getElementById('sys-settings-name')?.value.trim() || systemSettingsCache.settings_portal_name,
+    portals: systemSettingsCache.portals,
+    operator_perms: systemSettingsCache.operator_perms,
+    portal_status: systemSettingsCache.portal_status || {},
+  };
+  const res = await apiFetch(API + '/system-settings', { method: 'PUT', body: JSON.stringify(payload) });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
+  systemSettingsCache = data.data || data;
+  const passEl = document.getElementById('sys-settings-pass');
+  if (passEl) passEl.value = '';
+  renderSysAdminAccessForm();
+  return data;
 }
 
 async function saveSystemSettings() {
   const msg = document.getElementById('sys-save-msg');
   try {
-    collectPortalAuthFromForm();
-    collectPermFromForm();
-    if (systemSettingsCache?.operator_perms) {
-      delete systemSettingsCache.operator_perms['kas-belanja'];
-      delete systemSettingsCache.operator_perms['gaji-asn'];
+    const data = await putSystemSettingsPayload();
+    if (msg) msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + (data.message || 'Profil Super Admin tersimpan') + '</span>';
+  } catch (err) {
+    if (msg) msg.innerHTML = '<span class="text-danger">' + err.message + '</span>';
+  }
+}
+
+async function savePortalAdminAccess() {
+  const msg = document.getElementById('sys-admin-save-msg');
+  const hint = document.getElementById('sys-admin-reset-hint');
+  try {
+    const newPass = collectPortalAdminFromForm(false);
+    const data = await putSystemSettingsPayload();
+    if (hint) {
+      hint.textContent = '';
+      hint.classList.remove('show');
     }
-    const payload = {
-      settings_portal_username: document.getElementById('sys-settings-user').value.trim(),
-      settings_portal_password: document.getElementById('sys-settings-pass').value,
-      settings_portal_name: document.getElementById('sys-settings-name').value.trim(),
-      portals: systemSettingsCache.portals,
-      operator_perms: systemSettingsCache.operator_perms,
-      portal_status: systemSettingsCache.portal_status || {},
-    };
-    const res = await apiFetch(API + '/system-settings', { method: 'PUT', body: JSON.stringify(payload) });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Gagal menyimpan');
-    systemSettingsCache = data.data || data;
-    document.getElementById('sys-settings-pass').value = '';
-    renderSysPortalAuthForm();
-    if (msg) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + (data.message || 'Tersimpan') + '</span>'; }
+    if (msg) {
+      msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' +
+        (data.message || 'Admin portal tersimpan') +
+        (newPass ? ' · Password admin telah diperbarui.' : '') + '</span>';
+    }
+  } catch (err) {
+    if (msg) msg.innerHTML = '<span class="text-danger">' + err.message + '</span>';
+  }
+}
+
+async function resetPortalAdminPassword() {
+  const msg = document.getElementById('sys-admin-save-msg');
+  const hint = document.getElementById('sys-admin-reset-hint');
+  const label = SETTINGS_PORTAL_LABELS[sysActiveAdminPortal] || sysActiveAdminPortal;
+  const tempPass = generateTempAdminPassword();
+  if (!confirm(`Reset password admin portal ${label}?\n\nPassword sementara akan dibuat dan harus disimpan sekarang.`)) return;
+  try {
+    const passInput = document.getElementById('sys-admin-pass');
+    if (passInput) {
+      passInput.value = tempPass;
+      passInput.type = 'text';
+    }
+    collectPortalAdminFromForm(true);
+    const data = await putSystemSettingsPayload();
+    const passAfter = document.getElementById('sys-admin-pass');
+    if (passAfter) {
+      passAfter.value = tempPass;
+      passAfter.type = 'text';
+    }
+    if (hint) {
+      hint.innerHTML = `<i class="bi bi-key-fill me-1"></i>Password sementara admin <strong>${escHtml(label)}</strong>: <code>${escHtml(tempPass)}</code> — salin sekarang sebelum menutup halaman.`;
+      hint.classList.add('show');
+    }
+    if (msg) msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + (data.message || 'Password admin berhasil direset') + '</span>';
   } catch (err) {
     if (msg) msg.innerHTML = '<span class="text-danger">' + err.message + '</span>';
   }
@@ -12691,6 +13596,10 @@ function showPage(name, el) {
     if (canAccessTransaksi()) return showPage('transaksi', document.getElementById('nav-transaksi'));
     return false;
   }
+  if (name === 'operators' && !isAdmin()) {
+    if (canAccessTransaksi()) return showPage('transaksi', document.getElementById('nav-transaksi'));
+    return false;
+  }
   const activePage = document.querySelector('#app-shell .page.active');
   if (activePage?.id === 'page-transaksi' && name !== 'transaksi') discardUnsavedTrxDraft();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -12698,7 +13607,7 @@ function showPage(name, el) {
   const pageEl = document.getElementById('page-' + name);
   pageEl.classList.add('active');
   if (el) el.classList.add('active');
-  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', realisasi:'Realisasi', pengaturan:'Pejabat Keuangan' };
+  const titles = { dashboard:'Dashboard', transaksi:'Transaksi', register:'Register', realisasi:'Realisasi', pengaturan:'Pejabat Keuangan', operators:'Kelola Operator' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
   document.getElementById('topbar-crumb').textContent = titles[name] || name;
   closeMobileSidebar();
@@ -12722,8 +13631,9 @@ function showPage(name, el) {
     } else {
       fillSettingsForm();
     }
+  } else if (name === 'operators') {
+    loadPortalOperators(true).then(() => touchPage('operators')).catch(() => {});
   }
-  return false;
 }
 
 // ── Cascading Form ──────────────────────────────────────────────────────
@@ -14819,12 +15729,171 @@ async function saveSettings() {
   alert('Pengaturan pejabat berhasil disimpan.');
 }
 
-// ── Realisasi (derived from Transaksi, server-side aggregation) ─────────────
-const RLS_STATUS_COLORS = {
-  belum: '#64748b', rendah: '#3b82f6', sedang: '#eab308', tinggi: '#f97316',
-  perlu_perhatian: '#fbbf24', selesai: '#22c55e', over_budget: '#ef4444',
-};
+// ── Kelola Operator (Admin portal) ─────────────────────────────────────────
+let portalOperatorsCache = [];
+let portalOperatorPermsCache = {};
 
+function renderPortalOperatorPerms(perms) {
+  const host = document.getElementById('op-perm-checkboxes');
+  if (!host) return;
+  const p = perms || {};
+  host.innerHTML = OPERATOR_PERM_DEFS.map(def => `
+    <div class="col-md-6">
+      <label class="settings-perm-item d-flex align-items-center gap-2 mb-0">
+        <input type="checkbox" data-op-perm-key="${def.key}" ${p[def.key] ? 'checked' : ''}>
+        <span>${escapeHtmlRegister(def.label)}</span>
+      </label>
+    </div>`).join('');
+}
+
+function collectPortalOperatorPerms() {
+  const out = {};
+  OPERATOR_PERM_DEFS.forEach(def => { out[def.key] = false; });
+  document.querySelectorAll('#op-perm-checkboxes input[data-op-perm-key]').forEach(cb => {
+    out[cb.getAttribute('data-op-perm-key')] = !!cb.checked;
+  });
+  return out;
+}
+
+function resetOperatorForm() {
+  document.getElementById('op-edit-id').value = '';
+  document.getElementById('op-name').value = '';
+  document.getElementById('op-username').value = '';
+  document.getElementById('op-password').value = '';
+  document.getElementById('op-password').placeholder = 'Minimal 6 karakter';
+  document.getElementById('op-password-label').textContent = 'Password';
+  document.getElementById('op-password-hint').textContent = 'Wajib diisi saat membuat akun baru.';
+  document.getElementById('op-enabled').checked = true;
+  document.getElementById('op-enabled-wrap').hidden = true;
+  document.getElementById('btn-op-reset').hidden = true;
+  document.getElementById('op-form-title').innerHTML = '<i class="bi bi-person-plus me-2"></i>Tambah Operator';
+  document.getElementById('btn-op-save').innerHTML = '<i class="bi bi-save me-1"></i>Simpan';
+}
+
+function renderPortalOperatorsTable(rows) {
+  const tbody = document.getElementById('op-tbody');
+  if (!tbody) return;
+  if (!rows?.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Belum ada operator. Buat akun pertama di formulir sebelah kiri.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(op => {
+    const status = op.enabled
+      ? '<span class="badge text-bg-success">Aktif</span>'
+      : '<span class="badge text-bg-secondary">Nonaktif</span>';
+    return `<tr>
+      <td>${escapeHtmlRegister(op.name || '—')}</td>
+      <td><code>${escapeHtmlRegister(op.username || '')}</code></td>
+      <td>${status}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="editPortalOperator('${escapeHtmlRegister(op.id)}')" title="Edit"><i class="bi bi-pencil"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePortalOperator('${escapeHtmlRegister(op.id)}')" title="Hapus"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadPortalOperators(force = false) {
+  if (!isAdmin()) return;
+  const tbody = document.getElementById('op-tbody');
+  if (tbody && force) tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Memuat…</td></tr>';
+  try {
+    const res = await apiFetch(API + '/operators');
+    const data = await res.json();
+    portalOperatorsCache = data.operators || [];
+    portalOperatorPermsCache = data.perms || {};
+    renderPortalOperatorsTable(portalOperatorsCache);
+    renderPortalOperatorPerms(portalOperatorPermsCache);
+    if (!document.getElementById('op-edit-id')?.value) resetOperatorForm();
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">${escapeHtmlRegister(err.message || err)}</td></tr>`;
+  }
+}
+
+function editPortalOperator(id) {
+  const op = portalOperatorsCache.find(x => x.id === id);
+  if (!op) return;
+  document.getElementById('op-edit-id').value = op.id;
+  document.getElementById('op-name').value = op.name || '';
+  document.getElementById('op-username').value = op.username || '';
+  document.getElementById('op-password').value = '';
+  document.getElementById('op-password').placeholder = 'Kosongkan jika tidak diganti';
+  document.getElementById('op-password-label').textContent = 'Password Baru (opsional)';
+  document.getElementById('op-password-hint').textContent = 'Isi hanya jika ingin mengganti password.';
+  document.getElementById('op-enabled').checked = !!op.enabled;
+  document.getElementById('op-enabled-wrap').hidden = false;
+  document.getElementById('btn-op-reset').hidden = false;
+  document.getElementById('op-form-title').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Operator';
+  document.getElementById('btn-op-save').innerHTML = '<i class="bi bi-save me-1"></i>Perbarui';
+  document.getElementById('op-name')?.focus();
+}
+
+async function savePortalOperator() {
+  if (!isAdmin()) return;
+  const id = document.getElementById('op-edit-id')?.value || '';
+  const name = document.getElementById('op-name')?.value.trim() || '';
+  const username = document.getElementById('op-username')?.value.trim() || '';
+  const password = document.getElementById('op-password')?.value || '';
+  const enabled = document.getElementById('op-enabled')?.checked !== false;
+  if (!username) { alert('Username wajib diisi.'); return; }
+  if (!id && password.length < 6) { alert('Password minimal 6 karakter.'); return; }
+  if (id && password && password.length < 6) { alert('Password baru minimal 6 karakter.'); return; }
+
+  const btn = document.getElementById('btn-op-save');
+  const orig = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan…'; }
+  try {
+    const payload = { name, username, enabled };
+    if (password) payload.password = password;
+    const res = await apiFetch(API + (id ? '/operators/' + encodeURIComponent(id) : '/operators'), {
+      method: id ? 'PUT' : 'POST',
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    portalOperatorsCache = data.operators || [];
+    if (data.perms) portalOperatorPermsCache = data.perms;
+    renderPortalOperatorsTable(portalOperatorsCache);
+    resetOperatorForm();
+    alert(data.message || 'Operator tersimpan.');
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan operator.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+async function deletePortalOperator(id) {
+  if (!isAdmin()) return;
+  const op = portalOperatorsCache.find(x => x.id === id);
+  if (!op) return;
+  if (!confirm(`Hapus operator "${op.username}"? Akun ini tidak bisa login lagi.`)) return;
+  try {
+    const res = await apiFetch(API + '/operators/' + encodeURIComponent(id), { method: 'DELETE' });
+    const data = await res.json();
+    portalOperatorsCache = data.operators || [];
+    renderPortalOperatorsTable(portalOperatorsCache);
+    if (document.getElementById('op-edit-id')?.value === id) resetOperatorForm();
+    alert(data.message || 'Operator dihapus.');
+  } catch (err) {
+    alert(err.message || 'Gagal menghapus operator.');
+  }
+}
+
+async function savePortalOperatorPerms() {
+  if (!isAdmin()) return;
+  const perms = collectPortalOperatorPerms();
+  try {
+    const res = await apiFetch(API + '/operators/perms', { method: 'PUT', body: JSON.stringify(perms) });
+    const data = await res.json();
+    portalOperatorPermsCache = data.perms || perms;
+    renderPortalOperatorPerms(portalOperatorPermsCache);
+    alert(data.message || 'Hak akses operator disimpan.');
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan hak akses.');
+  }
+}
+
+// ── Realisasi (derived from Transaksi, server-side aggregation) ─────────────
 function rlsBadgeHtml(status, label) {
   const lbl = label || status;
   return `<span class="rls-badge ${status}">${escapeHtmlRegister(lbl)}</span>`;
@@ -14964,6 +16033,44 @@ function applyRealisasiFilterOptions(opts) {
   syncRlsComboInputs();
 }
 
+function positionRlsComboMenu(wrap, menu) {
+  const input = wrap.querySelector('.rls-combo-input');
+  if (!input) return;
+  const rect = input.getBoundingClientRect();
+  if (menu.parentElement !== document.body) {
+    menu._rlsComboHome = wrap;
+    document.body.appendChild(menu);
+  }
+  menu.classList.add('rls-combo-menu-fixed');
+  menu.style.left = `${Math.max(8, rect.left)}px`;
+  menu.style.top = `${rect.bottom + 4}px`;
+  menu.style.width = `${Math.max(160, rect.width)}px`;
+}
+
+function resetRlsComboMenu(menu) {
+  menu.classList.remove('rls-combo-menu-fixed');
+  menu.style.left = '';
+  menu.style.top = '';
+  menu.style.width = '';
+  if (menu._rlsComboHome && menu.parentElement === document.body) {
+    menu._rlsComboHome.appendChild(menu);
+    menu._rlsComboHome = null;
+  }
+}
+
+function setRlsFilterPanelOpen(open) {
+  document.querySelector('#page-realisasi .rls-filter-panel')?.classList.toggle('rls-filter-panel-open', open);
+}
+
+function closeAllRlsComboMenus(exceptMenu) {
+  document.querySelectorAll('.rls-combo-menu').forEach(menu => {
+    if (menu === exceptMenu) return;
+    menu.hidden = true;
+    resetRlsComboMenu(menu);
+  });
+  if (!exceptMenu) setRlsFilterPanelOpen(false);
+}
+
 function initRlsCombos() {
   if (rlsCombosBound) return;
   rlsCombosBound = true;
@@ -14981,7 +16088,10 @@ function initRlsCombos() {
       menu.innerHTML = items.length
         ? items.slice(0, 80).map(o => `<div class="rls-combo-item" data-value="${escapeHtmlRegister(o.value)}">${escapeHtmlRegister(o.textContent)}</div>`).join('')
         : '<div class="rls-combo-item disabled">Tidak ada hasil</div>';
+      closeAllRlsComboMenus(menu);
       menu.hidden = false;
+      setRlsFilterPanelOpen(true);
+      positionRlsComboMenu(wrap, menu);
     };
     input.addEventListener('focus', () => renderMenu(''));
     input.addEventListener('input', () => renderMenu(input.value));
@@ -14992,12 +16102,18 @@ function initRlsCombos() {
       sel.value = item.getAttribute('data-value') || '';
       input.value = item.textContent;
       menu.hidden = true;
+      resetRlsComboMenu(menu);
+      setRlsFilterPanelOpen(false);
       realisasiPage = 1;
       if (selId === 'rls-filter-sub') onRealisasiSubChange();
       else scheduleRealisasiLoad();
     });
     input.addEventListener('blur', () => {
-      setTimeout(() => { menu.hidden = true; }, 160);
+      setTimeout(() => {
+        menu.hidden = true;
+        resetRlsComboMenu(menu);
+        setRlsFilterPanelOpen(false);
+      }, 160);
       const match = [...sel.options].find(o => o.textContent === input.value || o.value === input.value);
       if (match) {
         sel.value = match.value;
@@ -15007,6 +16123,18 @@ function initRlsCombos() {
       }
     });
   });
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.rls-combo-menu:not([hidden])').forEach(menu => {
+      const wrap = menu._rlsComboHome || menu.closest('.rls-combo');
+      if (wrap) positionRlsComboMenu(wrap, menu);
+    });
+  });
+  document.addEventListener('scroll', () => {
+    document.querySelectorAll('.rls-combo-menu:not([hidden])').forEach(menu => {
+      const wrap = menu._rlsComboHome || menu.closest('.rls-combo');
+      if (wrap) positionRlsComboMenu(wrap, menu);
+    });
+  }, true);
 }
 
 function syncRlsComboInputs() {
@@ -15092,42 +16220,22 @@ function renderRealisasiTable(data) {
   }).join('');
 }
 
-function renderRealisasiPPTKTable(rows) {
-  const tbody = document.getElementById('rls-pptk-tbody');
-  if (!tbody) return;
-  if (!rows?.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Belum ada data PPTK</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map(r => {
-    const sisaCls = r.sisa >= 0 ? 'rls-sisa-pos' : 'rls-sisa-neg';
-    const pptkEnc = encodeURIComponent(r.pptk || '');
-    return `<tr onclick="openRealisasiPPTKDrawer('${pptkEnc}')" title="Klik untuk detail PPTK">
-      <td><strong>${escapeHtmlRegister(r.pptk || '—')}</strong></td>
-      <td style="font-size:12px">${escapeHtmlRegister(r.sub_kegiatan)}</td>
-      <td class="text-end">${formatRupiah(r.anggaran)}</td>
-      <td class="text-end">${formatRupiah(r.realisasi)}</td>
-      <td class="text-end ${sisaCls}">${formatRupiah(r.sisa)}</td>
-      <td class="text-end">${(r.pct || 0).toFixed(1)}%</td>
-      <td>${rlsBadgeHtml(r.status, r.status_label)}</td>
-    </tr>`;
-  }).join('');
-}
-
 function destroyRealisasiCharts() {
   Object.values(realisasiCharts).forEach(c => { try { c.destroy(); } catch (_) {} });
   realisasiCharts = {};
 }
 
 function rlsChartTheme() {
-  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  const light = document.documentElement.getAttribute('data-ui-mode') === 'light'
+    || document.documentElement.getAttribute('data-theme') === 'light'
+    || document.body?.dataset?.uiMode === 'light';
   return {
-    tick: light ? '#475569' : '#94a3b8',
+    tick: light ? '#334155' : '#94a3b8',
     grid: light ? 'rgba(15,23,42,.08)' : 'rgba(56,189,248,.08)',
-    tooltipBg: light ? '#fff' : '#0f172a',
+    tooltipBg: light ? '#ffffff' : '#0f172a',
     tooltipTitle: light ? '#0f172a' : '#f1f5f9',
     tooltipBody: light ? '#334155' : '#cbd5e1',
-    tooltipBorder: light ? '#e2e8f0' : 'rgba(56,189,248,.25)',
+    tooltipBorder: light ? '#cbd5e1' : 'rgba(56,189,248,.25)',
   };
 }
 
@@ -15289,123 +16397,29 @@ async function renderRealisasiCharts(data) {
   }
 
   const rekData = (data.chart_rekening || []).filter(x => (x.realisasi || 0) > 0);
-  rlsToggleChartEmpty('rls-chart-rekening', 'rls-chart-rekening-empty', !rekData.length);
-  const rekEl = document.getElementById('rls-chart-rekening');
-  if (rekEl && rekData.length) {
-    const rekColors = rekData.map((_, i) => `hsla(${200 + i * 14}, 82%, 58%, .78)`);
-    realisasiCharts.rek = new Chart(rekEl, {
-      type: 'bar',
-      data: {
-        labels: rekData.map(x => x.kode_rekening),
-        datasets: [{
-          label: 'Realisasi',
-          data: rekData.map(x => x.realisasi),
-          backgroundColor: rekColors,
-          hoverBackgroundColor: rekData.map((_, i) => `hsla(${200 + i * 14}, 90%, 52%, .95)`),
-          borderRadius: 6,
-          borderSkipped: false,
-        }],
-      },
-      options: {
-        ...base,
-        indexAxis: 'y',
-        plugins: {
-          ...base.plugins,
-          tooltip: {
-            ...base.plugins.tooltip,
-            callbacks: {
-              title(items) {
-                const i = items[0]?.dataIndex ?? 0;
-                return rekData[i]?.kode_rekening || '';
-              },
-              afterTitle(items) {
-                const i = items[0]?.dataIndex ?? 0;
-                return rekData[i]?.uraian || '';
-              },
-              label(ctx) {
-                return 'Realisasi: ' + rlsChartFullMoney(ctx.parsed.x);
-              },
-            },
-          },
-        },
-        scales: {
-          x: { beginAtZero: true, ticks: { color: theme.tick, callback: v => rlsChartMoney(v) }, grid: { color: theme.grid } },
-          y: { ticks: { color: theme.tick, font: { size: 10, weight: '600' } }, grid: { display: false } },
-        },
-      },
-    });
-  }
+  renderRealisasiTopRekeningTable(rekData);
+}
 
-  const stData = data.status_distrib || [];
-  const stTotal = stData.reduce((s, x) => s + (x.count || 0), 0);
-  rlsToggleChartEmpty('rls-chart-status', 'rls-chart-status-empty', !stTotal);
-  const stEl = document.getElementById('rls-chart-status');
-  if (stEl && stTotal) {
-    realisasiCharts.status = new Chart(stEl, {
-      type: 'doughnut',
-      data: {
-        labels: stData.map(x => x.label),
-        datasets: [{
-          data: stData.map(x => x.count),
-          backgroundColor: stData.map(x => RLS_STATUS_COLORS[x.status] || '#64748b'),
-          borderWidth: 2,
-          borderColor: theme.tooltipBg,
-          hoverOffset: 8,
-        }],
-      },
-      options: {
-        ...base,
-        cutout: '62%',
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              color: theme.tick,
-              font: { size: 11 },
-              padding: 10,
-              generateLabels(chart) {
-                const ds = chart.data.datasets[0];
-                return chart.data.labels.map((lbl, i) => ({
-                  text: `${lbl} (${ds.data[i]})`,
-                  fillStyle: ds.backgroundColor[i],
-                  hidden: false,
-                  index: i,
-                }));
-              },
-            },
-          },
-          tooltip: {
-            ...base.plugins.tooltip,
-            callbacks: {
-              label(ctx) {
-                const pct = stTotal ? ((ctx.raw / stTotal) * 100).toFixed(1) : '0.0';
-                return `${ctx.label}: ${ctx.raw} baris (${pct}%)`;
-              },
-            },
-          },
-        },
-      },
-      plugins: [{
-        id: 'rlsStatusCenter',
-        afterDraw(chart) {
-          const { ctx, chartArea } = chart;
-          if (!chartArea) return;
-          ctx.save();
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const cx = (chartArea.left + chartArea.right) / 2;
-          const cy = (chartArea.top + chartArea.bottom) / 2;
-          ctx.fillStyle = theme.tick;
-          ctx.font = '600 11px system-ui,sans-serif';
-          ctx.fillText('Total', cx, cy - 10);
-          ctx.fillStyle = theme.tooltipTitle;
-          ctx.font = '800 20px system-ui,sans-serif';
-          ctx.fillText(String(stTotal), cx, cy + 10);
-          ctx.restore();
-        },
-      }],
-    });
+function renderRealisasiTopRekeningTable(rows) {
+  const tbody = document.getElementById('rls-top-rek-tbody');
+  if (!tbody) return;
+  if (!rows?.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Belum ada realisasi per kode rekening</td></tr>';
+    return;
   }
+  tbody.innerHTML = rows.map((r, i) => {
+    const sisaCls = (r.sisa ?? 0) >= 0 ? 'rls-sisa-pos' : 'rls-sisa-neg';
+    return `<tr>
+      <td class="table-num">${i + 1}</td>
+      <td><code>${escapeHtmlRegister(r.kode_rekening)}</code></td>
+      <td style="font-size:12px;max-width:280px">${escapeHtmlRegister(r.uraian || '—')}</td>
+      <td class="text-end">${formatRupiah(r.anggaran || 0)}</td>
+      <td class="text-end"><span class="badge-rupiah">${formatRupiah(r.realisasi || 0)}</span></td>
+      <td class="text-end ${sisaCls}">${formatRupiah(r.sisa || 0)}</td>
+      <td class="text-end">${(r.pct || 0).toFixed(1)}%</td>
+      <td>${rlsBadgeHtml(r.status, r.status_label)}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderRealisasiMeta(data) {
@@ -15437,7 +16451,6 @@ async function loadRealisasi(force = false) {
     renderRealisasiSummary(data.summary);
     renderOverBudgetList(data.over_budget_rows);
     renderRealisasiTable(data);
-    renderRealisasiPPTKTable(data.pptk_rows);
     renderRealisasiMeta(data);
     await renderRealisasiCharts(data);
     touchPage('realisasi');
@@ -15483,79 +16496,346 @@ async function openRealisasiDrawer(encodedRowKey) {
   }
 }
 
-async function openRealisasiPPTKDrawer(encodedPptk) {
-  const pptk = decodeURIComponent(encodedPptk || '');
-  document.getElementById('rls-filter-pptk').value = pptk;
-  realisasiPage = 1;
-  await loadRealisasi(false);
-  const rows = (realisasiReportCache?.pptk_rows || []).filter(r => r.pptk === pptk);
-  const agg = rows.reduce((a, r) => ({
-    anggaran: a.anggaran + r.anggaran, realisasi: a.realisasi + r.realisasi, count: a.count + r.count, subs: a.subs + (r.sub_kegiatan ? 1 : 0),
-  }), { anggaran: 0, realisasi: 0, count: 0, subs: rows.length });
-  const kodeCount = rows.reduce((n, r) => n + (r.kode_count || 0), 0);
-  document.getElementById('rls-drawer-title').textContent = 'Detail PPTK — ' + pptk;
-  document.getElementById('rls-drawer-info').innerHTML = `
-    <dt>PPTK</dt><dd>${escapeHtmlRegister(pptk)}</dd>
-    <dt>Jumlah Sub Kegiatan</dt><dd>${agg.subs}</dd>
-    <dt>Jumlah Kode Rekening</dt><dd>${kodeCount}</dd>
-    <dt>Total Anggaran</dt><dd>${formatRupiah(agg.anggaran)}</dd>`;
-  document.getElementById('rls-drawer-summary').innerHTML = `
-    <dt>Total Realisasi</dt><dd>${formatRupiah(agg.realisasi)}</dd>
-    <dt>Sisa Anggaran</dt><dd>${formatRupiah(agg.anggaran - agg.realisasi)}</dd>
-    <dt>Persentase</dt><dd>${agg.anggaran ? ((agg.realisasi / agg.anggaran) * 100).toFixed(1) : '0.0'}%</dd>`;
-  document.getElementById('rls-drawer').classList.add('open');
-  document.getElementById('rls-drawer-backdrop').classList.add('open');
-  try {
-    const res = await apiFetch(API + '/realisasi/transactions?' + buildRealisasiQuery({ pptk, page: '', page_size: '' }));
-    const payload = await res.json();
-    const txs = payload.transactions || [];
-    document.getElementById('rls-drawer-trx').innerHTML = txs.length ? txs.map(t => `<tr>
-      <td style="font-size:12px">${escapeHtmlRegister(t.tanggal)}</td>
-      <td style="font-size:11px">${escapeHtmlRegister(t.no_bpk || '—')}</td>
-      <td style="font-size:12px">${escapeHtmlRegister(t.uraian || t.pekerjaan || '—')}</td>
-      <td class="text-end">${formatRupiah(t.nilai)}</td>
-      <td style="font-size:12px">${escapeHtmlRegister(t.pptk || '—')}</td>
-    </tr>`).join('') : '<tr><td colspan="5" class="text-muted">Tidak ada transaksi</td></tr>';
-    document.getElementById('rls-drawer-total').textContent = formatRupiah(payload.total || 0);
-  } catch (err) {
-    document.getElementById('rls-drawer-trx').innerHTML = `<tr><td colspan="5" class="text-danger">${escapeHtmlRegister(err.message)}</td></tr>`;
-  }
-}
-
 function closeRealisasiDrawer() {
   document.getElementById('rls-drawer')?.classList.remove('open');
   document.getElementById('rls-drawer-backdrop')?.classList.remove('open');
 }
 
-async function fillRealisasiPrint() {
+const RLS_A4_LANDSCAPE_W_MM = 297;
+const RLS_A4_LANDSCAPE_H_MM = 210;
+
+function getRealisasiDicetakDate() {
+  return new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function getRealisasiPrintMeta() {
   syncPortalPejabat();
   const f = getRealisasiFilterParams();
   const data = realisasiReportCache;
-  const allRows = await fetchRealisasiAllRows();
   const portalTitle = (PORTAL_APPS[selectedPortalApp]?.label || 'SIPKEU').toUpperCase();
-  document.getElementById('rls-print-title').textContent = portalTitle;
-  document.getElementById('rls-print-tahun').textContent = f.tahun || data?.tahun_label || DB.tahun || 2026;
-  document.getElementById('rls-print-sub').textContent = f.sub_kegiatan || 'Semua';
-  document.getElementById('rls-print-kode').textContent = f.kode_rekening || 'Semua';
-  document.getElementById('rls-print-pptk').textContent = f.pptk || 'Semua';
+  const tahun = f.tahun || data?.tahun_label || DB.tahun || 2026;
   const bulanLabel = f.bulan ? (document.getElementById('rls-filter-bulan')?.selectedOptions?.[0]?.text || f.bulan) : 'Semua';
   let periode = bulanLabel;
-  if (f.dari || f.sampai) {
-    periode = `${f.dari || '…'} – ${f.sampai || '…'}`;
+  if (f.dari || f.sampai) periode = `${f.dari || '…'} – ${f.sampai || '…'}`;
+  return {
+    portalTitle,
+    tahun,
+    f,
+    periode,
+    tanggal: getRealisasiDicetakDate(),
+  };
+}
+
+function buildRealisasiTitleBlock(meta) {
+  return `<div class="rls-doc-title">
+    <h4>${escapeHtmlRegister(meta.portalTitle)}</h4>
+    <p class="rls-doc-subtitle">LAPORAN REALISASI ANGGARAN</p>
+    <p class="rls-doc-meta">PEMERINTAH KOTA BATAM — DINAS PENDIDIKAN · TA ${escapeHtmlRegister(String(meta.tahun))}</p>
+  </div>`;
+}
+
+function buildRealisasiFilterBlock(meta) {
+  return `<div class="rls-filter-line">
+    <div>Sub Kegiatan: ${escapeHtmlRegister(meta.f.sub_kegiatan || 'Semua')} · Kode Rekening: ${escapeHtmlRegister(meta.f.kode_rekening || 'Semua')}</div>
+    <div>Periode: ${escapeHtmlRegister(meta.periode)} · PPTK: ${escapeHtmlRegister(meta.f.pptk || 'Semua')}</div>
+  </div>`;
+}
+
+function buildRealisasiPageHeader(meta, pageNum, totalPages, isFirstPage) {
+  if (isFirstPage) {
+    return `${buildRealisasiTitleBlock(meta)}${buildRealisasiFilterBlock(meta)}
+      <div class="rls-meta"><div>Dicetak: ${escapeHtmlRegister(meta.tanggal)} · Hal. ${pageNum} / ${totalPages}</div></div>`;
   }
-  document.getElementById('rls-print-periode').textContent = periode;
-  document.getElementById('rls-print-tanggal').textContent = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-  document.getElementById('rls-print-pa-nama').textContent = DB.pa?.nama || '—';
-  document.getElementById('rls-print-pa-nip').textContent = DB.pa?.nip || '—';
-  document.getElementById('rls-print-bend-nama').textContent = DB.bendahara?.nama || '—';
-  document.getElementById('rls-print-bend-nip').textContent = DB.bendahara?.nip || '—';
+  return `<div class="rls-meta rls-meta-cont"><div>${escapeHtmlRegister(meta.portalTitle)} · Laporan Realisasi · Hal. ${pageNum} / ${totalPages}</div></div>`;
+}
+
+function getRealisasiTheadHtml() {
+  return `<thead><tr>
+    <th style="width:3%">No</th>
+    <th style="width:16%">Sub Kegiatan</th>
+    <th style="width:7%">Kode Rek.</th>
+    <th style="width:22%">Uraian</th>
+    <th style="width:13%">PPTK</th>
+    <th style="width:11%">Anggaran</th>
+    <th style="width:11%">Realisasi</th>
+    <th style="width:10%">Sisa</th>
+    <th style="width:4%">%</th>
+  </tr></thead>`;
+}
+
+function buildRealisasiRowHtml(r, rowNo) {
+  return `<tr>
+    <td class="rls-c">${rowNo}</td>
+    <td>${escapeHtmlRegister(r.sub_kegiatan)}</td>
+    <td class="rls-c"><code>${escapeHtmlRegister(r.kode_rekening)}</code></td>
+    <td>${escapeHtmlRegister(r.uraian_rekening)}</td>
+    <td>${escapeHtmlRegister(r.pptk)}</td>
+    <td class="rls-num">${formatRupiah(r.anggaran)}</td>
+    <td class="rls-num">${formatRupiah(r.realisasi)}</td>
+    <td class="rls-num">${formatRupiah(r.sisa)}</td>
+    <td class="rls-c">${(r.pct || 0).toFixed(1)}%</td>
+  </tr>`;
+}
+
+function buildRealisasiTableBodyHtml(rows, startIndex = 0) {
+  return rows.map((r, i) => buildRealisasiRowHtml(r, startIndex + i + 1)).join('');
+}
+
+function buildRealisasiTableFootHtml(rows) {
+  if (!rows.length) return '';
   let totAng = 0, totReal = 0, totSisa = 0;
-  document.getElementById('rls-print-tbody').innerHTML = allRows.map((r, i) => {
-    totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa;
-    return `<tr><td>${i + 1}</td><td>${escapeHtmlRegister(r.sub_kegiatan)}</td><td>${escapeHtmlRegister(r.kode_rekening)}</td><td>${escapeHtmlRegister(r.uraian_rekening)}</td><td>${escapeHtmlRegister(r.pptk)}</td><td class="text-end">${formatRupiah(r.anggaran)}</td><td class="text-end">${formatRupiah(r.realisasi)}</td><td class="text-end">${formatRupiah(r.sisa)}</td><td class="text-end">${(r.pct || 0).toFixed(1)}%</td></tr>`;
-  }).join('');
+  rows.forEach(r => { totAng += r.anggaran; totReal += r.realisasi; totSisa += r.sisa; });
   const totPct = totAng ? ((totReal / totAng) * 100).toFixed(1) : '0.0';
-  document.getElementById('rls-print-tfoot').innerHTML = `<tr><td colspan="5" class="text-end"><strong>JUMLAH</strong></td><td class="text-end"><strong>${formatRupiah(totAng)}</strong></td><td class="text-end"><strong>${formatRupiah(totReal)}</strong></td><td class="text-end"><strong>${formatRupiah(totSisa)}</strong></td><td class="text-end"><strong>${totPct}%</strong></td></tr>`;
+  return `<tr>
+    <td colspan="5" class="rls-foot-label"><strong>JUMLAH</strong></td>
+    <td class="rls-num"><strong>${formatRupiah(totAng)}</strong></td>
+    <td class="rls-num"><strong>${formatRupiah(totReal)}</strong></td>
+    <td class="rls-num"><strong>${formatRupiah(totSisa)}</strong></td>
+    <td class="rls-c"><strong>${totPct}%</strong></td>
+  </tr>`;
+}
+
+function buildRealisasiSignatureHtml() {
+  syncPortalPejabat();
+  const cfg = getPortalAppConfig();
+  return `<div class="rls-ttd">
+    <div class="rls-ttd-box">
+      <div>${escapeHtmlRegister(cfg.paLabel)},</div>
+      <div class="rls-ttd-space"></div>
+      <div><strong>${escapeHtmlRegister(DB.pa?.nama || '—')}</strong></div>
+      <div style="font-size:7px">${escapeHtmlRegister(DB.pa?.nip || '—')}</div>
+    </div>
+    <div class="rls-ttd-box">
+      <div>${escapeHtmlRegister(cfg.bendaharaLabel)},</div>
+      <div class="rls-ttd-space"></div>
+      <div><strong>${escapeHtmlRegister(DB.bendahara?.nama || '—')}</strong></div>
+      <div style="font-size:7px">${escapeHtmlRegister(DB.bendahara?.nip || '—')}</div>
+    </div>
+  </div>`;
+}
+
+function ensureRealisasiMeasureHost() {
+  let host = document.getElementById('rls-measure-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'rls-measure-host';
+    host.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(host);
+  }
+  host.style.cssText = 'position:fixed;left:-16000px;top:0;z-index:-9999;width:277mm;visibility:hidden;pointer-events:none;background:#fff;';
+  return host;
+}
+
+function measureRealisasiBlockHeight(html) {
+  const host = ensureRealisasiMeasureHost();
+  host.innerHTML = `<div class="rls-page-inner">${html}</div>`;
+  const el = host.firstElementChild;
+  return el ? el.offsetHeight : 0;
+}
+
+function measureRealisasiTableHeight(rowHtmlList, includeTfoot, tfootHtml) {
+  const body = rowHtmlList.join('');
+  const tfoot = includeTfoot ? `<tfoot>${tfootHtml}</tfoot>` : '';
+  return measureRealisasiBlockHeight(`<table class="rls-table">${getRealisasiTheadHtml()}<tbody>${body}</tbody>${tfoot}</table>`);
+}
+
+function paginateRealisasiRows(rows) {
+  if (!rows.length) return [[]];
+  const pageH = mmToPx(RLS_A4_LANDSCAPE_H_MM - 10);
+  const meta = getRealisasiPrintMeta();
+  const headerFirstH = measureRealisasiBlockHeight(buildRealisasiPageHeader(meta, 1, 1, true));
+  const headerContH = measureRealisasiBlockHeight(buildRealisasiPageHeader(meta, 2, 2, false));
+  const ttdH = measureRealisasiBlockHeight(buildRealisasiSignatureHtml());
+  const tfootHtml = buildRealisasiTableFootHtml(rows);
+  const theadOnlyH = measureRealisasiTableHeight([], false, '');
+  const tfootOnlyH = measureRealisasiTableHeight([], true, tfootHtml) - theadOnlyH;
+  const rowHtmls = rows.map((r, i) => buildRealisasiRowHtml(r, i + 1));
+  const buffer = 4;
+  const chunks = [];
+  let i = 0;
+
+  while (i < rows.length) {
+    const isFirstPage = chunks.length === 0;
+    const headerH = isFirstPage ? headerFirstH : headerContH;
+    const left = rows.length - i;
+    const remainingBodyH = measureRealisasiTableHeight(rowHtmls.slice(i), true, tfootHtml);
+    if (headerH + remainingBodyH + ttdH + buffer <= pageH) {
+      chunks.push(rows.slice(i));
+      break;
+    }
+
+    const availMid = pageH - headerH - theadOnlyH - buffer;
+    let lo = 1, hi = left, best = 1;
+    while (lo <= hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      const h = measureRealisasiTableHeight(rowHtmls.slice(i, i + mid), false, '');
+      if (h <= availMid) { best = mid; lo = mid + 1; } else { hi = mid - 1; }
+    }
+
+    if (best >= left) {
+      const fitLast = pageH - headerH - theadOnlyH - tfootOnlyH - ttdH - buffer;
+      lo = 1; hi = left; best = 1;
+      while (lo <= hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        const h = measureRealisasiTableHeight(rowHtmls.slice(i, i + mid), false, '');
+        if (h <= fitLast) { best = mid; lo = mid + 1; } else { hi = mid - 1; }
+      }
+    }
+
+    chunks.push(rows.slice(i, i + best));
+    i += best;
+  }
+  return chunks.length ? chunks : [[]];
+}
+
+function buildRealisasiPagesHtml(rows) {
+  const meta = getRealisasiPrintMeta();
+  const chunks = paginateRealisasiRows(rows);
+  const totalPages = chunks.length;
+  const tfootHtml = buildRealisasiTableFootHtml(rows);
+  let startIndex = 0;
+
+  return chunks.map((chunk, idx) => {
+    const pageNum = idx + 1;
+    const isFirstPage = pageNum === 1;
+    const isLast = pageNum === totalPages;
+    const tbody = buildRealisasiTableBodyHtml(chunk, startIndex);
+    startIndex += chunk.length;
+    const tfoot = isLast ? `<tfoot>${tfootHtml}</tfoot>` : '';
+    const signature = isLast ? buildRealisasiSignatureHtml() : '';
+    return `<div class="rls-page">
+      <div class="rls-page-inner">
+        ${buildRealisasiPageHeader(meta, pageNum, totalPages, isFirstPage)}
+        <table class="rls-table">${getRealisasiTheadHtml()}<tbody>${tbody}</tbody>${tfoot}</table>
+        ${signature}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fillRealisasiPrint(rows) {
+  const el = document.getElementById('realisasi-print');
+  if (!el) return;
+  el.innerHTML = rows.length ? buildRealisasiPagesHtml(rows) : `
+    <div class="rls-page"><div class="rls-page-inner">
+      ${buildRealisasiPageHeader(getRealisasiPrintMeta(), 1, 1, true)}
+      <table class="rls-table">${getRealisasiTheadHtml()}<tbody><tr><td colspan="9" class="rls-c">Belum ada data realisasi</td></tr></tbody></table>
+    </div></div>`;
+}
+
+async function buildRealisasiCapturePages(rows) {
+  fillRealisasiPrint(rows);
+  const sourcePages = [...document.querySelectorAll('#realisasi-print .rls-page')];
+  if (!sourcePages.length) throw new Error('Template realisasi tidak ditemukan.');
+  const host = document.getElementById('rls-capture-host');
+  if (!host) throw new Error('Capture host realisasi tidak ditemukan.');
+  host.innerHTML = '';
+  const clones = sourcePages.map(page => {
+    const clone = page.cloneNode(true);
+    clone.style.display = 'flex';
+    clone.style.visibility = 'visible';
+    clone.style.background = '#fff';
+    clone.style.color = '#111';
+    clone.style.width = RLS_A4_LANDSCAPE_W_MM + 'mm';
+    clone.style.minHeight = RLS_A4_LANDSCAPE_H_MM + 'mm';
+    clone.style.maxHeight = RLS_A4_LANDSCAPE_H_MM + 'mm';
+    clone.style.boxShadow = 'none';
+    host.appendChild(clone);
+    return clone;
+  });
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  return clones;
+}
+
+function clearRealisasiCaptureNode() {
+  const host = document.getElementById('rls-capture-host');
+  if (host) host.innerHTML = '';
+}
+
+function realisasiPdfFilename() {
+  const f = getRealisasiFilterParams();
+  const tahun = f.tahun || realisasiReportCache?.tahun_label || DB.tahun || 2026;
+  return `SIPKEU_Realisasi_${tahun}.pdf`;
+}
+
+async function renderRealisasiPageCanvas(pageEl) {
+  await ensurePdfLibs();
+  const h2c = window.html2canvas;
+  const w = pageEl.offsetWidth || Math.round(mmToPx(RLS_A4_LANDSCAPE_W_MM));
+  const h = pageEl.offsetHeight || Math.round(mmToPx(RLS_A4_LANDSCAPE_H_MM));
+  if (!w || !h) throw new Error('Render realisasi gagal (ukuran halaman nol).');
+  const canvas = await h2c(pageEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    width: w,
+    height: h,
+    windowWidth: w,
+    windowHeight: h,
+    scrollX: 0,
+    scrollY: 0,
+    logging: false,
+    onclone(doc) {
+      doc.querySelectorAll('.rls-page, .rls-page *').forEach(el => {
+        el.style.setProperty('font-family', 'Arial, sans-serif', 'important');
+      });
+    },
+  });
+  if (!canvas?.width) throw new Error('Render realisasi gagal (canvas kosong).');
+  return canvas;
+}
+
+async function saveRealisasiPdfFromPages(pages, filename) {
+  const pageWpt = 841.89;
+  const pageHpt = 595.28;
+
+  if (window.PDFLib?.PDFDocument) {
+    const pdfDoc = await PDFLib.PDFDocument.create();
+    for (const pageEl of pages) {
+      const canvas = await renderRealisasiPageCanvas(pageEl);
+      const page = pdfDoc.addPage([pageWpt, pageHpt]);
+      let img;
+      const jpgUrl = canvas.toDataURL('image/jpeg', 0.92);
+      try {
+        img = await pdfDoc.embedJpg(dataUrlToBytes(jpgUrl));
+      } catch {
+        img = await pdfDoc.embedPng(dataUrlToBytes(canvas.toDataURL('image/png')));
+      }
+      page.drawImage(img, { x: 0, y: 0, width: pageWpt, height: pageHpt });
+    }
+    downloadPdfBlob(await pdfDoc.save(), filename);
+    return;
+  }
+
+  const JsPDF = window.jspdf?.jsPDF || (typeof window.jsPDF === 'function' ? window.jsPDF : null);
+  if (!JsPDF) throw new Error('Library PDF belum dimuat. Tekan Ctrl+F5.');
+  const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+  for (let i = 0; i < pages.length; i++) {
+    if (i > 0) pdf.addPage('a4', 'landscape');
+    const canvas = await renderRealisasiPageCanvas(pages[i]);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, RLS_A4_LANDSCAPE_W_MM, RLS_A4_LANDSCAPE_H_MM);
+  }
+  pdf.save(filename);
+}
+
+async function saveRealisasiPDF(rows, { btn } = {}) {
+  await ensurePdfLibs();
+  if (!rows.length) { alert('Belum ada data realisasi.'); return; }
+  const targetBtn = btn || null;
+  const orig = targetBtn?.innerHTML;
+  if (targetBtn) { targetBtn.disabled = true; targetBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan…'; }
+  let pages;
+  try {
+    pages = await buildRealisasiCapturePages(rows);
+    await saveRealisasiPdfFromPages(pages, realisasiPdfFilename());
+  } catch (err) {
+    console.error('Simpan realisasi PDF gagal:', err);
+    alert('Gagal menyimpan PDF realisasi: ' + (err.message || err));
+  } finally {
+    clearRealisasiCaptureNode();
+    if (targetBtn) { targetBtn.disabled = false; targetBtn.innerHTML = orig; }
+  }
 }
 
 async function fetchRealisasiAllRows() {
@@ -15580,13 +16860,97 @@ async function exportRealisasiExcel() {
   XLSX.writeFile(wb, `SIPKEU_Realisasi_${f.tahun || DB.tahun || 2026}.xlsx`);
 }
 
-function cetakRealisasiPDF() {
+let realisasiPdfPreviewRows = [];
+let rlsPreviewZoomLevel = 1;
+const RLS_PREVIEW_ZOOM_MIN = 0.5;
+const RLS_PREVIEW_ZOOM_MAX = 1.75;
+const RLS_PREVIEW_ZOOM_STEP = 0.1;
+
+function applyRlsPreviewZoom() {
+  const stage = document.getElementById('rls-pdf-preview-stage');
+  const label = document.getElementById('rls-pdf-preview-zoom-label');
+  const btnOut = document.getElementById('rls-pdf-zoom-out');
+  const btnIn = document.getElementById('rls-pdf-zoom-in');
+  if (!stage) return;
+  if ('zoom' in stage.style) {
+    stage.style.zoom = String(rlsPreviewZoomLevel);
+    stage.style.transform = '';
+  } else {
+    stage.style.zoom = '';
+    stage.style.transform = `scale(${rlsPreviewZoomLevel})`;
+    stage.style.transformOrigin = 'top center';
+  }
+  if (label) label.textContent = `${Math.round(rlsPreviewZoomLevel * 100)}%`;
+  if (btnOut) btnOut.disabled = rlsPreviewZoomLevel <= RLS_PREVIEW_ZOOM_MIN + 0.001;
+  if (btnIn) btnIn.disabled = rlsPreviewZoomLevel >= RLS_PREVIEW_ZOOM_MAX - 0.001;
+}
+
+function rlsPreviewZoomSet(level) {
+  rlsPreviewZoomLevel = Math.min(RLS_PREVIEW_ZOOM_MAX, Math.max(RLS_PREVIEW_ZOOM_MIN, level));
+  applyRlsPreviewZoom();
+}
+
+function rlsPreviewZoomIn() {
+  rlsPreviewZoomSet(Math.round((rlsPreviewZoomLevel + RLS_PREVIEW_ZOOM_STEP) * 10) / 10);
+}
+
+function rlsPreviewZoomOut() {
+  rlsPreviewZoomSet(Math.round((rlsPreviewZoomLevel - RLS_PREVIEW_ZOOM_STEP) * 10) / 10);
+}
+
+function rlsPreviewZoomReset() {
+  rlsPreviewZoomSet(1);
+}
+
+function closeRealisasiPdfPreview() {
+  document.getElementById('rls-pdf-preview-backdrop')?.classList.remove('open');
+  document.getElementById('rls-pdf-preview-modal')?.classList.remove('open');
+  rlsPreviewZoomReset();
+}
+
+async function previewRealisasiPDF() {
   if (!realisasiReportCache) { alert('Belum ada data realisasi.'); return; }
-  fillRealisasiPrint().then(() => {
-  document.body.classList.add('realisasi-printing');
-  window.print();
-  setTimeout(() => document.body.classList.remove('realisasi-printing'), 500);
-  });
+  const btn = document.querySelector('#page-realisasi .btn-outline-danger');
+  const orig = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memuat…'; }
+  try {
+    const rows = await fetchRealisasiAllRows();
+    if (!rows.length) { alert('Belum ada data realisasi.'); return; }
+    realisasiPdfPreviewRows = rows;
+    fillRealisasiPrint(rows);
+    const stage = document.getElementById('rls-pdf-preview-stage');
+    if (stage) stage.innerHTML = document.getElementById('realisasi-print')?.innerHTML || '';
+    rlsPreviewZoomReset();
+    const meta = getRealisasiPrintMeta();
+    const metaEl = document.getElementById('rls-pdf-preview-meta');
+    if (metaEl) {
+      metaEl.textContent = `${meta.portalTitle} · TA ${meta.tahun} · ${rows.length} baris · ${document.querySelectorAll('#realisasi-print .rls-page').length} halaman`;
+    }
+    document.getElementById('rls-pdf-preview-backdrop')?.classList.add('open');
+    document.getElementById('rls-pdf-preview-modal')?.classList.add('open');
+  } catch (err) {
+    alert('Gagal memuat preview PDF: ' + (err.message || err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+  }
+}
+
+async function saveRealisasiPdfFromPreview() {
+  if (!realisasiPdfPreviewRows.length) { alert('Belum ada data preview.'); return; }
+  await saveRealisasiPDF(realisasiPdfPreviewRows, { btn: document.getElementById('btn-rls-save-pdf') });
+}
+
+function printRealisasiFromPreview() {
+  if (!realisasiPdfPreviewRows.length) { alert('Belum ada data preview.'); return; }
+  let styleEl = document.getElementById('realisasi-print-page-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'realisasi-print-page-style';
+    styleEl.textContent = '@media print { @page { size: A4 landscape; margin: 5mm; } }';
+    document.head.appendChild(styleEl);
+  }
+  closeRealisasiPdfPreview();
+  openPrintPreview('realisasi-printing', () => fillRealisasiPrint(realisasiPdfPreviewRows));
 }
 
 // ── Register Pengeluaran ─────────────────────────────────────────────────

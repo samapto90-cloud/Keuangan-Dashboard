@@ -945,6 +945,9 @@ func main() {
 
         mux.HandleFunc("/data/portals/status", cors(handlePortalStatusPublic))
         mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
+        mux.HandleFunc("/data/operators", cors(requireAuth(requirePortalAdmin(handleOperators))))
+        mux.HandleFunc("/data/operators/perms", cors(requireAuth(requirePortalAdmin(handleOperatorPerms))))
+        mux.HandleFunc("/data/operators/", cors(requireAuth(requirePortalAdmin(handleOperatorByID))))
         mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
         mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
         mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))

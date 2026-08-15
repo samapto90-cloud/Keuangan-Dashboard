@@ -15,12 +15,13 @@ const passwordMask = "********"
 var sipkeuPortalIDs = []string{"sekretariat", "paud", "sd", "smp", "kas-belanja", "gaji-asn"}
 
 type PortalAuthConfig struct {
-	AdminUsername    string `json:"admin_username"`
-	AdminPassword    string `json:"admin_password"`
-	AdminName        string `json:"admin_name"`
-	OperatorUsername string `json:"operator_username"`
-	OperatorPassword string `json:"operator_password"`
-	OperatorName     string `json:"operator_name"`
+	AdminUsername    string           `json:"admin_username"`
+	AdminPassword    string           `json:"admin_password"`
+	AdminName        string           `json:"admin_name"`
+	OperatorUsername string           `json:"operator_username"`
+	OperatorPassword string           `json:"operator_password"`
+	OperatorName     string           `json:"operator_name"`
+	Operators        []PortalOperator `json:"operators,omitempty"`
 }
 
 type OperatorPermissionSet struct {
@@ -65,6 +66,7 @@ func defaultOperatorPerms() OperatorPermissionSet {
 		EditTransaksi:   true,
 		DeleteTransaksi: true,
 		ViewRegister:    true,
+		ViewRekap:       true,
 		CetakKwitansi:   true,
 		CetakNp2d:       true,
 	}
@@ -85,6 +87,7 @@ func clearOperatorAuth(cfg *PortalAuthConfig) {
 	cfg.OperatorUsername = ""
 	cfg.OperatorPassword = ""
 	cfg.OperatorName = ""
+	cfg.Operators = []PortalOperator{}
 }
 
 func isAdminOnlyPortal(id string) bool {
@@ -192,6 +195,13 @@ func mergeSystemSettings(s *SystemSettings) {
 		if _, ok := s.Portals[id]; !ok {
 			s.Portals[id] = def.Portals[id]
 		}
+		cfg := s.Portals[id]
+		if isAdminOnlyPortal(id) {
+			clearOperatorAuth(&cfg)
+		} else {
+			migratePortalOperators(&cfg)
+		}
+		s.Portals[id] = cfg
 		if _, ok := s.PortalStatus[id]; !ok {
 			s.PortalStatus[id] = PortalStatusConfig{Enabled: true}
 		}
@@ -232,6 +242,17 @@ func hashPasswordsInSettings(s *SystemSettings) bool {
 				cfg.OperatorPassword = h
 				changed = true
 			}
+		}
+		for i := range cfg.Operators {
+			if strings.TrimSpace(cfg.Operators[i].Password) != "" && !isBcryptHash(cfg.Operators[i].Password) {
+				if h, err := hashPasswordStore(cfg.Operators[i].Password); err == nil && h != "" {
+					cfg.Operators[i].Password = h
+					changed = true
+				}
+			}
+		}
+		if migratePortalOperators(&cfg) {
+			changed = true
 		}
 		s.Portals[id] = cfg
 	}
@@ -286,14 +307,14 @@ func authenticatePortalUser(username, password, appModule string) (UserAccount, 
 			Name:     firstNonEmpty(cfg.AdminName, "Administrator"),
 		}, true
 	}
-	if !isAdminOnlyPortal(appModule) &&
-		username == strings.ToLower(strings.TrimSpace(cfg.OperatorUsername)) &&
-		passwordMatches(cfg.OperatorPassword, password) {
-		return UserAccount{
-			Password: cfg.OperatorPassword,
-			Role:     "operator",
-			Name:     firstNonEmpty(cfg.OperatorName, "Operator"),
-		}, true
+	if !isAdminOnlyPortal(appModule) {
+		if op, found := findOperatorByUsername(cfg, username); found && passwordMatches(op.Password, password) {
+			return UserAccount{
+				Password: op.Password,
+				Role:     "operator",
+				Name:     firstNonEmpty(op.Name, "Operator"),
+			}, true
+		}
 	}
 	return UserAccount{}, false
 }
@@ -407,6 +428,7 @@ func maskPortalAuth(cfg PortalAuthConfig) map[string]interface{} {
 		"admin_username": cfg.AdminUsername,
 		"admin_password": passwordMask,
 		"admin_name":     cfg.AdminName,
+		"operators":      maskOperators(cfg.Operators),
 	}
 	if strings.TrimSpace(cfg.OperatorUsername) != "" {
 		out["operator_username"] = cfg.OperatorUsername
@@ -496,6 +518,33 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 					if strings.TrimSpace(p.OperatorName) != "" {
 						existing.OperatorName = strings.TrimSpace(p.OperatorName)
 					}
+					migratePortalOperators(&existing)
+					// Keep Super Admin single-slot form in sync with operators list.
+					if strings.TrimSpace(existing.OperatorUsername) != "" {
+						synced := false
+						for i := range existing.Operators {
+							if normalizeOperatorUsername(existing.Operators[i].Username) == normalizeOperatorUsername(existing.OperatorUsername) {
+								existing.Operators[i].Username = existing.OperatorUsername
+								existing.Operators[i].Name = firstNonEmpty(existing.OperatorName, existing.Operators[i].Name)
+								if pwd := strings.TrimSpace(p.OperatorPassword); pwd != "" && pwd != passwordMask {
+									existing.Operators[i].Password = existing.OperatorPassword
+								}
+								existing.Operators[i].Enabled = true
+								synced = true
+								break
+							}
+						}
+						if !synced {
+							existing.Operators = append(existing.Operators, PortalOperator{
+								ID:       newOperatorID(),
+								Username: existing.OperatorUsername,
+								Password: existing.OperatorPassword,
+								Name:     firstNonEmpty(existing.OperatorName, "Operator"),
+								Enabled:  true,
+							})
+						}
+					}
+					syncLegacyOperatorFields(&existing)
 				}
 				cur.Portals[id] = existing
 			}
