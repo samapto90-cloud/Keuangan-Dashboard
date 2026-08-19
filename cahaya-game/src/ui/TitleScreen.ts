@@ -188,27 +188,35 @@ export class TitleScreen {
     this.root.innerHTML = this.formHTML("Masuk", "login", false, false);
   }
 
+  private compact(): boolean {
+    return document.body.classList.contains("embed");
+  }
+
   private selectHTML(): string {
     const p = this.profile!;
+    const compact = this.compact();
     const journey = p.newJourney
       ? `<button type="button" data-title="new">NEW JOURNEY</button>`
-      : `<button type="button" data-title="continue">CONTINUE JOURNEY</button>
+      : `<button type="button" data-title="continue">CONTINUE JOURNEY</button>`;
+    const meta = compact
+      ? `<p class="title-ver">Lv ${p.level} · Ch ${p.chapterIndex} · ${escapeHtml(p.checkpointName || "Desa Awal")}</p>`
+      : `<p class="title-ver">${GAME_VERSION} · ${escapeHtml(p.username)} · Lv ${p.level}</p>
          <p class="title-ver">Chapter ${p.chapterIndex} · ${escapeHtml(p.chapterTitle)}<br/>Checkpoint: ${escapeHtml(p.checkpointName || "Desa Awal")}</p>`;
     return `
       <div class="title-card">
-        <p class="title-kicker">ORIGINAL WORLD · ${GAME_PHASE}</p>
-        <h1>${GAME_TITLE}</h1>
-        <p class="title-ver">${GAME_VERSION} · ${escapeHtml(p.username)} · Lv ${p.level}</p>
+        ${compact ? "" : `<p class="title-kicker">ORIGINAL WORLD · ${GAME_PHASE}</p><h1>${GAME_TITLE}</h1>`}
+        ${meta}
         <div class="title-actions">
           ${journey}
-          <button type="button" data-title="settings">PENGATURAN</button>
-          <button type="button" data-title="credits">KREDIT</button>
+          ${compact ? "" : `<button type="button" data-title="settings">PENGATURAN</button>
+          <button type="button" data-title="credits">KREDIT</button>`}
           <button type="button" data-title="logout">KELUAR</button>
         </div>
       </div>`;
   }
 
   private formHTML(title: string, action: string, email: boolean, confirm: boolean): string {
+    const compact = this.compact();
     const err = this.error ? `<p class="title-error">${escapeHtml(this.error)}</p>` : "";
     const extra = email
       ? `<input name="email" type="email" autocomplete="email" placeholder="Email" required />`
@@ -218,14 +226,15 @@ export class TitleScreen {
       : "";
     const links =
       action === "login"
-        ? `<button type="button" data-title="show-register">REGISTER</button>
-           <button type="button" data-title="show-forgot">FORGOT PASSWORD</button>`
+        ? compact
+          ? `<p class="title-mini-links"><button type="button" data-title="show-register">Daftar</button> · <button type="button" data-title="show-forgot">Lupa password</button></p>`
+          : `<button type="button" data-title="show-register">REGISTER</button>
+           <button type="button" data-title="show-forgot">FORGOT PASSWORD</button>
+           <button type="button" data-title="credits">KREDIT</button>`
         : `<button type="button" data-title="show-login">KEMBALI KE LOGIN</button>`;
     return `
       <div class="title-card">
-        <p class="title-kicker">ORIGINAL WORLD · ${GAME_PHASE}</p>
-        <h1>${GAME_TITLE}</h1>
-        <p class="title-ver">${title}</p>
+        ${compact ? "" : `<p class="title-kicker">ORIGINAL WORLD · ${GAME_PHASE}</p><h1>${GAME_TITLE}</h1><p class="title-ver">${title}</p>`}
         <form class="title-form" onsubmit="return false">
           <input name="user" type="text" autocomplete="username" placeholder="Username / Email" maxlength="32" required />
           ${extra}
@@ -235,9 +244,9 @@ export class TitleScreen {
         ${err}
         <div class="title-actions">
           <button type="button" data-title="${action}" ${this.busy ? "disabled" : ""}>${this.busy ? "..." : title.toUpperCase()}</button>
-          ${links}
-          <button type="button" data-title="credits">KREDIT</button>
+          ${compact ? "" : links}
         </div>
+        ${compact && action === "login" ? links : compact && action !== "login" ? `<p class="title-mini-links"><button type="button" data-title="show-login">Kembali</button></p>` : ""}
       </div>`;
   }
 

@@ -467,7 +467,8 @@
       right: max(14px, env(safe-area-inset-right, 0px));
       left: auto;
       z-index: 80;
-      width: min(300px, 42vw);
+      width: min(320px, calc(100vw - 28px));
+      min-width: 260px;
       max-width: 340px;
       pointer-events: auto;
       touch-action: none;
@@ -477,21 +478,10 @@
     body:not(:has(#portal-screen:not(.hidden))) .cahaya-console {
       display: none !important;
     }
-    .cahaya-console.is-dragging { z-index: 40; }
+    .cahaya-console.is-dragging { z-index: 90; }
     .cahaya-console-bar {
       cursor: grab;
       user-select: none;
-    }
-    .cahaya-console.is-dragging .cahaya-console-bar { cursor: grabbing; }
-    .cahaya-console-bezel {
-      border-radius: 18px;
-      padding: 8px;
-      background: linear-gradient(160deg, rgba(12, 24, 38, 0.88), rgba(8, 16, 28, 0.92));
-      border: 1px solid rgba(232, 184, 109, 0.38);
-      box-shadow: 0 16px 40px rgba(0,0,0,.4), 0 0 24px rgba(26,166,160,.18);
-      backdrop-filter: blur(16px) saturate(1.2);
-    }
-    .cahaya-console-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -499,12 +489,30 @@
       margin-bottom: 6px;
       padding: 0 2px 2px;
     }
+    .cahaya-console.is-dragging .cahaya-console-bar { cursor: grabbing; }
+    .cahaya-console-bezel {
+      border-radius: 16px;
+      padding: 8px;
+      background: linear-gradient(160deg, rgba(12, 24, 38, 0.92), rgba(8, 16, 28, 0.95));
+      border: 1px solid rgba(232, 184, 109, 0.38);
+      box-shadow: 0 16px 40px rgba(0,0,0,.4), 0 0 24px rgba(26,166,160,.18);
+      backdrop-filter: blur(16px) saturate(1.2);
+    }
+    .cahaya-console-title {
+      min-width: 0;
+      flex: 1;
+    }
     .cahaya-console-bar strong {
       font-family: var(--aurora-font), system-ui, sans-serif;
+      display: block;
       font-size: 11px;
-      letter-spacing: .04em;
+      line-height: 1.25;
+      letter-spacing: .02em;
       color: #f4f8fc;
       font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .cahaya-console-bar span {
       display: block;
@@ -512,23 +520,30 @@
       color: #9ab0c4;
       font-weight: 500;
     }
-    .cahaya-console-actions { display: flex; gap: 6px; }
+    .cahaya-console-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
     .cahaya-console-btn {
       border: 1px solid rgba(255,255,255,.16);
-      background: rgba(26,166,160,.18);
+      background: rgba(26,166,160,.22);
       color: #e8f8f6;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 5px 9px;
       cursor: pointer;
+      white-space: nowrap;
+      line-height: 1.2;
     }
-    .cahaya-console-btn:hover { background: rgba(26,166,160,.32); }
+    .cahaya-console-btn:hover { background: rgba(26,166,160,.38); }
     .cahaya-console-screen {
       position: relative;
       border-radius: 12px;
       overflow: hidden;
-      aspect-ratio: 16 / 10;
+      aspect-ratio: 5 / 4;
+      min-height: 220px;
       background: #07111f;
       border: 1px solid rgba(255,255,255,.1);
     }
@@ -539,32 +554,18 @@
       height: 100%;
       border: 0;
       background: #07111f;
-      pointer-events: none;
+      pointer-events: auto;
     }
-    .cahaya-console.is-open .cahaya-console-screen iframe { pointer-events: auto; }
     .cahaya-console.is-open {
       inset: 0 !important;
       width: auto;
+      min-width: 0;
       max-width: none;
       padding: 18px;
       background: rgba(4, 10, 18, 0.55);
       touch-action: auto;
     }
     .cahaya-console.is-open .cahaya-console-bar { cursor: default; }
-    .cahaya-console-hint {
-      position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      z-index: 2;
-      text-align: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: #f4f8fc;
-      text-shadow: 0 1px 6px #000;
-      pointer-events: none;
-    }
-    .cahaya-console.is-open .cahaya-console-hint { display: none; }
     .cahaya-console.is-open .cahaya-console-bezel {
       height: 100%;
       display: flex;
@@ -577,8 +578,11 @@
       min-height: 0;
     }
     @media (max-width: 720px) {
-      .cahaya-console { width: min(210px, 46vw); }
-      .cahaya-console-bar strong { font-size: 10px; }
+      .cahaya-console {
+        width: min(300px, calc(100vw - 20px));
+        min-width: 0;
+      }
+      .cahaya-console-screen { min-height: 200px; }
     }
     body.fx-portal-home.portal-video-mode .portal-brand-minimal {
       display: flex;
@@ -8656,20 +8660,19 @@
   </div>
   <aside id="cahaya-console" class="cahaya-console" aria-label="Konsol Petualangan Menuju Cahaya">
     <div class="cahaya-console-bezel">
-      <div class="cahaya-console-bar">
-        <div>
-          <strong>Petualangan Menuju Cahaya</strong>
-          <span>Konsol Raka · Fase 1</span>
+        <div class="cahaya-console-bar">
+          <div class="cahaya-console-title">
+            <strong>Petualangan Menuju Cahaya</strong>
+            <span>Konsol Raka · Fase 1</span>
+          </div>
+          <div class="cahaya-console-actions">
+            <button type="button" class="cahaya-console-btn" id="cahaya-tab-btn">Tab baru</button>
+            <button type="button" class="cahaya-console-btn" id="cahaya-expand-btn" onclick="toggleCahayaConsole()">Perbesar</button>
+          </div>
         </div>
-        <div class="cahaya-console-actions">
-          <button type="button" class="cahaya-console-btn" id="cahaya-tab-btn">Tab baru</button>
-          <button type="button" class="cahaya-console-btn" id="cahaya-expand-btn" onclick="toggleCahayaConsole()">Perbesar</button>
+        <div class="cahaya-console-screen">
+          <iframe id="cahaya-frame" title="Petualangan Menuju Cahaya" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
         </div>
-      </div>
-      <div class="cahaya-console-screen" onclick="if(!document.getElementById('cahaya-console')?.classList.contains('is-open')) toggleCahayaConsole()">
-        <iframe id="cahaya-frame" title="Petualangan Menuju Cahaya" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
-        <div class="cahaya-console-hint">Klik konsol untuk bermain</div>
-      </div>
     </div>
   </aside>
 </div>
