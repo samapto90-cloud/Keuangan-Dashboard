@@ -8,36 +8,18 @@ import (
 )
 
 func TestPhase30LandminesKept(t *testing.T) {
-	if GameVersion != "1.0.0-beta" || GamePhase != "30/30" {
-		t.Fatal("version")
+	if GameTitle != "Ular Tangga Nusantara" || GamePhase != "ULAR/1" {
+		t.Fatal("phase 1 identity")
 	}
-	if len(guardianCatalog) != 33 {
-		t.Fatalf("guardians %d", len(guardianCatalog))
-	}
-	if silumanByGuard["ragha"].Name != "Jaladara" {
-		t.Fatal("keep Jaladara")
-	}
-	if len(phase29Regions) != 8 || len(phase29Siluman) != 33 {
-		t.Fatal("keep phase 29 overlay")
-	}
-	if questByID["mq029"].Title != "Lampah Pungkasan." {
-		t.Fatal("keep final journey")
-	}
-	if dungeonByID[Phase29RaidID].MinPlayers != 10 {
-		t.Fatal("keep raid size")
-	}
-	if transformByID["aura-1"].Name != "AURA ASCENSION I" {
-		t.Fatal("keep original transformation names")
-	}
-	if comboRecipe() != "LLLH" {
-		t.Fatal("keep combo")
+	if AdventureGameplayEnabled {
+		t.Fatal("adventure still enabled")
 	}
 }
 
 func TestPhase30ReleaseViewAndEndgame(t *testing.T) {
 	w, p := testVillagePlayer()
 	rel := phase30ReleaseView()
-	if rel["version"] != GameVersion || rel["siluman"] != 33 {
+	if rel["version"] != GameVersion || rel["siluman"] != 0 || rel["status"] != "PHASE_1_FOUNDATION" {
 		t.Fatal("release view")
 	}
 	view := w.endgameView(p)

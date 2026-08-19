@@ -54,7 +54,7 @@ func TestCahayaStagingHTTPSmoke(t *testing.T) {
 	if code != 200 {
 		t.Fatalf("cahaya %d", code)
 	}
-	if !strings.Contains(body, "Petualangan Menuju Cahaya") || !strings.Contains(body, "1.0.0-beta") {
+	if !strings.Contains(body, "Ular Tangga Nusantara") || !strings.Contains(body, "0.1.0-phase1") {
 		t.Fatalf("title missing: %s", body)
 	}
 
@@ -103,10 +103,10 @@ func TestCahayaStagingHTTPSmoke(t *testing.T) {
 	}
 	defer res.Body.Close()
 	js, _ := io.ReadAll(res.Body)
-	if res.StatusCode != 200 || len(js) < 50_000 {
+	if res.StatusCode != 200 || len(js) < 1_000 {
 		t.Fatalf("bundle %d bytes=%d enc=%s", res.StatusCode, len(js), res.Header.Get("Content-Encoding"))
 	}
-	if !strings.Contains(string(js), "Petualangan") && !strings.Contains(string(js), "Game") {
+	if !strings.Contains(string(js), "Ular Tangga") && !strings.Contains(string(js), "PLAY ONLINE") {
 		t.Fatal("bundle body truncated or wrong type")
 	}
 }
@@ -125,7 +125,7 @@ func TestCahayaGzipDoesNotTruncateBundle(t *testing.T) {
 	defer res.Body.Close()
 	raw, _ := io.ReadAll(res.Body)
 	html := string(raw)
-	if res.StatusCode != 200 || !strings.Contains(html, "Petualangan Menuju Cahaya") {
+	if res.StatusCode != 200 || !strings.Contains(html, "Ular Tangga Nusantara") {
 		t.Fatalf("gzip index %d enc=%s body=%s", res.StatusCode, res.Header.Get("Content-Encoding"), html[:min(200, len(html))])
 	}
 }

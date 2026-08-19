@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Build game Petualangan Menuju Cahaya
+      - name: Build Ular Tangga Nusantara client
         working-directory: cahaya-game
         run: |
           npm install

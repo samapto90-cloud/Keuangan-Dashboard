@@ -10,9 +10,9 @@ import "os"
 // Do not add duplicates. Do not change gameplay balance.
 
 const (
-	GameVersion = "1.0.0-beta"
-	GamePhase   = "30/30"
-	GameTitle   = "Petualangan Menuju Cahaya"
+	GameVersion = "0.1.0-phase1"
+	GamePhase   = "ULAR/1"
+	GameTitle   = "Ular Tangga Nusantara"
 )
 
 func init() {
@@ -66,10 +66,12 @@ func phase30ReleaseView() map[string]any {
 		"title":   GameTitle,
 		"version": GameVersion,
 		"phase":   GamePhase,
-		"status":  "READY_FOR_EXTERNAL_QA",
-		"forms":   []string{"Wujud Asal", "Wujud Cahaya", "Wujud Kilat", "Wujud Agung", "Wujud Fajar"},
-		"siluman": 33,
-		"regions": 8,
-		"chapters": 8,
+		"status":     "PHASE_1_FOUNDATION",
+		"forms":      []string{},
+		"siluman":    0,
+		"regions":    0,
+		"chapters":   0,
+		"boardSize":  BOARD_SIZE,
+		"maxPlayers": MAX_PLAYERS,
 	}
 }

@@ -16,6 +16,7 @@ type Hub struct {
 	Accounts *AccountStore
 	Players  *DiskPlayerStore
 	World    *WorldState
+	Lobby    *UlarLobby
 	join     chan *Player
 	leave    chan *Player
 	in       chan inbound
@@ -33,6 +34,7 @@ func NewHub() *Hub {
 		Accounts: OpenAccountStore(accountStorePath()),
 		Players:  store,
 		World:    world,
+		Lobby:    NewUlarLobby(),
 		join:     make(chan *Player, 16),
 		leave:    make(chan *Player, 16),
 		in:       make(chan inbound, 256),
@@ -46,6 +48,10 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case p := <-h.join:
+			if !AdventureGameplayEnabled {
+				h.lobbyJoin(p)
+				continue
+			}
 			ok, isNew := h.World.Add(p)
 			if !ok {
 				select {
@@ -78,6 +84,10 @@ func (h *Hub) Run() {
 			}
 			log.Printf("mmo spawn %s (%s) world=%s channel=%s online=%d new=%v", p.ID, p.Name, h.World.WorldID, h.World.ChannelID, h.World.Count(), isNew)
 		case p := <-h.leave:
+			if !AdventureGameplayEnabled {
+				h.lobbyLeave(p)
+				continue
+			}
 			if h.World.Remove(p) != nil {
 				h.World.BroadcastScope(p.ID, marshal(TypePlayerDespawn, DespawnOut{PlayerID: p.ID}))
 				log.Printf("mmo despawn %s online=%d", p.ID, h.World.Count())
@@ -87,6 +97,9 @@ func (h *Hub) Run() {
 		case msg := <-h.in:
 			h.handle(msg)
 		case <-tick.C:
+			if !AdventureGameplayEnabled {
+				continue
+			}
 			events := h.World.Simulate(dt)
 			for _, ev := range events {
 				h.World.BroadcastScope("", ev)
@@ -102,6 +115,10 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) handle(msg inbound) {
+	if !AdventureGameplayEnabled {
+		h.handlePhase1(msg)
+		return
+	}
 	p := msg.player
 	live := h.World.Get(p.ID)
 	if live != nil && live != p {

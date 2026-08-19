@@ -59,14 +59,16 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 		ID:        gameSess.PlayerID,
 		SessionID: gameSess.Token,
 		Name:      gameSess.Username,
-		Class:     "WARRIOR",
 		Level:     1,
-		HP:        BaseMaxHP,
-		MaxHP:     BaseMaxHP,
 		State:     "IDLE",
 		send:      make(chan []byte, 64),
 	}
-	player.initCombat()
+	if AdventureGameplayEnabled {
+		player.Class = "WARRIOR"
+		player.HP = BaseMaxHP
+		player.MaxHP = BaseMaxHP
+		player.initCombat()
+	}
 
 	go writePump(conn, player)
 	select {
@@ -95,7 +97,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 		switch msg.Type {
 		case TypeAuth:
 			continue
-		case TypeJoinWorld:
+		case TypeJoinWorld, TypeJoinLobby:
 			if !joined {
 				joined = true
 				DefaultHub.Join(player)

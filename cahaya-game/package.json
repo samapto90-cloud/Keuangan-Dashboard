@@ -1,18 +1,14 @@
 {
-  "name": "petualangan-menuju-cahaya",
+  "name": "ular-tangga-nusantara",
   "private": true,
-  "version": "1.0.0-beta",
+  "version": "0.1.0-phase1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "three": "^0.179.1"
-  },
   "devDependencies": {
-    "@types/three": "^0.179.0",
     "typescript": "~5.9.3",
     "vite": "^7.1.3"
   }

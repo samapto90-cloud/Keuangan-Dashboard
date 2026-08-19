@@ -180,44 +180,7 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	out := ProfileOut{
 		PlayerID: acc.PlayerID, Username: acc.Username, Email: acc.Email,
-		Level: 1, Chapter: "st-ch01", ChapterTitle: "Awal Perjalanan", ChapterIndex: 1,
-		CheckpointName: "Desa Awal", Region: "village", NewJourney: true,
-	}
-	if DefaultHub.Players != nil {
-		if log := DefaultHub.Players.LoadLog(sess.PlayerID); log != nil {
-			out.NewJourney = false
-			if log.StoryChapter != "" {
-				out.Chapter = log.StoryChapter
-			}
-			if c, ok := storyChapterByID[out.Chapter]; ok {
-				out.ChapterTitle = c.Title
-				out.ChapterIndex = c.Index
-			}
-			if log.StoryCheckpoint != "" {
-				out.Checkpoint = log.StoryCheckpoint
-				out.CheckpointName = checkpointDisplayName(log.StoryCheckpoint)
-			}
-		}
-		if gear := DefaultHub.Players.LoadGear(sess.PlayerID); gear != nil && gear.Level > 0 {
-			out.Level = gear.Level
-		}
-		if j := DefaultHub.Players.LoadJourney(sess.PlayerID); j != nil {
-			if j.CheckpointName != "" {
-				out.CheckpointName = j.CheckpointName
-				out.Checkpoint = j.CheckpointID
-			}
-			if j.HasPos {
-				out.Region = zoneAt(j.X, j.Z).ID
-				out.NewJourney = false
-			}
-			if j.Chapter != "" {
-				out.Chapter = j.Chapter
-				if c, ok := storyChapterByID[j.Chapter]; ok {
-					out.ChapterTitle = c.Title
-					out.ChapterIndex = c.Index
-				}
-			}
-		}
+		Level: 1, NewJourney: true,
 	}
 	writeJSON(w, http.StatusOK, out)
 }
