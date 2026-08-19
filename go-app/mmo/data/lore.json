@@ -1,0 +1,10 @@
+[
+  { "id": "lore-scroll-1", "title": "Ancient Scroll", "region": "village", "x": -4.2, "z": 4.4, "text": "Cahaya menuntun yang sabar, bukan yang sombong." },
+  { "id": "lore-tablet-1", "title": "Stone Tablet", "region": "forest", "x": 5, "z": 40, "text": "Kabut menyimpan nama para penjaga." },
+  { "id": "lore-journal-1", "title": "Old Journal", "region": "valley", "x": -4, "z": 60, "text": "Lembah batu menguji langkah, bukan kecepatan." },
+  { "id": "lore-note-1", "title": "Traveler Note", "region": "plains", "x": 10, "z": 84, "text": "Angin dataran membawa rumor tentang Gerbang Cahaya." },
+  { "id": "lore-region-dawn", "title": "Dawn City Chronicle", "region": "village", "x": 3, "z": 9, "text": "Kota Fajar merawat ilmu sebelum kekuatan." },
+  { "id": "lore-guardian-kabutra", "title": "Mistwood Record", "region": "forest", "x": -6, "z": 38, "text": "Kabutra menguji hati, bukan iman suatu bangsa." },
+  { "id": "lore-ancient-1", "title": "Ancient History", "region": "ruins", "x": 4, "z": 138, "text": "Jalan ke Masjid Cahaya dijaga 33 siluman, bukan manusia." },
+  { "id": "lore-horizon-1", "title": "Horizon Page", "region": "horizon", "x": 2, "z": 183, "text": "Setelah Cahaya ditemukan, petualangan tidak berakhir." }
+]

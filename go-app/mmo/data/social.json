@@ -1,0 +1,20 @@
+{
+  "friendLimit": 100,
+  "partyMax": 5,
+  "partyInviteSec": 30,
+  "chatBurst": 1,
+  "chatWindowSec": 2,
+  "inventorySlots": 50,
+  "bankSlots": 100,
+  "maxStack": 999,
+  "marketFeePct": 5,
+  "marketPage": 20,
+  "marketMinPrice": 1,
+  "marketMaxPrice": 1000000,
+  "houseObjectLimit": 40,
+  "emoteRate": 4,
+  "emoteWindowSec": 10,
+  "guildMemberBase": 30,
+  "guildMemberPerLevel": 10,
+  "guildDescMax": 300
+}

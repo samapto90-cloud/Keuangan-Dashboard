@@ -1,0 +1,6 @@
+[
+  { "id": "dawn-keepers", "name": "Dawn Keepers", "region": "village", "title": "dawn-keeper" },
+  { "id": "forest-guardians", "name": "Forest Guardians", "region": "forest", "title": "forest-explorer" },
+  { "id": "river-travelers", "name": "River Travelers", "region": "plains", "title": "mist-walker" },
+  { "id": "celestial-scholars", "name": "Celestial Scholars", "region": "masjid", "title": "education-explorer" }
+]

@@ -277,20 +277,20 @@ func buildGajiDashboard(state GajiTunjanganState, reportingMonth string) map[str
 		})
 	}
 	return map[string]interface{}{
-		"bulan":                   reportingMonth,
-		"total_pagu":              totalPagu,
-		"total_realisasi_sd":      totalRealisasiSD,
-		"total_kebutuhan_tahun":   totalKebutuhanTahun,
-		"total_sisa_anggaran":     totalPagu - totalRealisasiSD,
-		"total_selisih_pagu":      totalSelisih,
-		"pegawai_pns":             pegawaiPNS,
-		"pegawai_pppk":            pegawaiPPPK,
-		"pegawai_total":           pegawaiPNS + pegawaiPPPK,
-		"category_summaries":      summaries,
-		"rekening_monthly":        buildGajiRekeningMonthlyTotals(state),
-		"rekening_pekerjaan":      buildGajiRekeningPekerjaanSeries(state),
-		"program_meta":            gajiProgramMetaFromRekening(state),
-		"rekening_count":          len(state.Rekening),
+		"bulan":                 reportingMonth,
+		"total_pagu":            totalPagu,
+		"total_realisasi_sd":    totalRealisasiSD,
+		"total_kebutuhan_tahun": totalKebutuhanTahun,
+		"total_sisa_anggaran":   totalPagu - totalRealisasiSD,
+		"total_selisih_pagu":    totalSelisih,
+		"pegawai_pns":           pegawaiPNS,
+		"pegawai_pppk":          pegawaiPPPK,
+		"pegawai_total":         pegawaiPNS + pegawaiPPPK,
+		"category_summaries":    summaries,
+		"rekening_monthly":      buildGajiRekeningMonthlyTotals(state),
+		"rekening_pekerjaan":    buildGajiRekeningPekerjaanSeries(state),
+		"program_meta":          gajiProgramMetaFromRekening(state),
+		"rekening_count":        len(state.Rekening),
 	}
 }
 
@@ -329,25 +329,25 @@ func handleGajiTunjangan(w http.ResponseWriter, r *http.Request) {
 		kebBulanParam = reportingMonth
 	}
 	resp := map[string]interface{}{
-		"tahun":         state.Tahun,
-		"imported_at":   state.ImportedAt,
-		"version":       state.Version,
-		"version_label": state.VersionLabel,
-		"bulan":         reportingMonth,
-		"bulan_list":    bulanKeys,
-		"categories":    gajiCategories,
-		"grup_list":     gajiGrupOrder,
-		"grup_labels":   gajiGrupLabels,
-		"period_defs":   periodDefs,
-		"pagu":          state.Pagu,
-		"pegawai":       state.Pegawai,
-		"rekening":      state.Rekening,
-		"dashboard":     buildGajiDashboard(state, reportingMonth),
-		"kebutuhan":           buildGajiKebutuhan(state, reportingMonth),
-		"kebutuhan_rekening":  buildGajiKebutuhanRekening(state, kebBulanParam, kebFilters),
-		"keb_filter_labels":   gajiKebutuhanFilterLabels,
-		"keb_filter_keys":     gajiKebutuhanFilterKeys(),
-		"rekap":               buildGajiRekap(state),
+		"tahun":              state.Tahun,
+		"imported_at":        state.ImportedAt,
+		"version":            state.Version,
+		"version_label":      state.VersionLabel,
+		"bulan":              reportingMonth,
+		"bulan_list":         bulanKeys,
+		"categories":         gajiCategories,
+		"grup_list":          gajiGrupOrder,
+		"grup_labels":        gajiGrupLabels,
+		"period_defs":        periodDefs,
+		"pagu":               state.Pagu,
+		"pegawai":            state.Pegawai,
+		"rekening":           state.Rekening,
+		"dashboard":          buildGajiDashboard(state, reportingMonth),
+		"kebutuhan":          buildGajiKebutuhan(state, reportingMonth),
+		"kebutuhan_rekening": buildGajiKebutuhanRekening(state, kebBulanParam, kebFilters),
+		"keb_filter_labels":  gajiKebutuhanFilterLabels,
+		"keb_filter_keys":    gajiKebutuhanFilterKeys(),
+		"rekap":              buildGajiRekap(state),
 	}
 	matrixGrups := parseGajiGrupList(strings.TrimSpace(r.URL.Query().Get("matrix_grup")))
 	if len(matrixGrups) == 0 && grup != "" && isValidGajiGrup(grup) {
@@ -388,15 +388,15 @@ func handleGajiImportAnggaran(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var payload struct {
-		Tahun        int    `json:"tahun"`
-		Version      string `json:"version"`
-		VersionLabel string `json:"version_label"`
-		Pagu         map[string]float64                  `json:"pagu"`
+		Tahun         int                                 `json:"tahun"`
+		Version       string                              `json:"version"`
+		VersionLabel  string                              `json:"version_label"`
+		Pagu          map[string]float64                  `json:"pagu"`
 		Pegawai       map[string]int                      `json:"pegawai"`
 		Rekening      []GajiRekeningDef                   `json:"rekening"`
 		RekeningCells map[string]map[string]GajiMonthCell `json:"rekening_cells"`
 		Cells         map[string]map[string]GajiMonthCell `json:"cells"`
-		Rows         []struct {
+		Rows          []struct {
 			Category      string  `json:"category"`
 			Bulan         string  `json:"bulan"`
 			JumlahPegawai int     `json:"jumlah_pegawai"`

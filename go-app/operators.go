@@ -171,11 +171,11 @@ func requirePortalAdmin(next http.HandlerFunc) http.HandlerFunc {
 }
 
 type operatorWritePayload struct {
-	Username string                  `json:"username"`
-	Password string                  `json:"password"`
-	Name     string                  `json:"name"`
-	Enabled  *bool                   `json:"enabled"`
-	Perms    *OperatorPermissionSet  `json:"perms"`
+	Username string                 `json:"username"`
+	Password string                 `json:"password"`
+	Name     string                 `json:"name"`
+	Enabled  *bool                  `json:"enabled"`
+	Perms    *OperatorPermissionSet `json:"perms"`
 }
 
 func handleOperators(w http.ResponseWriter, r *http.Request) {

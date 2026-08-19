@@ -1,0 +1,8 @@
+{
+  "unlockLevel": 40,
+  "hubRegion": "horizon",
+  "timezone": "UTC",
+  "dailyCapEvent": 500,
+  "horizonWeeklyReward": true,
+  "worldBossDaily": true
+}

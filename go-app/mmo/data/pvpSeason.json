@@ -1,0 +1,10 @@
+{
+  "id": "s1",
+  "number": 1,
+  "name": "Dawn Awakening",
+  "start": "2026-08-17T00:00:00Z",
+  "end": "2026-10-12T00:00:00Z",
+  "weeks": 8,
+  "softReset": 0.5,
+  "floor": 1000
+}

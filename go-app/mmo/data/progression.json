@@ -1,0 +1,18 @@
+{
+  "maxLevel": 60,
+  "attributePointsPerLevel": 3,
+  "skillPointsPerLevel": 1,
+  "baseExp": 80,
+  "expPerLevel": 40,
+  "hpPerLevel": 4,
+  "hpPerVitality": 8,
+  "attackPerStrength": 1.5,
+  "defensePerDefense": 1,
+  "movePerAgility": 0.015,
+  "attackSpeedPerAgility": 0.008,
+  "energyPerEnergy": 8,
+  "energyDamagePerEnergy": 0.04,
+  "starterSkills": ["power_strike", "energy_bolt", "whirlwind_kick"],
+  "educationExpBonusPct": 0.05,
+  "educationExpBonusSec": 600
+}

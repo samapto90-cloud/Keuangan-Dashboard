@@ -1,0 +1,5 @@
+[
+  { "id": "ending-a", "title": "CAHAYA UNTUK KABEH", "cinematicId": "cin-ending-a", "titleReward": "guardian-of-dawn", "cosmetic": "aura-adityara", "need": "help" },
+  { "id": "ending-b", "title": "PENJAGA CAHAYA", "cinematicId": "cin-ending-b", "titleReward": "light-seeker", "cosmetic": "aura-celestial", "need": "power" },
+  { "id": "ending-c", "title": "PERDAMAIAN", "cinematicId": "cin-ending-c", "titleReward": "peace-bringer", "cosmetic": "aura-dawn", "need": "redeem" }
+]

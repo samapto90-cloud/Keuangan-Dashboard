@@ -99,16 +99,16 @@ func buildCommandCenterOverview() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"generated_at":     time.Now().Format(time.RFC3339),
-		"active_sessions":  totalSess,
-		"portals":          portals,
+		"generated_at":    time.Now().Format(time.RFC3339),
+		"active_sessions": totalSess,
+		"portals":         portals,
 		"security": map[string]interface{}{
-			"rate_limit_per_min": apiRateLimitMax,
+			"rate_limit_per_min":    apiRateLimitMax,
 			"ip_rate_limit_per_min": ipRateLimitMax,
-			"max_conn_per_ip":    maxConnPerIP,
-			"login_max_fails":    loginMaxFails,
-			"session_hours":      sessionLifetime().Hours(),
-			"trust_proxy":        trustProxy,
+			"max_conn_per_ip":       maxConnPerIP,
+			"login_max_fails":       loginMaxFails,
+			"session_hours":         sessionLifetime().Hours(),
+			"trust_proxy":           trustProxy,
 		},
 		"recent_audit": auditLogCopy(15),
 	}

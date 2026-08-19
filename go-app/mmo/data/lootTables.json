@@ -1,0 +1,95 @@
+[
+  {
+    "id": "lt-ragha",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 1, "maxQuantity": 2, "chance": 0.7 },
+      { "itemId": "dawn_cap", "minQuantity": 1, "maxQuantity": 1, "chance": 0.25 },
+      { "itemId": "forest_guard_armor", "minQuantity": 1, "maxQuantity": 1, "chance": 0.12 }
+    ]
+  },
+  {
+    "id": "lt-gravon",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 1, "maxQuantity": 2, "chance": 0.75 },
+      { "itemId": "training_gloves", "minQuantity": 1, "maxQuantity": 1, "chance": 0.2 }
+    ]
+  },
+  {
+    "id": "lt-kairoth",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "potion_energy", "minQuantity": 1, "maxQuantity": 1, "chance": 0.6 },
+      { "itemId": "crystal_shard", "minQuantity": 1, "maxQuantity": 3, "chance": 0.8 }
+    ]
+  },
+  {
+    "id": "lt-raid-celestial",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 2, "maxQuantity": 3, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 2, "maxQuantity": 4, "chance": 0.9 }
+    ]
+  },
+  {
+    "id": "lt-raid-final",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 2, "maxQuantity": 3, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 3, "maxQuantity": 5, "chance": 1 },
+      { "itemId": "dawn_cap", "minQuantity": 1, "maxQuantity": 1, "chance": 0.35 }
+    ]
+  },
+  {
+    "id": "lt-placeholder",
+    "rollType": "PERSONAL",
+    "entries": [{ "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 1, "chance": 1 }]
+  },
+  {
+    "id": "lt-stoneheart",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 1, "maxQuantity": 3, "chance": 0.8 },
+      { "itemId": "training_gloves", "minQuantity": 1, "maxQuantity": 1, "chance": 0.22 }
+    ]
+  },
+  {
+    "id": "lt-crimson",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 2, "maxQuantity": 3, "chance": 0.85 },
+      { "itemId": "potion_energy", "minQuantity": 1, "maxQuantity": 1, "chance": 0.5 }
+    ]
+  },
+  {
+    "id": "lt-moonlight",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 1, "maxQuantity": 2, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 2, "maxQuantity": 4, "chance": 0.9 }
+    ]
+  },
+  {
+    "id": "lt-celestial-ruins",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 2, "maxQuantity": 3, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 2, "maxQuantity": 4, "chance": 0.9 },
+      { "itemId": "dawn_cap", "minQuantity": 1, "maxQuantity": 1, "chance": 0.2 }
+    ]
+  },
+  {
+    "id": "lt-raid-sky",
+    "rollType": "PERSONAL",
+    "entries": [
+      { "itemId": "potion_heal", "minQuantity": 2, "maxQuantity": 3, "chance": 1 },
+      { "itemId": "crystal_shard", "minQuantity": 3, "maxQuantity": 5, "chance": 1 }
+    ]
+  }
+]

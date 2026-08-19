@@ -1,0 +1,34 @@
+[
+  {
+    "id": "tq001",
+    "name": "Awakening I",
+    "formId": "aura-1",
+    "requiredLevel": 10,
+    "requiredFlags": ["education_challenge_1"],
+    "requiredKill": "elite_shadow_beast"
+  },
+  {
+    "id": "tq002",
+    "name": "Awakening II",
+    "formId": "aura-2",
+    "requiredLevel": 20,
+    "requiredChapter": "ch05",
+    "requiredFlags": ["dungeon_boss_clear"]
+  },
+  {
+    "id": "tq003",
+    "name": "Awakening III",
+    "formId": "aura-3",
+    "requiredLevel": 30,
+    "requiredChapter": "ch15",
+    "requiredFlags": ["special_trial"]
+  },
+  {
+    "id": "tq004",
+    "name": "Awakening IV",
+    "formId": "celestial-4",
+    "requiredLevel": 40,
+    "requiredChapter": "ch25",
+    "requiredFlags": ["education_challenge_4", "special_boss"]
+  }
+]

@@ -237,7 +237,7 @@ func TestGajiRekeningPekerjaanSeries(t *testing.T) {
 		Rekening: []GajiRekeningDef{{
 			Kode: "5.1.01.02.001.00001", Nama: "Belanja Gaji Pokok PNS",
 			Grup: "gaji", Jenis: "pns", Pagu: 100_000_000,
-			Kegiatan: "Penyediaan Gaji dan Tunjangan ASN",
+			Kegiatan:    "Penyediaan Gaji dan Tunjangan ASN",
 			SubKegiatan: "Penyediaan Gaji dan Tunjangan ASN Pemerintah",
 		}},
 		RekeningCells: map[string]map[string]GajiMonthCell{

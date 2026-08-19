@@ -1,0 +1,9 @@
+[
+  { "id": "emblem-sun", "name": "Sun", "category": "Sun" },
+  { "id": "emblem-star", "name": "Star", "category": "Star" },
+  { "id": "emblem-shield", "name": "Shield", "category": "Shield" },
+  { "id": "emblem-mountain", "name": "Mountain", "category": "Mountain" },
+  { "id": "emblem-leaf", "name": "Leaf", "category": "Leaf" },
+  { "id": "emblem-light", "name": "Light", "category": "Light" },
+  { "id": "emblem-dawn", "name": "Dawn Light", "category": "Light" }
+]

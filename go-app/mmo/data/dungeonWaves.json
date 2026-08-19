@@ -1,0 +1,187 @@
+[
+  {
+    "id": "w1-fangs",
+    "dungeonId": "dun-ch01",
+    "index": 1,
+    "name": "Penjaga Hutan",
+    "spawns": [
+      { "enemyId": "forest_fang", "count": 5, "x": -4, "z": 8 },
+      { "enemyId": "forest_fang", "count": 0, "x": 4, "z": 8 }
+    ]
+  },
+  {
+    "id": "w2-imps",
+    "dungeonId": "dun-ch01",
+    "index": 2,
+    "name": "Kabut Bergerak",
+    "spawns": [{ "enemyId": "shadow_imp", "count": 4, "x": 0, "z": 10 }]
+  },
+  {
+    "id": "w3-elite",
+    "dungeonId": "dun-ch01",
+    "index": 3,
+    "name": "Bayangan Elit",
+    "spawns": [{ "enemyId": "elite_shadow_beast", "count": 1, "x": 0, "z": 12 }]
+  },
+  {
+    "id": "w4-boss",
+    "dungeonId": "dun-ch01",
+    "index": 4,
+    "name": "Penjaga Kabut",
+    "spawns": [{ "enemyId": "ragha", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "mw-pack",
+    "dungeonId": "dun-mistwood",
+    "index": 1,
+    "name": "Mist Pack",
+    "spawns": [{ "enemyId": "forest_fang", "count": 5, "x": -3, "z": 8 }]
+  },
+  {
+    "id": "mw-elite",
+    "dungeonId": "dun-mistwood",
+    "index": 2,
+    "name": "Mist Elite",
+    "spawns": [{ "enemyId": "elite_shadow_beast", "count": 1, "x": 0, "z": 12 }]
+  },
+  {
+    "id": "mw-boss",
+    "dungeonId": "dun-mistwood",
+    "index": 3,
+    "name": "Ragha",
+    "spawns": [{ "enemyId": "ragha", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "sf-pack",
+    "dungeonId": "dun-stonefall",
+    "index": 1,
+    "name": "Stone Pack",
+    "spawns": [{ "enemyId": "forest_fang", "count": 4, "x": 0, "z": 8 }]
+  },
+  {
+    "id": "sf-boss",
+    "dungeonId": "dun-stonefall",
+    "index": 2,
+    "name": "Gravon",
+    "spawns": [{ "enemyId": "gravon", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "em-pack",
+    "dungeonId": "dun-ember",
+    "index": 1,
+    "name": "Ember Pack",
+    "spawns": [{ "enemyId": "shadow_imp", "count": 4, "x": 0, "z": 9 }]
+  },
+  {
+    "id": "em-boss",
+    "dungeonId": "dun-ember",
+    "index": 2,
+    "name": "Kairoth",
+    "spawns": [{ "enemyId": "kairoth", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "raid-stone",
+    "dungeonId": "raid-celestial",
+    "index": 1,
+    "name": "Stone Guardian",
+    "spawns": [{ "enemyId": "stone-guardian", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "raid-storm",
+    "dungeonId": "raid-celestial",
+    "index": 2,
+    "name": "Storm Guardian",
+    "spawns": [{ "enemyId": "storm-guardian", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "raid-gate",
+    "dungeonId": "raid-celestial",
+    "index": 3,
+    "name": "Gatekeeper",
+    "spawns": [{ "enemyId": "avaron-gatekeeper", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "sh-pack",
+    "dungeonId": "dun-stoneheart",
+    "index": 1,
+    "name": "Stone Pack",
+    "spawns": [{ "enemyId": "forest_fang", "count": 5, "x": 0, "z": 8 }]
+  },
+  {
+    "id": "sh-boss",
+    "dungeonId": "dun-stoneheart",
+    "index": 2,
+    "name": "Batu Gora Echo",
+    "spawns": [{ "enemyId": "batu-gora-echo", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "cr-pack",
+    "dungeonId": "dun-crimson",
+    "index": 1,
+    "name": "Ember Pack",
+    "spawns": [{ "enemyId": "shadow_imp", "count": 5, "x": 0, "z": 9 }]
+  },
+  {
+    "id": "cr-boss",
+    "dungeonId": "dun-crimson",
+    "index": 2,
+    "name": "Bara Naga Echo",
+    "spawns": [{ "enemyId": "bara-naga-echo", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "mn-pack",
+    "dungeonId": "dun-moonlight",
+    "index": 1,
+    "name": "Moon Pack",
+    "spawns": [{ "enemyId": "shadow_imp", "count": 5, "x": 0, "z": 8 }]
+  },
+  {
+    "id": "mn-boss",
+    "dungeonId": "dun-moonlight",
+    "index": 2,
+    "name": "Lunara Shade",
+    "spawns": [{ "enemyId": "lunara-shade", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "cu-pack",
+    "dungeonId": "dun-celestial-ruins",
+    "index": 1,
+    "name": "Ruin Pack",
+    "spawns": [{ "enemyId": "elite_shadow_beast", "count": 3, "x": 0, "z": 10 }]
+  },
+  {
+    "id": "cu-boss",
+    "dungeonId": "dun-celestial-ruins",
+    "index": 2,
+    "name": "Celestial Guardian",
+    "spawns": [{ "enemyId": "celestial-guardian", "count": 1, "x": 0, "z": 20 }]
+  },
+  {
+    "id": "sky-wing1",
+    "dungeonId": "raid-sky-fortress",
+    "index": 1,
+    "name": "Wing 1",
+    "spawns": [{ "enemyId": "sky-guardian", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "sky-wing2",
+    "dungeonId": "raid-sky-fortress",
+    "index": 2,
+    "name": "Wing 2",
+    "spawns": [{ "enemyId": "sky-guardian", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "sky-final",
+    "dungeonId": "raid-sky-fortress",
+    "index": 3,
+    "name": "Final Arena",
+    "spawns": [{ "enemyId": "sky-guardian", "count": 1, "x": 0, "z": 18 }]
+  },
+  {
+    "id": "placeholder-wave",
+    "dungeonId": "",
+    "index": 1,
+    "name": "Placeholder",
+    "spawns": [{ "enemyId": "forest_fang", "count": 1, "x": 0, "z": 8 }]
+  }
+]

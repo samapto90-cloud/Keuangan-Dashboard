@@ -1,0 +1,11 @@
+{
+  "id": "dawn-merchant",
+  "name": "Dawn Merchant",
+  "npc": "dawn_merchant",
+  "items": [
+    { "shopItemId": "shop-potion", "itemId": "potion_heal", "price": 10, "currency": "coin", "stock": -1, "purchaseLimit": 10 },
+    { "shopItemId": "shop-energy", "itemId": "potion_energy", "price": 12, "currency": "coin", "stock": -1, "purchaseLimit": 10 },
+    { "shopItemId": "shop-material", "itemId": "crystal_shard", "price": 25, "currency": "coin", "stock": -1, "purchaseLimit": 20 },
+    { "shopItemId": "shop-travel", "itemId": "wind_boots", "price": 80, "currency": "coin", "stock": -1, "purchaseLimit": 1 }
+  ]
+}

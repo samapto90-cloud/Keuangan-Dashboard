@@ -39,12 +39,12 @@ type RakMeta struct {
 }
 
 var rakVersionLabels = map[string]string{
-	"apbd":              "APBD (Murni)",
-	"pergeseran-1":      "Pergeseran APBD I",
-	"pergeseran-2":      "Pergeseran APBD II",
-	"pergeseran-3":      "Pergeseran APBD III",
-	"pergeseran-4":      "Pergeseran APBD IV",
-	"apbdp":             "APBDP (Perubahan)",
+	"apbd":               "APBD (Murni)",
+	"pergeseran-1":       "Pergeseran APBD I",
+	"pergeseran-2":       "Pergeseran APBD II",
+	"pergeseran-3":       "Pergeseran APBD III",
+	"pergeseran-4":       "Pergeseran APBD IV",
+	"apbdp":              "APBDP (Perubahan)",
 	"apbdp-pergeseran-1": "APBDP Pergeseran I",
 	"apbdp-pergeseran-2": "APBDP Pergeseran II",
 	"apbdp-pergeseran-3": "APBDP Pergeseran III",
@@ -62,11 +62,11 @@ func rakVersionLabel(key string) string {
 }
 
 var legacyPPTK = map[string]string{
-	"5.1.02.02.001.00080|Belanja Honorarium Penanggungjawaban Pengelola Keuangan": "RAMA WARNI, MM",
-	"5.1.02.02.001.00067|Belanja Pembayaran Pajak, Bea, dan Perizinan":             "RAMA WARNI, MM",
-	"5.1.02.01.001.00024|Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor": "ARIOS ZEUS SANDRY, S.KOM",
+	"5.1.02.02.001.00080|Belanja Honorarium Penanggungjawaban Pengelola Keuangan":       "RAMA WARNI, MM",
+	"5.1.02.02.001.00067|Belanja Pembayaran Pajak, Bea, dan Perizinan":                  "RAMA WARNI, MM",
+	"5.1.02.01.001.00024|Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor":    "ARIOS ZEUS SANDRY, S.KOM",
 	"5.1.02.03.002.00405|Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer": "ARIOS ZEUS SANDRY, S.KOM",
-	"5.2.02.05.003.00001|Belanja Modal Meja Kerja Pejabat":                          "RAMA WARNI, MM",
+	"5.2.02.05.003.00001|Belanja Modal Meja Kerja Pejabat":                              "RAMA WARNI, MM",
 }
 
 func pptkForRow(kode, pekerjaan string) string {

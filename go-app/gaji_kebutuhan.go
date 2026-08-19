@@ -268,7 +268,7 @@ func handleGajiSaveKebutuhan(w http.ResponseWriter, r *http.Request) {
 	gajiMu.Unlock()
 	persistGajiState()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"message":           "Kebutuhan per rekening disimpan",
+		"message":            "Kebutuhan per rekening disimpan",
 		"kebutuhan_rekening": rows,
 	})
 }

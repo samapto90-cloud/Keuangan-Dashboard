@@ -67,9 +67,9 @@ type GajiRekeningMatrixRow struct {
 }
 
 type GajiRekeningMatrixSummary struct {
-	Grup    string                           `json:"grup"`
-	Label   string                           `json:"label"`
-	Bulan   map[string]GajiRekeningMatrixCell `json:"bulan"`
+	Grup  string                            `json:"grup"`
+	Label string                            `json:"label"`
+	Bulan map[string]GajiRekeningMatrixCell `json:"bulan"`
 }
 
 type GajiRekeningMonthlyTotal struct {
@@ -580,18 +580,18 @@ func buildGajiRekeningReport(state GajiTunjanganState, grup, bulan string) ([]Ga
 		}
 		attached := def.Grup != grup && gajiRekeningAttachedJaminanKes(def, grup)
 		rows = append(rows, GajiRekeningRow{
-			Kode:          def.Kode,
-			Nama:          def.Nama,
-			Grup:          def.Grup,
-			Jenis:         def.Jenis,
-			Potongan:      def.Potongan,
-			Attached:      attached,
-			Pagu:          def.Pagu,
-			Anggaran:      cell.Anggaran,
-			Realisasi:     realisasiMenu,
-			Sisa:          sisa,
-			Persen:        persen,
-			Locked:        rowLocked,
+			Kode:      def.Kode,
+			Nama:      def.Nama,
+			Grup:      def.Grup,
+			Jenis:     def.Jenis,
+			Potongan:  def.Potongan,
+			Attached:  attached,
+			Pagu:      def.Pagu,
+			Anggaran:  cell.Anggaran,
+			Realisasi: realisasiMenu,
+			Sisa:      sisa,
+			Persen:    persen,
+			Locked:    rowLocked,
 		})
 		summary.TotalAnggaran += cell.Anggaran
 		summary.TotalRealisasi += realisasiMenu

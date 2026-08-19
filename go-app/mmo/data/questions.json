@@ -1,0 +1,23 @@
+[
+  { "id": "q1", "category": "Matematika", "prompt": "Berapa 2 + 3?", "choices": ["4", "5", "6"], "correct": 1, "explain": "2 ditambah 3 sama dengan 5." },
+  { "id": "q2", "category": "Bahasa Indonesia", "prompt": "Sinonim kata 'cerah' adalah...", "choices": ["gelap", "terang", "sepi"], "correct": 1, "explain": "Cerah berarti terang atau bersinar." },
+  { "id": "q3", "category": "Pengetahuan Dasar", "prompt": "Matahari terbit dari arah...", "choices": ["Barat", "Utara", "Timur"], "correct": 2, "explain": "Matahari terbit di timur dan terbenam di barat." },
+  { "id": "q-dungeon-1", "category": "Matematika", "prompt": "Berapa 10 + 5?", "choices": ["12", "15", "20"], "correct": 1, "explain": "10 ditambah 5 sama dengan 15. Jawaban benar memberi bonus kecil." },
+  { "id": "q-awaken-1", "category": "Matematika", "prompt": "Berapa 4 + 4?", "choices": ["6", "8", "9"], "correct": 1, "explain": "4 ditambah 4 sama dengan 8." },
+  { "id": "q-color-1", "category": "Warna", "prompt": "Apa warna daun?", "choices": ["Merah", "Hijau", "Hitam"], "correct": 1, "explain": "Daun biasanya berwarna hijau." },
+  { "id": "q-gate-add", "category": "Matematika", "prompt": "7 + 3 = ?", "choices": ["9", "10", "11"], "correct": 1, "explain": "7 ditambah 3 sama dengan 10. Gerbang kuno terbuka." },
+  { "id": "q-compare", "category": "Matematika", "prompt": "Mana yang lebih besar?", "choices": ["3", "5"], "correct": 1, "explain": "5 lebih besar dari 3." },
+  { "id": "q-sub", "category": "Matematika", "prompt": "Berapa 5 - 2?", "choices": ["2", "3", "4"], "correct": 1, "explain": "5 dikurangi 2 sama dengan 3." },
+  { "id": "q-animal", "category": "Hewan", "prompt": "Hewan apa yang mengeong?", "choices": ["Anjing", "Kucing", "Sapi"], "correct": 1, "explain": "Kucing mengeong." },
+  { "id": "q-fruit", "category": "Buah", "prompt": "Apel adalah...", "choices": ["Batu", "Buah", "Air"], "correct": 1, "explain": "Apel adalah buah." },
+  { "id": "q-shape", "category": "Bentuk", "prompt": "Bola bentuknya...", "choices": ["Kotak", "Bulat", "Panjang"], "correct": 1, "explain": "Bola bentuknya bulat." },
+  { "id": "q-letter", "category": "Huruf", "prompt": "Huruf setelah A adalah...", "choices": ["C", "B", "D"], "correct": 1, "explain": "Setelah A adalah B." },
+  { "id": "q-add52", "category": "Matematika", "prompt": "Berapa 5 + 2?", "choices": ["6", "7", "8"], "correct": 1, "explain": "5 ditambah 2 sama dengan 7." },
+  { "id": "q-add-4-3", "category": "Matematika", "prompt": "Berapa 4 + 3?", "choices": ["5", "7", "9"], "correct": 1, "explain": "4 ditambah 3 sama dengan 7. Perisai pecah." },
+  { "id": "q-add-3-2", "category": "MATHEMATICS", "prompt": "3 + 2 = ?", "choices": ["4", "5", "6"], "correct": 1, "explain": "3 ditambah 2 sama dengan 5.", "grade": 1 },
+  { "id": "q-apel-3-2", "category": "Matematika", "prompt": "Le, yen aku duwe 3 apel banjur diwenehi 2 maneh, dadi pira?", "choices": ["4", "5", "6"], "correct": 1, "explain": "3 ditambah 2 sama dengan 5.", "grade": 1 },
+  { "id": "q-add-6-2", "category": "Matematika", "prompt": "6 + 2 = ?", "choices": ["7", "8", "9"], "correct": 1, "explain": "6 ditambah 2 sama dengan 8.", "grade": 1 },
+  { "id": "q-add-5-4", "category": "Matematika", "prompt": "5 + 4 = ?", "choices": ["8", "9", "10"], "correct": 1, "explain": "5 ditambah 4 sama dengan 9. Segel kuno terbuka.", "grade": 1 },
+  { "id": "q-add-1-4", "category": "Matematika", "prompt": "1 + 4 = ?", "choices": ["4", "5", "6"], "correct": 1, "explain": "1 ditambah 4 sama dengan 5. Jalan tersembunyi terbuka.", "grade": 1 },
+  { "id": "q-sub-7-3", "category": "Matematika", "prompt": "7 - 3 = ?", "choices": ["3", "4", "5"], "correct": 1, "explain": "7 dikurangi 3 sama dengan 4.", "grade": 1 }
+]

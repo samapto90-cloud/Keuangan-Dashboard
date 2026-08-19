@@ -1,0 +1,136 @@
+{
+  "elder_offer": {
+    "speaker": "Elder Ardan",
+    "text": "Raka, jalan menuju hutan tidak lagi aman. Makhluk-makhluk aneh mulai muncul dari dalam hutan. Jika kau ingin melanjutkan perjalanan, kau harus membantu desa terlebih dahulu."
+  },
+  "elder_forest": {
+    "speaker": "Elder Ardan",
+    "text": "Forest Fang terlihat di dekat gerbang. Latihlah dirimu, lalu bantu kami mengusir mereka."
+  },
+  "mira_intro": {
+    "speaker": "Mira",
+    "text": "Pengetahuan adalah cahaya yang tak pernah padam. Siapkah kau menjawab tiga pertanyaan singkat?"
+  },
+  "mira_welcome": {
+    "speaker": "Mira",
+    "text": "Selamat datang di Dawn Village. Aku Mira, pemandu desa. Jalan menuju hutan ada di utara. Mau kuceritakan?",
+    "voiceLineId": "mira-welcome",
+    "choices": [
+      { "id": "choice-a", "text": "A. Ceritakan pelan-pelan." },
+      { "id": "choice-b", "text": "B. Di mana kuil belajar?" },
+      { "id": "choice-c", "text": "C. Aku ingin cepat ke hutan." }
+    ]
+  },
+  "mira_choice_a": {
+    "speaker": "Mira",
+    "text": "Baik. Pelan-pelan saja. Desa akan mengingat kebaikanmu."
+  },
+  "mira_choice_b": {
+    "speaker": "Mira",
+    "text": "Di hutan ada kuil kecil. Jawab soal sederhana, lalu cahaya membantumu."
+  },
+  "mira_choice_c": {
+    "speaker": "Mira",
+    "text": "Kalau terburu-buru, tetap ikuti jalan utama. Cerita utamamu tidak akan hilang."
+  },
+  "lio_intro": {
+    "speaker": "Lio",
+    "text": "Kristal daganganku hilang di sekitar desa. Kalau kau temukan tiga, aku beri ramuan."
+  },
+  "raven_locked": {
+    "speaker": "Raven",
+    "text": "Gerbang ini terkunci. Selesaikan ancaman di hutan bersama Elder, baru aku membukanya."
+  },
+  "raven_open": {
+    "speaker": "Raven",
+    "text": "Kau sudah membuktikan dirimu. Whisper Forest terbuka. Hati-hati di dalamnya."
+  },
+  "nara_intro": {
+    "speaker": "Nara",
+    "text": "Istirahatlah di sini jika terluka. Desa butuh bantuan mengamankan hutan."
+  },
+  "elder_mist_cleared": {
+    "speaker": "Elder Ardan",
+    "text": "Kabut telah menghilang. Ragha tidak lagi menahan jalan. Perjalananmu menuju tempat ibadah baru dimulai."
+  },
+  "raven_valley_open": {
+    "speaker": "Raven",
+    "text": "Jalan ke lembah kini terbuka. Lembah Batu menunggu, tetapi jangan terburu-buru."
+  },
+  "kian_intro": {
+    "speaker": "Traveler Kian",
+    "text": "Angin membawa cerita 33 penjaga. Wind Runner menunggu mereka yang siap di level 15."
+  },
+  "kian_rumor": {
+    "speaker": "Traveler Kian",
+    "text": "Gerbang Cahaya masih tertutup. Kalahkan para Guardian, satu per satu."
+  },
+  "guild_clerk": {
+    "speaker": "Guild Clerk Sera",
+    "text": "Selamat datang di Guild Hall Dawn City. Dirikan guild di level 10, atau bergabung dengan yang sudah ada."
+  },
+  "party_board": {
+    "speaker": "Party Board",
+    "text": "Cari party untuk Dungeon, Guardian, atau World Event. Pilih peranmu, lalu JOIN."
+  },
+  "dawn_merchant": {
+    "speaker": "Mira the Merchant",
+    "text": "Ramuan, bahan, dan perlengkapan perjalanan. Harga jujur, stok harian terbatas."
+  },
+  "arena_master": {
+    "speaker": "Arena Master Kael",
+    "text": "Arena Celestial menunggu yang berani. Casual, Ranked, atau Valley of Dawn. Kemenangan ditentukan server, bukan omongan."
+  },
+  "scholar_nur": {
+    "speaker": "Scholar Nur",
+    "text": "Tujuan perjalanan bukan hanya kekuatan. Ilmu, kesabaran, keberanian, dan kebaikan. Di sini tidak ada pertarungan. Duduklah. Dunia di luar tetap menunggumu."
+  },
+  "child_lina": {
+    "speaker": "Lina",
+    "text": "Aku tersesat tadi. Terima kasih sudah mencari. Aku pulang ke Dawn City."
+  },
+  "guide_faris": {
+    "speaker": "Guide Faris",
+    "text": "Di ujung perjalanan terdapat tempat bernama Masjid Cahaya. Jalan itu dijaga 33 Siluman Penjaga. Musuhnya siluman dan kegelapan, bukan orang baik."
+  },
+  "kabutra_meet": {
+    "speaker": "Kabutra",
+    "text": "Kabut ini menguji hati. Jika kau jujur, aku akan menyingkir."
+  },
+  "avaron_remain": {
+    "speaker": "Avaron",
+    "text": "Perjalananmu belum selesai. Gerbang terbuka. Masjid Cahaya adalah tempat aman, bukan medan perang."
+  },
+  "help_choice": {
+    "speaker": "Traveler",
+    "text": "Bolehkah kau membantuku membawa kayu?",
+    "choices": [
+      { "id": "help", "text": "Bantu." },
+      { "id": "later", "text": "Tidak sekarang." }
+    ]
+  },
+  "challenge_master": {
+    "speaker": "Challenge Master Iro",
+    "text": "Tantangan Hall of Horizon menguji ilmu dan keberanian. Hadiahnya gelar dan aura, bukan kekuatan tempur."
+  },
+  "guardian_archivist": {
+    "speaker": "Archivist Sena",
+    "text": "33 Siluman tetap dalam catatan. Cerita Avaron dan Masjid Cahaya tidak diubah. Ini halaman baru, bukan akhir yang ditulis ulang."
+  },
+  "season_keeper": {
+    "speaker": "Season Keeper Lumen",
+    "text": "Musim DAWN OF THE 33 berlangsung delapan minggu. Semua pemain memakai jalur gratis. Tidak ada toko emas."
+  },
+  "raid_keeper": {
+    "speaker": "Raid Keeper Tor",
+    "text": "Horizon Challenge memakai modifier acak dari server. Raid Mingguan tetap Celestial Ruins."
+  },
+  "explorer_npc": {
+    "speaker": "Explorer Yani",
+    "text": "Gua rahasia, air terjun tersembunyi, perpustakaan, dan pulau langit masih menunggu."
+  },
+  "cosmetic_merchant": {
+    "speaker": "Cosmetic Merchant Pala",
+    "text": "Pratinjau dulu. Memakai hanya milikmu. Tidak ada gacha."
+  }
+}

@@ -23,27 +23,27 @@ type RakBelanjaRow struct {
 }
 
 type KasReportRow struct {
-	Kode           string  `json:"kode"`
-	Uraian         string  `json:"uraian"`
-	Level          int     `json:"level"`
-	SisaBulanLalu  float64 `json:"sisa_bulan_lalu"`
-	AnggaranKas    float64 `json:"anggaran_kas"`
-	Realisasi      float64 `json:"realisasi"`
-	SisaSD         float64 `json:"sisa_sd"`
-	Persen         float64 `json:"persen"`
-	Editable       bool    `json:"editable"`
+	Kode          string  `json:"kode"`
+	Uraian        string  `json:"uraian"`
+	Level         int     `json:"level"`
+	SisaBulanLalu float64 `json:"sisa_bulan_lalu"`
+	AnggaranKas   float64 `json:"anggaran_kas"`
+	Realisasi     float64 `json:"realisasi"`
+	SisaSD        float64 `json:"sisa_sd"`
+	Persen        float64 `json:"persen"`
+	Editable      bool    `json:"editable"`
 }
 
 type KasBelanjaState struct {
-	Tahun           int                             `json:"tahun"`
-	RakRows         []RakBelanjaRow                 `json:"rak_rows"`
-	Realisasi       map[string]map[string]float64   `json:"realisasi"`
-	SisaManual      map[string]map[string]float64   `json:"sisa_manual"`
-	RealisasiLocked map[string]bool                 `json:"realisasi_locked"`
-	ImportedAt      string                          `json:"imported_at"`
-	Version         string                          `json:"version,omitempty"`
-	VersionLabel    string                          `json:"version_label,omitempty"`
-	Message         string                          `json:"message,omitempty"`
+	Tahun           int                           `json:"tahun"`
+	RakRows         []RakBelanjaRow               `json:"rak_rows"`
+	Realisasi       map[string]map[string]float64 `json:"realisasi"`
+	SisaManual      map[string]map[string]float64 `json:"sisa_manual"`
+	RealisasiLocked map[string]bool               `json:"realisasi_locked"`
+	ImportedAt      string                        `json:"imported_at"`
+	Version         string                        `json:"version,omitempty"`
+	VersionLabel    string                        `json:"version_label,omitempty"`
+	Message         string                        `json:"message,omitempty"`
 }
 
 var (
@@ -408,21 +408,21 @@ func handleKasLaporanTahunan(w http.ResponseWriter, r *http.Request) {
 	bundle := buildKasPeriodResult(state, pr.FromIdx, pr.ToIdx)
 	kasMu.RUnlock()
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"tahun":            state.Tahun,
-		"periode":          periode,
-		"periode_label":    pr.Label,
-		"periode_jenis":    pr.Jenis,
-		"from_bulan":       bulanKeys[pr.FromIdx],
-		"to_bulan":         bulanKeys[pr.ToIdx],
-		"report":           bundle.Report,
-		"monthly_reports":  bundle.MonthlyReports,
-		"monthly_sum_ok":   verifyKasPeriodMonthlySum(bundle.MonthlyReports, bundle.Report),
-		"rak_rows":         state.RakRows,
-		"realisasi":        state.Realisasi,
-		"total_pagu":       totalPaguFromRak(state.RakRows),
-		"version":          state.Version,
-		"version_label":    state.VersionLabel,
-		"bulan_list":       bulanKeys,
+		"tahun":           state.Tahun,
+		"periode":         periode,
+		"periode_label":   pr.Label,
+		"periode_jenis":   pr.Jenis,
+		"from_bulan":      bulanKeys[pr.FromIdx],
+		"to_bulan":        bulanKeys[pr.ToIdx],
+		"report":          bundle.Report,
+		"monthly_reports": bundle.MonthlyReports,
+		"monthly_sum_ok":  verifyKasPeriodMonthlySum(bundle.MonthlyReports, bundle.Report),
+		"rak_rows":        state.RakRows,
+		"realisasi":       state.Realisasi,
+		"total_pagu":      totalPaguFromRak(state.RakRows),
+		"version":         state.Version,
+		"version_label":   state.VersionLabel,
+		"bulan_list":      bulanKeys,
 	})
 }
 
@@ -532,13 +532,13 @@ func handleKasBelanja(w http.ResponseWriter, r *http.Request) {
 			"sisa_manual":             state.SisaManual,
 			"realisasi_locked":        locked,
 			"realisasi_locked_months": lockedKasMonths(state.RealisasiLocked),
-			"imported_at":      state.ImportedAt,
-			"total_pagu":       totalPaguFromRak(state.RakRows),
-			"bulan":            bulan,
-			"report":           report,
-			"bulan_list":       bulanKeys,
-			"version":          state.Version,
-			"version_label":    state.VersionLabel,
+			"imported_at":             state.ImportedAt,
+			"total_pagu":              totalPaguFromRak(state.RakRows),
+			"bulan":                   bulan,
+			"report":                  report,
+			"bulan_list":              bulanKeys,
+			"version":                 state.Version,
+			"version_label":           state.VersionLabel,
 		})
 	default:
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})

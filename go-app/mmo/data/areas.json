@@ -1,0 +1,15 @@
+[
+  { "id": "central-square", "name": "Central Square", "region": "village", "x": 0, "z": 4, "radius": 8, "kind": "village" },
+  { "id": "training-ground", "name": "Training Ground", "region": "village", "x": 0, "z": 11, "radius": 7, "kind": "village" },
+  { "id": "market", "name": "Marketplace", "region": "village", "x": 9, "z": 3, "radius": 5, "kind": "marketplace" },
+  { "id": "residential", "name": "Residential Area", "region": "village", "x": -9, "z": 8, "radius": 6, "kind": "village" },
+  { "id": "learning-corner", "name": "Learning Corner", "region": "village", "x": -9, "z": 2, "radius": 5, "kind": "temple" },
+  { "id": "village-gate", "name": "Village Gate", "region": "village", "x": 0, "z": 20, "radius": 4, "kind": "road" },
+  { "id": "forest-entrance", "name": "Forest Entrance", "region": "forest", "x": 0, "z": 32, "radius": 10, "locked": true, "kind": "road" },
+  { "id": "north-forest", "name": "North Forest", "region": "forest", "x": 0, "z": 40, "radius": 8, "levelMin": 5, "levelMax": 12, "kind": "wilderness" },
+  { "id": "ancient-grove", "name": "Ancient Grove", "region": "forest", "x": -8, "z": 44, "radius": 6, "levelMin": 7, "levelMax": 14, "kind": "wilderness" },
+  { "id": "wolf-trail", "name": "Wolf Trail", "region": "forest", "x": 8, "z": 38, "radius": 6, "levelMin": 6, "levelMax": 13, "kind": "wilderness" },
+  { "id": "hidden-cave-mouth", "name": "Hidden Cave", "region": "forest", "x": 12, "z": 44, "radius": 3, "hidden": true, "kind": "cave" },
+  { "id": "river-bank", "name": "River of Light Bank", "region": "plains", "x": 0, "z": 80, "radius": 10, "kind": "river" },
+  { "id": "stone-road", "name": "Stone Road", "region": "valley", "x": 0, "z": 58, "radius": 8, "kind": "road" }
+]

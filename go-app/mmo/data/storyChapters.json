@@ -1,0 +1,12 @@
+[
+  { "id": "st-ch01", "index": 1, "title": "Awal Perjalanan", "music": "dawn", "region": "village", "cinematicId": "cin-opening", "rewardTitle": "traveler", "rewardExp": 80 },
+  { "id": "st-ch02", "index": 2, "title": "Hutan Larangan", "music": "forest", "region": "forest", "cinematicId": "cin-chapter-2", "rewardTitle": "forest-friend", "rewardExp": 100 },
+  { "id": "st-ch03", "index": 3, "title": "Sungai Kehidupan", "music": "river", "region": "plains", "cinematicId": "cin-chapter-3", "rewardExp": 120 },
+  { "id": "st-ch04", "index": 4, "title": "Gunung Kabut", "music": "mountain", "region": "valley", "cinematicId": "cin-chapter-4", "rewardExp": 140 },
+  { "id": "st-ch05", "index": 5, "title": "Kuil Tua", "music": "temple", "region": "temple", "cinematicId": "cin-chapter-5", "rewardTitle": "siluman-scholar", "rewardExp": 180 },
+  { "id": "st-ch06", "index": 6, "title": "Gurun Panjang", "music": "desert", "region": "ruins", "cinematicId": "cin-chapter-6", "rewardExp": 200 },
+  { "id": "st-ch07", "index": 7, "title": "Desa Para Siluman", "music": "village-dusk", "region": "celestial", "cinematicId": "cin-chapter-7", "rewardExp": 220 },
+  { "id": "st-ch08", "index": 8, "title": "Dungeon Kegelapan", "music": "dungeon", "region": "temple", "cinematicId": "cin-final-war", "rewardExp": 260 },
+  { "id": "st-ch09", "index": 9, "title": "Wilayah Terakhir", "music": "dark", "region": "horizon", "cinematicId": "cin-ending-a", "rewardTitle": "guardian-of-dawn", "rewardExp": 300 },
+  { "id": "st-ch10", "index": 10, "title": "Perjalanan Menuju Masjid", "music": "ending", "region": "masjid", "cinematicId": "cin-region-masjid", "rewardTitle": "light-walker", "rewardExp": 340 }
+]

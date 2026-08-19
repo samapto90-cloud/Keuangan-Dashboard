@@ -1,0 +1,13 @@
+{
+  "createLevel": 10,
+  "createCost": 1000,
+  "tagMin": 3,
+  "tagMax": 5,
+  "nameMin": 3,
+  "nameMax": 24,
+  "reserved": ["admin", "system", "gm", "official", "cahaya"],
+  "levels": [0, 80, 200, 400, 800, 1600],
+  "memberBase": 30,
+  "memberPerLevel": 10,
+  "descMax": 300
+}

@@ -7,13 +7,13 @@ func TestGajiSplitRealisasiKebutuhanGajiPNS(t *testing.T) {
 		Pagu: map[string]float64{"gaji_pns": 100758404821},
 		Cells: map[string]map[string]GajiMonthCell{
 			"gaji_pns": {
-				"januari": {Realisasi: 8002177160},
+				"januari":  {Realisasi: 8002177160},
 				"februari": {Realisasi: 7942207060},
-				"maret": {Realisasi: 7944455460},
-				"thr": {Realisasi: 7942207060},
-				"april": {Realisasi: 7902663660},
-				"gaji_13": {Realisasi: 7880759000},
-				"juli": {Realisasi: 7880759000},
+				"maret":    {Realisasi: 7944455460},
+				"thr":      {Realisasi: 7942207060},
+				"april":    {Realisasi: 7902663660},
+				"gaji_13":  {Realisasi: 7880759000},
+				"juli":     {Realisasi: 7880759000},
 			},
 		},
 	}
@@ -35,9 +35,9 @@ func TestGajiKebutuhanRowSelisih(t *testing.T) {
 		Pagu: map[string]float64{"gaji_pns": 100000000},
 		Cells: map[string]map[string]GajiMonthCell{
 			"gaji_pns": {
-				"januari": {Realisasi: 10000000},
+				"januari":  {Realisasi: 10000000},
 				"februari": {Realisasi: 10000000},
-				"gaji_13": {Realisasi: 10000000},
+				"gaji_13":  {Realisasi: 10000000},
 			},
 		},
 	}

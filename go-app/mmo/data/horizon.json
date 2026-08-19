@@ -1,0 +1,15 @@
+{
+  "dungeonId": "dun-horizon",
+  "maxLevel": 20,
+  "maxModifiers": 2,
+  "scoreTimeWeight": 2,
+  "scoreDeathPenalty": 80,
+  "modifiers": [
+    { "id": "FAST_ENEMIES", "name": "Enemies move faster" },
+    { "id": "STRONG_BOSS", "name": "Boss attacks faster" },
+    { "id": "LOW_HEAL", "name": "Healing reduced" },
+    { "id": "DANGER_ZONES", "name": "Danger zones" },
+    { "id": "LIMITED_REVIVE", "name": "Limited revive" }
+  ],
+  "invalidPairs": [["LOW_HEAL", "LIMITED_REVIVE"]]
+}

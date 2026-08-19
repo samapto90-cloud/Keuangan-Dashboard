@@ -1,0 +1,81 @@
+[
+  {
+    "id": "CASUAL_1V1",
+    "name": "Arena 1v1 Unranked",
+    "kind": "CASUAL",
+    "teamSize": 1,
+    "minLevel": 10,
+    "duration": 300,
+    "map": "celestial-courtyard",
+    "respawn": false,
+    "enabled": true
+  },
+  {
+    "id": "CASUAL_2V2",
+    "name": "Casual 2v2",
+    "kind": "CASUAL",
+    "teamSize": 2,
+    "minLevel": 10,
+    "duration": 360,
+    "map": "celestial-courtyard",
+    "respawn": false,
+    "enabled": false
+  },
+  {
+    "id": "CASUAL_3V3",
+    "name": "Arena 3v3 Unranked",
+    "kind": "CASUAL",
+    "teamSize": 3,
+    "minLevel": 10,
+    "duration": 420,
+    "map": "mistwood-battlefield",
+    "respawn": false,
+    "enabled": true
+  },
+  {
+    "id": "RANKED_1V1",
+    "name": "Arena 1v1 Ranked",
+    "kind": "RANKED",
+    "teamSize": 1,
+    "minLevel": 20,
+    "duration": 300,
+    "map": "celestial-courtyard",
+    "respawn": false,
+    "enabled": true
+  },
+  {
+    "id": "RANKED_3V3",
+    "name": "Arena 3v3 Ranked",
+    "kind": "RANKED",
+    "teamSize": 3,
+    "minLevel": 20,
+    "duration": 420,
+    "map": "mistwood-battlefield",
+    "respawn": false,
+    "enabled": true
+  },
+  {
+    "id": "BATTLEGROUND_5V5",
+    "name": "Battleground 5v5",
+    "kind": "BATTLEGROUND",
+    "teamSize": 5,
+    "minLevel": 15,
+    "duration": 900,
+    "map": "dawn-arena",
+    "respawn": true,
+    "respawnSec": 8,
+    "scoreLimit": 1000,
+    "enabled": true
+  },
+  {
+    "id": "DUEL_1V1",
+    "name": "Friendly Duel",
+    "kind": "DUEL",
+    "teamSize": 1,
+    "minLevel": 1,
+    "duration": 300,
+    "map": "celestial-courtyard",
+    "respawn": false,
+    "enabled": true
+  }
+]

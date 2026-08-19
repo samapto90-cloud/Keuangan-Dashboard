@@ -1,0 +1,32 @@
+{
+  "damageDealt": 0.85,
+  "damageTaken": 1.0,
+  "skillDamage": 0.85,
+  "ultimate": 0.75,
+  "levelScale": 0.35,
+  "spawnProtect": 3,
+  "countdown": 3,
+  "bgRespawn": 8,
+  "reconnect": 120,
+  "afkWarn": 20,
+  "afkPenalty": 45,
+  "winRating": 20,
+  "lossRating": 15,
+  "placement": 5,
+  "startRating": 1000,
+  "leaveLock": 300,
+  "readyTimeout": 15,
+  "emoteCooldown": 4,
+  "scoreTick": 8,
+  "captureRate": 28,
+  "scoreLimit": 1000,
+  "mvpSeasonXP": 15,
+  "ratingCap": 99999,
+  "disabledSkills": [],
+  "transformPct": {
+    "aura-1": 0.12,
+    "aura-2": 0.18,
+    "aura-3": 0.28,
+    "celestial-4": 0.35
+  }
+}

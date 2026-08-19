@@ -1,0 +1,530 @@
+[
+  {
+    "id": "ch01",
+    "title": "Bayangan di Whisper Forest",
+    "region": "Whisper Forest",
+    "story": "Kabut hutan menyimpan penjaga yang tidak ingin jalan ibadah terbuka.",
+    "bossId": "ragha",
+    "bossName": "Ragha, Penjaga Kabut",
+    "requiredLevel": 5,
+    "requiredChapter": "",
+    "reward": {
+      "exp": 80,
+      "coin": 30,
+      "crystal": 1
+    },
+    "dungeonId": "dun-ch01"
+  },
+  {
+    "id": "ch02",
+    "title": "Jejak di Lembah Batu",
+    "region": "Lembah Batu",
+    "story": "Jejak batu menuntun ke lembah yang menahan langkah para musafir.",
+    "bossId": "gravon",
+    "bossName": "Gravon",
+    "requiredLevel": 8,
+    "requiredChapter": "ch01",
+    "reward": {
+      "exp": 100,
+      "coin": 38,
+      "crystal": 1
+    },
+    "dungeonId": "dun-ch02"
+  },
+  {
+    "id": "ch03",
+    "title": "Nyanyian Sungai Sunyi",
+    "region": "Sungai Sunyi",
+    "story": "Sungai yang membisu menguji kesabaran dan arah hati.",
+    "bossId": "hydara",
+    "bossName": "Hydara",
+    "requiredLevel": 10,
+    "requiredChapter": "ch02",
+    "reward": {
+      "exp": 120,
+      "coin": 46,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch03"
+  },
+  {
+    "id": "ch04",
+    "title": "Pelita Kuil Pertama",
+    "region": "Kuil Dini",
+    "story": "Pelita kecil di kuil pertama menuntut keberanian yang tenang.",
+    "bossId": "solmar",
+    "bossName": "Solmar",
+    "requiredLevel": 12,
+    "requiredChapter": "ch03",
+    "reward": {
+      "exp": 140,
+      "coin": 54,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch04"
+  },
+  {
+    "id": "ch05",
+    "title": "Angin di Bukit Doa",
+    "region": "Bukit Doa",
+    "story": "Angin bukit memutar doa menjadi ujian langkah.",
+    "bossId": "kareth",
+    "bossName": "Kareth",
+    "requiredLevel": 14,
+    "requiredChapter": "ch04",
+    "reward": {
+      "exp": 160,
+      "coin": 62,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch05"
+  },
+  {
+    "id": "ch06",
+    "title": "Bayangan Gua Resonansi",
+    "region": "Gua Resonansi",
+    "story": "Gema gua meniru suara hati yang belum jernih.",
+    "bossId": "vunak",
+    "bossName": "Vunak",
+    "requiredLevel": 16,
+    "requiredChapter": "ch05",
+    "reward": {
+      "exp": 180,
+      "coin": 70,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch06"
+  },
+  {
+    "id": "ch07",
+    "title": "Jembatan Kabut Perak",
+    "region": "Jembatan Perak",
+    "story": "Jembatan kabut hanya menahan mereka yang berjalan bersama.",
+    "bossId": "thalim",
+    "bossName": "Thalim",
+    "requiredLevel": 18,
+    "requiredChapter": "ch06",
+    "reward": {
+      "exp": 200,
+      "coin": 78,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch07"
+  },
+  {
+    "id": "ch08",
+    "title": "Padang Api Senyap",
+    "region": "Padang Senyap",
+    "story": "Api senyap membakar keraguan, bukan tubuh.",
+    "bossId": "orvas",
+    "bossName": "Orvas",
+    "requiredLevel": 20,
+    "requiredChapter": "ch07",
+    "reward": {
+      "exp": 220,
+      "coin": 86,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch08"
+  },
+  {
+    "id": "ch09",
+    "title": "Taman Cahaya Patah",
+    "region": "Taman Patah",
+    "story": "Cahaya patah harus disambung dengan perbuatan baik.",
+    "bossId": "nimael",
+    "bossName": "Nimael",
+    "requiredLevel": 21,
+    "requiredChapter": "ch08",
+    "reward": {
+      "exp": 240,
+      "coin": 94,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch09"
+  },
+  {
+    "id": "ch10",
+    "title": "Menara Pengawas Dini",
+    "region": "Menara Dini",
+    "story": "Menara ini mengawasi niat, bukan hanya langkah.",
+    "bossId": "brukor",
+    "bossName": "Brukor",
+    "requiredLevel": 22,
+    "requiredChapter": "ch09",
+    "reward": {
+      "exp": 260,
+      "coin": 102,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch10"
+  },
+  {
+    "id": "ch11",
+    "title": "Rawa Suara Lama",
+    "region": "Rawa Suara",
+    "story": "Suara lama di rawa meminta jawaban yang jujur.",
+    "bossId": "selvara",
+    "bossName": "Selvara",
+    "requiredLevel": 23,
+    "requiredChapter": "ch10",
+    "reward": {
+      "exp": 280,
+      "coin": 110,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch11"
+  },
+  {
+    "id": "ch12",
+    "title": "Lereng Batu Tertulis",
+    "region": "Lereng Tertulis",
+    "story": "Batu tertulis menyimpan pelajaran yang tidak boleh dilupakan.",
+    "bossId": "durnek",
+    "bossName": "Durnek",
+    "requiredLevel": 24,
+    "requiredChapter": "ch11",
+    "reward": {
+      "exp": 300,
+      "coin": 118,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch12"
+  },
+  {
+    "id": "ch13",
+    "title": "Hutan Lentera Kecil",
+    "region": "Hutan Lentera",
+    "story": "Lentera kecil cukup jika dibawa bersama.",
+    "bossId": "ashira",
+    "bossName": "Ashira",
+    "requiredLevel": 25,
+    "requiredChapter": "ch12",
+    "reward": {
+      "exp": 320,
+      "coin": 126,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch13"
+  },
+  {
+    "id": "ch14",
+    "title": "Ngarai Bayangan Emas",
+    "region": "Ngarai Emas",
+    "story": "Emas palsu menahan mereka yang lapar harta.",
+    "bossId": "molgath",
+    "bossName": "Molgath",
+    "requiredLevel": 26,
+    "requiredChapter": "ch13",
+    "reward": {
+      "exp": 340,
+      "coin": 134,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch14"
+  },
+  {
+    "id": "ch15",
+    "title": "Telaga Cermin Hati",
+    "region": "Telaga Cermin",
+    "story": "Cermin air menampilkan niat yang disembunyikan.",
+    "bossId": "yenara",
+    "bossName": "Yenara",
+    "requiredLevel": 27,
+    "requiredChapter": "ch14",
+    "reward": {
+      "exp": 360,
+      "coin": 142,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch15"
+  },
+  {
+    "id": "ch16",
+    "title": "Gerbang Angin Timur",
+    "region": "Gerbang Timur",
+    "story": "Angin timur membuka hanya bagi yang sudah belajar.",
+    "bossId": "krivok",
+    "bossName": "Krivok",
+    "requiredLevel": 28,
+    "requiredChapter": "ch15",
+    "reward": {
+      "exp": 380,
+      "coin": 150,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch16"
+  },
+  {
+    "id": "ch17",
+    "title": "Kota Sunyi Pengembara",
+    "region": "Kota Sunyi",
+    "story": "Kota tanpa suara meminta belas kasih, bukan tawa.",
+    "bossId": "palem",
+    "bossName": "Palem",
+    "requiredLevel": 29,
+    "requiredChapter": "ch16",
+    "reward": {
+      "exp": 400,
+      "coin": 158,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch17"
+  },
+  {
+    "id": "ch18",
+    "title": "Bukit Seribu Langkah",
+    "region": "Bukit Langkah",
+    "story": "Setiap langkah dihitung sebagai janji.",
+    "bossId": "zunari",
+    "bossName": "Zunari",
+    "requiredLevel": 30,
+    "requiredChapter": "ch17",
+    "reward": {
+      "exp": 420,
+      "coin": 166,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch18"
+  },
+  {
+    "id": "ch19",
+    "title": "Goa Kapur Berbisik",
+    "region": "Goa Kapur",
+    "story": "Bisikan kapur menguji telinga yang sabar.",
+    "bossId": "hektar",
+    "bossName": "Hektar",
+    "requiredLevel": 31,
+    "requiredChapter": "ch18",
+    "reward": {
+      "exp": 440,
+      "coin": 174,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch19"
+  },
+  {
+    "id": "ch20",
+    "title": "Ladang Bintang Jatuh",
+    "region": "Ladang Bintang",
+    "story": "Bintang jatuh adalah petunjuk, bukan harta.",
+    "bossId": "lumira",
+    "bossName": "Lumira",
+    "requiredLevel": 32,
+    "requiredChapter": "ch19",
+    "reward": {
+      "exp": 460,
+      "coin": 182,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch20"
+  },
+  {
+    "id": "ch21",
+    "title": "Benteng Akar Dunia",
+    "region": "Benteng Akar",
+    "story": "Akar dunia menahan keserakahan agar tidak merambat.",
+    "bossId": "sargoth",
+    "bossName": "Sargoth",
+    "requiredLevel": 33,
+    "requiredChapter": "ch20",
+    "reward": {
+      "exp": 480,
+      "coin": 190,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch21"
+  },
+  {
+    "id": "ch22",
+    "title": "Pantai Doa Senja",
+    "region": "Pantai Senja",
+    "story": "Senja di pantai mengajarkan melepas beban.",
+    "bossId": "elnara",
+    "bossName": "Elnara",
+    "requiredLevel": 34,
+    "requiredChapter": "ch21",
+    "reward": {
+      "exp": 500,
+      "coin": 198,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch22"
+  },
+  {
+    "id": "ch23",
+    "title": "Hutan Pedang Daun",
+    "region": "Hutan Daun",
+    "story": "Daun tajam hanya melukai yang berjalan ceroboh.",
+    "bossId": "voruk",
+    "bossName": "Voruk",
+    "requiredLevel": 35,
+    "requiredChapter": "ch22",
+    "reward": {
+      "exp": 520,
+      "coin": 206,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch23"
+  },
+  {
+    "id": "ch24",
+    "title": "Jalan Relik Terlupakan",
+    "region": "Jalan Relik",
+    "story": "Relik terlupakan milik perjalanan, bukan milik satu orang.",
+    "bossId": "tamsin",
+    "bossName": "Tamsin",
+    "requiredLevel": 36,
+    "requiredChapter": "ch23",
+    "reward": {
+      "exp": 540,
+      "coin": 214,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch24"
+  },
+  {
+    "id": "ch25",
+    "title": "Kawah Napas Bumi",
+    "region": "Kawah Napas",
+    "story": "Napas bumi menguji ketahanan dan rendah hati.",
+    "bossId": "greloth",
+    "bossName": "Greloth",
+    "requiredLevel": 37,
+    "requiredChapter": "ch24",
+    "reward": {
+      "exp": 560,
+      "coin": 222,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch25"
+  },
+  {
+    "id": "ch26",
+    "title": "Kuil Angin Pengampun",
+    "region": "Kuil Pengampun",
+    "story": "Pengampunan adalah kekuatan yang tidak memukul.",
+    "bossId": "iskara",
+    "bossName": "Iskara",
+    "requiredLevel": 38,
+    "requiredChapter": "ch25",
+    "reward": {
+      "exp": 580,
+      "coin": 230,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch26"
+  },
+  {
+    "id": "ch27",
+    "title": "Lembah Seribu Lentera",
+    "region": "Lembah Lentera",
+    "story": "Lentera banyak tidak berarti jika satu hati gelap.",
+    "bossId": "nabor",
+    "bossName": "Nabor",
+    "requiredLevel": 39,
+    "requiredChapter": "ch26",
+    "reward": {
+      "exp": 600,
+      "coin": 238,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch27"
+  },
+  {
+    "id": "ch28",
+    "title": "Puncak Suara Hening",
+    "region": "Puncak Hening",
+    "story": "Hening di puncak lebih keras dari teriakan.",
+    "bossId": "quenith",
+    "bossName": "Quenith",
+    "requiredLevel": 40,
+    "requiredChapter": "ch27",
+    "reward": {
+      "exp": 620,
+      "coin": 246,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch28"
+  },
+  {
+    "id": "ch29",
+    "title": "Sungai Cahaya Terakhir",
+    "region": "Sungai Terakhir",
+    "story": "Sungai terakhir mencuci niat sebelum tempat ibadah.",
+    "bossId": "dravok",
+    "bossName": "Dravok",
+    "requiredLevel": 41,
+    "requiredChapter": "ch28",
+    "reward": {
+      "exp": 640,
+      "coin": 254,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch29"
+  },
+  {
+    "id": "ch30",
+    "title": "Gerbang Tujuh Janji",
+    "region": "Gerbang Janji",
+    "story": "Tujuh janji harus dijaga sampai ke pelataran suci.",
+    "bossId": "seraya",
+    "bossName": "Seraya",
+    "requiredLevel": 42,
+    "requiredChapter": "ch29",
+    "reward": {
+      "exp": 660,
+      "coin": 262,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch30"
+  },
+  {
+    "id": "ch31",
+    "title": "Pelataran Awan Tenang",
+    "region": "Pelataran Awan",
+    "story": "Awan tenang menolak langkah yang penuh amarah.",
+    "bossId": "wuldar",
+    "bossName": "Wuldar",
+    "requiredLevel": 43,
+    "requiredChapter": "ch30",
+    "reward": {
+      "exp": 680,
+      "coin": 270,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch31"
+  },
+  {
+    "id": "ch32",
+    "title": "Koridor Lampu Abadi",
+    "region": "Koridor Lampu",
+    "story": "Lampu abadi hanya menyala bagi yang sudah belajar.",
+    "bossId": "kaelith",
+    "bossName": "Kaelith",
+    "requiredLevel": 44,
+    "requiredChapter": "ch31",
+    "reward": {
+      "exp": 700,
+      "coin": 278,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch32"
+  },
+  {
+    "id": "ch33",
+    "title": "Ambang Tempat Ibadah",
+    "region": "Ambang Suci",
+    "story": "Ambang tempat ibadah: ujian terakhir sebelum cahaya.",
+    "bossId": "nuraya",
+    "bossName": "Nuraya, Penjaga Ambang",
+    "requiredLevel": 45,
+    "requiredChapter": "ch32",
+    "reward": {
+      "exp": 720,
+      "coin": 286,
+      "crystal": 2
+    },
+    "dungeonId": "dun-ch33"
+  }
+]

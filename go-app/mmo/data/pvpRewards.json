@@ -1,0 +1,7 @@
+[
+  { "id": "gold-badge", "rank": "GOLD", "kind": "cosmetic", "itemId": "badge-golden-arena", "name": "Gold Champion Badge" },
+  { "id": "diamond-aura", "rank": "DIAMOND", "kind": "cosmetic", "itemId": "aura-diamond", "name": "Diamond Aura" },
+  { "id": "master-title", "rank": "MASTER", "kind": "title", "itemId": "title-master", "name": "Master Title" },
+  { "id": "grandmaster-title", "rank": "CELESTIAL", "kind": "title", "itemId": "title-celestial-champion", "name": "Grandmaster Title" },
+  { "id": "frame-arena", "rank": "PLATINUM", "kind": "cosmetic", "itemId": "frame-arena", "name": "Arena Avatar Frame" }
+]

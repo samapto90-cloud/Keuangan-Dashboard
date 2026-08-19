@@ -1,0 +1,56 @@
+{
+  "branches": [
+    {
+      "id": "COMBAT",
+      "name": "COMBAT",
+      "nodes": [
+        { "id": "enhanced_punch", "skillId": "enhanced_punch", "cost": 1, "requiredLevel": 1 },
+        { "id": "power_strike", "skillId": "power_strike", "cost": 1, "requiredLevel": 1, "prerequisite": "enhanced_punch" },
+        { "id": "combo_master", "skillId": "combo_master", "cost": 1, "requiredLevel": 8, "prerequisite": "power_strike" },
+        { "id": "finisher", "skillId": "finisher_mastery", "cost": 1, "requiredLevel": 12, "prerequisite": "combo_master" }
+      ]
+    },
+    {
+      "id": "ENERGY",
+      "name": "ENERGY",
+      "nodes": [
+        { "id": "energy_control", "skillId": "energy_control", "cost": 1, "requiredLevel": 1 },
+        { "id": "energy_burst", "skillId": "energy_burst", "cost": 1, "requiredLevel": 4, "prerequisite": "energy_control" },
+        { "id": "focused_beam", "skillId": "focused_beam", "cost": 1, "requiredLevel": 12, "prerequisite": "energy_burst" },
+        { "id": "ultimate_energy", "skillId": "celestial_impact", "cost": 2, "requiredLevel": 20, "prerequisite": "focused_beam" }
+      ]
+    },
+    {
+      "id": "DEFENSE",
+      "name": "DEFENSE",
+      "nodes": [
+        { "id": "iron_guard", "skillId": "iron_guard", "cost": 1, "requiredLevel": 1 },
+        { "id": "energy_shield", "skillId": "spirit_guard", "cost": 1, "requiredLevel": 6, "prerequisite": "iron_guard" },
+        { "id": "counter", "skillId": "counter", "cost": 1, "requiredLevel": 10, "prerequisite": "energy_shield" },
+        { "id": "perfect_guard", "skillId": "perfect_guard", "cost": 1, "requiredLevel": 16, "prerequisite": "counter" }
+      ]
+    },
+    {
+      "id": "MOBILITY",
+      "name": "MOBILITY",
+      "nodes": [
+        { "id": "quick_step", "skillId": "quick_step", "cost": 1, "requiredLevel": 1 },
+        { "id": "dash", "skillId": "flash_step", "cost": 1, "requiredLevel": 5, "prerequisite": "quick_step" },
+        { "id": "air_dash", "skillId": "air_dash", "cost": 1, "requiredLevel": 10, "prerequisite": "dash" },
+        { "id": "flash_movement", "skillId": "flash_movement", "cost": 1, "requiredLevel": 16, "prerequisite": "air_dash" }
+      ]
+    },
+    {
+      "id": "TRANSFORMATION",
+      "name": "TRANSFORMATION",
+      "nodes": [
+        { "id": "aura_control", "skillId": "aura_control", "cost": 1, "requiredLevel": 8 },
+        { "id": "aura_1", "skillId": "form_aura_1", "cost": 1, "requiredLevel": 10, "prerequisite": "aura_control", "formId": "aura-1" },
+        { "id": "aura_mastery", "skillId": "aura_mastery", "cost": 1, "requiredLevel": 16, "prerequisite": "aura_1" },
+        { "id": "aura_2", "skillId": "form_aura_2", "cost": 1, "requiredLevel": 20, "prerequisite": "aura_mastery", "formId": "aura-2" },
+        { "id": "aura_3", "skillId": "form_aura_3", "cost": 1, "requiredLevel": 30, "prerequisite": "aura_2", "formId": "aura-3" },
+        { "id": "celestial_4", "skillId": "form_celestial_4", "cost": 2, "requiredLevel": 40, "prerequisite": "aura_3", "formId": "celestial-4" }
+      ]
+    }
+  ]
+}

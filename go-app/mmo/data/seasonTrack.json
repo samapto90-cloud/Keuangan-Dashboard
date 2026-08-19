@@ -1,0 +1,30 @@
+{
+  "id": "s1-light",
+  "name": "DAWN OF THE 33",
+  "theme": "Perjalanan Cahaya",
+  "start": "2026-08-01T00:00:00Z",
+  "end": "2026-10-12T00:00:00Z",
+  "weeks": 8,
+  "maxLevel": 50,
+  "xpPerLevel": 100,
+  "freeTrack": true,
+  "activities": [
+    { "id": "daily", "label": "Daily Quest", "xp": 50 },
+    { "id": "dungeon", "label": "Complete Dungeon", "xp": 100 },
+    { "id": "raid", "label": "Raid", "xp": 200 },
+    { "id": "event", "label": "World Event", "xp": 40 },
+    { "id": "explore", "label": "Exploration", "xp": 20 },
+    { "id": "pvp", "label": "PvP Match", "xp": 60 }
+  ],
+  "rewards": [
+    { "level": 1, "kind": "title", "id": "first-step" },
+    { "level": 5, "kind": "emote", "id": "emote-wave" },
+    { "level": 10, "kind": "banner", "id": "banner-dawn-33" },
+    { "level": 15, "kind": "frame", "id": "frame-light" },
+    { "level": 20, "kind": "aura", "id": "aura-season-dawn" },
+    { "level": 25, "kind": "badge", "id": "badge-dawn-33" },
+    { "level": 30, "kind": "mount", "id": "mount-season-trim" },
+    { "level": 40, "kind": "title", "id": "master-adventurer" },
+    { "level": 50, "kind": "aura", "id": "aura-horizon-free" }
+  ]
+}

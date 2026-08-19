@@ -1,0 +1,216 @@
+[
+  {
+    "id": "ragha",
+    "name": "Ragha",
+    "title": "Guardian of Mist",
+    "type": "Forest Demon",
+    "level": 10,
+    "maxHp": 520,
+    "attack": 12,
+    "defense": 6,
+    "speed": 2.1,
+    "leash": 18,
+    "enrageTime": 180,
+    "lootTableId": "lt-ragha",
+    "skills": ["claw_strike", "mist_slash", "fog_wave", "mist_clone", "fog_burst", "ancient_mist_storm"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.6, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.25, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "gravon",
+    "name": "Gravon",
+    "title": "Guardian of Stone",
+    "type": "Stone Sentinel",
+    "level": 15,
+    "maxHp": 880,
+    "attack": 16,
+    "defense": 12,
+    "speed": 1.6,
+    "leash": 16,
+    "enrageTime": 200,
+    "lootTableId": "lt-gravon",
+    "skills": ["ground_shock", "stone_shield", "boulder_line"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.5, "label": "PHASE 2" }
+    ]
+  },
+  {
+    "id": "kairoth",
+    "name": "Kairoth",
+    "title": "Guardian of Flame",
+    "type": "Ember Warden",
+    "level": 20,
+    "maxHp": 1100,
+    "attack": 18,
+    "defense": 10,
+    "speed": 2.0,
+    "leash": 18,
+    "enrageTime": 200,
+    "lootTableId": "lt-kairoth",
+    "skills": ["ember_slash", "flame_ring", "charge_burst"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.45, "label": "PHASE 2" }
+    ]
+  },
+  {
+    "id": "stone-guardian",
+    "name": "Guardian of Stone",
+    "title": "Raid Encounter I",
+    "type": "Celestial Construct",
+    "level": 35,
+    "maxHp": 2400,
+    "attack": 22,
+    "defense": 16,
+    "speed": 1.5,
+    "leash": 22,
+    "enrageTime": 240,
+    "lootTableId": "lt-raid-celestial",
+    "skills": ["ground_shock", "boulder_line"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "storm-guardian",
+    "name": "Guardian of Light",
+    "title": "Raid Encounter II",
+    "type": "Celestial Storm",
+    "level": 36,
+    "maxHp": 2600,
+    "attack": 24,
+    "defense": 14,
+    "speed": 1.8,
+    "leash": 22,
+    "enrageTime": 240,
+    "lootTableId": "lt-raid-celestial",
+    "skills": ["fog_wave", "starfall"],
+    "phases": [{ "id": 1, "hpPct": 1.0, "label": "PHASE 1" }]
+  },
+  {
+    "id": "avaron-gatekeeper",
+    "name": "Avaron Echo",
+    "title": "Celestial Gatekeeper",
+    "type": "Raid Final",
+    "level": 38,
+    "maxHp": 3600,
+    "attack": 26,
+    "defense": 18,
+    "speed": 1.7,
+    "leash": 24,
+    "enrageTime": 300,
+    "lootTableId": "lt-raid-final",
+    "skills": ["celestial_strike", "starfall", "gate_collapse"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "batu-gora-echo",
+    "name": "Batu Gora Echo",
+    "title": "Stoneheart Warden",
+    "type": "Stone Echo",
+    "level": 20,
+    "maxHp": 1400,
+    "attack": 18,
+    "defense": 14,
+    "speed": 1.5,
+    "leash": 18,
+    "enrageTime": 480,
+    "lootTableId": "lt-stoneheart",
+    "skills": ["ground_shock", "stone_shield", "boulder_line", "charge_burst"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "bara-naga-echo",
+    "name": "Bara Naga Echo",
+    "title": "Crimson Warden",
+    "type": "Flame Echo",
+    "level": 30,
+    "maxHp": 1800,
+    "attack": 20,
+    "defense": 12,
+    "speed": 1.9,
+    "leash": 18,
+    "enrageTime": 480,
+    "lootTableId": "lt-crimson",
+    "skills": ["ember_slash", "flame_ring", "charge_burst", "fog_wave"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "lunara-shade",
+    "name": "Lunara Shade",
+    "title": "Moonlight Warden",
+    "type": "Moon Echo",
+    "level": 40,
+    "maxHp": 2200,
+    "attack": 22,
+    "defense": 14,
+    "speed": 2.0,
+    "leash": 20,
+    "enrageTime": 480,
+    "lootTableId": "lt-moonlight",
+    "skills": ["mist_slash", "fog_wave", "starfall", "charge_burst"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "celestial-guardian",
+    "name": "Celestial Guardian",
+    "title": "Ruin Warden",
+    "type": "Celestial Construct",
+    "level": 50,
+    "maxHp": 2800,
+    "attack": 24,
+    "defense": 16,
+    "speed": 1.7,
+    "leash": 22,
+    "enrageTime": 480,
+    "lootTableId": "lt-celestial-ruins",
+    "skills": ["celestial_strike", "starfall", "gate_collapse", "fog_wave"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  },
+  {
+    "id": "sky-guardian",
+    "name": "Sky Guardian",
+    "title": "Fortress Warden",
+    "type": "Sky Construct",
+    "level": 46,
+    "maxHp": 3000,
+    "attack": 24,
+    "defense": 16,
+    "speed": 1.8,
+    "leash": 22,
+    "enrageTime": 480,
+    "lootTableId": "lt-raid-sky",
+    "skills": ["starfall", "celestial_strike", "gate_collapse", "boulder_line"],
+    "phases": [
+      { "id": 1, "hpPct": 1.0, "label": "PHASE 1" },
+      { "id": 2, "hpPct": 0.7, "label": "PHASE 2" },
+      { "id": 3, "hpPct": 0.4, "label": "PHASE 3" }
+    ]
+  }
+]

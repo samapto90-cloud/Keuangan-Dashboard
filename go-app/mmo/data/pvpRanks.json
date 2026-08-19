@@ -1,0 +1,9 @@
+[
+  { "id": "BRONZE", "name": "Bronze", "min": 0, "max": 999, "visual": "bronze" },
+  { "id": "SILVER", "name": "Silver", "min": 1000, "max": 1499, "visual": "silver" },
+  { "id": "GOLD", "name": "Gold", "min": 1500, "max": 1999, "reward": "badge-golden-arena", "visual": "gold" },
+  { "id": "PLATINUM", "name": "Platinum", "min": 2000, "max": 2499, "visual": "crystal" },
+  { "id": "DIAMOND", "name": "Diamond", "min": 2500, "max": 2999, "reward": "aura-diamond", "visual": "crystal" },
+  { "id": "MASTER", "name": "Master", "min": 3000, "max": 3499, "reward": "title-master", "visual": "celestial" },
+  { "id": "CELESTIAL", "name": "Grandmaster", "min": 3500, "max": 99999, "reward": "title-celestial-champion", "visual": "celestial" }
+]

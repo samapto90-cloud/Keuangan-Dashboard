@@ -1,0 +1,17 @@
+{
+  "ids": ["STR", "DEF", "AGI", "ENG", "VIT"],
+  "names": {
+    "STR": "POWER",
+    "DEF": "RESOLVE",
+    "AGI": "AGILITY",
+    "ENG": "FOCUS",
+    "VIT": "VITALITY"
+  },
+  "aliases": {
+    "POWER": "STR",
+    "RESOLVE": "DEF",
+    "FOCUS": "ENG",
+    "VITALITY": "VIT",
+    "AGILITY": "AGI"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "village_intro_complete": false,
+  "training_complete": false,
+  "forest_threat_known": false,
+  "forest_unlocked": false,
+  "education_trial_complete": false,
+  "chapter1_complete": false,
+  "chapter2_unlocked": false,
+  "education_challenge_1": false,
+  "education_challenge_4": false,
+  "dungeon_boss_clear": false,
+  "special_trial": false,
+  "special_boss": false,
+  "aura_1_unlocked": false,
+  "aura_2_unlocked": false,
+  "aura_3_unlocked": false,
+  "celestial_4_unlocked": false
+}

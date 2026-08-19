@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	maxRequestBodyBytes = 12 << 20 // 12 MiB (impor Excel)
-	maxLoginBodyBytes   = 8 << 10  // 8 KiB
-	loginMaxFails       = 5
-	loginLockDuration   = 15 * time.Minute
+	maxRequestBodyBytes  = 12 << 20 // 12 MiB (impor Excel)
+	maxLoginBodyBytes    = 8 << 10  // 8 KiB
+	loginMaxFails        = 5
+	loginLockDuration    = 15 * time.Minute
 	defaultAPIRateMax    = 2400
 	defaultAPIRateWin    = time.Minute
 	defaultLoginRateMax  = 120
@@ -27,9 +27,9 @@ const (
 	defaultAssetRateMax  = 3000
 	defaultPortalRateMax = 240
 	defaultMaxConnPerIP  = 64
-	loginRateWindow     = time.Minute
-	bcryptCost          = 10
-	maxBcryptConcurrent = 160
+	loginRateWindow      = time.Minute
+	bcryptCost           = 10
+	maxBcryptConcurrent  = 160
 )
 
 type loginGuard struct {
@@ -53,17 +53,17 @@ type loginRateGuard struct {
 }
 
 var (
-	loginLimiter     loginGuard
-	loginRateLimiter loginRateGuard
-	trustProxy       bool
-	apiRateLimitMax  int
-	apiRateWindow    time.Duration
-	loginRateMax     int
-	ipRateLimitMax   int
-	assetRateLimitMax int
+	loginLimiter        loginGuard
+	loginRateLimiter    loginRateGuard
+	trustProxy          bool
+	apiRateLimitMax     int
+	apiRateWindow       time.Duration
+	loginRateMax        int
+	ipRateLimitMax      int
+	assetRateLimitMax   int
 	portalStatusRateMax int
-	maxConnPerIP     int
-	bcryptSem        = make(chan struct{}, maxBcryptConcurrent)
+	maxConnPerIP        int
+	bcryptSem           = make(chan struct{}, maxBcryptConcurrent)
 )
 
 func initSecurity() {
@@ -259,7 +259,7 @@ func apiRateKey(r *http.Request) string {
 
 func ipRateLimitForPath(path string) (max int, window time.Duration, skip bool) {
 	switch {
-	case path == "/health":
+	case path == "/health", path == "/ready":
 		return 0, 0, true
 	case path == "/data/auth/login":
 		return 0, 0, true
@@ -355,7 +355,7 @@ func withIPShield(next http.Handler) http.Handler {
 func withAPIRateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if path == "/health" || path == "/favicon.ico" || path == "/data/auth/login" {
+		if path == "/health" || path == "/ready" || path == "/favicon.ico" || path == "/data/auth/login" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -366,6 +366,10 @@ func withAPIRateLimit(next http.Handler) http.Handler {
 			return
 		}
 		if path == "/data/portals/status" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/cahaya") {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -545,6 +549,7 @@ func (w *gzipResponseWriter) WriteHeader(statusCode int) {
 		return
 	}
 	w.wroteHeader = true
+	w.Header().Del("Content-Length")
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
@@ -557,7 +562,11 @@ var gzipWriterPool = sync.Pool{
 func withGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if path == "/" || path == "/health" || strings.HasPrefix(path, "/assets/") {
+		if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") || strings.HasPrefix(path, "/cahaya") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if path == "/" || path == "/health" || path == "/ready" || strings.HasPrefix(path, "/assets/") {
 			next.ServeHTTP(w, r)
 			return
 		}

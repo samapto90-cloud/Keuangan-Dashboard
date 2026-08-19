@@ -1,0 +1,12 @@
+{
+  "id": "world-01",
+  "name": "World of Dawn",
+  "hub": "village-of-dawn",
+  "timeOfDay": "DAY",
+  "interestRadius": 52,
+  "maxEnemiesPerCell": 6,
+  "cellSize": 24,
+  "discoveryExp": 20,
+  "gameMinutesPerRealMinute": 5,
+  "startClock": "09:00"
+}

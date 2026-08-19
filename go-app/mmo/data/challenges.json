@@ -1,0 +1,10 @@
+[
+  { "id": "ch-combat-100", "name": "Steel Breath", "kind": "COMBAT", "tier": "GOLD", "title": "Defeat 100 monsters without dying.", "metric": "KILL_NODEATH", "count": 100, "seasonXP": 80, "rewardTitle": "guardian-hunter" },
+  { "id": "ch-explore-mist", "name": "Mistwood Paths", "kind": "EXPLORATION", "tier": "BRONZE", "title": "Discover all Mistwood locations.", "metric": "ZONE", "target": "forest", "count": 1, "seasonXP": 40, "rewardTitle": "forest-explorer" },
+  { "id": "ch-edu-20", "name": "Little Scholar", "kind": "EDUCATION", "tier": "SILVER", "title": "Answer 20 questions correctly.", "metric": "ANSWER", "count": 20, "seasonXP": 60, "rewardTitle": "education-explorer" },
+  { "id": "ch-dungeon-time", "name": "Swift Cavern", "kind": "DUNGEON", "tier": "SILVER", "title": "Complete Mistwood Cavern under 15 minutes.", "metric": "DUNGEON_TIME", "target": "dun-mistwood", "count": 900, "seasonXP": 70 },
+  { "id": "ch-raid-wipe", "name": "Unbroken Circle", "kind": "RAID", "tier": "GOLD", "title": "Complete Celestial Ruins without a party wipe.", "metric": "RAID_NOWIPE", "target": "raid-celestial", "count": 1, "seasonXP": 100, "rewardCosmetic": "banner-celestial" },
+  { "id": "ch-pvp-ranked", "name": "Five Dawns", "kind": "PVP", "tier": "GOLD", "title": "Win 5 ranked matches.", "metric": "RANKED_WIN", "count": 5, "seasonXP": 90, "rewardTitle": "title-celestial-champion" },
+  { "id": "ch-collect-aura", "name": "Aura Shelf", "kind": "COLLECTION", "tier": "BRONZE", "title": "Own 5 aura cosmetics.", "metric": "COSMETIC_KIND", "target": "aura", "count": 5, "seasonXP": 40 },
+  { "id": "ch-social-guild", "name": "Guild Hands", "kind": "SOCIAL", "tier": "SILVER", "title": "Complete a dungeon with guild members.", "metric": "GUILD_DUNGEON", "count": 1, "seasonXP": 50, "rewardTitle": "dawn-defender" }
+]

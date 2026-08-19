@@ -1,0 +1,20 @@
+{
+  "id": "ancient-gate-guardian",
+  "name": "Guardian of the Ancient Gate",
+  "title": "Penjaga Gerbang Kuno",
+  "region": "valley",
+  "x": 0,
+  "z": 58,
+  "level": 18,
+  "maxHp": 8000,
+  "maxPlayers": 20,
+  "announce": "Ancient Guardian has appeared in Stone Valley!",
+  "durationSec": 180,
+  "rewards": { "exp": 120, "coin": 50, "crystal": 2 },
+  "phases": [
+    { "until": 70, "name": "AOE", "mechanic": "aoe" },
+    { "until": 40, "name": "SUMMON", "mechanic": "summon" },
+    { "until": 10, "name": "SHIELD", "mechanic": "shield" },
+    { "until": 0, "name": "FINAL", "mechanic": "telegraph" }
+  ]
+}

@@ -1,0 +1,11 @@
+[
+  { "id": "dq-dungeon", "title": "Complete 1 Dungeon", "kind": "DUNGEON", "target": "", "count": 1, "rewards": { "exp": 40, "coin": 15, "eduToken": 0 }, "seasonXP": 50 },
+  { "id": "dq-monsters", "title": "Defeat 20 Monsters", "kind": "KILL", "target": "", "count": 20, "rewards": { "exp": 30, "coin": 12 }, "seasonXP": 40 },
+  { "id": "dq-edu", "title": "Answer 5 Educational Questions", "kind": "ANSWER", "target": "", "count": 5, "rewards": { "exp": 25, "coin": 8, "eduToken": 2 }, "seasonXP": 50 },
+  { "id": "dq-event", "title": "Join 1 World Event", "kind": "EVENT", "target": "", "count": 1, "rewards": { "exp": 20, "coin": 10 }, "seasonXP": 40 },
+  { "id": "dq-pvp", "title": "Complete 1 PvP Match", "kind": "PVP_MATCH", "target": "", "count": 1, "rewards": { "exp": 25, "coin": 10, "battleToken": 1 }, "seasonXP": 50 },
+  { "id": "dq-pvp-win", "title": "Win 1 PvP Match", "kind": "PVP_WIN", "target": "", "count": 1, "rewards": { "exp": 20, "coin": 8, "battleToken": 1 }, "seasonXP": 40 },
+  { "id": "dq-pvp-shrine", "title": "Capture 3 Light Shrines", "kind": "PVP_CAPTURE", "target": "", "count": 3, "rewards": { "exp": 25, "coin": 10 }, "seasonXP": 50 },
+  { "id": "dq-help-village", "title": "Help Villagers", "kind": "HELP", "target": "village", "count": 1, "rewards": { "exp": 15, "coin": 8 }, "seasonXP": 20 },
+  { "id": "dq-protect-region", "title": "Protect Region", "kind": "EVENT", "target": "village", "count": 1, "rewards": { "exp": 30, "coin": 12 }, "seasonXP": 40 }
+]

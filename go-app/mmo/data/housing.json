@@ -1,0 +1,18 @@
+{
+  "district": "DAWN MEADOW",
+  "safeZone": true,
+  "houses": [
+    { "id": "house-small", "name": "Small House", "slots": 12 },
+    { "id": "house-medium", "name": "Medium House", "slots": 24 },
+    { "id": "house-large", "name": "Large House", "slots": 40 }
+  ],
+  "decor": [
+    { "id": "decor-chair", "name": "Chair" },
+    { "id": "decor-table", "name": "Table" },
+    { "id": "decor-lamp", "name": "Lamp" },
+    { "id": "decor-bookshelf", "name": "Bookshelf" },
+    { "id": "decor-plant", "name": "Plant" },
+    { "id": "decor-banner", "name": "Banner" },
+    { "id": "decor-dummy", "name": "Training Dummy" }
+  ]
+}

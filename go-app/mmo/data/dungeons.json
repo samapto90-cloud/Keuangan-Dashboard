@@ -1,0 +1,826 @@
+[
+  {
+    "id": "dun-mistwood",
+    "name": "Mistwood Cavern",
+    "description": "Gua kabut kuno. Kabutra Echo menguji petualang dengan teka-teki cahaya.",
+    "kind": "DUNGEON",
+    "region": "whisper-forest",
+    "minimumLevel": 10,
+    "recommendedLevel": 10,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 5,
+    "timeLimit": 1800,
+    "environment": "cavern",
+    "enemyWaves": ["mw-pack", "mw-elite", "mw-boss"],
+    "bossId": "ragha",
+    "bosses": ["ragha"],
+    "lootTableId": "lt-ragha",
+    "rewards": { "exp": 500, "coin": 120, "crystal": 2 },
+    "educationQuestion": "q-gate-add",
+    "educationBoss": "q-add-4-3",
+    "storyChapter": "ch01"
+  },
+  {
+    "id": "dun-stonefall",
+    "name": "Stonefall Depths",
+    "description": "Kedalaman batu tempat Gravon, Guardian of Stone, berjaga.",
+    "kind": "DUNGEON",
+    "minimumLevel": 15,
+    "recommendedLevel": 15,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "environment": "depths",
+    "enemyWaves": ["sf-pack", "sf-boss"],
+    "bossId": "gravon",
+    "bosses": ["gravon"],
+    "lootTableId": "lt-gravon",
+    "rewards": { "exp": 620, "coin": 150, "crystal": 2 }
+  },
+  {
+    "id": "dun-ember",
+    "name": "Crimson Ember Temple",
+    "description": "Kuil bara tempat Kairoth, Guardian of Flame, menguji para penjelajah.",
+    "kind": "DUNGEON",
+    "minimumLevel": 20,
+    "recommendedLevel": 20,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "environment": "temple",
+    "enemyWaves": ["em-pack", "em-boss"],
+    "bossId": "kairoth",
+    "bosses": ["kairoth"],
+    "lootTableId": "lt-kairoth",
+    "rewards": { "exp": 760, "coin": 180, "crystal": 3 },
+    "educationQuestion": "q-gate-add"
+  },
+  {
+    "id": "raid-celestial",
+    "name": "Temple of the Celestial Gate",
+    "description": "Raid 10 pemain. Tiga sayap menuju Avaron Echo di gerbang langit.",
+    "kind": "RAID",
+    "region": "celestial",
+    "minimumLevel": 35,
+    "recommendedLevel": 35,
+    "difficulty": "NORMAL",
+    "minPlayers": 4,
+    "maxPlayers": 10,
+    "timeLimit": 3600,
+    "environment": "celestial-ruins",
+    "enemyWaves": ["raid-stone", "raid-storm", "raid-gate"],
+    "bossId": "stone-guardian",
+    "bosses": ["stone-guardian", "storm-guardian", "avaron-gatekeeper"],
+    "lootTableId": "lt-raid-celestial",
+    "weeklyLockout": true,
+    "rewards": { "exp": 1200, "coin": 400, "crystal": 8 }
+  },
+  {
+    "id": "dun-ch01",
+    "name": "Bayangan di Whisper Forest",
+    "chapterId": "ch01",
+    "minimumLevel": 3,
+    "recommendedLevel": 5,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "w1-fangs",
+      "w2-imps",
+      "w3-elite",
+      "w4-boss"
+    ],
+    "bossId": "ragha",
+    "rewards": {
+      "exp": 80,
+      "coin": 30,
+      "crystal": 1
+    },
+    "educationQuestion": "q-dungeon-1"
+  },
+  {
+    "id": "dun-ch02",
+    "name": "Jejak di Lembah Batu",
+    "chapterId": "ch02",
+    "minimumLevel": 6,
+    "recommendedLevel": 8,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "gravon",
+    "rewards": {
+      "exp": 100,
+      "coin": 38,
+      "crystal": 1
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch03",
+    "name": "Nyanyian Sungai Sunyi",
+    "chapterId": "ch03",
+    "minimumLevel": 8,
+    "recommendedLevel": 10,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "hydara",
+    "rewards": {
+      "exp": 120,
+      "coin": 46,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch04",
+    "name": "Pelita Kuil Pertama",
+    "chapterId": "ch04",
+    "minimumLevel": 10,
+    "recommendedLevel": 12,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "solmar",
+    "rewards": {
+      "exp": 140,
+      "coin": 54,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch05",
+    "name": "Angin di Bukit Doa",
+    "chapterId": "ch05",
+    "minimumLevel": 12,
+    "recommendedLevel": 14,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "kareth",
+    "rewards": {
+      "exp": 160,
+      "coin": 62,
+      "crystal": 2
+    },
+    "educationQuestion": "q-gate-add"
+  },
+  {
+    "id": "dun-ch06",
+    "name": "Bayangan Gua Resonansi",
+    "chapterId": "ch06",
+    "minimumLevel": 14,
+    "recommendedLevel": 16,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "vunak",
+    "rewards": {
+      "exp": 180,
+      "coin": 70,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch07",
+    "name": "Jembatan Kabut Perak",
+    "chapterId": "ch07",
+    "minimumLevel": 16,
+    "recommendedLevel": 18,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "thalim",
+    "rewards": {
+      "exp": 200,
+      "coin": 78,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch08",
+    "name": "Padang Api Senyap",
+    "chapterId": "ch08",
+    "minimumLevel": 18,
+    "recommendedLevel": 20,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "orvas",
+    "rewards": {
+      "exp": 220,
+      "coin": 86,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch09",
+    "name": "Taman Cahaya Patah",
+    "chapterId": "ch09",
+    "minimumLevel": 19,
+    "recommendedLevel": 21,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "nimael",
+    "rewards": {
+      "exp": 240,
+      "coin": 94,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch10",
+    "name": "Menara Pengawas Dini",
+    "chapterId": "ch10",
+    "minimumLevel": 20,
+    "recommendedLevel": 22,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "brukor",
+    "rewards": {
+      "exp": 260,
+      "coin": 102,
+      "crystal": 2
+    },
+    "educationQuestion": "q-color-1"
+  },
+  {
+    "id": "dun-ch11",
+    "name": "Rawa Suara Lama",
+    "chapterId": "ch11",
+    "minimumLevel": 21,
+    "recommendedLevel": 23,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "selvara",
+    "rewards": {
+      "exp": 280,
+      "coin": 110,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch12",
+    "name": "Lereng Batu Tertulis",
+    "chapterId": "ch12",
+    "minimumLevel": 22,
+    "recommendedLevel": 24,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "durnek",
+    "rewards": {
+      "exp": 300,
+      "coin": 118,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch13",
+    "name": "Hutan Lentera Kecil",
+    "chapterId": "ch13",
+    "minimumLevel": 23,
+    "recommendedLevel": 25,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "ashira",
+    "rewards": {
+      "exp": 320,
+      "coin": 126,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch14",
+    "name": "Ngarai Bayangan Emas",
+    "chapterId": "ch14",
+    "minimumLevel": 24,
+    "recommendedLevel": 26,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "molgath",
+    "rewards": {
+      "exp": 340,
+      "coin": 134,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch15",
+    "name": "Telaga Cermin Hati",
+    "chapterId": "ch15",
+    "minimumLevel": 25,
+    "recommendedLevel": 27,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "yenara",
+    "rewards": {
+      "exp": 360,
+      "coin": 142,
+      "crystal": 2
+    },
+    "educationQuestion": "q2"
+  },
+  {
+    "id": "dun-ch16",
+    "name": "Gerbang Angin Timur",
+    "chapterId": "ch16",
+    "minimumLevel": 26,
+    "recommendedLevel": 28,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "krivok",
+    "rewards": {
+      "exp": 380,
+      "coin": 150,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch17",
+    "name": "Kota Sunyi Pengembara",
+    "chapterId": "ch17",
+    "minimumLevel": 27,
+    "recommendedLevel": 29,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "palem",
+    "rewards": {
+      "exp": 400,
+      "coin": 158,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch18",
+    "name": "Bukit Seribu Langkah",
+    "chapterId": "ch18",
+    "minimumLevel": 28,
+    "recommendedLevel": 30,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "zunari",
+    "rewards": {
+      "exp": 420,
+      "coin": 166,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch19",
+    "name": "Goa Kapur Berbisik",
+    "chapterId": "ch19",
+    "minimumLevel": 29,
+    "recommendedLevel": 31,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "hektar",
+    "rewards": {
+      "exp": 440,
+      "coin": 174,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch20",
+    "name": "Ladang Bintang Jatuh",
+    "chapterId": "ch20",
+    "minimumLevel": 30,
+    "recommendedLevel": 32,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "lumira",
+    "rewards": {
+      "exp": 460,
+      "coin": 182,
+      "crystal": 2
+    },
+    "educationQuestion": "q3"
+  },
+  {
+    "id": "dun-ch21",
+    "name": "Benteng Akar Dunia",
+    "chapterId": "ch21",
+    "minimumLevel": 31,
+    "recommendedLevel": 33,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "sargoth",
+    "rewards": {
+      "exp": 480,
+      "coin": 190,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch22",
+    "name": "Pantai Doa Senja",
+    "chapterId": "ch22",
+    "minimumLevel": 32,
+    "recommendedLevel": 34,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "elnara",
+    "rewards": {
+      "exp": 500,
+      "coin": 198,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch23",
+    "name": "Hutan Pedang Daun",
+    "chapterId": "ch23",
+    "minimumLevel": 33,
+    "recommendedLevel": 35,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "voruk",
+    "rewards": {
+      "exp": 520,
+      "coin": 206,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch24",
+    "name": "Jalan Relik Terlupakan",
+    "chapterId": "ch24",
+    "minimumLevel": 34,
+    "recommendedLevel": 36,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "tamsin",
+    "rewards": {
+      "exp": 540,
+      "coin": 214,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch25",
+    "name": "Kawah Napas Bumi",
+    "chapterId": "ch25",
+    "minimumLevel": 35,
+    "recommendedLevel": 37,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "greloth",
+    "rewards": {
+      "exp": 560,
+      "coin": 222,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch26",
+    "name": "Kuil Angin Pengampun",
+    "chapterId": "ch26",
+    "minimumLevel": 36,
+    "recommendedLevel": 38,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "iskara",
+    "rewards": {
+      "exp": 580,
+      "coin": 230,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch27",
+    "name": "Lembah Seribu Lentera",
+    "chapterId": "ch27",
+    "minimumLevel": 37,
+    "recommendedLevel": 39,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "nabor",
+    "rewards": {
+      "exp": 600,
+      "coin": 238,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch28",
+    "name": "Puncak Suara Hening",
+    "chapterId": "ch28",
+    "minimumLevel": 38,
+    "recommendedLevel": 40,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "quenith",
+    "rewards": {
+      "exp": 620,
+      "coin": 246,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch29",
+    "name": "Sungai Cahaya Terakhir",
+    "chapterId": "ch29",
+    "minimumLevel": 39,
+    "recommendedLevel": 41,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "dravok",
+    "rewards": {
+      "exp": 640,
+      "coin": 254,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch30",
+    "name": "Gerbang Tujuh Janji",
+    "chapterId": "ch30",
+    "minimumLevel": 40,
+    "recommendedLevel": 42,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "seraya",
+    "rewards": {
+      "exp": 660,
+      "coin": 262,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch31",
+    "name": "Pelataran Awan Tenang",
+    "chapterId": "ch31",
+    "minimumLevel": 41,
+    "recommendedLevel": 43,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "wuldar",
+    "rewards": {
+      "exp": 680,
+      "coin": 270,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch32",
+    "name": "Koridor Lampu Abadi",
+    "chapterId": "ch32",
+    "minimumLevel": 42,
+    "recommendedLevel": 44,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "kaelith",
+    "rewards": {
+      "exp": 700,
+      "coin": 278,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-ch33",
+    "name": "Ambang Tempat Ibadah",
+    "chapterId": "ch33",
+    "minimumLevel": 43,
+    "recommendedLevel": 45,
+    "maxPlayers": 4,
+    "timeLimit": 1800,
+    "enemyWaves": [
+      "placeholder-wave"
+    ],
+    "bossId": "nuraya",
+    "rewards": {
+      "exp": 720,
+      "coin": 286,
+      "crystal": 2
+    },
+    "educationQuestion": ""
+  },
+  {
+    "id": "dun-horizon",
+    "name": "Horizon Challenge",
+    "kind": "DUNGEON",
+    "description": "Endgame trial of the Hall of Horizon. Modifiers are chosen by the server.",
+    "minimumLevel": 40,
+    "recommendedLevel": 40,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "timeLimit": 1200,
+    "environment": "horizon",
+    "enemyWaves": ["mw-pack", "mw-elite", "mw-boss"],
+    "bossId": "ragha",
+    "bosses": ["ragha"],
+    "lootTableId": "lt-ragha",
+    "rewards": { "exp": 400, "coin": 80, "crystal": 1 }
+  },
+  {
+    "id": "dun-stoneheart",
+    "name": "Stoneheart Ruins",
+    "description": "Reruntuhan batu kuno. Echo Batu Gora menjaga jantung gunung.",
+    "kind": "DUNGEON",
+    "region": "stone-vale",
+    "minimumLevel": 20,
+    "recommendedLevel": 20,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 5,
+    "timeLimit": 1800,
+    "environment": "depths",
+    "enemyWaves": ["sh-pack", "sh-boss"],
+    "bossId": "batu-gora-echo",
+    "bosses": ["batu-gora-echo"],
+    "lootTableId": "lt-stoneheart",
+    "rewards": { "exp": 720, "coin": 180, "crystal": 3 }
+  },
+  {
+    "id": "dun-crimson",
+    "name": "Crimson Temple",
+    "description": "Kuil bara. Echo Bara Naga menguji ketenangan di tengah api.",
+    "kind": "DUNGEON",
+    "region": "ember-road",
+    "minimumLevel": 30,
+    "recommendedLevel": 30,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 5,
+    "timeLimit": 1800,
+    "environment": "temple",
+    "enemyWaves": ["cr-pack", "cr-boss"],
+    "bossId": "bara-naga-echo",
+    "bosses": ["bara-naga-echo"],
+    "lootTableId": "lt-crimson",
+    "rewards": { "exp": 900, "coin": 240, "crystal": 4 },
+    "educationBoss": "q-add-4-3"
+  },
+  {
+    "id": "dun-moonlight",
+    "name": "Moonlight Sanctum",
+    "description": "Sanctum bulan. Lunara Shade menjaga irama cahaya malam.",
+    "kind": "DUNGEON",
+    "region": "moon-grove",
+    "minimumLevel": 40,
+    "recommendedLevel": 40,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 5,
+    "timeLimit": 1800,
+    "environment": "temple",
+    "enemyWaves": ["mn-pack", "mn-boss"],
+    "bossId": "lunara-shade",
+    "bosses": ["lunara-shade"],
+    "lootTableId": "lt-moonlight",
+    "rewards": { "exp": 1100, "coin": 300, "crystal": 5 }
+  },
+  {
+    "id": "dun-celestial-ruins",
+    "name": "Celestial Ruins",
+    "description": "Reruntuhan langit untuk party kecil. Celestial Guardian menjaga gerbang.",
+    "kind": "DUNGEON",
+    "region": "celestial",
+    "minimumLevel": 50,
+    "recommendedLevel": 50,
+    "difficulty": "NORMAL",
+    "minPlayers": 1,
+    "maxPlayers": 5,
+    "timeLimit": 1800,
+    "environment": "celestial-ruins",
+    "enemyWaves": ["cu-pack", "cu-boss"],
+    "bossId": "celestial-guardian",
+    "bosses": ["celestial-guardian"],
+    "lootTableId": "lt-celestial-ruins",
+    "rewards": { "exp": 1400, "coin": 360, "crystal": 6 }
+  },
+  {
+    "id": "raid-sky-fortress",
+    "name": "Ancient Sky Fortress",
+    "description": "Arsitektur raid: benteng langit. Sky Guardian menunggu di sayap akhir.",
+    "kind": "RAID",
+    "region": "celestial",
+    "minimumLevel": 45,
+    "recommendedLevel": 45,
+    "difficulty": "NORMAL",
+    "minPlayers": 4,
+    "maxPlayers": 10,
+    "timeLimit": 3600,
+    "environment": "celestial-ruins",
+    "enemyWaves": ["sky-wing1", "sky-wing2", "sky-final"],
+    "bossId": "sky-guardian",
+    "bosses": ["sky-guardian", "sky-guardian", "sky-guardian"],
+    "lootTableId": "lt-raid-sky",
+    "weeklyLockout": true,
+    "rewards": { "exp": 1300, "coin": 420, "crystal": 8 }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "timezone": "UTC",
+  "worldBossRotation": [
+    { "weekday": 1, "id": "mist-echo", "name": "Mist Guardian", "region": "forest", "announce": "Mist Guardian has appeared in Mistwood!" },
+    { "weekday": 3, "id": "stone-echo", "name": "Stone Guardian", "region": "valley", "announce": "Stone Guardian has appeared in Stone Valley!" },
+    { "weekday": 5, "id": "celestial-avaron-echo", "name": "Celestial Avaron Echo", "region": "celestial", "announce": "Celestial Avaron Echo stirs at Holy Horizon. This is an echo, not Avaron." }
+  ],
+  "eventRotation": ["monster-invasion", "ancient-shrine", "merchant-escort", "lost-child"],
+  "community": {
+    "id": "light-festival",
+    "name": "Light Festival",
+    "target": 1000000,
+    "cosmetic": "aura-festival-light",
+    "dailyCap": 500,
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-10-12T00:00:00Z"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "arena-master",
+  "name": "Arena Master",
+  "npc": "arena_master",
+  "items": [
+    { "shopItemId": "pvp-badge-gold", "itemId": "badge-golden-arena", "name": "Golden Arena Badge", "kind": "cosmetic", "price": 40, "currency": "battle" },
+    { "shopItemId": "pvp-banner", "itemId": "banner-celestial", "name": "Celestial Banner", "kind": "cosmetic", "price": 80, "currency": "battle" },
+    { "shopItemId": "pvp-aura", "itemId": "aura-arena", "name": "Arena Aura", "kind": "cosmetic", "price": 50, "currency": "battle" },
+    { "shopItemId": "pvp-mount", "itemId": "mount-arena-trim", "name": "Dawn Mount Trim", "kind": "cosmetic", "price": 70, "currency": "battle" },
+    { "shopItemId": "pvp-title-master", "itemId": "title-master", "name": "Master Title", "kind": "title", "price": 120, "currency": "battle" },
+    { "shopItemId": "pvp-title-champ", "itemId": "title-celestial-champion", "name": "Celestial Champion Title", "kind": "title", "price": 200, "currency": "battle" },
+    { "shopItemId": "pvp-emote-wave", "itemId": "emote-wave", "name": "Wave Emote", "kind": "emote", "price": 15, "currency": "battle" },
+    { "shopItemId": "pvp-emote-cheer", "itemId": "emote-cheer", "name": "Cheer Emote", "kind": "emote", "price": 15, "currency": "battle" },
+    { "shopItemId": "pvp-emote-bow", "itemId": "emote-bow", "name": "Bow Emote", "kind": "emote", "price": 15, "currency": "battle" },
+    { "shopItemId": "pvp-emote-laugh", "itemId": "emote-laugh", "name": "Laugh Emote", "kind": "emote", "price": 15, "currency": "battle" }
+  ]
+}

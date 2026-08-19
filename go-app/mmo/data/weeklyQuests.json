@@ -1,0 +1,9 @@
+[
+  { "id": "wq-guardian", "title": "Defeat 3 Guardians", "kind": "GUARDIAN", "count": 3, "rewards": { "coin": 40 }, "seasonXP": 80, "guardianToken": 1 },
+  { "id": "wq-dungeon", "title": "Complete 3 Dungeons", "kind": "DUNGEON", "count": 3, "rewards": { "coin": 50 }, "seasonXP": 90, "fragment": 1 },
+  { "id": "wq-raid", "title": "Complete 1 Raid", "kind": "RAID", "count": 1, "rewards": { "coin": 60 }, "seasonXP": 120, "fragment": 1 },
+  { "id": "wq-wb", "title": "Participate in 2 World Boss Events", "kind": "WORLD_BOSS", "count": 2, "rewards": { "coin": 45 }, "seasonXP": 80 },
+  { "id": "wq-pvp", "title": "Win 3 PvP Matches", "kind": "PVP_WIN", "count": 3, "rewards": { "coin": 50 }, "seasonXP": 100, "fragment": 1 },
+  { "id": "wq-pvp-5", "title": "Win 5 PvP Matches", "kind": "PVP_WIN", "count": 5, "rewards": { "coin": 60 }, "seasonXP": 120, "fragment": 1 },
+  { "id": "wq-pvp-score", "title": "Earn 1000 PvP Score", "kind": "PVP_SCORE", "count": 1000, "rewards": { "coin": 55 }, "seasonXP": 110 }
+]

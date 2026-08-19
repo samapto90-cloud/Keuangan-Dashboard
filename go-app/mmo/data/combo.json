@@ -1,0 +1,9 @@
+{
+  "windowMs": 800,
+  "maxHits": 4,
+  "finisher": ["light", "light", "light", "heavy"],
+  "finisherDamage": 36,
+  "finisherKnockback": 6.2,
+  "lightDamage": [10, 12, 14, 16],
+  "heavyDamage": [15, 18, 22, 28]
+}

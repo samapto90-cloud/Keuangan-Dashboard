@@ -1,18 +1,20 @@
 package main
 
 import (
-        "embed"
-        "encoding/base64"
-        "encoding/json"
-        "fmt"
-        "io"
-        "io/fs"
-        "log"
-        "net/http"
-        "os"
-        "strconv"
-        "strings"
-        "time"
+	"embed"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/fs"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"keuangan/mmo"
 )
 
 //go:embed index.html
@@ -74,950 +76,962 @@ type PotonganItem struct {
 }
 
 type Transaction struct {
-        ID               int     `json:"id"`
-        Tanggal          string  `json:"tanggal"`
-        Kegiatan         string  `json:"kegiatan"`
-        SubKegiatan      string  `json:"sub_kegiatan"`
-        KodeRekening     string  `json:"kode_rekening"`
-        Penerima         string  `json:"penerima"`
-        NoBPK            string  `json:"no_bpk"`
-        JenisTransaksi   string  `json:"jenis_transaksi,omitempty"`
-        NoBAST           string  `json:"no_bast"`
-        NoKontrak        string  `json:"no_kontrak"`
-        TanggalBAST      string  `json:"tanggal_bast,omitempty"`
-        TanggalKontrak   string  `json:"tanggal_kontrak,omitempty"`
-        Pekerjaan        string  `json:"pekerjaan"`
-        Uraian           string  `json:"uraian"`
-        JenisPajak       string  `json:"jenis_pajak"`
-        JenisPotongan    string  `json:"jenis_potongan"`
-        PotonganPajak    []PotonganItem `json:"potongan_pajak,omitempty"`
-        Nilai            float64 `json:"nilai"`
-        Pajak            float64 `json:"pajak"`
-        NilaiPotongan    float64 `json:"nilai_potongan"`
-	NTPN             string  `json:"ntpn"`
-	KodeBilling      string  `json:"kode_billing"`
-	NTB              string  `json:"ntb"`
-	PenggunaAnggaran string  `json:"pengguna_anggaran"`
-	PPTK             string  `json:"pptk"`
-	PPTKnip          string  `json:"pptk_nip"`
-	Bendahara        string  `json:"bendahara"`
-	NamaRekening     string  `json:"nama_rekening"`
-	NoRekening       string  `json:"no_rekening"`
-	Bank             string  `json:"bank"`
-	NPWP             string  `json:"npwp"`
-	NamaWP           string  `json:"nama_wp"`
-	BPP              string  `json:"bpp"`
-	NoNP2D           string  `json:"no_np2d"`
-	Status           string  `json:"status,omitempty"`
-	CreatedBy        string  `json:"created_by,omitempty"`
-	SubmittedAt      string  `json:"submitted_at,omitempty"`
-	ReviewedBy       string  `json:"reviewed_by,omitempty"`
-	ReviewedAt       string  `json:"reviewed_at,omitempty"`
-	ReviewNote       string  `json:"review_note,omitempty"`
+	ID               int            `json:"id"`
+	Tanggal          string         `json:"tanggal"`
+	Kegiatan         string         `json:"kegiatan"`
+	SubKegiatan      string         `json:"sub_kegiatan"`
+	KodeRekening     string         `json:"kode_rekening"`
+	Penerima         string         `json:"penerima"`
+	NoBPK            string         `json:"no_bpk"`
+	JenisTransaksi   string         `json:"jenis_transaksi,omitempty"`
+	NoBAST           string         `json:"no_bast"`
+	NoKontrak        string         `json:"no_kontrak"`
+	TanggalBAST      string         `json:"tanggal_bast,omitempty"`
+	TanggalKontrak   string         `json:"tanggal_kontrak,omitempty"`
+	Pekerjaan        string         `json:"pekerjaan"`
+	Uraian           string         `json:"uraian"`
+	JenisPajak       string         `json:"jenis_pajak"`
+	JenisPotongan    string         `json:"jenis_potongan"`
+	PotonganPajak    []PotonganItem `json:"potongan_pajak,omitempty"`
+	Nilai            float64        `json:"nilai"`
+	Pajak            float64        `json:"pajak"`
+	NilaiPotongan    float64        `json:"nilai_potongan"`
+	NTPN             string         `json:"ntpn"`
+	KodeBilling      string         `json:"kode_billing"`
+	NTB              string         `json:"ntb"`
+	PenggunaAnggaran string         `json:"pengguna_anggaran"`
+	PPTK             string         `json:"pptk"`
+	PPTKnip          string         `json:"pptk_nip"`
+	Bendahara        string         `json:"bendahara"`
+	NamaRekening     string         `json:"nama_rekening"`
+	NoRekening       string         `json:"no_rekening"`
+	Bank             string         `json:"bank"`
+	NPWP             string         `json:"npwp"`
+	NamaWP           string         `json:"nama_wp"`
+	BPP              string         `json:"bpp"`
+	NoNP2D           string         `json:"no_np2d"`
+	Status           string         `json:"status,omitempty"`
+	CreatedBy        string         `json:"created_by,omitempty"`
+	SubmittedAt      string         `json:"submitted_at,omitempty"`
+	ReviewedBy       string         `json:"reviewed_by,omitempty"`
+	ReviewedAt       string         `json:"reviewed_at,omitempty"`
+	ReviewNote       string         `json:"review_note,omitempty"`
 }
 
 type DashboardStats struct {
-        TotalTransaksi   int            `json:"total_transaksi"`
-        TotalNilai       float64        `json:"total_nilai"`
-        TotalPajak       float64        `json:"total_pajak"`
-        NilaiBersih      float64        `json:"nilai_bersih"`
-        TotalPagu        float64        `json:"total_pagu"`
-        Realisasi        float64        `json:"realisasi"`
-        SisaPagu         float64        `json:"sisa_pagu"`
-        PersenRealisasi  float64        `json:"persen_realisasi"`
-        PendingApproval  int            `json:"pending_approval"`
-        NilaiPerKegiatan []KegiatanStat `json:"nilai_per_kegiatan"`
-        NilaiPerPPTK     []PPTKStat     `json:"nilai_per_pptk"`
-        RecentTransaksi  []Transaction  `json:"recent_transaksi"`
-        MonthlyStats     []MonthlyStat  `json:"monthly_stats"`
+	TotalTransaksi   int            `json:"total_transaksi"`
+	TotalNilai       float64        `json:"total_nilai"`
+	TotalPajak       float64        `json:"total_pajak"`
+	NilaiBersih      float64        `json:"nilai_bersih"`
+	TotalPagu        float64        `json:"total_pagu"`
+	Realisasi        float64        `json:"realisasi"`
+	SisaPagu         float64        `json:"sisa_pagu"`
+	PersenRealisasi  float64        `json:"persen_realisasi"`
+	PendingApproval  int            `json:"pending_approval"`
+	NilaiPerKegiatan []KegiatanStat `json:"nilai_per_kegiatan"`
+	NilaiPerPPTK     []PPTKStat     `json:"nilai_per_pptk"`
+	RecentTransaksi  []Transaction  `json:"recent_transaksi"`
+	MonthlyStats     []MonthlyStat  `json:"monthly_stats"`
 }
 
 type KegiatanStat struct {
-        Kegiatan string  `json:"kegiatan"`
-        Total    float64 `json:"total"`
-        Count    int     `json:"count"`
+	Kegiatan string  `json:"kegiatan"`
+	Total    float64 `json:"total"`
+	Count    int     `json:"count"`
 }
 
 type PPTKStat struct {
-        PPTK  string  `json:"pptk"`
-        Total float64 `json:"total"`
-        Pagu  float64 `json:"pagu"`
-        Count int     `json:"count"`
+	PPTK  string  `json:"pptk"`
+	Total float64 `json:"total"`
+	Pagu  float64 `json:"pagu"`
+	Count int     `json:"count"`
 }
 
 type MonthlyStat struct {
-        Bulan string  `json:"bulan"`
-        Nilai float64 `json:"nilai"`
-        Pajak float64 `json:"pajak"`
+	Bulan string  `json:"bulan"`
+	Nilai float64 `json:"nilai"`
+	Pajak float64 `json:"pajak"`
 }
 
 type Pejabat struct {
-        Nama string `json:"nama"`
-        Nip  string `json:"nip"`
+	Nama string `json:"nama"`
+	Nip  string `json:"nip"`
 }
 
 type AppSettings struct {
-        PA               Pejabat            `json:"pa"`
-        Bendahara        Pejabat            `json:"bendahara"`
-        AnggaranKegiatan map[string]float64 `json:"anggaran_kegiatan"`
-        Rak              []RakRow           `json:"rak"`
-        RakMeta          RakMeta            `json:"rak_meta"`
+	PA               Pejabat            `json:"pa"`
+	Bendahara        Pejabat            `json:"bendahara"`
+	AnggaranKegiatan map[string]float64 `json:"anggaran_kegiatan"`
+	Rak              []RakRow           `json:"rak"`
+	RakMeta          RakMeta            `json:"rak_meta"`
 }
 
 func normalizeTransactionTax(t *Transaction) {
-        if len(t.PotonganPajak) == 0 {
-                if t.JenisPajak != "" || t.Pajak > 0 {
-                        t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
-                                Jenis: t.JenisPajak, Nilai: t.Pajak, Kategori: "pajak",
-                        })
-                }
-                if t.JenisPotongan != "" || t.NilaiPotongan > 0 {
-                        t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
-                                Jenis: t.JenisPotongan, Nilai: t.NilaiPotongan, Kategori: "potongan",
-                        })
-                }
-                return
-        }
-        var totalPajak, totalPotongan float64
-        var jenisPajakParts, jenisPotonganParts []string
-        for _, item := range t.PotonganPajak {
-                if item.Kategori == "potongan" {
-                        totalPotongan += item.Nilai
-                        if item.Jenis != "" {
-                                jenisPotonganParts = append(jenisPotonganParts, item.Jenis)
-                        }
-                } else {
-                        totalPajak += item.Nilai
-                        if item.Jenis != "" {
-                                jenisPajakParts = append(jenisPajakParts, item.Jenis)
-                        }
-                }
-        }
-        t.Pajak = totalPajak
-        t.NilaiPotongan = totalPotongan
-        t.JenisPajak = strings.Join(jenisPajakParts, "; ")
-        t.JenisPotongan = strings.Join(jenisPotonganParts, "; ")
+	if len(t.PotonganPajak) == 0 {
+		if t.JenisPajak != "" || t.Pajak > 0 {
+			t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
+				Jenis: t.JenisPajak, Nilai: t.Pajak, Kategori: "pajak",
+			})
+		}
+		if t.JenisPotongan != "" || t.NilaiPotongan > 0 {
+			t.PotonganPajak = append(t.PotonganPajak, PotonganItem{
+				Jenis: t.JenisPotongan, Nilai: t.NilaiPotongan, Kategori: "potongan",
+			})
+		}
+		return
+	}
+	var totalPajak, totalPotongan float64
+	var jenisPajakParts, jenisPotonganParts []string
+	for _, item := range t.PotonganPajak {
+		if item.Kategori == "potongan" {
+			totalPotongan += item.Nilai
+			if item.Jenis != "" {
+				jenisPotonganParts = append(jenisPotonganParts, item.Jenis)
+			}
+		} else {
+			totalPajak += item.Nilai
+			if item.Jenis != "" {
+				jenisPajakParts = append(jenisPajakParts, item.Jenis)
+			}
+		}
+	}
+	t.Pajak = totalPajak
+	t.NilaiPotongan = totalPotongan
+	t.JenisPajak = strings.Join(jenisPajakParts, "; ")
+	t.JenisPotongan = strings.Join(jenisPotonganParts, "; ")
 }
 
 var allowedOrigins []string
 
 func cors(next http.HandlerFunc) http.HandlerFunc {
-        return func(w http.ResponseWriter, r *http.Request) {
-                origin := strings.TrimSpace(r.Header.Get("Origin"))
-                authenticated := getSession(r) != nil
-                if len(allowedOrigins) > 0 && !authenticated {
-                        if origin != "" && !originAllowed(origin, allowedOrigins, r) {
-                                if r.Method == http.MethodOptions {
-                                        jsonResponse(w, http.StatusForbidden, map[string]string{
-                                                "error": "Alamat tidak dikenali.",
-                                        })
-                                        return
-                                }
-                                jsonResponse(w, http.StatusForbidden, map[string]string{
-                                        "error": "Alamat tidak dikenali. Buka https://sakubijak.com:8888 (atau https://www.sakubijak.com:8888) lalu login ulang.",
-                                })
-                                return
-                        }
-                        if !mutatingRequestSafe(r, allowedOrigins) {
-                                jsonResponse(w, http.StatusForbidden, map[string]string{
-                                        "error": "Permintaan ditolak demi keamanan data. Muat ulang halaman dari alamat resmi Sakubijak.",
-                                })
-                                return
-                        }
-                }
-                if len(allowedOrigins) > 0 {
-                        if allow := corsAllowOriginHeader(origin, allowedOrigins, r); allow != "" {
-                                w.Header().Set("Access-Control-Allow-Origin", allow)
-                                w.Header().Set("Vary", "Origin")
-                        }
-                }
-                w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
-                if r.Method == http.MethodOptions {
-                        w.WriteHeader(http.StatusOK)
-                        return
-                }
-                next(w, r)
-        }
+	return func(w http.ResponseWriter, r *http.Request) {
+		origin := strings.TrimSpace(r.Header.Get("Origin"))
+		authenticated := getSession(r) != nil
+		if len(allowedOrigins) > 0 && !authenticated {
+			if origin != "" && !originAllowed(origin, allowedOrigins, r) {
+				if r.Method == http.MethodOptions {
+					jsonResponse(w, http.StatusForbidden, map[string]string{
+						"error": "Alamat tidak dikenali.",
+					})
+					return
+				}
+				jsonResponse(w, http.StatusForbidden, map[string]string{
+					"error": "Alamat tidak dikenali. Buka https://sakubijak.com:8888 (atau https://www.sakubijak.com:8888) lalu login ulang.",
+				})
+				return
+			}
+			if !mutatingRequestSafe(r, allowedOrigins) {
+				jsonResponse(w, http.StatusForbidden, map[string]string{
+					"error": "Permintaan ditolak demi keamanan data. Muat ulang halaman dari alamat resmi Sakubijak.",
+				})
+				return
+			}
+		}
+		if len(allowedOrigins) > 0 {
+			if allow := corsAllowOriginHeader(origin, allowedOrigins, r); allow != "" {
+				w.Header().Set("Access-Control-Allow-Origin", allow)
+				w.Header().Set("Vary", "Origin")
+			}
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Session-Token, X-SIPKEU-App")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next(w, r)
+	}
 }
 
 func servePNG(data []byte) http.HandlerFunc {
-        return func(w http.ResponseWriter, r *http.Request) {
-                w.Header().Set("Content-Type", "image/png")
-                w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
-                w.Write(data)
-        }
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
+		w.Write(data)
+	}
 }
 
 func handleTransactions(w http.ResponseWriter, r *http.Request) {
-        if getSession(r) == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        mod := moduleFromRequest(r)
-        switch r.Method {
-        case http.MethodGet:
-                result := cachedModuleTransactions(mod)
-                jsonResponse(w, http.StatusOK, result)
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	mod := moduleFromRequest(r)
+	switch r.Method {
+	case http.MethodGet:
+		result := cachedModuleTransactions(mod)
+		jsonResponse(w, http.StatusOK, result)
 
-        case http.MethodPost:
-                sess := getSession(r)
-                if sess == nil {
-                        jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                        return
-                }
-                if !sessionHasPermission(sess, "add_transaksi") {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                        return
-                }
-                var t Transaction
-                if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
-                        jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
-                        return
-                }
-                normalizeTransactionTax(&t)
-                stampTransactionOnCreate(sess, &t)
-                mod.mu.Lock()
-                t.ID = mod.nextID
-                mod.nextID++
-                mod.txs = append(mod.txs, t)
-                mod.mu.Unlock()
-                persistModule(mod)
-                recordAudit(sess.Username, "add_transaksi", mod.ID,
-                        fmt.Sprintf("Transaksi #%d status %s (BPK %s)", t.ID, effectiveTrxStatus(t), strings.TrimSpace(t.NoBPK)), clientIP(r))
-                jsonResponse(w, http.StatusCreated, t)
+	case http.MethodPost:
+		sess := getSession(r)
+		if sess == nil {
+			jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+			return
+		}
+		if !sessionHasPermission(sess, "add_transaksi") {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+			return
+		}
+		var t Transaction
+		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
+			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+			return
+		}
+		normalizeTransactionTax(&t)
+		stampTransactionOnCreate(sess, &t)
+		mod.mu.Lock()
+		t.ID = mod.nextID
+		mod.nextID++
+		mod.txs = append(mod.txs, t)
+		mod.mu.Unlock()
+		persistModule(mod)
+		recordAudit(sess.Username, "add_transaksi", mod.ID,
+			fmt.Sprintf("Transaksi #%d status %s (BPK %s)", t.ID, effectiveTrxStatus(t), strings.TrimSpace(t.NoBPK)), clientIP(r))
+		jsonResponse(w, http.StatusCreated, t)
 
-        default:
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-        }
+	default:
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+	}
 }
 
 func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
-        if getSession(r) == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        path := strings.TrimPrefix(r.URL.Path, "/data/transactions/")
-        id, err := strconv.Atoi(path)
-        if err != nil {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
-                return
-        }
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	path := strings.TrimPrefix(r.URL.Path, "/data/transactions/")
+	id, err := strconv.Atoi(path)
+	if err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+		return
+	}
 
-        mod := moduleFromRequest(r)
-        switch r.Method {
-        case http.MethodPut:
-                sess := getSession(r)
-                if !sessionHasPermission(sess, "edit_transaksi") {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                        return
-                }
-                var updated Transaction
-                if err := json.NewDecoder(r.Body).Decode(&updated); err != nil {
-                        jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
-                        return
-                }
-                normalizeTransactionTax(&updated)
-                existing, ok := findModuleTransaction(mod, id)
-                if !ok {
-                        jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
-                        return
-                }
-                merged, err := mergeTransactionUpdate(sess, existing, updated)
-                if err != nil {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": err.Error()})
-                        return
-                }
-                mod.mu.Lock()
-                found := false
-                for i, t := range mod.txs {
-                        if t.ID == id {
-                                mod.txs[i] = merged
-                                found = true
-                                break
-                        }
-                }
-                mod.mu.Unlock()
-                if !found {
-                        jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
-                        return
-                }
-                persistModule(mod)
-                jsonResponse(w, http.StatusOK, merged)
+	mod := moduleFromRequest(r)
+	switch r.Method {
+	case http.MethodPut:
+		sess := getSession(r)
+		if !sessionHasPermission(sess, "edit_transaksi") {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+			return
+		}
+		var updated Transaction
+		if err := json.NewDecoder(r.Body).Decode(&updated); err != nil {
+			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+			return
+		}
+		normalizeTransactionTax(&updated)
+		existing, ok := findModuleTransaction(mod, id)
+		if !ok {
+			jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
+			return
+		}
+		merged, err := mergeTransactionUpdate(sess, existing, updated)
+		if err != nil {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": err.Error()})
+			return
+		}
+		mod.mu.Lock()
+		found := false
+		for i, t := range mod.txs {
+			if t.ID == id {
+				mod.txs[i] = merged
+				found = true
+				break
+			}
+		}
+		mod.mu.Unlock()
+		if !found {
+			jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Not found"})
+			return
+		}
+		persistModule(mod)
+		jsonResponse(w, http.StatusOK, merged)
 
-        case http.MethodDelete:
-                sess := getSession(r)
-                if !sessionHasPermission(sess, "delete_transaksi") {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                        return
-                }
-                deleteTransactionByID(w, r, mod, id, sess)
+	case http.MethodDelete:
+		sess := getSession(r)
+		if !sessionHasPermission(sess, "delete_transaksi") {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+			return
+		}
+		deleteTransactionByID(w, r, mod, id, sess)
 
-        default:
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-        }
+	default:
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+	}
 }
 
 func deleteTransactionByID(w http.ResponseWriter, r *http.Request, mod *SipkeuModule, id int, sess *Session) {
-        existing, ok := findModuleTransaction(mod, id)
-        if !ok {
-                jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
-                return
-        }
-        if !operatorMayModifyTransaction(sess, existing) && sess != nil && sess.Role != "admin" {
-                st := effectiveTrxStatus(existing)
-                if st == trxStatusPending {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi sudah diajukan dan tidak dapat dihapus. Tunggu persetujuan atau penolakan Admin."})
-                        return
-                }
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi yang sudah disetujui tidak dapat dihapus operator."})
-                return
-        }
-        mod.mu.Lock()
-        found := false
-        for i, t := range mod.txs {
-                if t.ID == id {
-                        mod.txs = append(mod.txs[:i], mod.txs[i+1:]...)
-                        found = true
-                        break
-                }
-        }
-        mod.mu.Unlock()
-        if !found {
-                jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
-                return
-        }
-        persistModule(mod)
-        if sess != nil {
-                recordAudit(sess.Username, "delete_transaksi", mod.ID,
-                        fmt.Sprintf("Hapus transaksi #%d (BPK %s)", id, strings.TrimSpace(existing.NoBPK)), clientIP(r))
-        }
-        jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
+	existing, ok := findModuleTransaction(mod, id)
+	if !ok {
+		jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
+		return
+	}
+	if !operatorMayModifyTransaction(sess, existing) && sess != nil && sess.Role != "admin" {
+		st := effectiveTrxStatus(existing)
+		if st == trxStatusPending {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi sudah diajukan dan tidak dapat dihapus. Tunggu persetujuan atau penolakan Admin."})
+			return
+		}
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Transaksi yang sudah disetujui tidak dapat dihapus operator."})
+		return
+	}
+	mod.mu.Lock()
+	found := false
+	for i, t := range mod.txs {
+		if t.ID == id {
+			mod.txs = append(mod.txs[:i], mod.txs[i+1:]...)
+			found = true
+			break
+		}
+	}
+	mod.mu.Unlock()
+	if !found {
+		jsonResponse(w, http.StatusNotFound, map[string]string{"error": "Transaksi tidak ditemukan"})
+		return
+	}
+	persistModule(mod)
+	if sess != nil {
+		recordAudit(sess.Username, "delete_transaksi", mod.ID,
+			fmt.Sprintf("Hapus transaksi #%d (BPK %s)", id, strings.TrimSpace(existing.NoBPK)), clientIP(r))
+	}
+	jsonResponse(w, http.StatusOK, map[string]string{"message": "Deleted"})
 }
 
 func handleDeleteTransaction(w http.ResponseWriter, r *http.Request) {
-        if r.Method != http.MethodPost {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
-        sess := getSession(r)
-        if sess == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        if !sessionHasPermission(sess, "delete_transaksi") {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                return
-        }
-        var payload struct {
-                ID int `json:"id"`
-        }
-        if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
-                return
-        }
-        mod := moduleFromRequest(r)
-        deleteTransactionByID(w, r, mod, payload.ID, sess)
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	sess := getSession(r)
+	if sess == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	if !sessionHasPermission(sess, "delete_transaksi") {
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+		return
+	}
+	var payload struct {
+		ID int `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+		return
+	}
+	mod := moduleFromRequest(r)
+	deleteTransactionByID(w, r, mod, payload.ID, sess)
 }
 
 func handleDeleteBulkTransactions(w http.ResponseWriter, r *http.Request) {
-        if r.Method != http.MethodPost {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
-        if getSession(r) == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        sess := getSession(r)
-        if !sessionHasPermission(sess, "delete_bulk") {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                return
-        }
-        var payload struct {
-                IDs []int `json:"ids"`
-        }
-        if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
-                return
-        }
-        if len(payload.IDs) == 0 {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Tidak ada transaksi yang dipilih"})
-                return
-        }
-        delSet := make(map[int]bool, len(payload.IDs))
-        for _, id := range payload.IDs {
-                delSet[id] = true
-        }
-        mod := moduleFromRequest(r)
-        mod.mu.Lock()
-        kept := mod.txs[:0]
-        deleted := 0
-        for _, t := range mod.txs {
-                if delSet[t.ID] {
-                        if !operatorMayModifyTransaction(sess, t) && sess.Role != "admin" {
-                                kept = append(kept, t)
-                                continue
-                        }
-                        deleted++
-                        continue
-                }
-                kept = append(kept, t)
-        }
-        mod.txs = kept
-        remaining := len(mod.txs)
-        mod.mu.Unlock()
-        persistModule(mod)
-        jsonResponse(w, http.StatusOK, map[string]interface{}{
-                "deleted": deleted,
-                "total":   remaining,
-                "message": fmt.Sprintf("%d transaksi terpilih dihapus. Sisa %d transaksi.", deleted, remaining),
-        })
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	if getSession(r) == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	sess := getSession(r)
+	if !sessionHasPermission(sess, "delete_bulk") {
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+		return
+	}
+	var payload struct {
+		IDs []int `json:"ids"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+		return
+	}
+	if len(payload.IDs) == 0 {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Tidak ada transaksi yang dipilih"})
+		return
+	}
+	delSet := make(map[int]bool, len(payload.IDs))
+	for _, id := range payload.IDs {
+		delSet[id] = true
+	}
+	mod := moduleFromRequest(r)
+	mod.mu.Lock()
+	kept := mod.txs[:0]
+	deleted := 0
+	for _, t := range mod.txs {
+		if delSet[t.ID] {
+			if !operatorMayModifyTransaction(sess, t) && sess.Role != "admin" {
+				kept = append(kept, t)
+				continue
+			}
+			deleted++
+			continue
+		}
+		kept = append(kept, t)
+	}
+	mod.txs = kept
+	remaining := len(mod.txs)
+	mod.mu.Unlock()
+	persistModule(mod)
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"deleted": deleted,
+		"total":   remaining,
+		"message": fmt.Sprintf("%d transaksi terpilih dihapus. Sisa %d transaksi.", deleted, remaining),
+	})
 }
 
 func handleDeleteAllTransactions(w http.ResponseWriter, r *http.Request) {
-        if r.Method != http.MethodPost {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
-        mod := moduleFromRequest(r)
-        mod.mu.Lock()
-        count := len(mod.txs)
-        mod.txs = []Transaction{}
-        mod.mu.Unlock()
-        persistModule(mod)
-        jsonResponse(w, http.StatusOK, map[string]interface{}{
-                "deleted": count,
-                "message": fmt.Sprintf("%d transaksi berhasil dihapus", count),
-        })
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	mod := moduleFromRequest(r)
+	mod.mu.Lock()
+	count := len(mod.txs)
+	mod.txs = []Transaction{}
+	mod.mu.Unlock()
+	persistModule(mod)
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"deleted": count,
+		"message": fmt.Sprintf("%d transaksi berhasil dihapus", count),
+	})
 }
 
 func handleImport(w http.ResponseWriter, r *http.Request) {
-        sess := getSession(r)
-        if sess == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        if !sessionHasPermission(sess, "import_transaksi") {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                return
-        }
-        if r.Method != http.MethodPost {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
-        items, err := decodeImportItems(r)
-        if err != nil {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data impor tidak valid"})
-                return
-        }
-        respondImportResult(w, r, sess, items)
+	sess := getSession(r)
+	if sess == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	if !sessionHasPermission(sess, "import_transaksi") {
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+		return
+	}
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	items, err := decodeImportItems(r)
+	if err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data impor tidak valid"})
+		return
+	}
+	respondImportResult(w, r, sess, items)
 }
 
 func decodeImportItems(r *http.Request) ([]Transaction, error) {
-        body, err := io.ReadAll(r.Body)
-        if err != nil {
-                return nil, err
-        }
-        if len(body) == 0 {
-                return nil, fmt.Errorf("empty body")
-        }
-        var encWrap struct {
-                Enc string `json:"enc"`
-        }
-        if json.Unmarshal(body, &encWrap) == nil && strings.TrimSpace(encWrap.Enc) != "" {
-                raw, err := base64.StdEncoding.DecodeString(strings.TrimSpace(encWrap.Enc))
-                if err != nil {
-                        return nil, err
-                }
-                var items []Transaction
-                if err := json.Unmarshal(raw, &items); err != nil {
-                        var one Transaction
-                        if err2 := json.Unmarshal(raw, &one); err2 != nil {
-                                return nil, err
-                        }
-                        return []Transaction{one}, nil
-                }
-                return items, nil
-        }
-        var items []Transaction
-        if err := json.Unmarshal(body, &items); err == nil {
-                return items, nil
-        }
-        var one Transaction
-        if err := json.Unmarshal(body, &one); err != nil {
-                return nil, err
-        }
-        return []Transaction{one}, nil
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	if len(body) == 0 {
+		return nil, fmt.Errorf("empty body")
+	}
+	var encWrap struct {
+		Enc string `json:"enc"`
+	}
+	if json.Unmarshal(body, &encWrap) == nil && strings.TrimSpace(encWrap.Enc) != "" {
+		raw, err := base64.StdEncoding.DecodeString(strings.TrimSpace(encWrap.Enc))
+		if err != nil {
+			return nil, err
+		}
+		var items []Transaction
+		if err := json.Unmarshal(raw, &items); err != nil {
+			var one Transaction
+			if err2 := json.Unmarshal(raw, &one); err2 != nil {
+				return nil, err
+			}
+			return []Transaction{one}, nil
+		}
+		return items, nil
+	}
+	var items []Transaction
+	if err := json.Unmarshal(body, &items); err == nil {
+		return items, nil
+	}
+	var one Transaction
+	if err := json.Unmarshal(body, &one); err != nil {
+		return nil, err
+	}
+	return []Transaction{one}, nil
 }
 
 func respondImportResult(w http.ResponseWriter, r *http.Request, sess *Session, items []Transaction) {
-        mod := moduleFromRequest(r)
-        mod.mu.Lock()
-        accepted := make([]Transaction, 0, len(items))
-        skipped := 0
-        for i := range items {
-                normalizeTransactionTax(&items[i])
-                if !importTransactionAllowed(mod, items[i]) {
-                        skipped++
-                        continue
-                }
-                stampTransactionOnCreate(sess, &items[i])
-                items[i].ID = mod.nextID
-                mod.nextID++
-                accepted = append(accepted, items[i])
-        }
-        mod.txs = append(mod.txs, accepted...)
-        total := len(mod.txs)
-        mod.mu.Unlock()
-        persistModule(mod)
-        msg := fmt.Sprintf("%d transaksi ditambahkan. Total kini %d transaksi (data lama tetap tersimpan).", len(accepted), total)
-        if skipped > 0 {
-                msg += fmt.Sprintf(" %d baris dilewati karena No BPK/NP2D tidak sesuai portal %s.", skipped, mod.ID)
-        }
-        jsonResponse(w, http.StatusOK, map[string]interface{}{
-                "imported": len(accepted),
-                "skipped":  skipped,
-                "total":    total,
-                "message":  msg,
-        })
+	mod := moduleFromRequest(r)
+	mod.mu.Lock()
+	accepted := make([]Transaction, 0, len(items))
+	skipped := 0
+	for i := range items {
+		normalizeTransactionTax(&items[i])
+		if !importTransactionAllowed(mod, items[i]) {
+			skipped++
+			continue
+		}
+		stampTransactionOnCreate(sess, &items[i])
+		items[i].ID = mod.nextID
+		mod.nextID++
+		accepted = append(accepted, items[i])
+	}
+	mod.txs = append(mod.txs, accepted...)
+	total := len(mod.txs)
+	mod.mu.Unlock()
+	persistModule(mod)
+	msg := fmt.Sprintf("%d transaksi ditambahkan. Total kini %d transaksi (data lama tetap tersimpan).", len(accepted), total)
+	if skipped > 0 {
+		msg += fmt.Sprintf(" %d baris dilewati karena No BPK/NP2D tidak sesuai portal %s.", skipped, mod.ID)
+	}
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"imported": len(accepted),
+		"skipped":  skipped,
+		"total":    total,
+		"message":  msg,
+	})
 }
 
 func handleTxPush(w http.ResponseWriter, r *http.Request) {
-        sess := getSession(r)
-        if sess == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        if !sessionHasPermission(sess, "import_transaksi") {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                return
-        }
-        if r.Method != http.MethodPost {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
-        items, err := decodeImportItems(r)
-        if err != nil || len(items) == 0 {
-                jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data transaksi tidak valid"})
-                return
-        }
-        respondImportResult(w, r, sess, items[:1])
+	sess := getSession(r)
+	if sess == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	if !sessionHasPermission(sess, "import_transaksi") {
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+		return
+	}
+	if r.Method != http.MethodPost {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+	items, err := decodeImportItems(r)
+	if err != nil || len(items) == 0 {
+		jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Data transaksi tidak valid"})
+		return
+	}
+	respondImportResult(w, r, sess, items[:1])
 }
 
 func handleDashboard(w http.ResponseWriter, r *http.Request) {
-        sess := getSession(r)
-        if sess == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        if !sessionHasPermission(sess, "view_dashboard") {
-                jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
-                return
-        }
-        if r.Method != http.MethodGet {
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-                return
-        }
+	sess := getSession(r)
+	if sess == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	if !sessionHasPermission(sess, "view_dashboard") {
+		jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses ditolak — hak operator tidak mencukupi"})
+		return
+	}
+	if r.Method != http.MethodGet {
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
 
-        mod := moduleFromRequest(r)
-        stats := cachedDashboardStats(mod.ID, func() DashboardStats {
-                return computeDashboardStats(mod)
-        })
-        jsonResponse(w, http.StatusOK, stats)
+	mod := moduleFromRequest(r)
+	stats := cachedDashboardStats(mod.ID, func() DashboardStats {
+		return computeDashboardStats(mod)
+	})
+	jsonResponse(w, http.StatusOK, stats)
 }
 
 func computeDashboardStats(mod *SipkeuModule) DashboardStats {
-        data := moduleTransactionsCopy(mod)
+	data := moduleTransactionsCopy(mod)
 
-        stats := DashboardStats{}
-        stats.TotalTransaksi = 0
-        for _, t := range data {
-                if trxIsApproved(t) {
-                        stats.TotalTransaksi++
-                }
-        }
+	stats := DashboardStats{}
+	stats.TotalTransaksi = 0
+	for _, t := range data {
+		if trxIsApproved(t) {
+			stats.TotalTransaksi++
+		}
+	}
 
-        kegiatanMap := map[string]*KegiatanStat{}
-        pptkMap := map[string]*PPTKStat{}
-        monthlyMap := map[string]*MonthlyStat{}
+	kegiatanMap := map[string]*KegiatanStat{}
+	pptkMap := map[string]*PPTKStat{}
+	monthlyMap := map[string]*MonthlyStat{}
 
-        var totalPotongan float64
-        for _, t := range data {
-                st := effectiveTrxStatus(t)
-                if st == trxStatusPending {
-                        stats.PendingApproval++
-                }
-                if !trxIsApproved(t) {
-                        continue
-                }
-                stats.TotalNilai += t.Nilai
-                stats.TotalPajak += t.Pajak
-                totalPotongan += t.NilaiPotongan
+	var totalPotongan float64
+	for _, t := range data {
+		st := effectiveTrxStatus(t)
+		if st == trxStatusPending {
+			stats.PendingApproval++
+		}
+		if !trxIsApproved(t) {
+			continue
+		}
+		stats.TotalNilai += t.Nilai
+		stats.TotalPajak += t.Pajak
+		totalPotongan += t.NilaiPotongan
 
-                k, ok := kegiatanMap[t.Kegiatan]
-                if !ok {
-                        kegiatanMap[t.Kegiatan] = &KegiatanStat{Kegiatan: t.Kegiatan}
-                        k = kegiatanMap[t.Kegiatan]
-                }
-                k.Total += t.Nilai
-                k.Count++
+		k, ok := kegiatanMap[t.Kegiatan]
+		if !ok {
+			kegiatanMap[t.Kegiatan] = &KegiatanStat{Kegiatan: t.Kegiatan}
+			k = kegiatanMap[t.Kegiatan]
+		}
+		k.Total += t.Nilai
+		k.Count++
 
-                if t.PPTK != "" {
-                        p, ok := pptkMap[t.PPTK]
-                        if !ok {
-                                pptkMap[t.PPTK] = &PPTKStat{PPTK: t.PPTK}
-                                p = pptkMap[t.PPTK]
-                        }
-                        p.Total += t.Nilai
-                        p.Count++
-                }
+		if t.PPTK != "" {
+			p, ok := pptkMap[t.PPTK]
+			if !ok {
+				pptkMap[t.PPTK] = &PPTKStat{PPTK: t.PPTK}
+				p = pptkMap[t.PPTK]
+			}
+			p.Total += t.Nilai
+			p.Count++
+		}
 
-                bulan := ""
-                if len(t.Tanggal) >= 7 {
-                        bulan = t.Tanggal[:7]
-                }
-                if bulan != "" {
-                        m, ok := monthlyMap[bulan]
-                        if !ok {
-                                monthlyMap[bulan] = &MonthlyStat{Bulan: bulan}
-                                m = monthlyMap[bulan]
-                        }
-                        m.Nilai += t.Nilai
-                        m.Pajak += t.Pajak
-                }
-        }
+		bulan := ""
+		if len(t.Tanggal) >= 7 {
+			bulan = t.Tanggal[:7]
+		}
+		if bulan != "" {
+			m, ok := monthlyMap[bulan]
+			if !ok {
+				monthlyMap[bulan] = &MonthlyStat{Bulan: bulan}
+				m = monthlyMap[bulan]
+			}
+			m.Nilai += t.Nilai
+			m.Pajak += t.Pajak
+		}
+	}
 
-        stats.NilaiBersih = stats.TotalNilai - stats.TotalPajak - totalPotongan
-        stats.Realisasi = stats.TotalNilai
+	stats.NilaiBersih = stats.TotalNilai - stats.TotalPajak - totalPotongan
+	stats.Realisasi = stats.TotalNilai
 
-        mod.mu.Lock()
-        for _, r := range mod.settings.Rak {
-                stats.TotalPagu += r.Anggaran
-                if r.PPTK != "" {
-                        p, ok := pptkMap[r.PPTK]
-                        if !ok {
-                                pptkMap[r.PPTK] = &PPTKStat{PPTK: r.PPTK}
-                                p = pptkMap[r.PPTK]
-                        }
-                        p.Pagu += r.Anggaran
-                }
-        }
-        mod.mu.Unlock()
-        stats.SisaPagu = stats.TotalPagu - stats.Realisasi
-        if stats.TotalPagu > 0 {
-                stats.PersenRealisasi = (stats.Realisasi / stats.TotalPagu) * 100
-        }
+	mod.mu.Lock()
+	for _, r := range mod.settings.Rak {
+		stats.TotalPagu += r.Anggaran
+		if r.PPTK != "" {
+			p, ok := pptkMap[r.PPTK]
+			if !ok {
+				pptkMap[r.PPTK] = &PPTKStat{PPTK: r.PPTK}
+				p = pptkMap[r.PPTK]
+			}
+			p.Pagu += r.Anggaran
+		}
+	}
+	mod.mu.Unlock()
+	stats.SisaPagu = stats.TotalPagu - stats.Realisasi
+	if stats.TotalPagu > 0 {
+		stats.PersenRealisasi = (stats.Realisasi / stats.TotalPagu) * 100
+	}
 
-        for _, v := range kegiatanMap {
-                stats.NilaiPerKegiatan = append(stats.NilaiPerKegiatan, *v)
-        }
-        for _, v := range pptkMap {
-                stats.NilaiPerPPTK = append(stats.NilaiPerPPTK, *v)
-        }
-        for _, v := range monthlyMap {
-                stats.MonthlyStats = append(stats.MonthlyStats, *v)
-        }
+	for _, v := range kegiatanMap {
+		stats.NilaiPerKegiatan = append(stats.NilaiPerKegiatan, *v)
+	}
+	for _, v := range pptkMap {
+		stats.NilaiPerPPTK = append(stats.NilaiPerPPTK, *v)
+	}
+	for _, v := range monthlyMap {
+		stats.MonthlyStats = append(stats.MonthlyStats, *v)
+	}
 
-        recent := data
-        if len(recent) > 5 {
-                recent = recent[:5]
-        }
-        stats.RecentTransaksi = recent
+	recent := data
+	if len(recent) > 5 {
+		recent = recent[:5]
+	}
+	stats.RecentTransaksi = recent
 
-        return stats
+	return stats
 }
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
-        sess := getSession(r)
-        if sess == nil {
-                jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
-                return
-        }
-        mod := moduleFromRequest(r)
-        switch r.Method {
-        case http.MethodGet:
-                jsonResponse(w, http.StatusOK, cachedModuleSettings(mod))
+	sess := getSession(r)
+	if sess == nil {
+		jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+		return
+	}
+	mod := moduleFromRequest(r)
+	switch r.Method {
+	case http.MethodGet:
+		jsonResponse(w, http.StatusOK, cachedModuleSettings(mod))
 
-        case http.MethodPut:
-                if sess.Role != "admin" {
-                        jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
-                        return
-                }
-                var incoming AppSettings
-                if err := json.NewDecoder(r.Body).Decode(&incoming); err != nil {
-                        jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
-                        return
-                }
-                mod.mu.Lock()
-                if incoming.PA.Nama != "" {
-                        mod.settings.PA = incoming.PA
-                }
-                if incoming.Bendahara.Nama != "" {
-                        mod.settings.Bendahara = incoming.Bendahara
-                }
-                if incoming.AnggaranKegiatan != nil {
-                        if mod.settings.AnggaranKegiatan == nil {
-                                mod.settings.AnggaranKegiatan = map[string]float64{}
-                        }
-                        for k, v := range incoming.AnggaranKegiatan {
-                                mod.settings.AnggaranKegiatan[k] = v
-                        }
-                }
-                mod.mu.Unlock()
-                persistModule(mod)
-                jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
+	case http.MethodPut:
+		if sess.Role != "admin" {
+			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Admin"})
+			return
+		}
+		var incoming AppSettings
+		if err := json.NewDecoder(r.Body).Decode(&incoming); err != nil {
+			jsonResponse(w, http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
+			return
+		}
+		mod.mu.Lock()
+		if incoming.PA.Nama != "" {
+			mod.settings.PA = incoming.PA
+		}
+		if incoming.Bendahara.Nama != "" {
+			mod.settings.Bendahara = incoming.Bendahara
+		}
+		if incoming.AnggaranKegiatan != nil {
+			if mod.settings.AnggaranKegiatan == nil {
+				mod.settings.AnggaranKegiatan = map[string]float64{}
+			}
+			for k, v := range incoming.AnggaranKegiatan {
+				mod.settings.AnggaranKegiatan[k] = v
+			}
+		}
+		mod.mu.Unlock()
+		persistModule(mod)
+		jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
 
-        default:
-                jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
-        }
+	default:
+		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+	}
 }
 
 func addSampleData(mod *SipkeuModule) {
-        samples := []Transaction{
-                {
-                        Tanggal: "2026-01-10", Kegiatan: "Administrasi Keuangan Perangkat Daerah",
-                        SubKegiatan: "Penyediaan Administrasi Pelaksanaan Tugas ASN",
-                        KodeRekening: "5.1.02.02.001.00080",
-                        Penerima: "RAMA WARNI, MM",
-                        NoBPK: "0001/BPK/UP/1.01.0.00.0.00.01.0000/B01/01/2026",
-                        NoBAST: "0001/BAST/DISDIK/I/2026", NoKontrak: "",
-                        Pekerjaan: "Belanja Honorarium Penanggungjawaban Pengelola Keuangan",
-                        Uraian: "Pembayaran honorarium pengelola keuangan Dinas Pendidikan bulan Januari 2026",
-                        JenisPajak: "PPh 21 (5%)", JenisPotongan: "Iuran Wajib Pegawai", Nilai: 5000000, Pajak: 250000, NilaiPotongan: 0,
-                        NTPN: "1234567890123456", KodeBilling: "820260100000001", NTB: "BND2026010001",
-                        PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
-                        PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
-                        Bendahara: "ELDINA SRIDHANTY, SE",
-                },
-                {
-                        Tanggal: "2026-01-20", Kegiatan: "Penyediaan Jasa Penunjang Urusan Pemerintahan Daerah",
-                        SubKegiatan: "Penyediaan Jasa Pelayanan Umum Kantor",
-                        KodeRekening: "5.1.02.02.001.00067",
-                        Penerima: "BANK RIAU KEPRI SYARIAH",
-                        NoBPK: "0029/BPK/UP/1.01.0.00.0.00.01.0000/B01/05/2026",
-                        NoBAST: "0029/BAST/DISDIK/I/2026", NoKontrak: "",
-                        Pekerjaan: "Belanja Pembayaran Pajak, Bea, dan Perizinan",
-                        Uraian: "Retribusi Sampah Periode April 2026 DINAS PENDIDIKAN 26987 2605100395",
-                        JenisPajak: "", Nilai: 120000, Pajak: 0,
-                        NTPN: "", KodeBilling: "", NTB: "",
-                        PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
-                        PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
-                        Bendahara: "ELDINA SRIDHANTY, SE",
-                },
-                {
-                        Tanggal: "2026-02-05", Kegiatan: "Administrasi Umum Perangkat Daerah",
-                        SubKegiatan: "Penyediaan Peralatan dan Perlengkapan Kantor",
-                        KodeRekening: "5.1.02.01.001.00024",
-                        Penerima: "CV. Maju Jaya",
-                        NoBPK: "0005/BPK/UP/1.01.0.00.0.00.01.0000/B01/02/2026",
-                        NoBAST: "0005/BAST/DISDIK/II/2026", NoKontrak: "027/SPK/DISDIK/II/2026",
-                        Pekerjaan: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor",
-                        Uraian: "Pengadaan ATK untuk keperluan operasional kantor Dinas Pendidikan Kota Batam TA 2026",
-                        JenisPajak: "PPh 22 (1,5%)", Nilai: 3500000, Pajak: 52500,
-                        NTPN: "2345678901234567", KodeBilling: "820260200000002", NTB: "BND2026020001",
-                        PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
-                        PPTK: "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
-                        Bendahara: "ELDINA SRIDHANTY, SE",
-                },
-                {
-                        Tanggal: "2026-03-01", Kegiatan: "Pemeliharaan Barang Milik Daerah Penunjang Urusan Pemerintahan Daerah",
-                        SubKegiatan: "Pemeliharaan Peralatan dan Mesin Lainnya",
-                        KodeRekening: "5.1.02.03.002.00405",
-                        Penerima: "CV. Tekno Mandiri",
-                        NoBPK: "0010/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
-                        NoBAST: "0010/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026",
-                        Pekerjaan: "Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer",
-                        Uraian: "Pemeliharaan dan servis 5 unit PC di ruang tata usaha dan kepala bidang",
-                        JenisPajak: "PPh 23 (2%)", Nilai: 8500000, Pajak: 170000,
-                        NTPN: "3456789012345678", KodeBilling: "820260300000003", NTB: "BND2026030001",
-                        PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
-                        PPTK: "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
-                        Bendahara: "ELDINA SRIDHANTY, SE",
-                },
-                {
-                        Tanggal: "2026-03-20", Kegiatan: "Pengadaan Barang Milik Daerah Penunjang Urusan Pemerintah Daerah",
-                        SubKegiatan: "Pengadaan Mebel",
-                        KodeRekening: "5.2.02.05.003.00001",
-                        Penerima: "UD. Furniture Prima",
-                        NoBPK: "0015/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
-                        NoBAST: "0015/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026-02",
-                        Pekerjaan: "Belanja Modal Meja Kerja Pejabat",
-                        Uraian: "Pengadaan 3 unit meja kerja pejabat untuk ruang kepala dinas dan kepala bidang",
-                        JenisPajak: "PPh Ps.4(2) Final (10%)", Nilai: 25000000, Pajak: 2500000,
-                        NTPN: "4567890123456789", KodeBilling: "820260300000004", NTB: "BND2026030002",
-                        PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
-                        PPTK: "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
-                        Bendahara: "ELDINA SRIDHANTY, SE",
-                },
-        }
+	samples := []Transaction{
+		{
+			Tanggal: "2026-01-10", Kegiatan: "Administrasi Keuangan Perangkat Daerah",
+			SubKegiatan:  "Penyediaan Administrasi Pelaksanaan Tugas ASN",
+			KodeRekening: "5.1.02.02.001.00080",
+			Penerima:     "RAMA WARNI, MM",
+			NoBPK:        "0001/BPK/UP/1.01.0.00.0.00.01.0000/B01/01/2026",
+			NoBAST:       "0001/BAST/DISDIK/I/2026", NoKontrak: "",
+			Pekerjaan:  "Belanja Honorarium Penanggungjawaban Pengelola Keuangan",
+			Uraian:     "Pembayaran honorarium pengelola keuangan Dinas Pendidikan bulan Januari 2026",
+			JenisPajak: "PPh 21 (5%)", JenisPotongan: "Iuran Wajib Pegawai", Nilai: 5000000, Pajak: 250000, NilaiPotongan: 0,
+			NTPN: "1234567890123456", KodeBilling: "820260100000001", NTB: "BND2026010001",
+			PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
+			PPTK:             "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
+			Bendahara: "ELDINA SRIDHANTY, SE",
+		},
+		{
+			Tanggal: "2026-01-20", Kegiatan: "Penyediaan Jasa Penunjang Urusan Pemerintahan Daerah",
+			SubKegiatan:  "Penyediaan Jasa Pelayanan Umum Kantor",
+			KodeRekening: "5.1.02.02.001.00067",
+			Penerima:     "BANK RIAU KEPRI SYARIAH",
+			NoBPK:        "0029/BPK/UP/1.01.0.00.0.00.01.0000/B01/05/2026",
+			NoBAST:       "0029/BAST/DISDIK/I/2026", NoKontrak: "",
+			Pekerjaan:  "Belanja Pembayaran Pajak, Bea, dan Perizinan",
+			Uraian:     "Retribusi Sampah Periode April 2026 DINAS PENDIDIKAN 26987 2605100395",
+			JenisPajak: "", Nilai: 120000, Pajak: 0,
+			NTPN: "", KodeBilling: "", NTB: "",
+			PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
+			PPTK:             "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
+			Bendahara: "ELDINA SRIDHANTY, SE",
+		},
+		{
+			Tanggal: "2026-02-05", Kegiatan: "Administrasi Umum Perangkat Daerah",
+			SubKegiatan:  "Penyediaan Peralatan dan Perlengkapan Kantor",
+			KodeRekening: "5.1.02.01.001.00024",
+			Penerima:     "CV. Maju Jaya",
+			NoBPK:        "0005/BPK/UP/1.01.0.00.0.00.01.0000/B01/02/2026",
+			NoBAST:       "0005/BAST/DISDIK/II/2026", NoKontrak: "027/SPK/DISDIK/II/2026",
+			Pekerjaan:  "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor",
+			Uraian:     "Pengadaan ATK untuk keperluan operasional kantor Dinas Pendidikan Kota Batam TA 2026",
+			JenisPajak: "PPh 22 (1,5%)", Nilai: 3500000, Pajak: 52500,
+			NTPN: "2345678901234567", KodeBilling: "820260200000002", NTB: "BND2026020001",
+			PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
+			PPTK:             "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
+			Bendahara: "ELDINA SRIDHANTY, SE",
+		},
+		{
+			Tanggal: "2026-03-01", Kegiatan: "Pemeliharaan Barang Milik Daerah Penunjang Urusan Pemerintahan Daerah",
+			SubKegiatan:  "Pemeliharaan Peralatan dan Mesin Lainnya",
+			KodeRekening: "5.1.02.03.002.00405",
+			Penerima:     "CV. Tekno Mandiri",
+			NoBPK:        "0010/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
+			NoBAST:       "0010/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026",
+			Pekerjaan:  "Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer",
+			Uraian:     "Pemeliharaan dan servis 5 unit PC di ruang tata usaha dan kepala bidang",
+			JenisPajak: "PPh 23 (2%)", Nilai: 8500000, Pajak: 170000,
+			NTPN: "3456789012345678", KodeBilling: "820260300000003", NTB: "BND2026030001",
+			PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
+			PPTK:             "ARIOS ZEUS SANDRY, S.KOM", PPTKnip: "NIP. 19820404 200903 1 002",
+			Bendahara: "ELDINA SRIDHANTY, SE",
+		},
+		{
+			Tanggal: "2026-03-20", Kegiatan: "Pengadaan Barang Milik Daerah Penunjang Urusan Pemerintah Daerah",
+			SubKegiatan:  "Pengadaan Mebel",
+			KodeRekening: "5.2.02.05.003.00001",
+			Penerima:     "UD. Furniture Prima",
+			NoBPK:        "0015/BPK/UP/1.01.0.00.0.00.01.0000/B01/03/2026",
+			NoBAST:       "0015/BAST/DISDIK/III/2026", NoKontrak: "027/SPK/DISDIK/III/2026-02",
+			Pekerjaan:  "Belanja Modal Meja Kerja Pejabat",
+			Uraian:     "Pengadaan 3 unit meja kerja pejabat untuk ruang kepala dinas dan kepala bidang",
+			JenisPajak: "PPh Ps.4(2) Final (10%)", Nilai: 25000000, Pajak: 2500000,
+			NTPN: "4567890123456789", KodeBilling: "820260300000004", NTB: "BND2026030002",
+			PenggunaAnggaran: "HENDRI ARULAN, S.Pd",
+			PPTK:             "RAMA WARNI, MM", PPTKnip: "NIP. 19721203 199802 2 005",
+			Bendahara: "ELDINA SRIDHANTY, SE",
+		},
+	}
 
-        for _, s := range samples {
-                s.ID = mod.nextID
-                mod.nextID++
-                mod.txs = append(mod.txs, s)
-        }
+	for _, s := range samples {
+		s.ID = mod.nextID
+		mod.nextID++
+		mod.txs = append(mod.txs, s)
+	}
 }
 
 func initSampleAnggaran(mod *SipkeuModule) {
-        kegiatanTotals := map[string]float64{}
-        for _, t := range mod.txs {
-                kegiatanTotals[t.Kegiatan] += t.Nilai
-        }
-        mod.mu.Lock()
-        defer mod.mu.Unlock()
-        if mod.settings.AnggaranKegiatan == nil {
-                mod.settings.AnggaranKegiatan = map[string]float64{}
-        }
-        for keg, total := range kegiatanTotals {
-                if _, ok := mod.settings.AnggaranKegiatan[keg]; !ok {
-                        padded := int(total*1.25/1000000) + 1
-                        if padded < 100 {
-                                padded = 100
-                        }
-                        mod.settings.AnggaranKegiatan[keg] = float64(padded) * 1000000
-                }
-        }
+	kegiatanTotals := map[string]float64{}
+	for _, t := range mod.txs {
+		kegiatanTotals[t.Kegiatan] += t.Nilai
+	}
+	mod.mu.Lock()
+	defer mod.mu.Unlock()
+	if mod.settings.AnggaranKegiatan == nil {
+		mod.settings.AnggaranKegiatan = map[string]float64{}
+	}
+	for keg, total := range kegiatanTotals {
+		if _, ok := mod.settings.AnggaranKegiatan[keg]; !ok {
+			padded := int(total*1.25/1000000) + 1
+			if padded < 100 {
+				padded = 100
+			}
+			mod.settings.AnggaranKegiatan[keg] = float64(padded) * 1000000
+		}
+	}
+}
+
+func registerHealthReady(mux *http.ServeMux) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"status":  "ok",
+			"build":   buildSHA,
+			"version": mmo.GameVersion,
+			"phase":   mmo.GamePhase,
+		})
+	})
+	mux.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(mmo.PersistReady())
+	})
 }
 
 func main() {
-        port := os.Getenv("PORT")
-        if port == "" {
-                port = "3000"
-        }
-        allowedOrigins = expandAllowedOrigins(parseAllowedOrigins(os.Getenv("ALLOWED_ORIGIN")))
-        initAuth()
-        initSecurity()
-        initIndexCache()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	allowedOrigins = expandAllowedOrigins(parseAllowedOrigins(os.Getenv("ALLOWED_ORIGIN")))
+	initAuth()
+	initSecurity()
+	initIndexCache()
 
-        mux := http.NewServeMux()
+	mux := http.NewServeMux()
+	registerHealthReady(mux)
 
-        mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-                w.Header().Set("Content-Type", "application/json")
-                w.Header().Set("Cache-Control", "no-store")
-                w.WriteHeader(http.StatusOK)
-                _ = json.NewEncoder(w).Encode(map[string]string{
-                        "status": "ok",
-                        "build":  buildSHA,
-                })
-        })
+	mux.HandleFunc("/", serveIndexHTML)
+	mountCahayaGame(mux)
 
-        mux.HandleFunc("/", serveIndexHTML)
+	mux.HandleFunc("/favicon.ico", servePNG(sakubijakLogoPNG))
+	mux.HandleFunc("/assets/sakubijak-logo.png", servePNG(sakubijakLogoPNG))
+	mux.HandleFunc("/assets/sakubijak-emblem.png", servePNG(sakubijakEmblemPNG))
+	mux.HandleFunc("/assets/sakubijak-logo-transparent.png", servePNG(sakubijakLogoTransparentPNG))
+	mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
+		w.Write(kopDisdikPNG)
+	})
+	mux.HandleFunc("/assets/portal-tanjiro.png", servePNG(portalTanjiroPNG))
+	mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
+	if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
+		mux.Handle("/assets/op-runners/", withStaticCache(http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub)))))
+	}
+	if drSub, err := fs.Sub(doraemonRunnersFS, "assets/doraemon-runners"); err == nil {
+		mux.Handle("/assets/doraemon-runners/", withStaticCache(http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub)))))
+	}
+	if nsSub, err := fs.Sub(narutoSmpRunnersFS, "assets/naruto-smp-runners"); err == nil {
+		mux.Handle("/assets/naruto-smp-runners/", withStaticCache(http.StripPrefix("/assets/naruto-smp-runners/", http.FileServer(http.FS(nsSub)))))
+	}
+	if frSub, err := fs.Sub(frozenRunnersFS, "assets/frozen-runners"); err == nil {
+		mux.Handle("/assets/frozen-runners/", withStaticCache(http.StripPrefix("/assets/frozen-runners/", http.FileServer(http.FS(frSub)))))
+	}
+	if gdSub, err := fs.Sub(gundamIconsFS, "assets/gundam-icons"); err == nil {
+		mux.Handle("/assets/gundam-icons/", withStaticCache(http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub)))))
+	}
+	if dsSub, err := fs.Sub(dsKasRunnersFS, "assets/ds-kas-runners"); err == nil {
+		mux.Handle("/assets/ds-kas-runners/", withStaticCache(http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub)))))
+	}
+	if saoSub, err := fs.Sub(saoIconsFS, "assets/sao-icons"); err == nil {
+		mux.Handle("/assets/sao-icons/", withStaticCache(http.StripPrefix("/assets/sao-icons/", http.FileServer(http.FS(saoSub)))))
+	}
+	if phSub, err := fs.Sub(portalHeroFS, "assets/portal-hero"); err == nil {
+		mux.Handle("/assets/portal-hero/", withStaticCache(http.StripPrefix("/assets/portal-hero/", http.FileServer(http.FS(phSub)))))
+	}
 
-        mux.HandleFunc("/favicon.ico", servePNG(sakubijakLogoPNG))
-        mux.HandleFunc("/assets/sakubijak-logo.png", servePNG(sakubijakLogoPNG))
-        mux.HandleFunc("/assets/sakubijak-emblem.png", servePNG(sakubijakEmblemPNG))
-        mux.HandleFunc("/assets/sakubijak-logo-transparent.png", servePNG(sakubijakLogoTransparentPNG))
-        mux.HandleFunc("/assets/kop-disdik.png", func(w http.ResponseWriter, r *http.Request) {
-                w.Header().Set("Content-Type", "image/png")
-                w.Header().Set("Cache-Control", "public, max-age=604800, immutable")
-                w.Write(kopDisdikPNG)
-        })
-        mux.HandleFunc("/assets/portal-tanjiro.png", servePNG(portalTanjiroPNG))
-        mux.HandleFunc("/assets/logo-batam.png", servePNG(logoBatamPNG))
-        if opSub, err := fs.Sub(opRunnersFS, "assets/op-runners"); err == nil {
-                mux.Handle("/assets/op-runners/", withStaticCache(http.StripPrefix("/assets/op-runners/", http.FileServer(http.FS(opSub)))))
-        }
-        if drSub, err := fs.Sub(doraemonRunnersFS, "assets/doraemon-runners"); err == nil {
-                mux.Handle("/assets/doraemon-runners/", withStaticCache(http.StripPrefix("/assets/doraemon-runners/", http.FileServer(http.FS(drSub)))))
-        }
-        if nsSub, err := fs.Sub(narutoSmpRunnersFS, "assets/naruto-smp-runners"); err == nil {
-                mux.Handle("/assets/naruto-smp-runners/", withStaticCache(http.StripPrefix("/assets/naruto-smp-runners/", http.FileServer(http.FS(nsSub)))))
-        }
-        if frSub, err := fs.Sub(frozenRunnersFS, "assets/frozen-runners"); err == nil {
-                mux.Handle("/assets/frozen-runners/", withStaticCache(http.StripPrefix("/assets/frozen-runners/", http.FileServer(http.FS(frSub)))))
-        }
-        if gdSub, err := fs.Sub(gundamIconsFS, "assets/gundam-icons"); err == nil {
-                mux.Handle("/assets/gundam-icons/", withStaticCache(http.StripPrefix("/assets/gundam-icons/", http.FileServer(http.FS(gdSub)))))
-        }
-        if dsSub, err := fs.Sub(dsKasRunnersFS, "assets/ds-kas-runners"); err == nil {
-                mux.Handle("/assets/ds-kas-runners/", withStaticCache(http.StripPrefix("/assets/ds-kas-runners/", http.FileServer(http.FS(dsSub)))))
-        }
-        if saoSub, err := fs.Sub(saoIconsFS, "assets/sao-icons"); err == nil {
-                mux.Handle("/assets/sao-icons/", withStaticCache(http.StripPrefix("/assets/sao-icons/", http.FileServer(http.FS(saoSub)))))
-        }
-        if phSub, err := fs.Sub(portalHeroFS, "assets/portal-hero"); err == nil {
-                mux.Handle("/assets/portal-hero/", withStaticCache(http.StripPrefix("/assets/portal-hero/", http.FileServer(http.FS(phSub)))))
-        }
+	loginHandler := http.HandlerFunc(cors(handleLogin))
+	mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
 
-        loginHandler := http.HandlerFunc(cors(handleLogin))
-        mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
+	mux.HandleFunc("/data/portals/status", cors(handlePortalStatusPublic))
+	mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
+	mux.HandleFunc("/data/operators", cors(requireAuth(requirePortalAdmin(handleOperators))))
+	mux.HandleFunc("/data/operators/perms", cors(requireAuth(requirePortalAdmin(handleOperatorPerms))))
+	mux.HandleFunc("/data/operators/", cors(requireAuth(requirePortalAdmin(handleOperatorByID))))
+	mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
+	mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
+	mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))
+	mux.HandleFunc("/data/admin/rekapitulasi", cors(requireAuth(requireSettingsAdmin(handleAdminRekapitulasi))))
+	mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
+	mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 
-        mux.HandleFunc("/data/portals/status", cors(handlePortalStatusPublic))
-        mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
-        mux.HandleFunc("/data/operators", cors(requireAuth(requirePortalAdmin(handleOperators))))
-        mux.HandleFunc("/data/operators/perms", cors(requireAuth(requirePortalAdmin(handleOperatorPerms))))
-        mux.HandleFunc("/data/operators/", cors(requireAuth(requirePortalAdmin(handleOperatorByID))))
-        mux.HandleFunc("/data/admin/command-center", cors(requireAuth(requireSettingsAdmin(handleAdminCommandCenter))))
-        mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
-        mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))
-        mux.HandleFunc("/data/admin/rekapitulasi", cors(requireAuth(requireSettingsAdmin(handleAdminRekapitulasi))))
-        mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
-        mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
+	mux.HandleFunc("/data/transactions/review", cors(requireAuth(handleTransactionReview)))
+	mux.HandleFunc("/data/transactions", cors(handleTransactions))
+	mux.HandleFunc("/data/transactions/import", cors(handleImport))
+	mux.HandleFunc("/data/transactions/bulk", cors(handleImport))
+	mux.HandleFunc("/data/tx/push", cors(handleTxPush))
+	mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
+	mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
+	mux.HandleFunc("/data/transactions/delete-all", cors(requireAuth(requirePermission("delete_all")(handleDeleteAllTransactions))))
+	mux.HandleFunc("/data/admin/backfill-np2d", cors(requireAdmin(handleBackfillNP2D)))
+	mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
+	mux.HandleFunc("/data/dashboard", cors(handleDashboard))
+	mux.HandleFunc("/data/realisasi/transactions", cors(requireAuth(handleRealisasiTransactions)))
+	mux.HandleFunc("/data/realisasi", cors(requireAuth(handleRealisasi)))
+	mux.HandleFunc("/data/settings", cors(handleSettings))
+	mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
+	mux.HandleFunc("/data/anggaran/bulk", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
+	mux.HandleFunc("/data/kas-belanja/laporan-tahunan", cors(requireAuth(handleKasLaporanTahunan)))
+	mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
+	mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
+	mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))
+	mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(requireAdmin(handleKasUnlockRealisasi))))
+	mux.HandleFunc("/data/gaji-tunjangan", cors(requireAuth(handleGajiTunjangan)))
+	mux.HandleFunc("/data/gaji-tunjangan/import-anggaran", cors(requireAuth(requireAdmin(handleGajiImportAnggaran))))
+	mux.HandleFunc("/data/gaji-tunjangan/realisasi", cors(requireAuth(requireAdmin(handleGajiSaveRealisasi))))
+	mux.HandleFunc("/data/gaji-tunjangan/realisasi/unlock", cors(requireAuth(requireAdmin(handleGajiUnlockRealisasi))))
+	mux.HandleFunc("/data/gaji-tunjangan/pegawai", cors(requireAuth(requireAdmin(handleGajiSavePegawai))))
+	mux.HandleFunc("/data/gaji-tunjangan/kebutuhan", cors(requireAuth(requireAdmin(handleGajiSaveKebutuhan))))
 
-        mux.HandleFunc("/data/transactions/review", cors(requireAuth(handleTransactionReview)))
-        mux.HandleFunc("/data/transactions", cors(handleTransactions))
-        mux.HandleFunc("/data/transactions/import", cors(handleImport))
-        mux.HandleFunc("/data/transactions/bulk", cors(handleImport))
-        mux.HandleFunc("/data/tx/push", cors(handleTxPush))
-        mux.HandleFunc("/data/transactions/delete", cors(requireAuth(handleDeleteTransaction)))
-        mux.HandleFunc("/data/transactions/delete-bulk", cors(requireAuth(handleDeleteBulkTransactions)))
-        mux.HandleFunc("/data/transactions/delete-all", cors(requireAuth(requirePermission("delete_all")(handleDeleteAllTransactions))))
-        mux.HandleFunc("/data/admin/backfill-np2d", cors(requireAdmin(handleBackfillNP2D)))
-        mux.HandleFunc("/data/transactions/", cors(handleTransactionByID))
-        mux.HandleFunc("/data/dashboard", cors(handleDashboard))
-        mux.HandleFunc("/data/realisasi/transactions", cors(requireAuth(handleRealisasiTransactions)))
-        mux.HandleFunc("/data/realisasi", cors(requireAuth(handleRealisasi)))
-        mux.HandleFunc("/data/settings", cors(handleSettings))
-        mux.HandleFunc("/data/import/anggaran", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
-        mux.HandleFunc("/data/anggaran/bulk", cors(requireAuth(requirePermission("import_anggaran")(handleImportAnggaran))))
-        mux.HandleFunc("/data/kas-belanja/laporan-tahunan", cors(requireAuth(handleKasLaporanTahunan)))
-        mux.HandleFunc("/data/kas-belanja", cors(requireAuth(handleKasBelanja)))
-        mux.HandleFunc("/data/kas-belanja/import-rak", cors(requireAuth(requireAdmin(handleKasImportRAK))))
-        mux.HandleFunc("/data/kas-belanja/realisasi", cors(requireAuth(requireAdmin(handleKasSaveRealisasi))))
-        mux.HandleFunc("/data/kas-belanja/realisasi/unlock", cors(requireAuth(requireAdmin(handleKasUnlockRealisasi))))
-        mux.HandleFunc("/data/gaji-tunjangan", cors(requireAuth(handleGajiTunjangan)))
-        mux.HandleFunc("/data/gaji-tunjangan/import-anggaran", cors(requireAuth(requireAdmin(handleGajiImportAnggaran))))
-        mux.HandleFunc("/data/gaji-tunjangan/realisasi", cors(requireAuth(requireAdmin(handleGajiSaveRealisasi))))
-        mux.HandleFunc("/data/gaji-tunjangan/realisasi/unlock", cors(requireAuth(requireAdmin(handleGajiUnlockRealisasi))))
-        mux.HandleFunc("/data/gaji-tunjangan/pegawai", cors(requireAuth(requireAdmin(handleGajiSavePegawai))))
-        mux.HandleFunc("/data/gaji-tunjangan/kebutuhan", cors(requireAuth(requireAdmin(handleGajiSaveKebutuhan))))
+	initSipkeuModules()
+	initStorage()
+	initSystemSettings()
+	loadAllModulesFromDisk()
+	repairAllModulesIsolation()
+	loadKasFromDisk()
+	loadGajiFromDisk()
 
-        initSipkeuModules()
-        initStorage()
-        initSystemSettings()
-        loadAllModulesFromDisk()
-        repairAllModulesIsolation()
-        loadKasFromDisk()
-        loadGajiFromDisk()
+	sek := sipkeuModules["sekretariat"]
 
-        sek := sipkeuModules["sekretariat"]
+	if !moduleHasData(sek) {
+		addSampleData(sek)
+		normalizeModuleIDs(sek)
+		persistModule(sek)
+	}
+	tryLoadDefaultAnggaran()
+	sek.mu.Lock()
+	hasAnggaranSek := len(sek.settings.AnggaranKegiatan) > 0
+	sek.mu.Unlock()
+	if !hasAnggaranSek {
+		initSampleAnggaran(sek)
+		persistModule(sek)
+	}
 
-        if !moduleHasData(sek) {
-                addSampleData(sek)
-                normalizeModuleIDs(sek)
-                persistModule(sek)
-        }
-        tryLoadDefaultAnggaran()
-        sek.mu.Lock()
-        hasAnggaranSek := len(sek.settings.AnggaranKegiatan) > 0
-        sek.mu.Unlock()
-        if !hasAnggaranSek {
-                initSampleAnggaran(sek)
-                persistModule(sek)
-        }
-
-        fmt.Printf("%s\n", storageInfo())
-        fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
-        handler := withRecover(withBlockSuspiciousPaths(withIPShield(withPortalSessionMatch(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux))))))))
-        srv := &http.Server{
-                Addr:              ":" + port,
-                Handler:           handler,
-                ReadHeaderTimeout: 8 * time.Second,
-                ReadTimeout:       45 * time.Second,
-                WriteTimeout:      90 * time.Second,
-                IdleTimeout:       90 * time.Second,
-                MaxHeaderBytes:    1 << 20,
-        }
-        log.Fatal(srv.ListenAndServe())
+	fmt.Printf("%s\n", storageInfo())
+	fmt.Printf("Aplikasi Penatausahaan Keuangan berjalan di http://localhost:%s\n", port)
+	handler := withRecover(withBlockSuspiciousPaths(withIPShield(withPortalSessionMatch(withAPIRateLimit(withGzip(withSecurityHeaders(withMaxBody(maxRequestBodyBytes, mux))))))))
+	srv := &http.Server{
+		Addr:              ":" + port,
+		Handler:           handler,
+		ReadHeaderTimeout: 8 * time.Second,
+		ReadTimeout:       45 * time.Second,
+		WriteTimeout:      90 * time.Second,
+		IdleTimeout:       90 * time.Second,
+		MaxHeaderBytes:    1 << 20,
+	}
+	log.Fatal(srv.ListenAndServe())
 }

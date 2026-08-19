@@ -461,6 +461,119 @@
       margin: 0;
       z-index: 10;
     }
+    .cahaya-console {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top, 0px));
+      right: max(14px, env(safe-area-inset-right, 0px));
+      z-index: 22;
+      width: min(300px, 34vw);
+      max-width: 340px;
+      pointer-events: auto;
+      touch-action: none;
+    }
+    .cahaya-console.is-dragging { z-index: 40; }
+    .cahaya-console-bar {
+      cursor: grab;
+      user-select: none;
+    }
+    .cahaya-console.is-dragging .cahaya-console-bar { cursor: grabbing; }
+    .cahaya-console-bezel {
+      border-radius: 18px;
+      padding: 8px;
+      background: linear-gradient(160deg, rgba(12, 24, 38, 0.88), rgba(8, 16, 28, 0.92));
+      border: 1px solid rgba(232, 184, 109, 0.38);
+      box-shadow: 0 16px 40px rgba(0,0,0,.4), 0 0 24px rgba(26,166,160,.18);
+      backdrop-filter: blur(16px) saturate(1.2);
+    }
+    .cahaya-console-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      padding: 0 2px 2px;
+    }
+    .cahaya-console-bar strong {
+      font-family: var(--aurora-font), system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: .04em;
+      color: #f4f8fc;
+      font-weight: 700;
+    }
+    .cahaya-console-bar span {
+      display: block;
+      font-size: 10px;
+      color: #9ab0c4;
+      font-weight: 500;
+    }
+    .cahaya-console-actions { display: flex; gap: 6px; }
+    .cahaya-console-btn {
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(26,166,160,.18);
+      color: #e8f8f6;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .cahaya-console-btn:hover { background: rgba(26,166,160,.32); }
+    .cahaya-console-screen {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      background: #07111f;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .cahaya-console-screen iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #07111f;
+      pointer-events: none;
+    }
+    .cahaya-console.is-open .cahaya-console-screen iframe { pointer-events: auto; }
+    .cahaya-console.is-open {
+      inset: 0 !important;
+      width: auto;
+      max-width: none;
+      padding: 18px;
+      background: rgba(4, 10, 18, 0.55);
+      touch-action: auto;
+    }
+    .cahaya-console.is-open .cahaya-console-bar { cursor: default; }
+    .cahaya-console-hint {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 2;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #f4f8fc;
+      text-shadow: 0 1px 6px #000;
+      pointer-events: none;
+    }
+    .cahaya-console.is-open .cahaya-console-hint { display: none; }
+    .cahaya-console.is-open .cahaya-console-bezel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+    }
+    .cahaya-console.is-open .cahaya-console-screen {
+      flex: 1;
+      aspect-ratio: auto;
+      min-height: 0;
+    }
+    @media (max-width: 720px) {
+      .cahaya-console { width: min(210px, 46vw); }
+      .cahaya-console-bar strong { font-size: 10px; }
+    }
     body.fx-portal-home.portal-video-mode .portal-brand-minimal {
       display: flex;
       flex-direction: row;
@@ -8412,6 +8525,25 @@
       <p class="portal-brand-name" aria-label="Sakubijak">Sakubijak</p>
     </header>
 
+    <aside id="cahaya-console" class="cahaya-console" aria-label="Konsol Petualangan Menuju Cahaya">
+      <div class="cahaya-console-bezel">
+        <div class="cahaya-console-bar">
+          <div>
+            <strong>Petualangan Menuju Cahaya</strong>
+            <span>Konsol Raka · Fase 1</span>
+          </div>
+          <div class="cahaya-console-actions">
+            <button type="button" class="cahaya-console-btn" id="cahaya-tab-btn">Tab baru</button>
+            <button type="button" class="cahaya-console-btn" id="cahaya-expand-btn" onclick="toggleCahayaConsole()">Perbesar</button>
+          </div>
+        </div>
+        <div class="cahaya-console-screen" onclick="if(!document.getElementById('cahaya-console')?.classList.contains('is-open')) toggleCahayaConsole()">
+          <iframe id="cahaya-frame" title="Petualangan Menuju Cahaya" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
+          <div class="cahaya-console-hint">Klik konsol untuk bermain</div>
+        </div>
+      </div>
+    </aside>
+
     <div class="portal-summon-zone" id="portal-summon-zone">
       <div class="portal-lightning-flash" id="portal-lightning-flash" aria-hidden="true"></div>
       <canvas class="portal-lightning-canvas" id="portal-lightning-canvas" aria-hidden="true"></canvas>
@@ -11865,6 +11997,113 @@ function closePortalModulesSmooth() {
     }
   }, 280);
 }
+
+const CAHAYA_POS_KEY = 'cahaya-console-pos';
+
+function cahayaConsoleBox() {
+  return document.getElementById('cahaya-console');
+}
+
+function clampCahayaPos(left, top, box) {
+  const w = box.offsetWidth || 300;
+  const h = box.offsetHeight || 200;
+  const maxL = Math.max(8, window.innerWidth - w - 8);
+  const maxT = Math.max(8, window.innerHeight - h - 8);
+  return {
+    left: Math.min(maxL, Math.max(8, left)),
+    top: Math.min(maxT, Math.max(8, top))
+  };
+}
+
+function applyCahayaPos(box, left, top) {
+  const pos = clampCahayaPos(left, top, box);
+  box.style.left = pos.left + 'px';
+  box.style.top = pos.top + 'px';
+  box.style.right = 'auto';
+  try { localStorage.setItem(CAHAYA_POS_KEY, JSON.stringify(pos)); } catch (_) {}
+}
+
+function restoreCahayaPos(box) {
+  if (!box || box.classList.contains('is-open')) return;
+  try {
+    const raw = localStorage.getItem(CAHAYA_POS_KEY);
+    if (!raw) return;
+    const pos = JSON.parse(raw);
+    if (typeof pos.left === 'number' && typeof pos.top === 'number') {
+      applyCahayaPos(box, pos.left, pos.top);
+    }
+  } catch (_) {}
+}
+
+function openCahayaNewTab() {
+  window.open('/cahaya/', '_blank', 'noopener');
+}
+
+function toggleCahayaConsole() {
+  const box = cahayaConsoleBox();
+  const btn = document.getElementById('cahaya-expand-btn');
+  const frame = document.getElementById('cahaya-frame');
+  if (!box || !btn) return;
+  const open = box.classList.toggle('is-open');
+  btn.textContent = open ? 'Tutup' : 'Perbesar';
+  if (open) {
+    box.dataset.savedLeft = box.style.left || '';
+    box.dataset.savedTop = box.style.top || '';
+    box.style.left = '';
+    box.style.top = '';
+    box.style.right = '';
+  } else if (box.dataset.savedLeft) {
+    applyCahayaPos(box, parseFloat(box.dataset.savedLeft) || 8, parseFloat(box.dataset.savedTop) || 8);
+  } else {
+    restoreCahayaPos(box);
+  }
+  if (frame instanceof HTMLIFrameElement) {
+    const wantEmbed = !open;
+    const hasEmbed = frame.src.includes('embed=1');
+    if (wantEmbed !== hasEmbed) {
+      frame.src = wantEmbed ? '/cahaya/?embed=1' : '/cahaya/';
+    }
+  }
+}
+
+function initCahayaConsoleDrag() {
+  const box = cahayaConsoleBox();
+  const bar = box?.querySelector('.cahaya-console-bar');
+  const tabBtn = document.getElementById('cahaya-tab-btn');
+  if (!box || !(bar instanceof HTMLElement)) return;
+  tabBtn?.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    openCahayaNewTab();
+  });
+  restoreCahayaPos(box);
+  window.addEventListener('resize', () => restoreCahayaPos(box));
+
+  let drag = null;
+  const onMove = (ev) => {
+    if (!drag || box.classList.contains('is-open')) return;
+    applyCahayaPos(box, ev.clientX - drag.dx, ev.clientY - drag.dy);
+  };
+  const onUp = () => {
+    if (!drag) return;
+    drag = null;
+    box.classList.remove('is-dragging');
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+  };
+  bar.addEventListener('pointerdown', (ev) => {
+    if (box.classList.contains('is-open')) return;
+    if (ev.target.closest('.cahaya-console-btn')) return;
+    ev.preventDefault();
+    const rect = box.getBoundingClientRect();
+    drag = { dx: ev.clientX - rect.left, dy: ev.clientY - rect.top };
+    box.classList.add('is-dragging');
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+}
+
+initCahayaConsoleDrag();
 
 function togglePortalModules() {
   if (!isPortalHomeVisible()) return;

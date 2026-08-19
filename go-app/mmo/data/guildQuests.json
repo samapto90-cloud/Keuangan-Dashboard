@@ -1,0 +1,29 @@
+[
+  {
+    "id": "gq-dungeon-5",
+    "title": "Complete 5 dungeons",
+    "kind": "DUNGEON",
+    "target": "",
+    "count": 5,
+    "reset": "daily",
+    "rewards": { "guildExp": 50, "contribution": 20, "coin": 15 }
+  },
+  {
+    "id": "gq-shadow",
+    "title": "Kalahkan 20 Shadow Beast",
+    "kind": "KILL",
+    "target": "shadow_imp",
+    "count": 20,
+    "reset": "daily",
+    "rewards": { "guildExp": 40, "contribution": 30, "coin": 20 }
+  },
+  {
+    "id": "gq-weekly-hunt",
+    "title": "Defeat 1000 monsters",
+    "kind": "KILL",
+    "target": "",
+    "count": 1000,
+    "reset": "weekly",
+    "rewards": { "guildExp": 120, "contribution": 80, "coin": 40 }
+  }
+]

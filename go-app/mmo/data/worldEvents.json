@@ -1,0 +1,192 @@
+[
+  {
+    "id": "village-defense",
+    "name": "Village Under Attack",
+    "kind": "defense",
+    "region": "village",
+    "announce": "Monster invasion has begun!",
+    "durationSec": 90,
+    "gateHp": 200,
+    "enemies": ["forest_fang", "shadow_imp"],
+    "rewards": { "exp": 40, "coin": 15, "crystal": 1 }
+  },
+  {
+    "id": "monster-invasion",
+    "name": "Monster Invasion",
+    "kind": "invasion",
+    "region": "forest",
+    "announce": "Mistwood is under attack!",
+    "durationSec": 100,
+    "gateHp": 180,
+    "enemies": ["forest_fang", "shadow_imp"],
+    "rewards": { "exp": 45, "coin": 18, "crystal": 1 }
+  },
+  {
+    "id": "lost-child",
+    "name": "Lost Child",
+    "kind": "social",
+    "region": "village",
+    "announce": "A child is missing near Dawn City.",
+    "durationSec": 120,
+    "combat": false,
+    "rewards": { "exp": 15, "coin": 5 }
+  },
+  {
+    "id": "merchant-escort",
+    "name": "Merchant Escort",
+    "kind": "escort",
+    "region": "valley",
+    "announce": "A merchant needs escort through Stone Valley.",
+    "durationSec": 110,
+    "enemies": ["forest_fang"],
+    "rewards": { "exp": 35, "coin": 20 }
+  },
+  {
+    "id": "ancient-shrine",
+    "name": "Ancient Shrine",
+    "kind": "education",
+    "region": "forest",
+    "announce": "An ancient shrine asks a simple question.",
+    "durationSec": 90,
+    "combat": false,
+    "questionId": "q-compare",
+    "rewards": { "exp": 12, "eduToken": 1 }
+  },
+  {
+    "id": "siluman-attack",
+    "name": "Siluman Attack",
+    "kind": "siluman",
+    "region": "forest",
+    "announce": "A siluman stirs in Mistwood!",
+    "durationSec": 100,
+    "enemies": ["shadow_imp"],
+    "rewards": { "exp": 50, "coin": 22 }
+  },
+  {
+    "id": "resource-rush",
+    "name": "Resource Rush",
+    "kind": "gather",
+    "region": "plains",
+    "announce": "Rare materials bloom in Moonlight Forest.",
+    "durationSec": 80,
+    "rewards": { "exp": 20, "coin": 12 }
+  },
+  {
+    "id": "treasure-hunt",
+    "name": "Treasure Hunt",
+    "kind": "treasure",
+    "region": "forest",
+    "announce": "A hidden chest stirs in the forest.",
+    "durationSec": 120,
+    "rewards": { "exp": 25, "coin": 20 }
+  },
+  {
+    "id": "forest-corruption",
+    "name": "Forest Corruption",
+    "kind": "invasion",
+    "region": "forest",
+    "announce": "Mistwood grows restless.",
+    "durationSec": 100,
+    "rewards": { "exp": 30, "coin": 12 }
+  },
+  {
+    "id": "meteor-shower",
+    "name": "Meteor Shower",
+    "kind": "sky",
+    "region": "plains",
+    "announce": "Lights fall across Moonlight Forest.",
+    "durationSec": 80,
+    "nightOnly": true,
+    "rewards": { "exp": 35, "crystal": 1 }
+  },
+  {
+    "id": "ancient-beast",
+    "name": "Ancient Beast",
+    "kind": "worldboss",
+    "region": "valley",
+    "announce": "An Ancient Beast has appeared!",
+    "durationSec": 150,
+    "rewards": { "exp": 80, "coin": 40, "crystal": 2 }
+  },
+  {
+    "id": "shadow-attack",
+    "name": "Makhluk Bayangan Menyerang",
+    "kind": "invasion",
+    "region": "village",
+    "announce": "Makhluk Bayangan menyerang Dawn Village!",
+    "durationSec": 600,
+    "gateHp": 240,
+    "enemies": ["forest_fang", "shadow_imp"],
+    "rewards": { "exp": 50, "coin": 20, "crystal": 1 }
+  },
+  {
+    "id": "dark-fog",
+    "name": "Dark Fog",
+    "kind": "fog",
+    "region": "forest",
+    "announce": "Kabut gelap menutupi Mistwood Forest.",
+    "durationSec": 180,
+    "nightOnly": false,
+    "rewards": { "exp": 28, "coin": 10 }
+  },
+  {
+    "id": "forest-beast",
+    "name": "Forest Beast Attack",
+    "kind": "invasion",
+    "region": "forest",
+    "announce": "Beast hutan menyerang Wolf Trail.",
+    "durationSec": 150,
+    "enemies": ["forest_fang"],
+    "rewards": { "exp": 40, "coin": 16 }
+  },
+  {
+    "id": "fallen-star",
+    "name": "Fallen Star",
+    "kind": "sky",
+    "region": "plains",
+    "announce": "Bintang jatuh di River of Light.",
+    "durationSec": 120,
+    "nightOnly": true,
+    "rewards": { "exp": 36, "crystal": 1 }
+  },
+  {
+    "id": "lost-caravan",
+    "name": "Lost Caravan",
+    "kind": "escort",
+    "region": "valley",
+    "announce": "Karavan tersesat di Stone Valley.",
+    "durationSec": 160,
+    "enemies": ["forest_fang"],
+    "rewards": { "exp": 32, "coin": 18 }
+  },
+  {
+    "id": "ancient-gate",
+    "name": "Ancient Gate",
+    "kind": "puzzle",
+    "region": "forest",
+    "announce": "Gerbang kuno meminta urutan simbol.",
+    "durationSec": 140,
+    "rewards": { "exp": 24, "eduToken": 1 }
+  },
+  {
+    "id": "darkness-rising",
+    "name": "DARKNESS RISING",
+    "kind": "invasion",
+    "region": "village",
+    "announce": "Bayangan munggah. Jaga desa. Raksa Kala nyedhak.",
+    "durationSec": 1200,
+    "gateHp": 400,
+    "enemies": ["forest_fang", "shadow_imp"],
+    "rewards": { "exp": 120, "coin": 40, "crystal": 2 }
+  },
+  {
+    "id": "mount-festival",
+    "name": "MOUNT FESTIVAL",
+    "kind": "festival",
+    "region": "village",
+    "announce": "Festival tunggangan. Pacu, pamer, raih hiasan.",
+    "durationSec": 600,
+    "combat": false,
+    "rewards": { "exp": 20, "coin": 8 }
+  }
+]
