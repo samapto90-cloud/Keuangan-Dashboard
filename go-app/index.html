@@ -462,14 +462,20 @@
       z-index: 10;
     }
     .cahaya-console {
-      position: fixed;
+      position: fixed !important;
       top: max(12px, env(safe-area-inset-top, 0px));
       right: max(14px, env(safe-area-inset-right, 0px));
-      z-index: 22;
-      width: min(300px, 34vw);
+      left: auto;
+      z-index: 80;
+      width: min(300px, 42vw);
       max-width: 340px;
       pointer-events: auto;
       touch-action: none;
+      display: block;
+    }
+    #portal-screen.hidden .cahaya-console,
+    body:not(:has(#portal-screen:not(.hidden))) .cahaya-console {
+      display: none !important;
     }
     .cahaya-console.is-dragging { z-index: 40; }
     .cahaya-console-bar {
@@ -8525,25 +8531,6 @@
       <p class="portal-brand-name" aria-label="Sakubijak">Sakubijak</p>
     </header>
 
-    <aside id="cahaya-console" class="cahaya-console" aria-label="Konsol Petualangan Menuju Cahaya">
-      <div class="cahaya-console-bezel">
-        <div class="cahaya-console-bar">
-          <div>
-            <strong>Petualangan Menuju Cahaya</strong>
-            <span>Konsol Raka · Fase 1</span>
-          </div>
-          <div class="cahaya-console-actions">
-            <button type="button" class="cahaya-console-btn" id="cahaya-tab-btn">Tab baru</button>
-            <button type="button" class="cahaya-console-btn" id="cahaya-expand-btn" onclick="toggleCahayaConsole()">Perbesar</button>
-          </div>
-        </div>
-        <div class="cahaya-console-screen" onclick="if(!document.getElementById('cahaya-console')?.classList.contains('is-open')) toggleCahayaConsole()">
-          <iframe id="cahaya-frame" title="Petualangan Menuju Cahaya" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
-          <div class="cahaya-console-hint">Klik konsol untuk bermain</div>
-        </div>
-      </div>
-    </aside>
-
     <div class="portal-summon-zone" id="portal-summon-zone">
       <div class="portal-lightning-flash" id="portal-lightning-flash" aria-hidden="true"></div>
       <canvas class="portal-lightning-canvas" id="portal-lightning-canvas" aria-hidden="true"></canvas>
@@ -8667,6 +8654,24 @@
 
     <div class="portal-footer">Developer by Keuangan Dinas Pendidikan Kota Batam</div>
   </div>
+  <aside id="cahaya-console" class="cahaya-console" aria-label="Konsol Petualangan Menuju Cahaya">
+    <div class="cahaya-console-bezel">
+      <div class="cahaya-console-bar">
+        <div>
+          <strong>Petualangan Menuju Cahaya</strong>
+          <span>Konsol Raka · Fase 1</span>
+        </div>
+        <div class="cahaya-console-actions">
+          <button type="button" class="cahaya-console-btn" id="cahaya-tab-btn">Tab baru</button>
+          <button type="button" class="cahaya-console-btn" id="cahaya-expand-btn" onclick="toggleCahayaConsole()">Perbesar</button>
+        </div>
+      </div>
+      <div class="cahaya-console-screen" onclick="if(!document.getElementById('cahaya-console')?.classList.contains('is-open')) toggleCahayaConsole()">
+        <iframe id="cahaya-frame" title="Petualangan Menuju Cahaya" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
+        <div class="cahaya-console-hint">Klik konsol untuk bermain</div>
+      </div>
+    </div>
+  </aside>
 </div>
 
 <!-- ═══════════════ LOGIN ═══════════════ -->
