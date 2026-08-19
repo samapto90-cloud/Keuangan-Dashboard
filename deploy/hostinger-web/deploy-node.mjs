@@ -98,6 +98,10 @@ function ensureBinary() {
     console.error("Build gagal. Pastikan Go terinstall.");
     process.exit(1);
   }
+  if (!fs.existsSync(bin)) {
+    console.error("Binary Linux tidak ada:", bin);
+    process.exit(1);
+  }
   return bin;
 }
 

@@ -34,10 +34,19 @@ jobs:
       - name: Install deploy dependencies
         run: npm install ssh2 --no-save --prefix deploy/hostinger-web
 
+      - name: Check SSH secret
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD || secrets.HOSTINGER_SSH_PASSWORD }}
+        run: |
+          if [ -z "$SSH_PASSWORD" ]; then
+            echo "::error::Isi GitHub secret SSH_PASSWORD atau HOSTINGER_SSH_PASSWORD (password SSH hPanel)."
+            exit 1
+          fi
+
       - name: Deploy to sakubijak.com:8888
         working-directory: deploy/hostinger-web
         env:
-          SSH_PASSWORD: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD || secrets.HOSTINGER_SSH_PASSWORD }}
           SKIP_BINARY_REBUILD: "1"
           BUILD_SHA: ${{ github.sha }}
         run: node deploy-node.mjs
