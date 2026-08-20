@@ -52,9 +52,59 @@ func stampTransactionOnCreate(sess *Session, t *Transaction) {
 		t.Status = trxStatusApproved
 		t.ReviewedBy = sess.Username
 		t.ReviewedAt = now
+	} else {
+		t.Status = trxStatusPending
+	}
+}
+
+// fillPejabatSnapshot: lengkapi nama/NIP pejabat pada transaksi (snapshot saat dibuat).
+func fillPejabatSnapshot(pa, bend Pejabat, t *Transaction) {
+	if t == nil {
 		return
 	}
-	t.Status = trxStatusPending
+	if strings.TrimSpace(t.PenggunaAnggaran) == "" {
+		t.PenggunaAnggaran = pa.Nama
+	}
+	if strings.TrimSpace(t.PenggunaAnggaranNip) == "" && pejabatNamesMatch(t.PenggunaAnggaran, pa.Nama) {
+		t.PenggunaAnggaranNip = pa.Nip
+	}
+	if strings.TrimSpace(t.Bendahara) == "" {
+		t.Bendahara = bend.Nama
+	}
+	if strings.TrimSpace(t.BendaharaNip) == "" && pejabatNamesMatch(t.Bendahara, bend.Nama) {
+		t.BendaharaNip = bend.Nip
+	}
+}
+
+func fillPejabatSnapshotFromModule(mod *SipkeuModule, t *Transaction) {
+	if mod == nil || t == nil {
+		return
+	}
+	mod.mu.Lock()
+	pa := mod.settings.PA
+	bend := mod.settings.Bendahara
+	mod.mu.Unlock()
+	fillPejabatSnapshot(pa, bend, t)
+}
+
+// preserveTransactionPejabat: pejabat di transaksi adalah snapshot saat dibuat.
+// Edit transaksi tidak boleh menimpa pejabat yang sudah tersimpan.
+func preserveTransactionPejabat(existing, updated *Transaction) {
+	if updated == nil || existing == nil {
+		return
+	}
+	if strings.TrimSpace(existing.PenggunaAnggaran) != "" {
+		updated.PenggunaAnggaran = existing.PenggunaAnggaran
+	}
+	if strings.TrimSpace(existing.PenggunaAnggaranNip) != "" {
+		updated.PenggunaAnggaranNip = existing.PenggunaAnggaranNip
+	}
+	if strings.TrimSpace(existing.Bendahara) != "" {
+		updated.Bendahara = existing.Bendahara
+	}
+	if strings.TrimSpace(existing.BendaharaNip) != "" {
+		updated.BendaharaNip = existing.BendaharaNip
+	}
 }
 
 func operatorMayModifyTransaction(sess *Session, t Transaction) bool {
@@ -98,6 +148,7 @@ func mergeTransactionUpdate(sess *Session, existing, updated Transaction) (Trans
 	if strings.TrimSpace(updated.SubmittedAt) == "" {
 		updated.SubmittedAt = existing.SubmittedAt
 	}
+	preserveTransactionPejabat(&existing, &updated)
 
 	if sessionIsPortalAdmin(sess) {
 		// Admin simpan langsung disetujui — tidak perlu alur persetujuan.

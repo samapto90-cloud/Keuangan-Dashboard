@@ -11744,11 +11744,7 @@ function pejabatNameMatches(a, b) {
   const na = (a || '').toUpperCase().replace(/\s+/g, ' ').trim();
   const nb = (b || '').toUpperCase().replace(/\s+/g, ' ').trim();
   if (!na || !nb) return false;
-  if (na === nb) return true;
-  const tok = s => s.split(/[\s,.]+/).filter(t => t.length >= 4);
-  const ta = tok(na);
-  const tb = tok(nb);
-  return ta.some(x => tb.includes(x));
+  return na === nb;
 }
 
 function pejabatBelongsToPortal(pejabat, portalKey, role) {
@@ -11757,6 +11753,7 @@ function pejabatBelongsToPortal(pejabat, portalKey, role) {
   for (const [key, prof] of Object.entries(SIPKEU_PORTAL_PROFILE)) {
     if (key === portalKey) continue;
     const other = role === 'pa' ? prof.defaultPa : prof.defaultBendahara;
+    // Hanya tolak jika nama PERSIS default portal lain (bukan fuzzy token).
     if (pejabatNameMatches(nama, other.nama)) return false;
   }
   return true;
@@ -11766,8 +11763,7 @@ function syncPortalPejabat() {
   const cfg = getPortalAppConfig();
   let pa = appSettings.pa?.nama ? { ...appSettings.pa } : { ...cfg.defaultPa };
   let bend = appSettings.bendahara?.nama ? { ...appSettings.bendahara } : { ...cfg.defaultBendahara };
-  if (!pejabatBelongsToPortal(pa, selectedPortalApp, 'pa')) pa = { ...cfg.defaultPa };
-  if (!pejabatBelongsToPortal(bend, selectedPortalApp, 'bend')) bend = { ...cfg.defaultBendahara };
+  // Jangan timpa pejabat yang baru disimpan admin — pakai settings apa adanya.
   DB.pa = pa;
   DB.bendahara = bend;
   return { pa, bendahara: bend };
@@ -14906,10 +14902,20 @@ document.getElementById('trx-form').addEventListener('submit', async function(e)
     ntpn: document.getElementById('f-ntpn').value,
     kode_billing: potonganItems.filter(i => i.kategori === 'pajak' && i.id_billing).map(i => i.id_billing).join('; '),
     ntb: document.getElementById('f-ntb').value,
-    pengguna_anggaran: DB.pa.nama,
+    pengguna_anggaran: (editingId != null
+      ? (allTransactions.find(x => x.id === editingId)?.pengguna_anggaran || DB.pa.nama)
+      : DB.pa.nama),
+    pengguna_anggaran_nip: (editingId != null
+      ? (allTransactions.find(x => x.id === editingId)?.pengguna_anggaran_nip || DB.pa.nip || '')
+      : (DB.pa.nip || '')),
     pptk: pptkFinal,
     pptk_nip: dbPPTKNip(pptkFinal),
-    bendahara: DB.bendahara.nama,
+    bendahara: (editingId != null
+      ? (allTransactions.find(x => x.id === editingId)?.bendahara || DB.bendahara.nama)
+      : DB.bendahara.nama),
+    bendahara_nip: (editingId != null
+      ? (allTransactions.find(x => x.id === editingId)?.bendahara_nip || DB.bendahara.nip || '')
+      : (DB.bendahara.nip || '')),
     nama_rekening: document.getElementById('f-penerima').value.trim(),
     no_rekening: document.getElementById('f-no-rekening').value.trim(),
     bank: document.getElementById('f-bank').value.trim(),
@@ -15025,9 +15031,9 @@ function editTrx(id) {
   const jenisEl = document.getElementById('f-jenis-trx');
   if (jenisEl) jenisEl.value = inferJenisTransaksi(t);
   document.getElementById('f-nilai').value = t.nilai||0;
-  document.getElementById('f-pa').value = DB.pa.nama;
+  document.getElementById('f-pa').value = t.pengguna_anggaran || DB.pa?.nama || '';
   document.getElementById('f-pptk').value = t.pptk||'';
-  document.getElementById('f-bendahara').value = DB.bendahara.nama;
+  document.getElementById('f-bendahara').value = t.bendahara || DB.bendahara?.nama || '';
   document.getElementById('f-koderek').value = t.kode_rekening||'';
   document.getElementById('f-uraian').value = t.uraian||'';
   document.getElementById('f-no-rekening').value = t.no_rekening||'';
@@ -15150,6 +15156,20 @@ document.getElementById('btn-confirm-hapus-semua')?.addEventListener('click', as
 });
 
 // ── Kwitansi ──────────────────────────────────────────────────────────────
+/** Pejabat per transaksi (snapshot). Fallback NIP ke setting live hanya jika nama sama. */
+function pejabatFromTransaction(t) {
+  const paNama = (t?.pengguna_anggaran || '').trim() || (DB.pa?.nama || '');
+  const bendNama = (t?.bendahara || '').trim() || (DB.bendahara?.nama || '');
+  let paNip = (t?.pengguna_anggaran_nip || '').trim();
+  let bendNip = (t?.bendahara_nip || '').trim();
+  if (!paNip && pejabatNameMatches(paNama, DB.pa?.nama)) paNip = DB.pa?.nip || '';
+  if (!bendNip && pejabatNameMatches(bendNama, DB.bendahara?.nama)) bendNip = DB.bendahara?.nip || '';
+  return {
+    pa: { nama: paNama || '—', nip: paNip || '—' },
+    bendahara: { nama: bendNama || '—', nip: bendNip || '—' },
+  };
+}
+
 function cetakKwitansi(id) {
   syncPortalPejabat();
   applyKwitansiTerimaDari(getPortalAppConfig());
@@ -15163,6 +15183,7 @@ function cetakKwitansi(id) {
   const pptkNip = t.pptk_nip || dbPPTKNip(t.pptk) || '—';
   const tgl = formatTanggalShort(t.tanggal);
   const yaitu = t.uraian || t.pekerjaan || '—';
+  const pej = pejabatFromTransaction(t);
 
   document.getElementById('kw-tahun').textContent = DB.tahun || 2026;
   document.getElementById('kw-nobpk').textContent = t.no_bpk || '—';
@@ -15183,10 +15204,10 @@ function cetakKwitansi(id) {
   document.getElementById('kw-pptk-nip').textContent = pptkNip !== '—'
     ? (String(pptkNip).startsWith('NIP') ? pptkNip : 'NIP. ' + pptkNip)
     : '—';
-  document.getElementById('kw-pa-nama').textContent = DB.pa.nama;
-  document.getElementById('kw-pa-nip').textContent = DB.pa.nip;
-  document.getElementById('kw-bend-nama').textContent = DB.bendahara.nama;
-  document.getElementById('kw-bend-nip').textContent = DB.bendahara.nip;
+  document.getElementById('kw-pa-nama').textContent = pej.pa.nama;
+  document.getElementById('kw-pa-nip').textContent = pej.pa.nip;
+  document.getElementById('kw-bend-nama').textContent = pej.bendahara.nama;
+  document.getElementById('kw-bend-nip').textContent = pej.bendahara.nip;
 
   const tb = terbilang(Math.round(t.nilai || 0));
   document.getElementById('kw-terbilang').textContent = capitalizeTerbilang(tb) + ' Rupiah';
@@ -15635,7 +15656,7 @@ function cetakNP2D(id) {
   npSetTxt('np-dari', t.pptk);
   npSetTxt('np-tahun', tahun);
   npSetTxt('np-kegiatan', [t.kegiatan, t.sub_kegiatan].filter(Boolean).join(' , '));
-  npSetTxt('np-kepada', `${cfg.bendaharaLabel} ${DB.bendahara?.nama || ''}`.trim() + ' — Dinas Pendidikan Kota Batam');
+  npSetTxt('np-kepada', `${cfg.bendaharaLabel} ${pejabatFromTransaction(t).bendahara.nama || ''}`.trim() + ' — Dinas Pendidikan Kota Batam');
   npSetTxt('np-total-num', formatKwitansiAmount(bruto));
   npSetTxt('np-terbilang', capitalizeTerbilang(terbilang(Math.round(bruto))));
   npSetTxt('np-keperluan', keperluan);
@@ -15707,8 +15728,9 @@ function cetakNP2D(id) {
   }
 
   npSetTxt('np-pa-role', cfg.paLabel);
-  npSetTxt('np-pa-nama', DB.pa.nama);
-  npSetTxt('np-pa-nip', DB.pa.nip);
+  const pej = pejabatFromTransaction(t);
+  npSetTxt('np-pa-nama', pej.pa.nama);
+  npSetTxt('np-pa-nip', pej.pa.nip);
   npSetTxt('np-tgl', formatTanggalShort(t.tanggal));
   npSetTxt('np-pptk-nama', t.pptk);
   npSetTxt('np-pptk-nip', pptkNip || '—');
@@ -15904,8 +15926,7 @@ function applyPortalBranding() {
   const topbarApp = document.getElementById('topbar-app-name');
   if (sidebarTitle) sidebarTitle.textContent = app.label;
   if (topbarApp) topbarApp.textContent = app.label;
-  DB.pa = { ...cfg.defaultPa };
-  DB.bendahara = { ...cfg.defaultBendahara };
+  // Jangan reset pejabat ke default di sini — pejabat mengikuti settings via syncPortalPejabat/loadSettings.
   applyPejabatUI();
   applyPptkRaceTheme();
 }
@@ -15968,12 +15989,27 @@ async function saveSettings() {
       nip: document.getElementById('set-bend-nip').value.trim(),
     },
   };
-  await apiFetch(API + '/settings', { method: 'PUT', body: JSON.stringify(payload) });
-  invalidateSettingsCache();
-  await loadSettings(true);
-  fillSettingsForm();
-  btn.disabled = false;
-  alert('Pengaturan pejabat berhasil disimpan.');
+  try {
+    const res = await apiFetch(API + '/settings', { method: 'PUT', body: JSON.stringify(payload) });
+    const data = await parseJsonResponse(res);
+    // Terapkan langsung dari respons agar UI tidak menunggu GET /settings.
+    if (data.pa?.nama) DB.pa = { nama: data.pa.nama, nip: data.pa.nip || '' };
+    else if (payload.pa.nama) DB.pa = { ...payload.pa };
+    if (data.bendahara?.nama) DB.bendahara = { nama: data.bendahara.nama, nip: data.bendahara.nip || '' };
+    else if (payload.bendahara.nama) DB.bendahara = { ...payload.bendahara };
+    appSettings.pa = { ...DB.pa };
+    appSettings.bendahara = { ...DB.bendahara };
+    invalidateSettingsCache();
+    await loadSettings(true);
+    fillSettingsForm();
+    applyPejabatUI();
+    // Pejabat baru hanya untuk form/transaksi baru — transaksi lama tidak diubah.
+    alert('Pengaturan pejabat berhasil disimpan. Transaksi baru akan memakai pejabat ini; transaksi lama tetap memakai pejabat saat dibuat.');
+  } catch (e) {
+    alert('Gagal menyimpan: ' + (e?.message || e));
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // ── Kelola Operator (Admin portal) ─────────────────────────────────────────
@@ -18677,7 +18713,9 @@ function enrichImportTransactionRow(t, format) {
     if (rak.pptk_nip && !t.pptk_nip) t.pptk_nip = rak.pptk_nip;
   }
   if (!t.pengguna_anggaran) t.pengguna_anggaran = cfg.defaultPa?.nama || DB.pa?.nama || '';
+  if (!t.pengguna_anggaran_nip) t.pengguna_anggaran_nip = (pejabatNameMatches(t.pengguna_anggaran, DB.pa?.nama) ? (DB.pa?.nip || '') : (cfg.defaultPa?.nip || DB.pa?.nip || ''));
   if (!t.bendahara) t.bendahara = cfg.defaultBendahara?.nama || DB.bendahara?.nama || '';
+  if (!t.bendahara_nip) t.bendahara_nip = (pejabatNameMatches(t.bendahara, DB.bendahara?.nama) ? (DB.bendahara?.nip || '') : (cfg.defaultBendahara?.nip || DB.bendahara?.nip || ''));
   return t;
 }
 

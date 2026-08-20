@@ -99,10 +99,12 @@ type Transaction struct {
 	NTPN             string         `json:"ntpn"`
 	KodeBilling      string         `json:"kode_billing"`
 	NTB              string         `json:"ntb"`
-	PenggunaAnggaran string         `json:"pengguna_anggaran"`
-	PPTK             string         `json:"pptk"`
-	PPTKnip          string         `json:"pptk_nip"`
-	Bendahara        string         `json:"bendahara"`
+	PenggunaAnggaran    string         `json:"pengguna_anggaran"`
+	PenggunaAnggaranNip string         `json:"pengguna_anggaran_nip,omitempty"`
+	PPTK                string         `json:"pptk"`
+	PPTKnip             string         `json:"pptk_nip"`
+	Bendahara           string         `json:"bendahara"`
+	BendaharaNip        string         `json:"bendahara_nip,omitempty"`
 	NamaRekening     string         `json:"nama_rekening"`
 	NoRekening       string         `json:"no_rekening"`
 	Bank             string         `json:"bank"`
@@ -279,6 +281,7 @@ func handleTransactions(w http.ResponseWriter, r *http.Request) {
 		}
 		normalizeTransactionTax(&t)
 		stampTransactionOnCreate(sess, &t)
+		fillPejabatSnapshotFromModule(mod, &t)
 		mod.mu.Lock()
 		t.ID = mod.nextID
 		mod.nextID++
@@ -565,6 +568,7 @@ func respondImportResult(w http.ResponseWriter, r *http.Request, sess *Session, 
 			continue
 		}
 		stampTransactionOnCreate(sess, &items[i])
+		fillPejabatSnapshot(mod.settings.PA, mod.settings.Bendahara, &items[i])
 		items[i].ID = mod.nextID
 		mod.nextID++
 		accepted = append(accepted, items[i])
@@ -758,6 +762,8 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		if incoming.Bendahara.Nama != "" {
 			mod.settings.Bendahara = incoming.Bendahara
 		}
+		// Sengaja TIDAK mengubah transaksi lama — pejabat di trx adalah snapshot saat dibuat.
+		// Hanya transaksi baru yang memakai pejabat dari pengaturan ini.
 		if incoming.AnggaranKegiatan != nil {
 			if mod.settings.AnggaranKegiatan == nil {
 				mod.settings.AnggaranKegiatan = map[string]float64{}
@@ -766,9 +772,16 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 				mod.settings.AnggaranKegiatan[k] = v
 			}
 		}
+		savedPA := mod.settings.PA
+		savedBend := mod.settings.Bendahara
 		mod.mu.Unlock()
 		persistModule(mod)
-		jsonResponse(w, http.StatusOK, map[string]string{"message": "Pengaturan berhasil disimpan"})
+		invalidateSettingsCache(mod.ID)
+		jsonResponse(w, http.StatusOK, map[string]any{
+			"message":   "Pengaturan berhasil disimpan",
+			"pa":        savedPA,
+			"bendahara": savedBend,
+		})
 
 	default:
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})

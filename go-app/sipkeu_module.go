@@ -116,35 +116,17 @@ func repairModuleIsolation(mod *SipkeuModule) bool {
 		changed = true
 	}
 
-	if isPejabatFromOtherModule(mod.ID, mod.settings.PA.Nama, true) &&
-		!isPejabatFromOtherModule(mod.ID, mod.defaultSettings.PA.Nama, true) {
+	// Hanya reset pejabat jika nama tersimpan PERSIS sama dengan default portal lain
+	// (bukan fuzzy). Rename admin harus tetap aman.
+	if isPejabatFromOtherModule(mod.ID, mod.settings.PA.Nama, true) {
 		mod.settings.PA = mod.defaultSettings.PA
 		changed = true
 	}
-	if isPejabatFromOtherModule(mod.ID, mod.settings.Bendahara.Nama, false) &&
-		!isPejabatFromOtherModule(mod.ID, mod.defaultSettings.Bendahara.Nama, false) {
+	if isPejabatFromOtherModule(mod.ID, mod.settings.Bendahara.Nama, false) {
 		mod.settings.Bendahara = mod.defaultSettings.Bendahara
 		changed = true
 	}
 	return changed
-}
-
-func pejabatNameTokens(name string) []string {
-	u := strings.ToUpper(strings.TrimSpace(name))
-	if u == "" {
-		return nil
-	}
-	raw := strings.FieldsFunc(u, func(r rune) bool {
-		return r == ',' || r == ' ' || r == '.'
-	})
-	out := make([]string, 0, len(raw))
-	for _, p := range raw {
-		p = strings.TrimSpace(p)
-		if len(p) >= 4 {
-			out = append(out, p)
-		}
-	}
-	return out
 }
 
 func pejabatNamesMatch(a, b string) bool {
@@ -153,19 +135,7 @@ func pejabatNamesMatch(a, b string) bool {
 	if na == "" || nb == "" {
 		return false
 	}
-	if na == nb {
-		return true
-	}
-	ta := pejabatNameTokens(a)
-	tb := pejabatNameTokens(b)
-	for _, x := range ta {
-		for _, y := range tb {
-			if x == y {
-				return true
-			}
-		}
-	}
-	return false
+	return na == nb
 }
 
 func isPejabatFromOtherModule(modID, nama string, isPA bool) bool {
@@ -182,6 +152,8 @@ func isPejabatFromOtherModule(modID, nama string, isPA bool) bool {
 		if !isPA {
 			def = other.defaultSettings.Bendahara
 		}
+		// Hanya anggap "milik portal lain" jika nama persis sama dengan default portal lain
+		// (bukan fuzzy token — agar rename admin tidak tertimpa).
 		if pejabatNamesMatch(nama, def.Nama) {
 			return true
 		}
@@ -204,11 +176,13 @@ func repairAllModulesIsolation() {
 	}
 }
 
-func effectivePejabatValues(modID string, pa, bend, defPA, defBend Pejabat) (Pejabat, Pejabat) {
-	if isPejabatFromOtherModule(modID, pa.Nama, true) {
+// effectivePejabatValues: pakai nilai tersimpan apa adanya.
+// Jangan overwrite rename admin dengan default (kecuali kosong).
+func effectivePejabatValues(_ string, pa, bend, defPA, defBend Pejabat) (Pejabat, Pejabat) {
+	if strings.TrimSpace(pa.Nama) == "" {
 		pa = defPA
 	}
-	if isPejabatFromOtherModule(modID, bend.Nama, false) {
+	if strings.TrimSpace(bend.Nama) == "" {
 		bend = defBend
 	}
 	return pa, bend
