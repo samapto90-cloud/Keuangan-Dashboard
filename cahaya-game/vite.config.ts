@@ -15,6 +15,10 @@ export default defineConfig({
         target: "http://127.0.0.1:8888",
         changeOrigin: true,
       },
+      "/admin/api": {
+        target: "http://127.0.0.1:8888",
+        changeOrigin: true,
+      },
     },
   },
   build: {

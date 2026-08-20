@@ -10,8 +10,8 @@ import "os"
 // Do not add duplicates. Do not change gameplay balance.
 
 const (
-	GameVersion = "0.1.0-phase1"
-	GamePhase   = "ULAR/1"
+	GameVersion = "1.0.0"
+	GamePhase   = "RELEASE"
 	GameTitle   = "Ular Tangga Nusantara"
 )
 
@@ -57,16 +57,16 @@ func phase30EnrichEndgameView(view map[string]any) {
 	}
 	view["version"] = GameVersion
 	view["phase"] = GamePhase
-	view["release"] = "READY_FOR_EXTERNAL_QA"
+	view["release"] = "PRODUCTION_READY"
 	view["title"] = GameTitle
 }
 
 func phase30ReleaseView() map[string]any {
 	return map[string]any{
-		"title":   GameTitle,
-		"version": GameVersion,
-		"phase":   GamePhase,
-		"status":     "PHASE_1_FOUNDATION",
+		"title":      GameTitle,
+		"version":    GameVersion,
+		"phase":      GamePhase,
+		"status":     "PRODUCTION_READY",
 		"forms":      []string{},
 		"siluman":    0,
 		"regions":    0,

@@ -61,7 +61,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 		Name:      gameSess.Username,
 		Level:     1,
 		State:     "IDLE",
-		send:      make(chan []byte, 64),
+		send:      make(chan []byte, 256),
 	}
 	if AdventureGameplayEnabled {
 		player.Class = "WARRIOR"

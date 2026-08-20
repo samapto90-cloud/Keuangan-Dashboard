@@ -1,29 +1,91 @@
 import { WS_EVENTS } from "./events";
 
+export type ConnStatus = "offline" | "connecting" | "online";
+
+export type NetMsg = { type: string; data?: Record<string, unknown> };
+
 export function wsURL(): string {
   const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
   return `${proto}//${window.location.host}/cahaya/ws`;
 }
 
-export function connectLobby(token: string, onHello: (raw: unknown) => void): WebSocket | null {
-  try {
+export class GameClient {
+  ws: WebSocket | null = null;
+  status: ConnStatus = "offline";
+  lastSeq = 0;
+  seen = new Set<string>();
+  myId = "";
+  onStatus: ((s: ConnStatus) => void) | null = null;
+  onEvent: ((type: string, data: Record<string, unknown>) => void) | null = null;
+  private token = "";
+  private pingTimer = 0;
+
+  connect(token: string): void {
+    this.token = token;
+    this.status = "connecting";
+    this.onStatus?.(this.status);
     const ws = new WebSocket(wsURL());
+    this.ws = ws;
     ws.addEventListener("open", () => {
       ws.send(JSON.stringify({ type: WS_EVENTS.AUTH, data: { token } }));
     });
-    ws.addEventListener("message", (ev) => {
-      try {
-        const msg = JSON.parse(String(ev.data)) as { type?: string };
-        if (msg.type === WS_EVENTS.AUTH_OK) {
-          ws.send(JSON.stringify({ type: WS_EVENTS.JOIN_LOBBY, data: {} }));
-        }
-        if (msg.type === WS_EVENTS.LOBBY_HELLO) onHello(msg);
-      } catch {
-        /* ignore malformed */
-      }
+    ws.addEventListener("message", (ev) => this.handleRaw(String(ev.data)));
+    ws.addEventListener("close", () => {
+      this.status = "offline";
+      this.onStatus?.(this.status);
+      window.clearInterval(this.pingTimer);
     });
-    return ws;
-  } catch {
-    return null;
+    ws.addEventListener("error", () => {
+      this.status = "offline";
+      this.onStatus?.(this.status);
+    });
   }
+
+  reconnect(): void {
+    this.ws?.close();
+    this.connect(this.token);
+  }
+
+  send(type: string, data: Record<string, unknown> = {}): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+    this.ws.send(JSON.stringify({ type, data }));
+  }
+
+  private handleRaw(raw: string): void {
+    let msg: NetMsg;
+    try {
+      msg = JSON.parse(raw) as NetMsg;
+    } catch {
+      return;
+    }
+    const data = (msg.data || {}) as Record<string, unknown>;
+    if (msg.type === WS_EVENTS.AUTH_OK) {
+      this.myId = String(data.playerId || "");
+      this.status = "online";
+      this.onStatus?.(this.status);
+      this.send(WS_EVENTS.JOIN_LOBBY);
+      this.pingTimer = window.setInterval(() => this.send(WS_EVENTS.PING, { t: Date.now() }), 12000);
+      this.onEvent?.(msg.type, data);
+      return;
+    }
+    const seq = Number(data.seq || 0);
+    const eventId = String(data.eventId || "");
+    if (eventId && this.seen.has(eventId)) return;
+    if (eventId) {
+      this.seen.add(eventId);
+      if (this.seen.size > 400) this.seen.clear();
+    }
+    if (seq && seq < this.lastSeq) return;
+    if (seq) this.lastSeq = seq;
+    this.onEvent?.(msg.type, data);
+  }
+}
+
+export function connectLobby(token: string, onHello: (raw: unknown) => void): WebSocket | null {
+  const c = new GameClient();
+  c.onEvent = (type, data) => {
+    if (type === WS_EVENTS.LOBBY_HELLO) onHello({ type, data });
+  };
+  c.connect(token);
+  return c.ws;
 }

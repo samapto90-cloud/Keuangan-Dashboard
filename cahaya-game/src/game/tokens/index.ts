@@ -1,1 +1,2 @@
-export const TOKEN_COLORS = ["#1aa6a0", "#c9a227", "#3d8bfd", "#d97854"];
+export { PLAYER_COLORS, PLAYER_COLOR_NAMES, PLAYER_COLORS as TOKEN_COLORS } from "../board/config";
+export { tokenOffsets } from "../board/engine";

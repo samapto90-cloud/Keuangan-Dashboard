@@ -12,14 +12,18 @@ type inbound struct {
 }
 
 type Hub struct {
-	Auth     *AuthStore
-	Accounts *AccountStore
-	Players  *DiskPlayerStore
-	World    *WorldState
-	Lobby    *UlarLobby
-	join     chan *Player
-	leave    chan *Player
-	in       chan inbound
+	Auth       *AuthStore
+	Accounts   *AccountStore
+	Players    *DiskPlayerStore
+	World      *WorldState
+	Lobby      *UlarLobby
+	Progress   *ProgressStore
+	Social     *SocialStore
+	Matchmaker *Matchmaker
+	Ops        *OpsStore
+	join       chan *Player
+	leave      chan *Player
+	in         chan inbound
 }
 
 func NewHub() *Hub {
@@ -29,27 +33,41 @@ func NewHub() *Hub {
 	world.InvRepo = store.AsInv()
 	world.JourneyRepo = store
 	world.loadRuntimeFile()
-	return &Hub{
-		Auth:     NewAuthStore(),
-		Accounts: OpenAccountStore(accountStorePath()),
-		Players:  store,
-		World:    world,
-		Lobby:    NewUlarLobby(),
-		join:     make(chan *Player, 16),
-		leave:    make(chan *Player, 16),
-		in:       make(chan inbound, 256),
+	h := &Hub{
+		Auth:       NewAuthStore(),
+		Accounts:   OpenAccountStore(accountStorePath()),
+		Players:    store,
+		World:      world,
+		Lobby:      NewUlarLobby(),
+		Progress:   OpenProgressStore(progressStorePath()),
+		Social:     OpenSocialStore(socialStorePath()),
+		Matchmaker: NewMatchmaker(),
+		Ops:        OpenOpsStore(opsStorePath()),
+		join:       make(chan *Player, 16),
+		leave:      make(chan *Player, 16),
+		in:         make(chan inbound, 256),
 	}
+	h.Lobby.OnAbandon = func(uid, mid string) {
+		if h.Progress != nil {
+			h.Progress.RecordAbandon(uid)
+		}
+	}
+	return h
 }
 
 func (h *Hub) Run() {
 	tick := time.NewTicker(time.Second / time.Duration(ServerTickRate))
 	defer tick.Stop()
 	dt := 1.0 / float64(ServerTickRate)
+	socialN := 0
 	for {
 		select {
 		case p := <-h.join:
 			if !AdventureGameplayEnabled {
 				h.lobbyJoin(p)
+				if h.Social != nil {
+					h.Social.Touch(p.ID, false)
+				}
 				continue
 			}
 			ok, isNew := h.World.Add(p)
@@ -98,6 +116,11 @@ func (h *Hub) Run() {
 			h.handle(msg)
 		case <-tick.C:
 			if !AdventureGameplayEnabled {
+				socialN++
+				if socialN >= ServerTickRate {
+					socialN = 0
+					h.tickMatchmaking()
+				}
 				continue
 			}
 			events := h.World.Simulate(dt)

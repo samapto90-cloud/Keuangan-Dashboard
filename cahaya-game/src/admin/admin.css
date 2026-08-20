@@ -1,0 +1,153 @@
+body.admin-panel {
+  background: #0b1220;
+  color: #e8eef7;
+}
+body.admin-panel::before,
+body.admin-panel::after { display: none; }
+
+.adm-shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: 56px 1fr;
+}
+.adm-side {
+  grid-row: 1 / span 2;
+  background: #0f1b2e;
+  border-right: 1px solid #1e2e48;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.adm-brand {
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-size: 13px;
+  color: #9ec5ff;
+  padding: 8px 10px 16px;
+}
+.adm-nav a, .adm-nav button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: #c5d4ea;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+.adm-nav a:hover, .adm-nav button:hover, .adm-nav a.is-on {
+  background: #1a2d4d;
+  color: #fff;
+}
+.adm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #1e2e48;
+  background: #0d1728;
+}
+.adm-top b { font-size: 14px; }
+.adm-main {
+  padding: 20px;
+  overflow: auto;
+}
+.adm-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.adm-card {
+  background: #122036;
+  border: 1px solid #1e2e48;
+  border-radius: 12px;
+  padding: 14px;
+}
+.adm-card .k { color: #8ea2bf; font-size: 12px; }
+.adm-card .v { font-size: 28px; font-weight: 700; margin-top: 6px; }
+.adm-card .d { color: #3ecf8e; font-size: 12px; margin-top: 4px; }
+.adm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.adm-toolbar input, .adm-toolbar select, .adm-form input, .adm-form select, .adm-form textarea {
+  background: #0b1220;
+  border: 1px solid #2a3f5f;
+  color: inherit;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+.adm-table-wrap { overflow: auto; border: 1px solid #1e2e48; border-radius: 12px; }
+table.adm {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.adm th, table.adm td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #1e2e48;
+  text-align: left;
+  vertical-align: top;
+}
+table.adm th { color: #8ea2bf; font-weight: 600; background: #122036; }
+.adm-btn {
+  background: #1f6feb;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+.adm-btn.ghost { background: #1a2d4d; }
+.adm-btn.danger { background: #e25b4a; }
+.adm-btn.warn { background: #c9892a; }
+.adm-login {
+  max-width: 380px;
+  margin: 12vh auto;
+  background: #122036;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #1e2e48;
+}
+.adm-login h1 { margin: 0 0 8px; font-size: 22px; }
+.adm-login p { color: #8ea2bf; }
+.adm-login label { display: block; margin: 12px 0 4px; font-size: 13px; }
+.adm-login input { width: 100%; }
+.adm-err { color: #ff8a7a; font-size: 13px; }
+.adm-status { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.pill { padding: 4px 10px; border-radius: 999px; font-size: 12px; background: #1a2d4d; }
+.pill.ok { background: #163a2a; color: #3ecf8e; }
+.pill.warn { background: #3a2e16; color: #e8b84a; }
+.pill.bad { background: #3a1616; color: #ff8a7a; }
+.adm-form { display: grid; gap: 10px; max-width: 720px; }
+.adm-form textarea { min-height: 80px; }
+.adm-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.adm-chart { width: 100%; height: 88px; color: #6ec8e6; }
+.adm-muted { color: #8ea2bf; font-size: 13px; }
+.adm-pager { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.adm-modal {
+  position: fixed; inset: 0; background: #0009; display: grid; place-items: center; z-index: 80;
+}
+.adm-modal .box {
+  background: #122036; border: 1px solid #2a3f5f; border-radius: 14px; padding: 20px; width: min(440px, 92vw);
+}
+.adm-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-pre { white-space: pre-wrap; background: #0b1220; padding: 12px; border-radius: 8px; font-size: 12px; }
+@media (max-width: 860px) {
+  .adm-shell { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+  .adm-side { grid-row: auto; flex-direction: row; overflow-x: auto; padding: 8px; }
+  .adm-brand { display: none; }
+  .adm-nav { display: flex; gap: 4px; }
+  .adm-nav a, .adm-nav button { white-space: nowrap; }
+}

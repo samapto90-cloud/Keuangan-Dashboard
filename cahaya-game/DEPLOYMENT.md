@@ -1,71 +1,79 @@
-# DEPLOYMENT
+# Deployment — Ular Tangga Nusantara Online v1.0.0
 
-Version 1.0.0-beta. Staging dulu. Jangan production deploy otomatis.
-
-## Requirements
+## Prerequisites
 
 - Go 1.22+
-- Node 20+
-- HTTPS reverse proxy (nginx / Hostinger)
+- Node.js 20+ (build only)
+- Linux/Windows server with persistent disk for JSON stores
 
-## Environment
+## Environment Setup
 
-Salin `deploy/.env.example`. Wajib: `PORT`, `ALLOWED_ORIGIN`, password admin, `CAHAYA_SOCIAL_STORE`.
+```bash
+export PORT=3000
+export ULAR_BACKUP_ENABLED=1
+export ULAR_BACKUP_ROOT=/var/data/ular-backups
+# Optional:
+# export ULAR_ADMIN_TOKEN=<strong-random-token>
+# export ULAR_SUPER_ADMIN=adminusername
+```
 
-`SIPKEU_ENV=staging` atau `production`.
+**Never commit secrets.** Use environment or secret manager.
 
 ## Build
 
 ```bash
 cd cahaya-game && npm ci && npm run build
-cd ../go-app && go test ./mmo/ -count=1
-go build -ldflags "-X main.buildSHA=$(git rev-parse --short HEAD)" -o keuangan .
+cd ../go-app && go test ./... && go build -o keuangan .
 ```
 
-Frontend masuk `go-app/cahaya-dist/`.
+## Deploy
 
-## Database / persist
+1. Copy binary + `go-app/cahaya-dist/` embedded (via `go build` with embed)
+2. Ensure `data/` directory writable for JSON stores
+3. Run behind reverse proxy (HTTPS required for PWA install)
+4. WebSocket upgrade path: `/cahaya/ws`
 
-- SIPKEU: file JSON modul keuangan (lihat `storageInfo()`).
-- MMO runtime: `data/cahaya-social.json`.
-- Backup harian: `deploy/hostinger-web/backup-daily.ps1`.
-- Restore: hentikan proses, salin backup ke path persist, start ulang.
+## Database / Storage
 
-## Server
+JSON files (default under `data/`):
 
-Binary Go menyajikan `/` (keuangan), `/cahaya/` (game), `/cahaya/ws`, `/health`, `/ready`.
+- `cahaya-accounts.json`
+- `ular-progress.json`
+- `ular-ops.json`
+- `ular-social.json`
+- `ular-matches.json`
+- `ular-attempts.json`
 
-## Reverse proxy / HTTPS
+## Backup
 
-Proxy WebSocket `/cahaya/ws` dengan upgrade. Set `ALLOWED_ORIGIN` ke domain staging.
-
-## Monitoring
-
-- `/health` — liveness
-- `/ready` — persist path writable
-- Log process CPU/RAM, error rate, jumlah koneksi WS
+- Automatic: `ULAR_BACKUP_ENABLED=1` (daily, retention 7d/4w/3m)
+- Manual: copy entire `data/` directory
+- Restore test: `POST /cahaya/api/admin/backup/restore-test` with admin auth
 
 ## Rollback
 
-Simpan artifact binary + `cahaya-dist` + file persist. Rollback = ganti binary lama dan restore JSON backup.
+1. Stop process
+2. Restore `data/` from last known-good backup
+3. Deploy previous binary version
+4. Start process
+5. Verify `/health`, `/ready`, `/cahaya/`
 
-## Smoke (staging)
+## Health Checks
 
-Jangan production deploy otomatis. Staging lokal:
+- `GET /health` — liveness
+- `GET /ready` — readiness
+- `GET /cahaya/api/admin/status` — game subsystem status (auth required)
 
-```bash
-cd go-app
-SIPKEU_ENV=staging CAHAYA_ENV=staging PORT=38991 \
-  CAHAYA_SOCIAL_STORE=./data/cahaya-staging-smoke.json \
-  ./keuangan
-```
+## Zero-Downtime Notes
 
-Di terminal lain:
+- Graceful shutdown: finish in-flight WS before kill
+- Config changes affect **future matches only** (frozen rewards at match start)
 
-```bash
-SMOKE_URL=http://127.0.0.1:38991 go run ./cmd/cahaya-smoke
-```
+## Staging Checklist
 
-Checklist manual: login, play, combat, quest, inventory, logout. Dua pemain untuk party.
-
-Restore persist (setelah backup): `RestoreRuntime(path.bak-YYYYMMDD-HHMMSS)` — file backup tidak dihapus; live di-snapshot dulu.
+- [ ] Register / login / onboarding
+- [ ] 2-player match end-to-end
+- [ ] Ranked settlement
+- [ ] Admin login + question CRUD
+- [ ] Backup + restore test
+- [ ] PWA install on mobile browser

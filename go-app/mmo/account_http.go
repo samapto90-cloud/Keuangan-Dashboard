@@ -182,7 +182,27 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		PlayerID: acc.PlayerID, Username: acc.Username, Email: acc.Email,
 		Level: 1, NewJourney: true,
 	}
+	if st := progressStore(); st != nil {
+		writeJSON(w, http.StatusOK, mergeProfile(out, st.ViewFor(acc.PlayerID, acc.Username)))
+		return
+	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func mergeProfile(base ProfileOut, extra map[string]any) map[string]any {
+	out := map[string]any{
+		"playerId": base.PlayerID, "username": base.Username, "email": base.Email,
+		"newJourney": base.NewJourney,
+	}
+	for k, v := range extra {
+		out[k] = v
+	}
+	out["playerId"] = base.PlayerID
+	out["username"] = extra["username"]
+	if out["username"] == nil || out["username"] == "" {
+		out["username"] = base.Username
+	}
+	return out
 }
 
 func bearerFrom(r *http.Request) string {

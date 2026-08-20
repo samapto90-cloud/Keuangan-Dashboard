@@ -22,13 +22,14 @@ const (
 	minPasswordLen    = 8
 )
 
-var usernameRE = regexp.MustCompile(`^[A-Za-z0-9_]{3,18}$`)
+var usernameRE = regexp.MustCompile(`^[A-Za-z0-9_]{3,16}$`)
 
 type GameAccount struct {
 	PlayerID     string `json:"playerId"`
 	Username     string `json:"username"`
 	Email        string `json:"email"`
 	PasswordHash string `json:"passwordHash"`
+	Role         string `json:"role,omitempty"`
 	CreatedAt    int64  `json:"createdAt"`
 }
 
@@ -213,7 +214,11 @@ func (s *AccountStore) Register(username, email, password, confirm string) (*Gam
 		Username:     username,
 		Email:        email,
 		PasswordHash: hash,
+		Role:         RolePlayer,
 		CreatedAt:    time.Now().UnixMilli(),
+	}
+	if bootstrapSuperUser() != "" && strings.ToLower(username) == bootstrapSuperUser() {
+		acc.Role = RoleSuperAdmin
 	}
 	s.index(acc)
 	sess := s.issueLocked(acc)
@@ -236,6 +241,14 @@ func (s *AccountStore) Login(userOrEmail, password string) (*GameSession, string
 	}
 	if acc == nil || !checkGamePassword(acc.PasswordHash, password) {
 		return nil, "akun atau password salah"
+	}
+	if bootstrapSuperUser() != "" && strings.ToLower(acc.Username) == bootstrapSuperUser() && NormalizeRole(acc.Role) != RoleSuperAdmin {
+		acc.Role = RoleSuperAdmin
+	}
+	if DefaultHub != nil && DefaultHub.Ops != nil {
+		if ban := DefaultHub.Ops.ActiveBan(acc.PlayerID); ban != nil {
+			return nil, "akun diblokir"
+		}
 	}
 	sess := s.issueLocked(acc)
 	_ = s.flushLocked()
@@ -299,6 +312,12 @@ func (s *AccountStore) Lookup(token string) *GameSession {
 		}
 		return nil
 	}
+	if DefaultHub != nil && DefaultHub.Ops != nil {
+		if ban := DefaultHub.Ops.ActiveBan(ss.PlayerID); ban != nil {
+			delete(s.sessions, token)
+			return nil
+		}
+	}
 	return ss
 }
 
@@ -307,6 +326,72 @@ func (s *AccountStore) Logout(token string) {
 	defer s.mu.Unlock()
 	delete(s.sessions, strings.TrimSpace(token))
 	_ = s.flushLocked()
+}
+
+func (s *AccountStore) Rename(playerID, username string) string {
+	username = validateUsername(username)
+	if username == "" {
+		return "username tidak valid"
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	acc := s.byID[playerID]
+	if acc == nil {
+		return "akun tidak ditemukan"
+	}
+	if existing := s.byUser[strings.ToLower(username)]; existing != nil && existing.PlayerID != playerID {
+		return "username sudah dipakai"
+	}
+	delete(s.byUser, strings.ToLower(acc.Username))
+	acc.Username = username
+	s.byUser[strings.ToLower(username)] = acc
+	for _, ss := range s.sessions {
+		if ss != nil && ss.PlayerID == playerID {
+			ss.Username = username
+		}
+	}
+	if err := s.flushLocked(); err != nil {
+		return "gagal menyimpan akun"
+	}
+	return ""
+}
+
+func (s *AccountStore) AccountByUsername(name string) *GameAccount {
+	name = strings.ToLower(strings.TrimSpace(name))
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	acc := s.byUser[name]
+	if acc == nil {
+		return nil
+	}
+	cp := *acc
+	cp.PasswordHash = ""
+	return &cp
+}
+
+func (s *AccountStore) SearchUsers(q string, limit int) []GameAccount {
+	q = strings.ToLower(strings.TrimSpace(q))
+	if q == "" || limit <= 0 {
+		return nil
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out := make([]GameAccount, 0, limit)
+	for _, acc := range s.byUser {
+		if acc == nil {
+			continue
+		}
+		if !strings.Contains(strings.ToLower(acc.Username), q) {
+			continue
+		}
+		cp := *acc
+		cp.PasswordHash = ""
+		out = append(out, cp)
+		if len(out) >= limit {
+			break
+		}
+	}
+	return out
 }
 
 func (s *AccountStore) AccountByID(playerID string) *GameAccount {
@@ -319,6 +404,55 @@ func (s *AccountStore) AccountByID(playerID string) *GameAccount {
 	cp := *acc
 	cp.PasswordHash = ""
 	return &cp
+}
+
+func (s *AccountStore) RoleOf(playerID string) string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	acc := s.byID[playerID]
+	if acc == nil {
+		return RolePlayer
+	}
+	return NormalizeRole(acc.Role)
+}
+
+func (s *AccountStore) SetRole(playerID, role string) string {
+	role = NormalizeRole(role)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	acc := s.byID[playerID]
+	if acc == nil {
+		return "akun tidak ditemukan"
+	}
+	acc.Role = role
+	_ = s.flushLocked()
+	return ""
+}
+
+func (s *AccountStore) RevokeSessions(playerID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for tok, ss := range s.sessions {
+		if ss != nil && ss.PlayerID == playerID {
+			delete(s.sessions, tok)
+		}
+	}
+	_ = s.flushLocked()
+}
+
+func (s *AccountStore) AllAccounts() []GameAccount {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out := make([]GameAccount, 0, len(s.byID))
+	for _, acc := range s.byID {
+		if acc == nil {
+			continue
+		}
+		cp := *acc
+		cp.PasswordHash = ""
+		out = append(out, cp)
+	}
+	return out
 }
 
 func (s *AccountStore) AuthenticateWS(in AuthIn) (*GameSession, string) {

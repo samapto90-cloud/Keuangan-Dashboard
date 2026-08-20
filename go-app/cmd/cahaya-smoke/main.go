@@ -34,11 +34,11 @@ func main() {
 	}
 
 	check("health", "/health", `"status":"ok"`)
-	check("version", "/health", `"version":"0.1.0-phase1"`)
-	check("phase", "/health", `"phase":"ULAR/1"`)
+	check("version", "/health", `"version":"1.0.0"`)
+	check("phase", "/health", `"phase":"RELEASE"`)
 	check("ready", "/ready", `"status":"ready"`)
 	check("cahaya", "/cahaya/", "Ular Tangga Nusantara")
-	check("kicker", "/cahaya/", "0.1.0-phase1")
+	check("kicker", "/cahaya/", "1.0.0")
 
 	res, err := client.Get(base + "/health")
 	if err == nil {

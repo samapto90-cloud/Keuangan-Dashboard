@@ -14,6 +14,7 @@ func TestAccountHTTPRegisterLoginLogout(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("CAHAYA_ACCOUNT_STORE", filepath.Join(dir, "accounts.json"))
 	DefaultHub.Accounts = OpenAccountStore(filepath.Join(dir, "accounts.json"))
+	DefaultHub.Progress = OpenProgressStore(filepath.Join(dir, "progress.json"))
 
 	reg, _ := json.Marshal(map[string]string{
 		"username": "UlarSatu", "email": "ular1@example.com",

@@ -1,10 +1,11 @@
 {
   "name": "ular-tangga-nusantara",
   "private": true,
-  "version": "0.1.0-phase1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },

@@ -3,7 +3,7 @@ package mmo
 import "testing"
 
 func TestPhase1BoardConstants(t *testing.T) {
-	if BOARD_SIZE != 100 || MIN_POSITION != 1 || MAX_POSITION != 100 || MAX_PLAYERS != 4 {
+	if BOARD_SIZE != 100 || OFFBOARD_START != 0 || MIN_POSITION != 1 || MAX_POSITION != 100 || MAX_PLAYERS != 4 {
 		t.Fatal("board constants")
 	}
 	if DefaultSnakes[97] != 78 || DefaultLadders[4] != 25 {
@@ -18,11 +18,11 @@ func TestPhase1RoomFoundation(t *testing.T) {
 	lobby := NewUlarLobby()
 	host := &Player{ID: "u1", Name: "Host", send: make(chan []byte, 4)}
 	guest := &Player{ID: "u2", Name: "Guest", send: make(chan []byte, 4)}
-	room := lobby.Create(host)
-	if room == nil || room.MaxPlayers != 4 || room.Status != UlarWaiting {
+	room, errc := lobby.Create(host)
+	if errc != "" || room == nil || room.MaxPlayers != 4 || room.Status != UlarWaiting {
 		t.Fatal("create")
 	}
-	if room.Players[0].Position != 1 {
+	if room.Players[0].Position != OFFBOARD_START {
 		t.Fatal("default position")
 	}
 	joined, msg := lobby.Join(guest, room.RoomCode)
@@ -30,8 +30,8 @@ func TestPhase1RoomFoundation(t *testing.T) {
 		t.Fatalf("join %s", msg)
 	}
 	lobby.SetReady("u1", true)
-	ready := lobby.SetReady("u2", true)
-	if ready.Status != UlarReady {
+	ready, errc := lobby.SetReady("u2", true)
+	if errc != "" || ready.Status != UlarReady {
 		t.Fatal("ready")
 	}
 }

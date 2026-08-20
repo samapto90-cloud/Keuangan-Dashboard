@@ -54,8 +54,13 @@ func TestCahayaStagingHTTPSmoke(t *testing.T) {
 	if code != 200 {
 		t.Fatalf("cahaya %d", code)
 	}
-	if !strings.Contains(body, "Ular Tangga Nusantara") || !strings.Contains(body, "0.1.0-phase1") {
+	if !strings.Contains(body, "Ular Tangga Nusantara") || !strings.Contains(body, "1.0.0") {
 		t.Fatalf("title missing: %s", body)
+	}
+
+	code, body = get("/admin")
+	if code != 200 || !strings.Contains(body, "Ular Tangga Nusantara") {
+		t.Fatalf("admin %d %s", code, body)
 	}
 
 	var ok, fail atomic.Int32

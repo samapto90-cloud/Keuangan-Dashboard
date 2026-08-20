@@ -8,8 +8,8 @@ import (
 )
 
 func TestPhase30LandminesKept(t *testing.T) {
-	if GameTitle != "Ular Tangga Nusantara" || GamePhase != "ULAR/1" {
-		t.Fatal("phase 1 identity")
+	if GameTitle != "Ular Tangga Nusantara" || GamePhase != "RELEASE" || GameVersion != "1.0.0" {
+		t.Fatal("release identity")
 	}
 	if AdventureGameplayEnabled {
 		t.Fatal("adventure still enabled")
@@ -19,7 +19,7 @@ func TestPhase30LandminesKept(t *testing.T) {
 func TestPhase30ReleaseViewAndEndgame(t *testing.T) {
 	w, p := testVillagePlayer()
 	rel := phase30ReleaseView()
-	if rel["version"] != GameVersion || rel["siluman"] != 0 || rel["status"] != "PHASE_1_FOUNDATION" {
+	if rel["version"] != GameVersion || rel["siluman"] != 0 || rel["status"] != "PRODUCTION_READY" {
 		t.Fatal("release view")
 	}
 	view := w.endgameView(p)
@@ -170,4 +170,3 @@ func TestPhase30SaveLoadProgressSmoke(t *testing.T) {
 		t.Fatal("audit did not reload")
 	}
 }
-
