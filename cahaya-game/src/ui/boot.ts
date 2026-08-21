@@ -9,6 +9,18 @@ export async function bootGameApp(mountApp: (root: HTMLElement) => void): Promis
   const app = document.querySelector<HTMLElement>("#app");
   if (!app) throw new Error("Elemen #app tidak ada");
 
+  // Game online butuh WebSocket langsung ke Go (:8888). Proxy PHP di :443 tidak mendukung WS.
+  const host = location.hostname.toLowerCase();
+  if (
+    (host === "sakubijak.com" || host === "www.sakubijak.com") &&
+    !location.port &&
+    location.protocol === "https:"
+  ) {
+    const next = `https://${host}:8888${location.pathname}${location.search}${location.hash}`;
+    location.replace(next);
+    return;
+  }
+
   showLoading();
   loadPrefs();
   initPWA();

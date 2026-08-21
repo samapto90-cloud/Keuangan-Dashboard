@@ -506,8 +506,10 @@ func securityCSP() string {
 		"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
 		"font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com data:",
 		"img-src 'self' data: blob:",
-		"connect-src 'self'",
-		"frame-ancestors 'self'",
+		// Izinkan WS/API langsung ke :8888 (proxy PHP di :443 tidak mendukung WebSocket).
+		"connect-src 'self' https://sakubijak.com https://www.sakubijak.com https://sakubijak.com:8888 https://www.sakubijak.com:8888 wss://sakubijak.com:8888 wss://www.sakubijak.com:8888 ws://localhost:8888 wss://localhost:8888",
+		// Portal SIPKEU (:443) boleh meng-embed game di :8888.
+		"frame-ancestors 'self' https://sakubijak.com https://www.sakubijak.com https://sakubijak.com:8888 https://www.sakubijak.com:8888",
 		"base-uri 'self'",
 		"form-action 'self'",
 		"object-src 'none'",
@@ -517,11 +519,12 @@ func securityCSP() string {
 func withSecurityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		// Jangan pakai SAMEORIGIN ketat — beda port (443 vs 8888) = beda origin.
+		w.Header().Del("X-Frame-Options")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
-		w.Header().Set("Cross-Origin-Resource-Policy", "same-site")
+		w.Header().Set("Cross-Origin-Resource-Policy", "cross-origin")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 		w.Header().Set("Content-Security-Policy", securityCSP())
 		if strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") || r.TLS != nil {
