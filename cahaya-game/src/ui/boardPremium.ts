@@ -40,6 +40,7 @@ export function premiumBoardShell(extra?: string): string {
     <div class="premium-board-root mountain-mode">
       <div class="premium-bg" aria-hidden="true"></div>
       <h1 class="premium-title">ULAR TANGGA NUSANTARA</h1>
+      <p class="premium-subtitle">Perjalanan ke rumah tangga — dari desa ke istana di awan</p>
 
       <header class="premium-header">
         <div class="premium-player-strip" id="player-strip" role="list"></div>
@@ -53,6 +54,7 @@ export function premiumBoardShell(extra?: string): string {
         <div class="premium-board-stage">
           <div class="iso-wrap">
             <div class="board-frame premium-frame" id="board-frame">
+              <div class="board-scenic-art" aria-hidden="true"></div>
               <div class="board-playfield" id="board-playfield">
                 <div class="start-pad" aria-label="Zona start di luar papan">
                   <span class="start-pad-label">START</span>
