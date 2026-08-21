@@ -1,4 +1,5 @@
 import { BOARD_GRID, DEFAULT_BOARD, type BoardConfig } from "../game/board/config";
+import { GAME_VERSION } from "../game/board/constants";
 import { BoardEngine, tokenBoardPercent } from "../game/board/engine";
 import { BoardAnimationManager } from "../game/board/animation";
 import { GameClient } from "../game/multiplayer/socket";
@@ -124,7 +125,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         <header class="nt-top">
           <p class="nt-kicker">ULAR TANGGA NUSANTARA</p>
           <h1>${code() ? "Menunggu lawan" : "Main Online"}</h1>
-          <p>${code() ? `${seats.length}/${cap()} · ` : ""}${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""} · Soal ${eduGrade}</p>
+          <p>${code() ? `${seats.length}/${cap()} · ` : ""}${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""} · Soal ${eduGrade} · v${GAME_VERSION}</p>
         </header>
         ${searching && !matchFound ? `<section class="nt-card mm-card"><p class="nt-kicker">MENCARI LAWAN... ${esc(searchMode)} · ${maxPlayers} pemain</p><p class="mm-clock" id="search-clock">${searchClock}</p><button class="nt-btn" data-act="cancel-q">BATAL</button></section>` : ""}
         ${matchFound && !readyCheck ? `<section class="nt-card mm-card mm-found"><p>MATCH DITEMUKAN!</p><p class="mm-clock">${foundLeft}</p></section>` : ""}

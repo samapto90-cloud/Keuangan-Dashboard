@@ -1,5 +1,5 @@
 /* Ular Tangga Nusantara — network-first, bust stale theme CSS. */
-const CACHE = "ular-static-v1.4.0-online-lobby";
+const CACHE = "ular-static-v1.1.0-ws8888";
 const OFFLINE_URL = "/cahaya/?offline=1";
 
 self.addEventListener("install", (event) => {
@@ -15,9 +15,8 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
-    ),
+    ).then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
 function isApiOrWs(url) {

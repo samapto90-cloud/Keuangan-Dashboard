@@ -28,7 +28,19 @@ export function initPWA(): void {
   });
 
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
-    void navigator.serviceWorker.register("/cahaya/sw.js", { scope: "/cahaya/" }).catch(() => undefined);
+    void navigator.serviceWorker.register("/cahaya/sw.js?v=1.1.0", { scope: "/cahaya/" }).then((reg) => {
+      void reg.update();
+      reg.addEventListener("updatefound", () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener("statechange", () => {
+          if (sw.state === "installed" && navigator.serviceWorker.controller) {
+            // Paksa pakai SW baru agar UI online tidak tertahan cache lama.
+            window.location.reload();
+          }
+        });
+      });
+    }).catch(() => undefined);
   }
 }
 

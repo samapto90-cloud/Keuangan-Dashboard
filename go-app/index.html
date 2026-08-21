@@ -8671,7 +8671,7 @@
           </div>
         </div>
         <div class="cahaya-console-screen">
-          <iframe id="cahaya-frame" title="Ular Tangga Nusantara" src="/cahaya/?embed=1" loading="lazy" allow="autoplay"></iframe>
+          <iframe id="cahaya-frame" title="Ular Tangga Nusantara" src="/cahaya/?embed=1&v=1.1.0" loading="lazy" allow="autoplay"></iframe>
         </div>
     </div>
   </aside>
@@ -12040,7 +12040,7 @@ function restoreCahayaPos(box) {
 }
 
 function openCahayaNewTab() {
-  window.open('/cahaya/', '_blank', 'noopener');
+  window.open('/cahaya/?v=1.1.0', '_blank', 'noopener');
 }
 
 function toggleCahayaConsole() {
@@ -12063,9 +12063,10 @@ function toggleCahayaConsole() {
   }
   if (frame instanceof HTMLIFrameElement) {
     const wantEmbed = !open;
-    const hasEmbed = frame.src.includes('embed=1');
-    if (wantEmbed !== hasEmbed) {
-      frame.src = wantEmbed ? '/cahaya/?embed=1' : '/cahaya/';
+    const base = '/cahaya/?v=1.1.0';
+    const next = wantEmbed ? base + '&embed=1' : base;
+    if (!frame.src.includes('v=1.1.0') || frame.src.includes('embed=1') !== wantEmbed) {
+      frame.src = next;
     }
   }
 }

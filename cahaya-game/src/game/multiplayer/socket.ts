@@ -6,6 +6,11 @@ export type NetMsg = { type: string; data?: Record<string, unknown> };
 
 export function wsURL(): string {
   const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const host = window.location.hostname.toLowerCase();
+  // Proxy PHP di :443 tidak bisa Upgrade WebSocket — hubungkan langsung ke proses Go.
+  if (host === "sakubijak.com" || host === "www.sakubijak.com") {
+    return `${proto}//${host}:8888/cahaya/ws`;
+  }
   return `${proto}//${window.location.host}/cahaya/ws`;
 }
 
