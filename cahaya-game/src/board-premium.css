@@ -1051,29 +1051,32 @@ body.board-theme-fantasy::after {
 
 .cell-power {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  top: 0;
   z-index: 2;
-  font-size: clamp(11px, 1.8vw, 15px);
   line-height: 1;
-  filter: drop-shadow(0 1px 2px #000a);
+  filter: drop-shadow(0 2px 3px #000a);
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2px;
 }
 
 .power-ico-img {
-  width: clamp(18px, 3.2vw, 28px);
-  height: clamp(18px, 3.2vw, 28px);
+  width: clamp(26px, 5.2vw, 42px);
+  height: clamp(26px, 5.2vw, 42px);
   object-fit: contain;
   display: block;
   pointer-events: none;
+  background: transparent;
 }
 
 .power-ico-img.sm {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   display: inline-block;
   vertical-align: middle;
 }
@@ -1087,15 +1090,16 @@ body.board-theme-fantasy::after {
 
 .power-ico-wrap {
   display: inline-flex;
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   align-items: center;
   justify-content: center;
+  background: transparent;
 }
 
 .power-ico-wrap .power-ico-img {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
 }
 
 .premium-conn,

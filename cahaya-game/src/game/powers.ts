@@ -91,7 +91,7 @@ export function powerIcon(kind: PowerKind): string {
 export function powerIconHtml(kind: PowerKind, className = "power-ico"): string {
   const src = POWER_ASSET[kind];
   const label = POWER_META[kind].label;
-  return `<img class="${className}" src="${src}" alt="${label}" title="${label}" width="28" height="28" decoding="async" />`;
+  return `<img class="${className}" src="${src}" alt="${label}" title="${label}" width="42" height="42" decoding="async" style="background:transparent" />`;
 }
 
 function shuffleInPlace<T>(arr: T[]): T[] {

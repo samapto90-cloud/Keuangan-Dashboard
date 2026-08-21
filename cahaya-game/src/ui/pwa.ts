@@ -28,7 +28,7 @@ export function initPWA(): void {
   });
 
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
-    void navigator.serviceWorker.register("/cahaya/sw.js?v=1.1.4", { scope: "/cahaya/" }).then((reg) => {
+    void navigator.serviceWorker.register("/cahaya/sw.js?v=1.1.5", { scope: "/cahaya/" }).then((reg) => {
       void reg.update();
       reg.addEventListener("updatefound", () => {
         const sw = reg.installing;
