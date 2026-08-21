@@ -156,6 +156,19 @@ func HandleResetPassword(w http.ResponseWriter, r *http.Request) {
 		writeAccountErr(w, http.StatusBadRequest, "payload")
 		return
 	}
+	// Mode lupa password: cukup username → reset ke default batam2026.
+	if strings.TrimSpace(in.Password) == "" && strings.TrimSpace(in.ConfirmPassword) == "" {
+		user := strings.TrimSpace(in.Username)
+		if user == "" {
+			user = strings.TrimSpace(in.Email) // form bisa kirim field user saja
+		}
+		if msg := DefaultHub.Accounts.ResetToDefaultPassword(user); msg != "" {
+			writeAccountErr(w, http.StatusBadRequest, msg)
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"ok": true, "defaultPassword": DefaultResetPassword})
+		return
+	}
 	if msg := DefaultHub.Accounts.ResetPassword(in.Username, in.Email, in.Password, in.ConfirmPassword); msg != "" {
 		writeAccountErr(w, http.StatusBadRequest, msg)
 		return

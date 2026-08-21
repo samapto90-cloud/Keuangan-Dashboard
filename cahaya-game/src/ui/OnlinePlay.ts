@@ -43,7 +43,17 @@ type Seat = {
   playState?: string;
 };
 
-type OnlineCard = { userId: string; username: string; status: string; inGame?: boolean; friends?: boolean };
+type OnlineCard = {
+  userId: string;
+  username: string;
+  status: string;
+  inGame?: boolean;
+  friends?: boolean;
+  seats?: number;
+  maxPlayers?: number;
+  roomCode?: string;
+  canAsk?: boolean;
+};
 
 function seatBag(s: Seat): PowerBag {
   const it = s.items || {};
@@ -60,8 +70,13 @@ function esc(v: string): string {
 
 export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExit: () => void; startQueue?: "" | "CASUAL" | "RANKED"; grade?: "SD" | "SMA" }): void {
   let themeOff: (() => void) | null = null;
+  let searchTick = 0;
+  let onlineTick = 0;
+  let unsub: (() => void) | null = null;
   const eduGrade = opts.grade === "SD" ? "SD" : "SMA";
   const onExit = (): void => {
+    window.clearInterval(onlineTick);
+    window.clearInterval(searchTick);
     unsub?.();
     unsub = null;
     themeOff?.();
@@ -84,15 +99,14 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let searching = false;
   let searchMode = "CASUAL";
   let searchAt = 0;
-  let searchTick = 0;
   let pingMs = 0;
   let maxPlayers = 2;
   let matchFound: { ends: number; mode: string } | null = null;
   let readyCheck = false;
   let invite: { inviteId: string; username: string; expiresAt: number } | null = null;
+  let joinAsk: { askId: string; username: string; seats?: number; maxPlayers?: number } | null = null;
   let bootQueue = opts.startQueue || "";
   let onlinePlayers: OnlineCard[] = [];
-  let unsub: (() => void) | null = null;
 
   const players = (): Seat[] => (Array.isArray(snap.players) && snap.players[0] && typeof snap.players[0] === "object" ? (snap.players as Seat[]) : []);
   const code = (): string => String(snap.roomCode || "");
@@ -130,21 +144,27 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         ${searching && !matchFound ? `<section class="nt-card mm-card"><p class="nt-kicker">MENCARI LAWAN... ${esc(searchMode)} · ${maxPlayers} pemain</p><p class="mm-clock" id="search-clock">${searchClock}</p><button class="nt-btn" data-act="cancel-q">BATAL</button></section>` : ""}
         ${matchFound && !readyCheck ? `<section class="nt-card mm-card mm-found"><p>MATCH DITEMUKAN!</p><p class="mm-clock">${foundLeft}</p></section>` : ""}
         ${readyCheck ? `<section class="nt-card mm-card"><p class="nt-kicker">SIAP BERMAIN?</p><button class="nt-btn nt-btn-primary" data-act="match-ready">READY</button></section>` : ""}
-        ${invite ? `<section class="nt-card invite-pop"><p>🎮 ${esc(invite.username).toUpperCase()} MENGUNDANGMU</p><p>Main Ular Tangga?</p><button class="nt-btn nt-btn-primary" data-act="inv-yes">TERIMA</button> <button class="nt-btn" data-act="inv-no">TOLAK</button></section>` : ""}
+        ${invite ? `<section class="nt-card invite-pop"><p>🎮 ${esc(invite.username).toUpperCase()} MENGUNDANGMU</p><p>Main Ular Tangga bersama?</p><button class="nt-btn nt-btn-primary" data-act="inv-yes">TERIMA</button> <button class="nt-btn" data-act="inv-no">TOLAK</button></section>` : ""}
+        ${joinAsk ? `<section class="nt-card invite-pop"><p>🙋 ${esc(joinAsk.username).toUpperCase()} MINTA BERGABUNG</p><p>Sebagai pemain ${joinAsk.seats != null ? `${(joinAsk.seats || 0) + 1}` : "baru"}${joinAsk.maxPlayers ? `/${joinAsk.maxPlayers}` : ""}?</p><button class="nt-btn nt-btn-primary" data-act="ask-yes">IZINKAN</button> <button class="nt-btn" data-act="ask-no">TOLAK</button></section>` : ""}
         ${!code() && !searching ? `<section class="nt-card room-hint">
-          <p class="room-hint-title">Pemain online</p>
-          <p class="room-hint-text">Pilih ukuran partai, lalu <strong>ajak bermain</strong> atau <strong>cari lawan otomatis</strong>. Tidak perlu kode room.</p>
+          <p class="room-hint-title">Pemain online (${onlinePlayers.length})</p>
+          <p class="room-hint-text">Ajak bermain (lawan bisa <strong>terima/tolak</strong>). Jika sudah main, minta bergabung sebagai pemain ke-3/ke-4, atau buat permainan sendiri.</p>
           <div class="nt-row" style="margin:8px 0">${[2, 3, 4].map((n) => `<button class="nt-btn ${maxPlayers === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>
           <div class="pf-hist online-list">${onlinePlayers.length
-            ? onlinePlayers.map((p) => `
+            ? onlinePlayers.map((p) => {
+                const seatInfo = p.maxPlayers ? ` · ${p.seats || 0}/${p.maxPlayers}` : "";
+                const busy = p.status === "IN_GAME" || p.inGame;
+                return `
               <article class="nt-card friend-row">
-                <span><strong>${esc(p.username)}</strong> · ${esc(p.status === "IN_GAME" ? "Sedang main" : "Online")}</span>
+                <span><strong>${esc(p.username)}</strong> · ${busy ? "Sedang main" : "Online"}${esc(seatInfo)}</span>
                 <div class="nt-row">
-                  ${p.status !== "IN_GAME" ? `<button class="nt-btn nt-btn-primary" data-challenge="${esc(p.userId)}">Ajak main</button>` : ""}
+                  ${!busy ? `<button class="nt-btn nt-btn-primary" data-challenge="${esc(p.userId)}">Ajak main</button>` : ""}
+                  ${busy || p.canAsk ? `<button class="nt-btn nt-btn-primary" data-askjoin="${esc(p.userId)}">Minta bergabung</button>` : ""}
                   ${!p.friends ? `<button class="nt-btn" data-addfriend="${esc(p.userId)}">Tambah teman</button>` : `<span class="nt-hint">Teman</span>`}
                 </div>
-              </article>`).join("")
-            : `<p class="nt-hint">Belum ada pemain lain online. Bagikan link game atau tekan Cari lawan.</p>`}
+              </article>`;
+              }).join("")
+            : `<p class="nt-hint">Belum ada pemain lain online. Buka game di perangkat/akun lain, atau tekan Cari lawan.</p>`}
           </div>
         </section>` : ""}
         ${code() ? `<section class="nt-card seats">
@@ -236,6 +256,18 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     root.querySelector("[data-act=inv-no]")?.addEventListener("click", () => {
       if (invite) opts.client.send(WS_EVENTS.INVITE_RESPOND, { inviteId: invite.inviteId, accept: false });
       invite = null;
+      toast("Undangan ditolak.", "info");
+      paint();
+    });
+    root.querySelector("[data-act=ask-yes]")?.addEventListener("click", () => {
+      if (joinAsk) opts.client.send(WS_EVENTS.JOIN_ASK_RESPOND, { askId: joinAsk.askId, accept: true });
+      joinAsk = null;
+      paint();
+    });
+    root.querySelector("[data-act=ask-no]")?.addEventListener("click", () => {
+      if (joinAsk) opts.client.send(WS_EVENTS.JOIN_ASK_RESPOND, { askId: joinAsk.askId, accept: false });
+      joinAsk = null;
+      toast("Permintaan ditolak.", "info");
       paint();
     });
     root.querySelectorAll<HTMLButtonElement>("[data-max]").forEach((b) =>
@@ -248,7 +280,13 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     root.querySelectorAll<HTMLButtonElement>("[data-challenge]").forEach((b) =>
       b.addEventListener("click", () => {
         opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.challenge, maxPlayers });
-        toast("Undangan dikirim — menunggu lawan menerima.", "success");
+        toast("Undangan dikirim — menunggu lawan menerima atau menolak.", "success");
+      }),
+    );
+    root.querySelectorAll<HTMLButtonElement>("[data-askjoin]").forEach((b) =>
+      b.addEventListener("click", () => {
+        opts.client.send(WS_EVENTS.JOIN_ASK, { userId: b.dataset.askjoin });
+        toast("Permintaan bergabung dikirim ke host.", "info");
       }),
     );
     root.querySelectorAll<HTMLButtonElement>("[data-addfriend]").forEach((b) =>
@@ -575,6 +613,8 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       type === WS_EVENTS.QUEUE_UPDATE ||
       type === WS_EVENTS.MATCH_FOUND ||
       type === WS_EVENTS.GAME_INVITE ||
+      type === WS_EVENTS.JOIN_ASK_EV ||
+      type === WS_EVENTS.INVITE_RESULT ||
       type === WS_EVENTS.SOCIAL_NOTIFY ||
       type === WS_EVENTS.ONLINE_LIST;
     const seatsLike = Array.isArray(data.players) && data.players[0] && typeof data.players[0] === "object";
@@ -618,7 +658,27 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         }
       }, 30000);
     }
-    if (type === WS_EVENTS.SOCIAL_NOTIFY) toast(String(data.title || data.type || "Notifikasi"), "info");
+    if (type === WS_EVENTS.JOIN_ASK_EV) {
+      joinAsk = {
+        askId: String(data.askId || ""),
+        username: String(data.username || "Pemain"),
+        seats: Number(data.seats || 0),
+        maxPlayers: Number(data.maxPlayers || 0),
+      };
+      window.setTimeout(() => {
+        if (joinAsk && joinAsk.askId === String(data.askId || "")) {
+          joinAsk = null;
+          if (view === "room") paint();
+        }
+      }, 45000);
+      if (view === "room") paint();
+    }
+    if (type === WS_EVENTS.INVITE_RESULT) {
+      const ok = Boolean(data.accepted);
+      const who = String(data.username || "Pemain");
+      toast(ok ? `${who} menerima undangan/permintaan.` : `${who} menolak. Buat permainan sendiri jika perlu.`, ok ? "success" : "warning");
+    }
+    if (type === WS_EVENTS.SOCIAL_NOTIFY) toast(String(data.title || data.message || data.type || "Notifikasi"), "info");
     if (type === WS_EVENTS.ULAR_ERROR) {
       error = String(data.message || "Terjadi kesalahan. Silakan coba lagi.");
       toast(error, "error");
@@ -816,6 +876,9 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   });
 
   opts.client.send(WS_EVENTS.ONLINE_LIST_REQ);
+  onlineTick = window.setInterval(() => {
+    if (view === "room" && !code()) opts.client.send(WS_EVENTS.ONLINE_LIST_REQ);
+  }, 5000);
   if (opts.client.status === "online" && bootQueue) {
     const q = bootQueue;
     bootQueue = "";

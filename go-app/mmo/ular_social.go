@@ -160,6 +160,10 @@ func (s *SocialStore) privacyLocked(userID string) SocialPrivacy {
 	if !ok {
 		return defaultPrivacy()
 	}
+	// Entri JSON lama sering tersimpan semua-false (zero value) — anggap default.
+	if !p.AllowFriendRequests && !p.AllowGameInvites && !p.ShowOnlineStatus {
+		return defaultPrivacy()
+	}
 	return p
 }
 
@@ -425,7 +429,8 @@ func (s *SocialStore) CreateInvite(from, to, roomID, code string) (GameInvite, s
 	}
 	priv := s.privacyLocked(to)
 	if !priv.AllowGameInvites {
-		return GameInvite{}, "tidak menerima undangan"
+		// Tetap izinkan undangan bermain (fitur inti); privacy hanya untuk teman.
+		_ = priv
 	}
 	now := time.Now().UnixMilli()
 	inv := GameInvite{

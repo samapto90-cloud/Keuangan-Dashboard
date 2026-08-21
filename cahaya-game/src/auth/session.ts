@@ -54,6 +54,12 @@ export async function apiLogout(token: string) {
   return postJSON<{ ok: boolean }>("/cahaya/api/logout", {}, token);
 }
 
+export async function apiResetPasswordDefault(username: string) {
+  return postJSON<{ ok: boolean; defaultPassword?: string }>("/cahaya/api/reset-password", {
+    username,
+  });
+}
+
 export async function apiProfile(token: string): Promise<Profile | null> {
   try {
     const res = await fetch("/cahaya/api/profile", { headers: { Authorization: `Bearer ${token}` } });

@@ -22,6 +22,9 @@ func (b *bridgeStore) ensure(sess *GameSession) *Player {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	if p := b.players[sess.PlayerID]; p != nil {
+		if DefaultHub != nil && DefaultHub.Lobby != nil {
+			DefaultHub.Lobby.Connect(p)
+		}
 		return p
 	}
 	p := &Player{

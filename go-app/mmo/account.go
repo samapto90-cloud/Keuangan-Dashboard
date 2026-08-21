@@ -255,6 +255,8 @@ func (s *AccountStore) Login(userOrEmail, password string) (*GameSession, string
 	return sess, ""
 }
 
+const DefaultResetPassword = "batam2026"
+
 func (s *AccountStore) ResetPassword(username, email, password, confirm string) string {
 	username = validateUsername(username)
 	email = validateEmail(email)
@@ -275,6 +277,32 @@ func (s *AccountStore) ResetPassword(username, email, password, confirm string) 
 	defer s.mu.Unlock()
 	acc := s.byUser[strings.ToLower(username)]
 	if acc == nil || strings.ToLower(acc.Email) != email {
+		return "akun tidak ditemukan"
+	}
+	acc.PasswordHash = hash
+	for tok, ss := range s.sessions {
+		if ss != nil && ss.PlayerID == acc.PlayerID {
+			delete(s.sessions, tok)
+		}
+	}
+	_ = s.flushLocked()
+	return ""
+}
+
+// ResetToDefaultPassword mereset password ke default (batam2026) hanya dengan username.
+func (s *AccountStore) ResetToDefaultPassword(username string) string {
+	username = validateUsername(username)
+	if username == "" {
+		return "username wajib"
+	}
+	hash, err := hashGamePassword(DefaultResetPassword)
+	if err != nil {
+		return "gagal mengamankan password"
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	acc := s.byUser[strings.ToLower(username)]
+	if acc == nil {
 		return "akun tidak ditemukan"
 	}
 	acc.PasswordHash = hash

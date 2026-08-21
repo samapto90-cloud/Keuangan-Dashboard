@@ -8,6 +8,7 @@ import {
   apiLogout,
   apiProfile,
   apiRegister,
+  apiResetPasswordDefault,
   clearSession,
   saveSession,
   storedSessionToken,
@@ -30,7 +31,7 @@ import { openFeedbackModal } from "./FeedbackForm";
 import { bindInstallButton, renderInstallButton } from "./pwa";
 import { openHowToPlayModal, resetTutorial, mountOnboarding } from "./Onboarding";
 
-type Screen = "home" | "login" | "register" | "lobby" | "board" | "online";
+type Screen = "home" | "login" | "register" | "forgot" | "lobby" | "board" | "online";
 
 export function mountApp(root: HTMLElement): void {
   const embed = new URLSearchParams(window.location.search).get("embed") === "1";
@@ -95,7 +96,36 @@ export function mountApp(root: HTMLElement): void {
           layer?.querySelector("[data-inv-no]")?.addEventListener("click", () => {
             net?.send(WS_EVENTS.INVITE_RESPOND, { inviteId, accept: false });
             closeModal("game-invite");
+            toast("Undangan ditolak.", "info");
           });
+        }
+        if (type === WS_EVENTS.JOIN_ASK_EV && screen !== "online") {
+          const askId = String(data.askId || "");
+          const username = String(data.username || "Pemain");
+          if (!askId) return;
+          showModal(
+            "join-ask",
+            `<h2>Minta bergabung</h2>
+            <p class="nt-lead"><strong>${escapeHtml(username)}</strong> ingin masuk partai sebagai pemain tambahan.</p>
+            <div class="nt-actions">
+              <button type="button" class="nt-btn nt-btn-primary" data-ask-yes>Izinkan</button>
+              <button type="button" class="nt-btn" data-ask-no>Tolak</button>
+            </div>`,
+          );
+          const layer = document.querySelector("[data-modal=join-ask]");
+          layer?.querySelector("[data-ask-yes]")?.addEventListener("click", () => {
+            net?.send(WS_EVENTS.JOIN_ASK_RESPOND, { askId, accept: true });
+            closeModal("join-ask");
+          });
+          layer?.querySelector("[data-ask-no]")?.addEventListener("click", () => {
+            net?.send(WS_EVENTS.JOIN_ASK_RESPOND, { askId, accept: false });
+            closeModal("join-ask");
+            toast("Permintaan ditolak.", "info");
+          });
+        }
+        if (type === WS_EVENTS.INVITE_RESULT) {
+          const ok = Boolean(data.accepted);
+          toast(ok ? `${String(data.username || "Pemain")} menerima.` : `${String(data.username || "Pemain")} menolak.`, ok ? "success" : "warning");
         }
         if (type === WS_EVENTS.SOCIAL_NOTIFY && screen !== "online") {
           toast(String(data.title || data.type || "Notifikasi"), "info");
@@ -136,6 +166,7 @@ export function mountApp(root: HTMLElement): void {
 
   const layout = (): string => {
     if (screen === "login") return shell(loginForm());
+    if (screen === "forgot") return shell(forgotForm());
     if (screen === "register") return shell(registerForm());
     if (screen === "lobby") return shell(lobbyView());
     return shell(homeView());
@@ -187,7 +218,15 @@ export function mountApp(root: HTMLElement): void {
       <label>Username / Email<input name="user" autocomplete="username" required /></label>
       <label>Password<input name="pass" type="password" autocomplete="current-password" required /></label>
       <button class="nt-btn nt-btn-primary" type="submit" ${busy ? "disabled" : ""}>MASUK</button>
-      <p class="nt-links"><button type="button" data-go="register">Daftar</button> · <button type="button" data-go="home">Beranda</button></p>
+      <p class="nt-links"><button type="button" data-go="forgot">Lupa password?</button> · <button type="button" data-go="register">Daftar</button> · <button type="button" data-go="home">Beranda</button></p>
+    </form>`;
+
+  const forgotForm = (): string => `
+    <form class="nt-card nt-form" data-form="forgot">
+      <p class="nt-lead">Masukkan username. Password akan direset ke default <strong>batam2026</strong>.</p>
+      <label>Username<input name="user" autocomplete="username" required minlength="3" /></label>
+      <button class="nt-btn nt-btn-primary" type="submit" ${busy ? "disabled" : ""}>RESET PASSWORD</button>
+      <p class="nt-links"><button type="button" data-go="login">Kembali masuk</button></p>
     </form>`;
 
   const registerForm = (): string => `
@@ -257,6 +296,7 @@ export function mountApp(root: HTMLElement): void {
           render();
         }
         else if (go === "login") setScreen("login");
+        else if (go === "forgot") setScreen("forgot");
         else if (go === "register") setScreen("register");
         else if (go === "home") setScreen("home");
         else if (go === "logout") void doLogout();
@@ -267,6 +307,12 @@ export function mountApp(root: HTMLElement): void {
       e.preventDefault();
       const fd = new FormData(login);
       void doLogin(String(fd.get("user") || ""), String(fd.get("pass") || ""));
+    });
+    const forgot = root.querySelector<HTMLFormElement>("[data-form=forgot]");
+    forgot?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const fd = new FormData(forgot);
+      void doForgot(String(fd.get("user") || ""));
     });
     const reg = root.querySelector<HTMLFormElement>("[data-form=register]");
     reg?.addEventListener("submit", (e) => {
@@ -482,6 +528,22 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
     await goPlay();
+  };
+
+  const doForgot = async (username: string): Promise<void> => {
+    busy = true;
+    error = "";
+    render();
+    const out = await apiResetPasswordDefault(username.trim());
+    busy = false;
+    if (!out.ok) {
+      error = out.error;
+      toast(out.error, "error");
+      render();
+      return;
+    }
+    toast("Password direset ke batam2026. Silakan masuk.", "success");
+    setScreen("login");
   };
 
   const doRegister = async (username: string, email: string, password: string, confirm: string): Promise<void> => {

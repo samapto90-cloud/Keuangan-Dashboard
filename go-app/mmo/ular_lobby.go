@@ -18,10 +18,20 @@ type UlarLobby struct {
 	byCode    map[string]string
 	inRoom    map[string]string
 	matches   map[string]*UlarMatch
+	joinAsks  map[string]joinAsk
 	Store     *MatchStore
 	Attempts  *AttemptStore
 	limit     *ularLimiter
 	OnAbandon func(userID, matchID string)
+}
+
+type joinAsk struct {
+	ID        string
+	FromID    string
+	FromName  string
+	HostID    string
+	RoomCode  string
+	ExpiresAt int64
 }
 
 func NewUlarLobby() *UlarLobby {
@@ -31,6 +41,7 @@ func NewUlarLobby() *UlarLobby {
 		byCode:   map[string]string{},
 		inRoom:   map[string]string{},
 		matches:  map[string]*UlarMatch{},
+		joinAsks: map[string]joinAsk{},
 		Store:    OpenMatchStore(matchStorePath()),
 		Attempts: OpenAttemptStore(attemptStorePath()),
 		limit:    newUlarLimiter(),
@@ -320,6 +331,18 @@ func (l *UlarLobby) Join(p *Player, code string) (*UlarRoom, string) {
 			l.inRoom[p.ID] = room.ID
 			return room, ""
 		}
+		// Izinkan bergabung terlambat jika masih ada slot (3rd/4th).
+		if room.Status == UlarPlaying && len(room.Players) < room.MaxPlayers {
+			slot := len(room.Players)
+			np := NewUlarPlayer(p.ID, p.Name, slot)
+			np.Position = OFFBOARD_START
+			np.PlayState = "PLAYING"
+			np.IsReady = true
+			room.Players = append(room.Players, np)
+			l.inRoom[p.ID] = room.ID
+			log.Printf("PLAYER_JOINED_LATE %s room=%s n=%d", p.ID, room.RoomCode, len(room.Players))
+			return room, ""
+		}
 		return nil, ErrGameNotStarted
 	}
 	if existing := l.inRoom[p.ID]; existing != "" && existing != room.ID {
@@ -496,29 +519,37 @@ func (h *Hub) onlineLobbyCards(viewerID string) []map[string]any {
 		if pl == nil || id == viewerID {
 			continue
 		}
+		if h.Social != nil && h.Social.Blocked(viewerID, id) {
+			continue
+		}
 		status := PresOnline
 		inGame := false
+		seats, maxP := 0, 0
+		roomCode := ""
+		canAsk := false
 		if rid := h.Lobby.inRoom[id]; rid != "" {
-			if rm := h.Lobby.rooms[rid]; rm != nil && (rm.Status == UlarPlaying || rm.Status == UlarStarting) {
-				status = PresInGame
-				inGame = true
+			if rm := h.Lobby.rooms[rid]; rm != nil {
+				seats = len(rm.Players)
+				maxP = rm.MaxPlayers
+				roomCode = rm.RoomCode
+				if rm.Status == UlarPlaying || rm.Status == UlarStarting {
+					status = PresInGame
+					inGame = true
+					canAsk = seats < maxP
+				} else if rm.Status == UlarWaiting || rm.Status == UlarReady {
+					canAsk = seats < maxP
+				}
 			}
-		}
-		if h.Social != nil {
-			priv := h.Social.Privacy(id)
-			if !priv.ShowOnlineStatus {
-				continue
-			}
-			if h.Social.Blocked(viewerID, id) {
-				continue
-			}
+		} else {
+			canAsk = true // online di lobby — bisa diundang / diajak
 		}
 		friends := false
 		if h.Social != nil {
 			friends = h.Social.AreFriends(viewerID, id)
 		}
 		out = append(out, map[string]any{
-			"userId": id, "username": pl.Name, "status": status, "inGame": inGame, "friends": friends,
+			"userId": id, "username": pl.Name, "status": status, "inGame": inGame,
+			"friends": friends, "seats": seats, "maxPlayers": maxP, "roomCode": roomCode, "canAsk": canAsk,
 		})
 	}
 	sort.Slice(out, func(i, j int) bool {
@@ -717,9 +748,13 @@ func (h *Hub) handlePhase1(msg inbound) {
 			}
 			code, rid = room.RoomCode, room.ID
 		}
+		tgtRoom := h.Lobby.rooms[h.Lobby.inRoom[in.UserID]]
+		if tgtRoom != nil && (tgtRoom.Status == UlarPlaying || tgtRoom.Status == UlarStarting) {
+			playingInvitee = true
+		}
 		h.Lobby.mu.Unlock()
 		if playingInvitee {
-			h.rejectCode(p, msg.env.Type, "in_game", "Sedang bermain.")
+			h.rejectCode(p, msg.env.Type, "in_game", "Pemain sedang bermain. Minta bergabung atau buat permainan sendiri.")
 			return
 		}
 		if room == nil {
@@ -739,24 +774,35 @@ func (h *Hub) handlePhase1(msg inbound) {
 			code, rid = room.RoomCode, room.ID
 			h.emitRoom(p, room)
 		}
-		if h.Social != nil {
-			st := h.Social.Status(in.UserID, p.ID)
-			if st == PresInGame {
-				h.rejectCode(p, msg.env.Type, "in_game", "Sedang bermain.")
-				return
-			}
-			inv, ierr := h.Social.CreateInvite(p.ID, in.UserID, rid, code)
-			if ierr != "" {
-				h.rejectCode(p, msg.env.Type, ierr, ierr)
-				return
-			}
-			h.pushUser(in.UserID, TypeGameInviteEv, map[string]any{
-				"inviteId": inv.ID, "senderId": p.ID, "username": p.Name, "roomCode": code, "expiresAt": inv.ExpiresAt,
-			})
+		if h.Social == nil {
+			h.rejectCode(p, msg.env.Type, "social", "Sistem undangan tidak siap.")
+			return
 		}
+		inv, ierr := h.Social.CreateInvite(p.ID, in.UserID, rid, code)
+		if ierr != "" {
+			h.rejectCode(p, msg.env.Type, ierr, ierr)
+			return
+		}
+		h.pushUser(in.UserID, TypeGameInviteEv, map[string]any{
+			"inviteId": inv.ID, "senderId": p.ID, "username": p.Name, "roomCode": code, "expiresAt": inv.ExpiresAt,
+			"maxPlayers": room.MaxPlayers,
+		})
 		h.emitRoom(p, room)
 	case TypeOnlineListReq:
 		h.pushOnlineListTo(p)
+	case TypeJoinAsk:
+		var in struct {
+			UserID string `json:"userId"`
+		}
+		_ = json.Unmarshal(msg.env.Data, &in)
+		h.handleJoinAsk(p, in.UserID)
+	case TypeJoinAskRespond:
+		var in struct {
+			AskID  string `json:"askId"`
+			Accept bool   `json:"accept"`
+		}
+		_ = json.Unmarshal(msg.env.Data, &in)
+		h.handleJoinAskRespond(p, in.AskID, in.Accept)
 	case TypeInviteRespond:
 		var in struct {
 			InviteID string `json:"inviteId"`
@@ -782,6 +828,17 @@ func (h *Hub) handlePhase1(msg inbound) {
 				return
 			}
 			h.emitRoom(p, room)
+			h.pushUser(inv.SenderID, TypeInviteResult, map[string]any{
+				"inviteId": inv.ID, "accepted": true, "username": p.Name,
+			})
+		} else {
+			h.pushUser(inv.SenderID, TypeInviteResult, map[string]any{
+				"inviteId": inv.ID, "accepted": false, "username": p.Name,
+			})
+			h.pushUser(inv.SenderID, TypeSocialPush, map[string]any{
+				"type": "INVITE_DECLINED", "title": "Undangan ditolak",
+				"message": p.Name + " menolak undangan bermain.",
+			})
 		}
 	case TypeRoomLeave:
 		room := h.Lobby.Leave(p.ID)
@@ -902,6 +959,137 @@ func (h *Hub) handleChat(p *Player, env Envelope) {
 	}{UlarEnvelope: UlarEnvelope{Seq: seq, EventID: id, At: at}, UlarChatLine: line}
 	h.Lobby.mu.Unlock()
 	h.pushRoom(room, TypeRoomChat, payload)
+}
+
+func (h *Hub) handleJoinAsk(p *Player, targetID string) {
+	if p == nil || targetID == "" || targetID == p.ID {
+		h.rejectCode(p, TypeJoinAsk, "invalid", "Pemain tidak valid.")
+		return
+	}
+	h.Lobby.mu.Lock()
+	tgt := h.Lobby.online[targetID]
+	if tgt == nil {
+		h.Lobby.mu.Unlock()
+		h.rejectCode(p, TypeJoinAsk, "offline", "Pemain tidak online.")
+		return
+	}
+	rid := h.Lobby.inRoom[targetID]
+	room := h.Lobby.rooms[rid]
+	if room == nil {
+		h.Lobby.mu.Unlock()
+		// Target di lobby — undang ke room baru milik peminta.
+		created, errc := h.Lobby.CreateSized(p, 4)
+		if errc != "" {
+			h.rejectCode(p, TypeJoinAsk, errc, friendlyUlar(errc))
+			return
+		}
+		h.emitRoom(p, created)
+		if h.Social == nil {
+			return
+		}
+		inv, ierr := h.Social.CreateInvite(p.ID, targetID, created.ID, created.RoomCode)
+		if ierr != "" {
+			h.rejectCode(p, TypeJoinAsk, ierr, ierr)
+			return
+		}
+		h.pushUser(targetID, TypeGameInviteEv, map[string]any{
+			"inviteId": inv.ID, "senderId": p.ID, "username": p.Name, "roomCode": created.RoomCode,
+			"expiresAt": inv.ExpiresAt, "maxPlayers": created.MaxPlayers,
+		})
+		return
+	}
+	if len(room.Players) >= room.MaxPlayers {
+		h.Lobby.mu.Unlock()
+		h.rejectCode(p, TypeJoinAsk, "full", "Partai penuh. Buat permainan sendiri.")
+		return
+	}
+	if h.Lobby.player(room, p.ID) != nil {
+		h.Lobby.mu.Unlock()
+		h.rejectCode(p, TypeJoinAsk, "already", "Kamu sudah di partai ini.")
+		return
+	}
+	askID := "ja-" + shortID()
+	ask := joinAsk{
+		ID: askID, FromID: p.ID, FromName: p.Name, HostID: room.HostID,
+		RoomCode: room.RoomCode, ExpiresAt: time.Now().UnixMilli() + 45_000,
+	}
+	h.Lobby.joinAsks[askID] = ask
+	hostID := room.HostID
+	code := room.RoomCode
+	seats, maxP := len(room.Players), room.MaxPlayers
+	h.Lobby.mu.Unlock()
+	h.pushUser(hostID, TypeJoinAskEv, map[string]any{
+		"askId": askID, "userId": p.ID, "username": p.Name,
+		"roomCode": code, "seats": seats, "maxPlayers": maxP,
+		"expiresAt": ask.ExpiresAt,
+	})
+	select {
+	case p.send <- marshal(TypeSocialPush, map[string]any{
+		"type": "JOIN_ASK_SENT", "title": "Permintaan terkirim",
+		"message": "Menunggu persetujuan host partai.",
+	}):
+	default:
+	}
+}
+
+func (h *Hub) handleJoinAskRespond(host *Player, askID string, accept bool) {
+	if host == nil || askID == "" {
+		return
+	}
+	h.Lobby.mu.Lock()
+	ask, ok := h.Lobby.joinAsks[askID]
+	if !ok {
+		h.Lobby.mu.Unlock()
+		h.rejectCode(host, TypeJoinAskRespond, "missing", "Permintaan tidak ditemukan.")
+		return
+	}
+	delete(h.Lobby.joinAsks, askID)
+	if ask.HostID != host.ID {
+		h.Lobby.mu.Unlock()
+		h.rejectCode(host, TypeJoinAskRespond, "host", "Hanya host yang dapat menyetujui.")
+		return
+	}
+	if time.Now().UnixMilli() > ask.ExpiresAt {
+		h.Lobby.mu.Unlock()
+		h.pushUser(ask.FromID, TypeSocialPush, map[string]any{
+			"type": "JOIN_ASK_EXPIRED", "title": "Kedaluwarsa", "message": "Permintaan bergabung kedaluwarsa.",
+		})
+		return
+	}
+	code := ask.RoomCode
+	fromID := ask.FromID
+	fromName := ask.FromName
+	h.Lobby.mu.Unlock()
+
+	if !accept {
+		h.pushUser(fromID, TypeInviteResult, map[string]any{"askId": askID, "accepted": false, "username": host.Name})
+		h.pushUser(fromID, TypeSocialPush, map[string]any{
+			"type": "JOIN_ASK_DECLINED", "title": "Ditolak",
+			"message": host.Name + " menolak permintaan bergabung. Buat permainan sendiri.",
+		})
+		return
+	}
+	asker := (*Player)(nil)
+	h.Lobby.mu.Lock()
+	asker = h.Lobby.online[fromID]
+	h.Lobby.mu.Unlock()
+	if asker == nil {
+		h.rejectCode(host, TypeJoinAskRespond, "offline", "Pemain sudah offline.")
+		return
+	}
+	room, errc := h.Lobby.Join(asker, code)
+	if errc != "" {
+		h.pushUser(fromID, TypeSocialPush, map[string]any{
+			"type": "JOIN_ASK_FAIL", "title": "Gagal bergabung", "message": friendlyUlar(errc),
+		})
+		h.rejectCode(host, TypeJoinAskRespond, errc, friendlyUlar(errc))
+		return
+	}
+	h.emitRoom(host, room)
+	h.emitRoom(asker, room)
+	h.pushUser(fromID, TypeInviteResult, map[string]any{"askId": askID, "accepted": true, "username": host.Name})
+	h.broadcastOnlineList()
+	_ = fromName
 }
 
 func (h *Hub) sendQuestionHistory(p *Player) {

@@ -1,5 +1,5 @@
 /* Ular Tangga Nusantara — network-first, bust stale theme CSS. */
-const CACHE = "ular-static-v1.1.2-http-bridge";
+const CACHE = "ular-static-v1.1.3-invite-join";
 const OFFLINE_URL = "/cahaya/?offline=1";
 
 self.addEventListener("install", (event) => {

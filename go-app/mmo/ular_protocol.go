@@ -36,6 +36,10 @@ const (
 	TypeSocialPush    = "SOCIAL_NOTIFY"
 	TypeOnlineList    = "ONLINE_LIST"
 	TypeOnlineListReq = "ONLINE_LIST_REQ"
+	TypeJoinAsk       = "JOIN_ASK"
+	TypeJoinAskEv     = "JOIN_ASK_EV"
+	TypeJoinAskRespond = "JOIN_ASK_RESPOND"
+	TypeInviteResult  = "INVITE_RESULT"
 )
 
 type LobbyHelloOut struct {
