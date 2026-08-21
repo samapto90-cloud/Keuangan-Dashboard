@@ -17,9 +17,9 @@ const (
 )
 
 var powerBoardLimits = map[string]int{
-	PowerBomb:     1,
-	PowerThunder:  5,
-	PowerSuperman: 3,
+	PowerBomb:     2,
+	PowerThunder:  10,
+	PowerSuperman: 10,
 }
 
 func GrantRandomPower() string {
@@ -71,7 +71,7 @@ func randIntn(n int) int {
 	return int(binary.BigEndian.Uint64(b[:]) % uint64(n))
 }
 
-/** Spawn 1 bom, 5 petir, 3 pesawat di kotak acak. */
+/** Spawn 2 bom, 10 petir, 10 pesawat di kotak acak tiap sesi. */
 func SpawnPowerCells(snakes, ladders map[int]int) map[int]string {
 	blocked := map[int]bool{1: true, 100: true}
 	for a, b := range snakes {
@@ -92,17 +92,28 @@ func SpawnPowerCells(snakes, ladders map[int]int) map[int]string {
 		j := randIntn(i + 1)
 		pool[i], pool[j] = pool[j], pool[i]
 	}
-	out := map[int]string{}
-	idx := 0
-	place := func(kind string, n int) {
-		for k := 0; k < n && idx < len(pool); k++ {
-			out[pool[idx]] = kind
-			idx++
-		}
+	kinds := make([]string, 0, 22)
+	for k := 0; k < powerBoardLimits[PowerBomb]; k++ {
+		kinds = append(kinds, PowerBomb)
 	}
-	place(PowerBomb, powerBoardLimits[PowerBomb])
-	place(PowerThunder, powerBoardLimits[PowerThunder])
-	place(PowerSuperman, powerBoardLimits[PowerSuperman])
+	for k := 0; k < powerBoardLimits[PowerThunder]; k++ {
+		kinds = append(kinds, PowerThunder)
+	}
+	for k := 0; k < powerBoardLimits[PowerSuperman]; k++ {
+		kinds = append(kinds, PowerSuperman)
+	}
+	for i := len(kinds) - 1; i > 0; i-- {
+		j := randIntn(i + 1)
+		kinds[i], kinds[j] = kinds[j], kinds[i]
+	}
+	out := map[int]string{}
+	n := len(kinds)
+	if n > len(pool) {
+		n = len(pool)
+	}
+	for i := 0; i < n; i++ {
+		out[pool[i]] = kinds[i]
+	}
 	return out
 }
 

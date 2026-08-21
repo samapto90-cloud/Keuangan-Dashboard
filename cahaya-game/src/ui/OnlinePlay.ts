@@ -29,7 +29,7 @@ import { friendRequest } from "../social/api";
 import { openFriendsModal } from "./SocialScreen";
 
 import { openPowerInventory, powerGrantBanner } from "./PowerModal";
-import { powerIcon, powerLabel, type PowerBag, type PowerKind } from "../game/powers";
+import { powerIconHtml, powerLabel, type PowerBag, type PowerKind } from "../game/powers";
 
 type Seat = {
   userId: string;
@@ -375,7 +375,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         panel.hidden = !panel.hidden;
         paintBoardChat();
       },
-      onHistory: () => toast("Item di papan: 💣×1 · ⚡×5 · ✈️×3. Ambil dengan mendarat di kotaknya.", "info"),
+      onHistory: () => toast("Item di papan tiap sesi (acak): Bom×2 · Petir×10 · Pesawat×10. Ambil dengan mendarat di kotaknya.", "info"),
       onInventory: () => {
         if (currentId() !== myId() || status() !== "PLAYING" || animating || activeQ) {
           toast("Inventory hanya saat giliranmu.", "info");
@@ -422,7 +422,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         mark.className = "cell-power";
         cell.appendChild(mark);
       }
-      mark.textContent = powerIcon(k);
+      mark.innerHTML = powerIconHtml(k, "power-ico-img");
       mark.setAttribute("title", powerLabel(k));
     });
   };

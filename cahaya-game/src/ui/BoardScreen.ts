@@ -35,7 +35,7 @@ import {
   applySuperman,
   applyThunder,
   emptyBag,
-  powerIcon,
+  powerIconHtml,
   powerLabel,
   spawnPowerCells,
   takePower,
@@ -164,7 +164,7 @@ export function mountBoard(
         mark.className = "cell-power";
         cell.appendChild(mark);
       }
-      mark.textContent = powerIcon(kind);
+      mark.innerHTML = powerIconHtml(kind, "power-ico-img");
       mark.setAttribute("title", powerLabel(kind));
     }
   };

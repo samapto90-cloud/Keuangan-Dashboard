@@ -1051,13 +1051,51 @@ body.board-theme-fantasy::after {
 
 .cell-power {
   position: absolute;
-  right: 3px;
-  bottom: 3px;
+  right: 2px;
+  bottom: 2px;
   z-index: 2;
   font-size: clamp(11px, 1.8vw, 15px);
   line-height: 1;
   filter: drop-shadow(0 1px 2px #000a);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-ico-img {
+  width: clamp(18px, 3.2vw, 28px);
+  height: clamp(18px, 3.2vw, 28px);
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.power-ico-img.sm {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pcard-bag {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.power-ico-wrap {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-ico-wrap .power-ico-img {
+  width: 36px;
+  height: 36px;
 }
 
 .premium-conn,

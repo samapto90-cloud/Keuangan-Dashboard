@@ -1,7 +1,7 @@
 import { truncateName, avatarSpriteHtml } from "../assets/registry";
 import { loadPrefs } from "./prefs";
 import { toast } from "./chrome";
-import { bagTotal, pointsFromPosition, type PowerBag } from "../game/powers";
+import { bagTotal, pointsFromPosition, powerIconHtml, type PowerBag } from "../game/powers";
 
 export type PremiumSeat = {
   id: string;
@@ -104,7 +104,7 @@ export function paintPremiumStrip(el: HTMLElement | null, seats: PremiumSeat[], 
       const pts = pointsFromPosition(s.position);
       const bag = s.bag;
       const items = bag && bagTotal(bag) > 0
-        ? `<p class="pcard-bag">${bag.bomb ? `💣${bag.bomb} ` : ""}${bag.thunder ? `⚡${bag.thunder} ` : ""}${bag.superman ? `✈️${bag.superman}` : ""}</p>`
+        ? `<p class="pcard-bag">${bag.bomb ? `${powerIconHtml("bomb", "power-ico-img sm")}<span>×${bag.bomb}</span> ` : ""}${bag.thunder ? `${powerIconHtml("thunder", "power-ico-img sm")}<span>×${bag.thunder}</span> ` : ""}${bag.superman ? `${powerIconHtml("superman", "power-ico-img sm")}<span>×${bag.superman}</span>` : ""}</p>`
         : "";
       const on = s.id === turnId;
       const initial = esc(s.username.replace(/^🤖\s*/, "").slice(0, 1).toUpperCase());

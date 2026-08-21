@@ -6,11 +6,17 @@ export type PowerBag = {
   superman: number;
 };
 
-/** Stok di papan per match. */
+/** Stok di papan per match/sesi (diacak ulang setiap permainan). */
 export const POWER_BOARD_LIMITS: Record<PowerKind, number> = {
-  bomb: 1,
-  thunder: 5,
-  superman: 3,
+  bomb: 2,
+  thunder: 10,
+  superman: 10,
+};
+
+export const POWER_ASSET: Record<PowerKind, string> = {
+  bomb: "/cahaya/raka/powers/bomb.png",
+  thunder: "/cahaya/raka/powers/thunder.png",
+  superman: "/cahaya/raka/powers/superman.png",
 };
 
 export const POWER_META: Record<
@@ -20,21 +26,21 @@ export const POWER_META: Record<
   bomb: {
     label: "Bom",
     icon: "💣",
-    hint: "Lempar ke lawan — keluar papan & mulai dari START. (1 di papan)",
+    hint: "Lempar ke lawan — keluar papan & mulai dari START. (2 di papan, acak tiap sesi)",
     needsTarget: true,
     allowSelf: false,
   },
   thunder: {
     label: "Petir",
     icon: "⚡",
-    hint: "Turunkan lawan 3 langkah. (5 di papan)",
+    hint: "Turunkan lawan 3 langkah. (10 di papan, acak tiap sesi)",
     needsTarget: true,
     allowSelf: false,
   },
-	superman: {
+  superman: {
     label: "Pesawat",
     icon: "✈️",
-    hint: "Terbang naik 3 kotak — diri sendiri atau bantu teman. (3 di papan)",
+    hint: "Terbang naik 3 kotak — diri sendiri atau bantu teman. (10 di papan, acak tiap sesi)",
     needsTarget: true,
     allowSelf: true,
   },
@@ -74,7 +80,18 @@ export function applySuperman(from: number): number {
 }
 
 export function powerLabel(kind: PowerKind): string {
-  return `${POWER_META[kind].icon} ${POWER_META[kind].label}`;
+  return POWER_META[kind].label;
+}
+
+export function powerIcon(kind: PowerKind): string {
+  return POWER_META[kind].icon;
+}
+
+/** HTML ikon gambar untuk kotak papan / inventory. */
+export function powerIconHtml(kind: PowerKind, className = "power-ico"): string {
+  const src = POWER_ASSET[kind];
+  const label = POWER_META[kind].label;
+  return `<img class="${className}" src="${src}" alt="${label}" title="${label}" width="28" height="28" decoding="async" />`;
 }
 
 function shuffleInPlace<T>(arr: T[]): T[] {
@@ -89,7 +106,7 @@ function shuffleInPlace<T>(arr: T[]): T[] {
   return arr;
 }
 
-/** Sebar item di kotak acak (hindari 1, 100, ular/tangga start+dest). */
+/** Sebar item di kotak acak tiap sesi (hindari 1, 100, ular/tangga start+dest). */
 export function spawnPowerCells(
   snakes: Record<number, number>,
   ladders: Record<number, number>,
@@ -108,19 +125,18 @@ export function spawnPowerCells(
     if (!blocked.has(p)) pool.push(p);
   }
   shuffleInPlace(pool);
-  const out: Record<number, PowerKind> = {};
-  let i = 0;
-  const place = (kind: PowerKind, n: number): void => {
-    for (let k = 0; k < n && i < pool.length; k++, i++) {
-      out[pool[i]!] = kind;
-    }
-  };
-  place("bomb", POWER_BOARD_LIMITS.bomb);
-  place("thunder", POWER_BOARD_LIMITS.thunder);
-  place("superman", POWER_BOARD_LIMITS.superman);
-  return out;
-}
 
-export function powerIcon(kind: PowerKind): string {
-  return POWER_META[kind].icon;
+  // Acak urutan jenis item dulu, lalu tempatkan agar distribusi tiap sesi beda.
+  const kinds = shuffleInPlace([
+    ...Array.from({ length: POWER_BOARD_LIMITS.bomb }, () => "bomb" as PowerKind),
+    ...Array.from({ length: POWER_BOARD_LIMITS.thunder }, () => "thunder" as PowerKind),
+    ...Array.from({ length: POWER_BOARD_LIMITS.superman }, () => "superman" as PowerKind),
+  ]);
+
+  const out: Record<number, PowerKind> = {};
+  const n = Math.min(kinds.length, pool.length);
+  for (let i = 0; i < n; i++) {
+    out[pool[i]!] = kinds[i]!;
+  }
+  return out;
 }

@@ -1,6 +1,8 @@
 import {
   POWER_META,
+  POWER_BOARD_LIMITS,
   bagTotal,
+  powerIconHtml,
   type PowerBag,
   type PowerKind,
 } from "../game/powers";
@@ -38,7 +40,7 @@ export function openPowerInventory(
         <button type="button" class="power-close" data-act="close" aria-label="Tutup">✕</button>
       </header>
       ${total === 0
-        ? `<p class="power-empty">Belum ada item. Ambil 💣 / ⚡ / ✈️ di kotak acak di papan (stok: 1 / 5 / 3).</p>`
+        ? `<p class="power-empty">Belum ada item. Ambil Bom / Petir / Pesawat di kotak acak (stok papan: ${POWER_BOARD_LIMITS.bomb} / ${POWER_BOARD_LIMITS.thunder} / ${POWER_BOARD_LIMITS.superman}, acak tiap sesi).</p>`
         : `<p class="power-lead">Pilih item, lalu pilih target.</p>
            <div class="power-list" id="power-list"></div>
            <div class="power-targets" id="power-targets" hidden>
@@ -81,7 +83,7 @@ export function openPowerInventory(
       .map((k) => {
         const m = POWER_META[k];
         return `<button type="button" class="power-item" data-kind="${k}">
-          <span class="power-ico">${m.icon}</span>
+          <span class="power-ico-wrap">${powerIconHtml(k, "power-ico-img")}</span>
           <span class="power-name">${m.label} ×${opts.bag[k]}</span>
           <span class="power-hint">${m.hint}</span>
         </button>`;
@@ -110,5 +112,5 @@ export function openPowerInventory(
 
 export function powerGrantBanner(kind: PowerKind): string {
   const m = POWER_META[kind];
-  return `${m.icon} Dapat ${m.label}! ${m.hint}`;
+  return `Dapat ${m.label}! ${m.hint}`;
 }
