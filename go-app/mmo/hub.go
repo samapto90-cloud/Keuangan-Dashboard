@@ -11,6 +11,16 @@ type inbound struct {
 	env    Envelope
 }
 
+func (h *Hub) Enqueue(p *Player, env Envelope) {
+	if h == nil || p == nil || env.Type == "" {
+		return
+	}
+	select {
+	case h.in <- inbound{player: p, env: env}:
+	default:
+	}
+}
+
 type Hub struct {
 	Auth       *AuthStore
 	Accounts   *AccountStore

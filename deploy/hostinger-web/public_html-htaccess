@@ -32,10 +32,21 @@ Options -Indexes
 # Header keamanan di edge web
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
+  Header unset X-Frame-Options
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
 </IfModule>
+
+# WebSocket → Go di localhost:8888 (PHP proxy tidak bisa Upgrade).
+# Harus sebelum rewrite ke index.php.
+RewriteCond %{HTTP:Upgrade} =websocket [NC]
+RewriteCond %{HTTP:Connection} upgrade [NC]
+RewriteRule ^cahaya/ws$ ws://127.0.0.1:8888/cahaya/ws [P,L]
+
+# Juga tangkap path tanpa trailing nuance
+RewriteCond %{HTTP:Upgrade} =websocket [NC]
+RewriteCond %{HTTP:Connection} upgrade [NC]
+RewriteRule ^cahaya/ws/?$ ws://127.0.0.1:8888/cahaya/ws [P,L]
 
 # Jangan serve index.html statis — selalu lewat proxy Go
 RewriteRule ^index\.html$ index.php [L]

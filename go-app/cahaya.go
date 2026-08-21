@@ -15,6 +15,8 @@ var cahayaDistFS embed.FS
 
 func mountCahayaGame(mux *http.ServeMux) {
 	mux.HandleFunc("/cahaya/ws", mmo.HandleWS)
+	mux.HandleFunc("/cahaya/api/realtime/poll", mmo.HandleRealtimePoll)
+	mux.HandleFunc("/cahaya/api/realtime/send", mmo.HandleRealtimeSend)
 	mux.HandleFunc("/cahaya/api/register", mmo.HandleRegister)
 	mux.HandleFunc("/cahaya/api/login", mmo.HandleLogin)
 	mux.HandleFunc("/cahaya/api/logout", mmo.HandleLogout)
