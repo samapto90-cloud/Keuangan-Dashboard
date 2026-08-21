@@ -15,6 +15,7 @@ import {
   type Session,
 } from "../auth/session";
 import { GameClient } from "../game/multiplayer/socket";
+import { WS_EVENTS } from "../game/multiplayer/events";
 import { mountBoard } from "./BoardScreen";
 import { mountOnline } from "./OnlinePlay";
 import { openProfileModal } from "./ProfileScreen";
@@ -41,7 +42,7 @@ export function mountApp(root: HTMLElement): void {
   let session: Session | null = null;
   let profile: Profile | null = null;
   let wsNote = "WebSocket belum terhubung";
-  let playerCount = 4;
+  let playerCount = 2;
   let withNpc = false;
   let eduGrade: "SD" | "SMA" = ((): "SD" | "SMA" => {
     try {
@@ -64,6 +65,48 @@ export function mountApp(root: HTMLElement): void {
   let net: GameClient | null = null;
   let unread = 0;
   let startQueue: "" | "CASUAL" | "RANKED" = "";
+  let unsubGlobal: (() => void) | null = null;
+
+  const ensurePresence = (token: string): GameClient => {
+    if (!net) net = new GameClient();
+    if (net.status === "offline") net.connect(token);
+    if (!unsubGlobal) {
+      unsubGlobal = net.addListener((type, data) => {
+        if (type === WS_EVENTS.GAME_INVITE && screen !== "online") {
+          const inviteId = String(data.inviteId || "");
+          const username = String(data.username || "Pemain");
+          if (!inviteId) return;
+          showModal(
+            "game-invite",
+            `<h2>Undangan bermain</h2>
+            <p class="nt-lead"><strong>${escapeHtml(username)}</strong> mengajakmu main Ular Tangga.</p>
+            <div class="nt-actions">
+              <button type="button" class="nt-btn nt-btn-primary" data-inv-yes>Terima</button>
+              <button type="button" class="nt-btn" data-inv-no>Tolak</button>
+            </div>`,
+          );
+          const layer = document.querySelector("[data-modal=game-invite]");
+          layer?.querySelector("[data-inv-yes]")?.addEventListener("click", () => {
+            net?.send(WS_EVENTS.INVITE_RESPOND, { inviteId, accept: true });
+            closeModal("game-invite");
+            startQueue = "";
+            setScreen("online");
+          });
+          layer?.querySelector("[data-inv-no]")?.addEventListener("click", () => {
+            net?.send(WS_EVENTS.INVITE_RESPOND, { inviteId, accept: false });
+            closeModal("game-invite");
+          });
+        }
+        if (type === WS_EVENTS.SOCIAL_NOTIFY && screen !== "online") {
+          toast(String(data.title || data.type || "Notifikasi"), "info");
+          void refreshUnread().then(() => {
+            if (screen === "home") render();
+          });
+        }
+      });
+    }
+    return net;
+  };
 
   const render = (): void => {
     if (screen === "online") {
@@ -126,7 +169,7 @@ export function mountApp(root: HTMLElement): void {
         <button type="button" class="nt-btn nt-btn-ghost" data-go="board">MAIN PAPAN (lokal)</button>
         <button type="button" class="nt-btn nt-btn-primary" data-go="board-npc">🤖 MAIN VS NPC</button>
       </div>
-      <p class="nt-hint">Online: login, buat/gabung room 2–4 pemain. Lokal: lawan NPC otomatis lempar dadu & jawab soal.</p>
+      <p class="nt-hint">Online: lihat siapa yang online, ajak main, atau cari lawan otomatis (2–4 pemain). Lokal: lawan NPC.</p>
       <div class="nt-actions nt-row">
         <button type="button" class="nt-btn ${eduGrade === "SD" ? "nt-btn-primary" : ""}" data-go="grade-sd">Soal SD</button>
         <button type="button" class="nt-btn ${eduGrade === "SMA" ? "nt-btn-primary" : ""}" data-go="grade-sma">Soal SMA</button>
@@ -134,6 +177,7 @@ export function mountApp(root: HTMLElement): void {
       <p class="nt-hint">Bank soal aktif: <strong>${eduGrade}</strong> (pilih sebelum main).</p>
       <div class="nt-actions nt-row">
         <button type="button" class="nt-btn ${playerCount === 2 ? "nt-btn-primary" : ""}" data-go="p2">2 pemain</button>
+        <button type="button" class="nt-btn ${playerCount === 3 ? "nt-btn-primary" : ""}" data-go="p3">3 pemain</button>
         <button type="button" class="nt-btn ${playerCount === 4 ? "nt-btn-primary" : ""}" data-go="p4">4 pemain</button>
       </div>
     </section>`;
@@ -177,7 +221,11 @@ export function mountApp(root: HTMLElement): void {
         const go = btn.dataset.go;
         if (go === "play" || go === "online") startWithGrade(() => void goPlay(""));
         else if (go === "ranked") startWithGrade(() => void goPlay("RANKED"));
-        else if (go === "friends") void openFriendsModal({ client: net });
+        else if (go === "friends") {
+          const token = storedSessionToken();
+          if (token) ensurePresence(token);
+          void openFriendsModal({ client: net });
+        }
         else if (go === "board-lb") void openLeaderboardModal();
         else if (go === "notes") void openNotes();
         else if (go === "board") {
@@ -200,6 +248,9 @@ export function mountApp(root: HTMLElement): void {
         else if (go === "profile") openProfile();
         else if (go === "p2") {
           playerCount = 2;
+          render();
+        } else if (go === "p3") {
+          playerCount = 3;
           render();
         } else if (go === "p4") {
           playerCount = 4;
@@ -405,9 +456,9 @@ export function mountApp(root: HTMLElement): void {
     session = { token, playerId: p.playerId, username: p.username };
     profile = p;
     startQueue = queue;
-    if (!net) net = new GameClient();
+    const client = ensurePresence(token);
     setScreen("online");
-    net.connect(token);
+    if (client.status === "offline") client.connect(token);
   };
 
   const doLogin = async (username: string, password: string): Promise<void> => {
@@ -424,6 +475,7 @@ export function mountApp(root: HTMLElement): void {
     }
     saveSession(out.data);
     session = out.data;
+    ensurePresence(out.data.token);
     if (!loadPrefs().tutorialCompleted) {
       root.innerHTML = "";
       mountOnboarding(root, { defaultUsername: out.data.username, onDone: () => void goPlay() });
@@ -446,6 +498,7 @@ export function mountApp(root: HTMLElement): void {
     }
     saveSession(out.data);
     session = out.data;
+    ensurePresence(out.data.token);
     if (!loadPrefs().tutorialCompleted) {
       root.innerHTML = "";
       mountOnboarding(root, { defaultUsername: out.data.username, onDone: () => void goPlay() });
@@ -460,6 +513,10 @@ export function mountApp(root: HTMLElement): void {
     clearSession();
     session = null;
     profile = null;
+    unsubGlobal?.();
+    unsubGlobal = null;
+    net?.ws?.close();
+    net = null;
     setScreen("home");
   };
 
@@ -478,6 +535,7 @@ export function mountApp(root: HTMLElement): void {
       session = { token, playerId: p.playerId, username: p.username };
       profile = p;
       screen = embed ? "login" : "home";
+      ensurePresence(token);
       await refreshUnread();
     }
     render();

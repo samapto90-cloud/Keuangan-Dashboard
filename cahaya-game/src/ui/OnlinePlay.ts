@@ -24,6 +24,7 @@ import { fetchProfile } from "../progress/api";
 import { applyRewardFx } from "../progress/fx";
 import type { RewardEvent } from "../progress/types";
 import { pingTone } from "../social/api";
+import { friendRequest } from "../social/api";
 import { openFriendsModal } from "./SocialScreen";
 
 import { openPowerInventory, powerGrantBanner } from "./PowerModal";
@@ -40,6 +41,8 @@ type Seat = {
   connState?: string;
   playState?: string;
 };
+
+type OnlineCard = { userId: string; username: string; status: string; inGame?: boolean; friends?: boolean };
 
 function seatBag(s: Seat): PowerBag {
   const it = s.items || {};
@@ -58,6 +61,8 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let themeOff: (() => void) | null = null;
   const eduGrade = opts.grade === "SD" ? "SD" : "SMA";
   const onExit = (): void => {
+    unsub?.();
+    unsub = null;
     themeOff?.();
     themeOff = null;
     opts.onExit();
@@ -67,7 +72,6 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let snap: Record<string, unknown> = {};
   let view: "room" | "table" = "room";
   let error = "";
-  let joinCode = "";
   let lastDice = 0;
   let animating = false;
   let conn: string = opts.client.status;
@@ -81,11 +85,13 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let searchAt = 0;
   let searchTick = 0;
   let pingMs = 0;
-  let maxPlayers = 4;
+  let maxPlayers = 2;
   let matchFound: { ends: number; mode: string } | null = null;
   let readyCheck = false;
   let invite: { inviteId: string; username: string; expiresAt: number } | null = null;
   let bootQueue = opts.startQueue || "";
+  let onlinePlayers: OnlineCard[] = [];
+  let unsub: (() => void) | null = null;
 
   const players = (): Seat[] => (Array.isArray(snap.players) && snap.players[0] && typeof snap.players[0] === "object" ? (snap.players as Seat[]) : []);
   const code = (): string => String(snap.roomCode || "");
@@ -117,16 +123,31 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       <main class="nt-shell room-shell page-in">
         <header class="nt-top">
           <p class="nt-kicker">ULAR TANGGA NUSANTARA</p>
-          <h1>Room ${esc(code() || "—")}</h1>
-          <p>${seats.length}/${cap()} · ${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""}</p>
+          <h1>${code() ? "Menunggu lawan" : "Main Online"}</h1>
+          <p>${code() ? `${seats.length}/${cap()} · ` : ""}${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""} · Soal ${eduGrade}</p>
         </header>
-        ${searching && !matchFound ? `<section class="nt-card mm-card"><p class="nt-kicker">SEARCHING... ${esc(searchMode)}</p><p class="mm-clock" id="search-clock">${searchClock}</p><button class="nt-btn" data-act="cancel-q">CANCEL</button></section>` : ""}
-        ${matchFound && !readyCheck ? `<section class="nt-card mm-card mm-found"><p>MATCH FOUND!</p><p class="mm-clock">${foundLeft}</p></section>` : ""}
-        ${readyCheck ? `<section class="nt-card mm-card"><p class="nt-kicker">READY CHECK</p><button class="nt-btn nt-btn-primary" data-act="match-ready">READY</button></section>` : ""}
+        ${searching && !matchFound ? `<section class="nt-card mm-card"><p class="nt-kicker">MENCARI LAWAN... ${esc(searchMode)} · ${maxPlayers} pemain</p><p class="mm-clock" id="search-clock">${searchClock}</p><button class="nt-btn" data-act="cancel-q">BATAL</button></section>` : ""}
+        ${matchFound && !readyCheck ? `<section class="nt-card mm-card mm-found"><p>MATCH DITEMUKAN!</p><p class="mm-clock">${foundLeft}</p></section>` : ""}
+        ${readyCheck ? `<section class="nt-card mm-card"><p class="nt-kicker">SIAP BERMAIN?</p><button class="nt-btn nt-btn-primary" data-act="match-ready">READY</button></section>` : ""}
         ${invite ? `<section class="nt-card invite-pop"><p>🎮 ${esc(invite.username).toUpperCase()} MENGUNDANGMU</p><p>Main Ular Tangga?</p><button class="nt-btn nt-btn-primary" data-act="inv-yes">TERIMA</button> <button class="nt-btn" data-act="inv-no">TOLAK</button></section>` : ""}
-        ${!code() && !searching ? `<section class="nt-card room-hint"><p class="room-hint-title">Lobby Online</p><p class="room-hint-text">Belum ada room aktif. Tingkat soal: <strong>${eduGrade}</strong>. Gunakan tombol di bawah untuk <strong>Play Online</strong>, <strong>Buat Room</strong>, atau <strong>Gabung Room</strong>.</p></section>` : ""}
-        <section class="nt-card seats">
-          <p class="seats-label">${code() ? `Pemain di room (${seats.length}/${cap()})` : `Preview slot room (${cap()} pemain)`}</p>
+        ${!code() && !searching ? `<section class="nt-card room-hint">
+          <p class="room-hint-title">Pemain online</p>
+          <p class="room-hint-text">Pilih ukuran partai, lalu <strong>ajak bermain</strong> atau <strong>cari lawan otomatis</strong>. Tidak perlu kode room.</p>
+          <div class="nt-row" style="margin:8px 0">${[2, 3, 4].map((n) => `<button class="nt-btn ${maxPlayers === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>
+          <div class="pf-hist online-list">${onlinePlayers.length
+            ? onlinePlayers.map((p) => `
+              <article class="nt-card friend-row">
+                <span><strong>${esc(p.username)}</strong> · ${esc(p.status === "IN_GAME" ? "Sedang main" : "Online")}</span>
+                <div class="nt-row">
+                  ${p.status !== "IN_GAME" ? `<button class="nt-btn nt-btn-primary" data-challenge="${esc(p.userId)}">Ajak main</button>` : ""}
+                  ${!p.friends ? `<button class="nt-btn" data-addfriend="${esc(p.userId)}">Tambah teman</button>` : `<span class="nt-hint">Teman</span>`}
+                </div>
+              </article>`).join("")
+            : `<p class="nt-hint">Belum ada pemain lain online. Bagikan link game atau tekan Cari lawan.</p>`}
+          </div>
+        </section>` : ""}
+        ${code() ? `<section class="nt-card seats">
+          <p class="seats-label">Pemain (${seats.length}/${cap()})</p>
           ${slots
             .map((s, i) =>
               s
@@ -134,22 +155,21 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
                     <span class="seat-pawn is-sprite" style="--pawn:${s.color}">${avatarSpriteHtml(i, s.username)}</span>
                     <div><strong title="${esc(s.username)}">${esc(truncateName(s.username))}</strong>
                     <p>${s.isReady ? "READY" : "BELUM SIAP"} · ${s.isConnected ? "Online" : "Terputus"}</p></div>
-                    ${isHost() && s.userId !== myId() && code() ? `<button class="nt-btn nt-btn-ghost" data-kick="${esc(s.userId)}">KICK</button>` : ""}
+                    ${isHost() && s.userId !== myId() ? `<button class="nt-btn nt-btn-ghost" data-kick="${esc(s.userId)}">KICK</button>` : ""}
                   </article>`
                 : `<article class="seat-card empty"><span class="seat-empty-ico">＋</span> Slot kosong ${i + 1}</article>`,
             )
             .join("")}
-        </section>
+        </section>` : ""}
         ${error ? `<p class="nt-error" role="alert">${esc(error)}</p>` : ""}
         <div class="nt-actions">
-          ${!code() && !searching ? `<button class="nt-btn nt-btn-primary" data-act="queue-c">PLAY ONLINE</button>` : ""}
+          ${!code() && !searching ? `<button class="nt-btn nt-btn-primary" data-act="queue-c">CARI LAWAN</button>` : ""}
           ${!code() && !searching ? `<button class="nt-btn nt-btn-primary" data-act="queue-r">RANKED</button>` : ""}
+          ${!code() && !searching ? `<button class="nt-btn" data-act="friends">TEMAN</button>` : ""}
+          ${!code() && !searching ? `<button class="nt-btn" data-act="refresh-online">Segarkan online</button>` : ""}
           ${code() && !readyCheck && !matchFound ? `<button class="nt-btn nt-btn-primary" data-act="ready">${meReady ? "BATAL READY" : "READY"}</button>` : ""}
           ${isHost() && code() && !matchFound ? `<button class="nt-btn nt-btn-primary" data-act="start" ${canStart ? "" : "disabled"}>MULAI PERMAINAN</button>` : ""}
           ${isHost() && code() && !matchFound && status() === "WAITING" ? `<div class="nt-row">${[2, 3, 4].map((n) => `<button class="nt-btn ${cap() === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>` : ""}
-          ${!code() && !searching ? `<div class="nt-row">${[2, 3, 4].map((n) => `<button class="nt-btn ${maxPlayers === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>` : ""}
-          ${!code() && !searching ? `<button class="nt-btn nt-btn-primary" data-act="create">BUAT ROOM</button>` : ""}
-          ${!code() && !searching ? `<form data-act="join" class="nt-form"><label>Kode room<input name="code" maxlength="6" value="${esc(joinCode)}" aria-label="Kode room" /></label><button class="nt-btn" type="submit">GABUNG ROOM</button></form>` : ""}
           ${code() ? `<button class="nt-btn" data-act="friends">TEMAN</button>` : ""}
           <button class="nt-btn" data-act="leave">${code() || searching ? "KELUAR" : "MENU"}</button>
           ${conn === "offline" ? `<button class="nt-btn nt-btn-primary" data-act="reconnect">SAMBUNG ULANG</button>` : ""}
@@ -159,7 +179,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
           <form data-act="chat" class="nt-row"><input name="msg" maxlength="200" placeholder="pesan" /><button class="nt-btn" type="submit">Kirim</button></form>
           <div class="emotes">${["👏", "😂", "🔥", "😮", "GG"].map((e) => `<button type="button" data-emote="${e}">${e}</button>`).join("")}</div>
         </div>` : ""}
-        ${dev ? `<pre class="debug-panel">${esc(JSON.stringify({ matchId: snap.matchId, seq: snap.seq, status: status(), current: currentId(), conn, ping: pingMs }, null, 2))}</pre>` : ""}
+        ${dev ? `<pre class="debug-panel">${esc(JSON.stringify({ matchId: snap.matchId, seq: snap.seq, status: status(), current: currentId(), conn, ping: pingMs, online: onlinePlayers.length }, null, 2))}</pre>` : ""}
       </main>`;
     bindRoom();
     if (searching || matchFound) {
@@ -181,12 +201,11 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     searchMode = mode;
     searching = true;
     searchAt = Date.now();
-    opts.client.send(WS_EVENTS.QUEUE_JOIN, { mode, region: "ID-JKT", grade: eduGrade });
+    opts.client.send(WS_EVENTS.QUEUE_JOIN, { mode, region: "ID-JKT", grade: eduGrade, preferredSize: maxPlayers, maxPlayers });
     paint();
   };
 
   const bindRoom = (): void => {
-    root.querySelector("[data-act=create]")?.addEventListener("click", () => opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade }));
     root.querySelector("[data-act=ready]")?.addEventListener("click", () => {
       const me = players().find((s) => s.userId === myId());
       opts.client.send(WS_EVENTS.PLAYER_READY, { ready: !me?.isReady });
@@ -194,7 +213,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     root.querySelector("[data-act=start]")?.addEventListener("click", () => opts.client.send(WS_EVENTS.ROOM_START));
     root.querySelector("[data-act=leave]")?.addEventListener("click", () => {
       if (searching) opts.client.send(WS_EVENTS.QUEUE_LEAVE);
-      opts.client.send(WS_EVENTS.ROOM_LEAVE);
+      if (code()) opts.client.send(WS_EVENTS.ROOM_LEAVE);
       onExit();
     });
     root.querySelector("[data-act=reconnect]")?.addEventListener("click", () => opts.client.reconnect());
@@ -207,6 +226,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     });
     root.querySelector("[data-act=match-ready]")?.addEventListener("click", () => opts.client.send(WS_EVENTS.MATCH_READY, { ready: true }));
     root.querySelector("[data-act=friends]")?.addEventListener("click", () => void openFriendsModal({ client: opts.client }));
+    root.querySelector("[data-act=refresh-online]")?.addEventListener("click", () => opts.client.send(WS_EVENTS.ONLINE_LIST_REQ));
     root.querySelector("[data-act=inv-yes]")?.addEventListener("click", () => {
       if (invite) opts.client.send(WS_EVENTS.INVITE_RESPOND, { inviteId: invite.inviteId, accept: true });
       invite = null;
@@ -219,21 +239,36 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     });
     root.querySelectorAll<HTMLButtonElement>("[data-max]").forEach((b) =>
       b.addEventListener("click", () => {
-        maxPlayers = Number(b.dataset.max) || 4;
-        if (code()) opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade });
+        maxPlayers = Number(b.dataset.max) || 2;
+        if (code() && isHost()) opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade });
         else paint();
+      }),
+    );
+    root.querySelectorAll<HTMLButtonElement>("[data-challenge]").forEach((b) =>
+      b.addEventListener("click", () => {
+        opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.challenge, maxPlayers });
+        toast("Undangan dikirim — menunggu lawan menerima.", "success");
+      }),
+    );
+    root.querySelectorAll<HTMLButtonElement>("[data-addfriend]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const token = storedSessionToken();
+        if (!token) {
+          toast("Masuk dulu untuk menambah teman.", "warning");
+          return;
+        }
+        void friendRequest(token, b.dataset.addfriend || "").then((out) => {
+          if (!out.ok) toast(out.error, "error");
+          else {
+            toast("Permintaan teman terkirim", "success");
+            opts.client.send(WS_EVENTS.ONLINE_LIST_REQ);
+          }
+        });
       }),
     );
     root.querySelectorAll<HTMLButtonElement>("[data-kick]").forEach((b) =>
       b.addEventListener("click", () => opts.client.send(WS_EVENTS.ROOM_KICK, { userId: b.dataset.kick })),
     );
-    const jf = root.querySelector<HTMLFormElement>("[data-act=join]");
-    jf?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const c = String(new FormData(jf).get("code") || "").trim().toUpperCase();
-      joinCode = c;
-      opts.client.send(WS_EVENTS.ROOM_JOIN, { roomCode: c });
-    });
     const cf = root.querySelector<HTMLFormElement>("[data-act=chat]");
     cf?.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -533,18 +568,25 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     if (view === "room") paint();
     else paintTable();
   };
-  opts.client.onEvent = (type, data) => {
+  unsub = opts.client.addListener((type, data) => {
     const skipMerge =
       type === WS_EVENTS.PONG ||
       type === WS_EVENTS.QUEUE_UPDATE ||
       type === WS_EVENTS.MATCH_FOUND ||
       type === WS_EVENTS.GAME_INVITE ||
-      type === WS_EVENTS.SOCIAL_NOTIFY;
+      type === WS_EVENTS.SOCIAL_NOTIFY ||
+      type === WS_EVENTS.ONLINE_LIST;
     const seatsLike = Array.isArray(data.players) && data.players[0] && typeof data.players[0] === "object";
     if (!skipMerge && (data.roomCode || seatsLike || data.status || data.hostId || data.chat)) {
       const next = { ...snap, ...data };
       if (Array.isArray(data.players) && !seatsLike) delete next.players;
       snap = next;
+    }
+    if (type === WS_EVENTS.ONLINE_LIST) {
+      const list = Array.isArray(data.players) ? (data.players as OnlineCard[]) : [];
+      onlinePlayers = list.filter((p) => p && p.userId && p.userId !== myId());
+      if (view === "room") paint();
+      return;
     }
     if (type === WS_EVENTS.PONG) {
       const t = Number(data.t || 0);
@@ -770,7 +812,13 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     }
     if (view === "table") paintTable();
     else paint();
-  };
+  });
 
+  opts.client.send(WS_EVENTS.ONLINE_LIST_REQ);
+  if (opts.client.status === "online" && bootQueue) {
+    const q = bootQueue;
+    bootQueue = "";
+    joinQueue(q);
+  }
   paint();
 }

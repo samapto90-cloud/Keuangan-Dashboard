@@ -89,7 +89,7 @@ func TestCasualMatchmakingFour(t *testing.T) {
 	ps := []*Player{testPlayer("u1", "A"), testPlayer("u2", "B"), testPlayer("u3", "C"), testPlayer("u4", "D")}
 	for _, p := range ps {
 		h.Lobby.Connect(p)
-		if msg := h.queueJoin(p, "CASUAL", "ID-JKT", ""); msg != "" {
+		if msg := h.queueJoin(p, "CASUAL", "ID-JKT", "", 2); msg != "" {
 			t.Fatal(msg)
 		}
 	}
@@ -117,7 +117,7 @@ func TestQueueCancel(t *testing.T) {
 	h := &Hub{Lobby: NewUlarLobby(), Matchmaker: NewMatchmaker()}
 	p := testPlayer("u1", "A")
 	h.Lobby.Connect(p)
-	_ = h.queueJoin(p, "CASUAL", "ID-JKT", "")
+	_ = h.queueJoin(p, "CASUAL", "ID-JKT", "", 2)
 	h.Matchmaker.Cancel("u1")
 	if h.Matchmaker.Queued("u1") != "" {
 		t.Fatal("still queued")

@@ -95,10 +95,10 @@ export async function openFriendsModal(opts?: { client?: GameClient | null }): P
     layer.querySelectorAll<HTMLButtonElement>("[data-inv]").forEach((b) =>
       b.addEventListener("click", () => {
         if (!opts?.client) {
-          toast("Buka PLAY ONLINE untuk mengundang.", "warning");
+          toast("Menyambung… buka PLAY ONLINE sebentar lagi jika gagal.", "warning");
           return;
         }
-        opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.inv });
+        opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.inv, maxPlayers: 2 });
         toast("Undangan dikirim", "success");
       }),
     );

@@ -16,9 +16,16 @@ export class GameClient {
   seen = new Set<string>();
   myId = "";
   onStatus: ((s: ConnStatus) => void) | null = null;
+  /** @deprecated prefer addListener */
   onEvent: ((type: string, data: Record<string, unknown>) => void) | null = null;
+  private listeners = new Set<(type: string, data: Record<string, unknown>) => void>();
   private token = "";
   private pingTimer = 0;
+
+  addListener(fn: (type: string, data: Record<string, unknown>) => void): () => void {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
 
   connect(token: string): void {
     this.token = token;
@@ -51,6 +58,17 @@ export class GameClient {
     this.ws.send(JSON.stringify({ type, data }));
   }
 
+  private emit(type: string, data: Record<string, unknown>): void {
+    this.onEvent?.(type, data);
+    this.listeners.forEach((fn) => {
+      try {
+        fn(type, data);
+      } catch {
+        /* ignore listener errors */
+      }
+    });
+  }
+
   private handleRaw(raw: string): void {
     let msg: NetMsg;
     try {
@@ -64,8 +82,9 @@ export class GameClient {
       this.status = "online";
       this.onStatus?.(this.status);
       this.send(WS_EVENTS.JOIN_LOBBY);
+      window.clearInterval(this.pingTimer);
       this.pingTimer = window.setInterval(() => this.send(WS_EVENTS.PING, { t: Date.now() }), 12000);
-      this.onEvent?.(msg.type, data);
+      this.emit(msg.type, data);
       return;
     }
     const seq = Number(data.seq || 0);
@@ -77,7 +96,7 @@ export class GameClient {
     }
     if (seq && seq < this.lastSeq) return;
     if (seq) this.lastSeq = seq;
-    this.onEvent?.(msg.type, data);
+    this.emit(msg.type, data);
   }
 }
 

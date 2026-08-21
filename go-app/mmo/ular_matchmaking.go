@@ -6,13 +6,14 @@ import (
 )
 
 type UlarQueueEntry struct {
-	UserID     string
-	Username   string
-	Mode       string
-	MMR        int
-	Region     string
-	Grade      string
-	EnqueuedAt time.Time
+	UserID        string
+	Username      string
+	Mode          string
+	MMR           int
+	Region        string
+	Grade         string
+	PreferredSize int
+	EnqueuedAt    time.Time
 }
 
 type PendingMatch struct {
@@ -115,7 +116,7 @@ func (m *Matchmaker) MarkReady(userID string, ok bool) *PendingMatch {
 	return nil
 }
 
-func (h *Hub) queueJoin(p *Player, mode, region, grade string) string {
+func (h *Hub) queueJoin(p *Player, mode, region, grade string, preferredSize int) string {
 	if h.Matchmaker == nil || p == nil {
 		return ErrInvalidRequest
 	}
@@ -155,12 +156,19 @@ func (h *Hub) queueJoin(p *Player, mode, region, grade string) string {
 	if region == "" {
 		region = "ID-JKT"
 	}
+	size := preferredSize
+	if size < 2 {
+		size = 2
+	}
+	if size > 4 {
+		size = 4
+	}
 	if h.Social != nil {
 		h.Social.Touch(p.ID, false)
 	}
 	h.Matchmaker.Enqueue(UlarQueueEntry{
 		UserID: p.ID, Username: p.Name, Mode: mode, MMR: mmr, Region: region,
-		Grade: normalizeGrade(grade),
+		Grade: normalizeGrade(grade), PreferredSize: size,
 	})
 	return ""
 }
@@ -206,8 +214,19 @@ func (m *Matchmaker) form(h *Hub, mode string, now time.Time) {
 			continue
 		}
 		wait := int(now.Sub(seed.EnqueuedAt).Seconds())
+		need := seed.PreferredSize
+		if need < 2 {
+			need = 2
+		}
+		if need > 4 {
+			need = 4
+		}
+		// Setelah 15 detik tunggu, longgarkan ke 2 pemain agar online tidak macet.
+		if wait >= 15 && need > 2 {
+			need = 2
+		}
 		g := []UlarQueueEntry{seed}
-		for j := i + 1; j < len(list) && len(g) < 4; j++ {
+		for j := i + 1; j < len(list) && len(g) < need; j++ {
 			o := list[j]
 			if used[o.UserID] {
 				continue
@@ -226,11 +245,20 @@ func (m *Matchmaker) form(h *Hub, mode string, now time.Time) {
 			if normalizeGrade(o.Grade) != normalizeGrade(seed.Grade) {
 				continue
 			}
+			// Hormati preferred size lawan: jangan masukkan ke grup lebih besar dari yang mereka mau,
+			// kecuali mereka juga sudah menunggu lama.
+			oNeed := o.PreferredSize
+			if oNeed < 2 {
+				oNeed = 2
+			}
+			oWait := int(now.Sub(o.EnqueuedAt).Seconds())
+			if oWait >= 15 && oNeed > 2 {
+				oNeed = 2
+			}
+			if len(g)+1 > oNeed && oNeed < need {
+				continue
+			}
 			g = append(g, o)
-		}
-		need := 4
-		if wait >= 20 {
-			need = 2
 		}
 		if len(g) >= need {
 			groups = append(groups, g)
@@ -355,17 +383,26 @@ func (h *Hub) resolvePending(p *PendingMatch) {
 	}
 	if h.Lobby != nil {
 		h.Lobby.mu.Lock()
-		if room := h.Lobby.rooms[p.RoomID]; room != nil && room.Match == nil {
-			h.Lobby.closeLocked(room)
-		}
-		h.Lobby.mu.Unlock()
-	}
-	for _, id := range readyIDs {
-		if h.Lobby != nil {
-			if pl := h.Lobby.online[id]; pl != nil {
-				h.Matchmaker.Enqueue(UlarQueueEntry{UserID: id, Username: pl.Name, Mode: p.Mode})
+		grade := ""
+		if room := h.Lobby.rooms[p.RoomID]; room != nil {
+			grade = room.Grade
+			if room.Match == nil {
+				h.Lobby.closeLocked(room)
 			}
 		}
+		h.Lobby.mu.Unlock()
+		for _, id := range readyIDs {
+			if pl := h.Lobby.online[id]; pl != nil {
+				h.Matchmaker.Enqueue(UlarQueueEntry{
+					UserID: id, Username: pl.Name, Mode: p.Mode,
+					Grade: normalizeGrade(grade), PreferredSize: 2,
+				})
+			}
+		}
+		return
+	}
+	for _, id := range readyIDs {
+		h.Matchmaker.Enqueue(UlarQueueEntry{UserID: id, Mode: p.Mode, PreferredSize: 2})
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"log"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -439,6 +440,9 @@ func (h *Hub) lobbyJoin(p *Player) {
 		h.Lobby = NewUlarLobby()
 	}
 	room := h.Lobby.Connect(p)
+	if h.Social != nil {
+		h.Social.Touch(p.ID, false)
+	}
 	hello := LobbyHelloOut{
 		Title: GameTitle, Version: GameVersion, Phase: GamePhase,
 		PlayerID: p.ID, Username: p.Name, BoardSize: BOARD_SIZE, MaxPlayers: MAX_PLAYERS,
@@ -458,6 +462,8 @@ func (h *Hub) lobbyJoin(p *Player) {
 		default:
 		}
 	}
+	h.broadcastOnlineList()
+	h.pushOnlineListTo(p)
 }
 
 func (h *Hub) lobbyLeave(p *Player) {
@@ -475,7 +481,77 @@ func (h *Hub) lobbyLeave(p *Player) {
 			h.pushRoom(room, TypePlayerDisc, snap)
 		}
 	}
+	h.broadcastOnlineList()
 	p.CloseSend()
+}
+
+func (h *Hub) onlineLobbyCards(viewerID string) []map[string]any {
+	if h.Lobby == nil {
+		return nil
+	}
+	h.Lobby.mu.Lock()
+	defer h.Lobby.mu.Unlock()
+	out := make([]map[string]any, 0, len(h.Lobby.online))
+	for id, pl := range h.Lobby.online {
+		if pl == nil || id == viewerID {
+			continue
+		}
+		status := PresOnline
+		inGame := false
+		if rid := h.Lobby.inRoom[id]; rid != "" {
+			if rm := h.Lobby.rooms[rid]; rm != nil && (rm.Status == UlarPlaying || rm.Status == UlarStarting) {
+				status = PresInGame
+				inGame = true
+			}
+		}
+		if h.Social != nil {
+			priv := h.Social.Privacy(id)
+			if !priv.ShowOnlineStatus {
+				continue
+			}
+			if h.Social.Blocked(viewerID, id) {
+				continue
+			}
+		}
+		friends := false
+		if h.Social != nil {
+			friends = h.Social.AreFriends(viewerID, id)
+		}
+		out = append(out, map[string]any{
+			"userId": id, "username": pl.Name, "status": status, "inGame": inGame, "friends": friends,
+		})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return strings.ToLower(str(out[i]["username"])) < strings.ToLower(str(out[j]["username"]))
+	})
+	return out
+}
+
+func (h *Hub) pushOnlineListTo(p *Player) {
+	if p == nil {
+		return
+	}
+	select {
+	case p.send <- marshal(TypeOnlineList, map[string]any{"players": h.onlineLobbyCards(p.ID)}):
+	default:
+	}
+}
+
+func (h *Hub) broadcastOnlineList() {
+	if h.Lobby == nil {
+		return
+	}
+	h.Lobby.mu.Lock()
+	online := make([]*Player, 0, len(h.Lobby.online))
+	for _, pl := range h.Lobby.online {
+		if pl != nil {
+			online = append(online, pl)
+		}
+	}
+	h.Lobby.mu.Unlock()
+	for _, pl := range online {
+		h.pushOnlineListTo(pl)
+	}
 }
 
 func (h *Hub) emitRoom(p *Player, room *UlarRoom) {
@@ -584,25 +660,31 @@ func (h *Hub) handlePhase1(msg inbound) {
 		h.emitRoom(p, room)
 	case TypeQueueJoin:
 		var in struct {
-			Mode   string `json:"mode"`
-			Region string `json:"region"`
-			Grade  string `json:"grade"`
-			Rank   string `json:"rank"`
-			RR     int    `json:"rr"`
-			MMR    int    `json:"mmr"`
-			UserID string `json:"userId"`
+			Mode          string `json:"mode"`
+			Region        string `json:"region"`
+			Grade         string `json:"grade"`
+			Rank          string `json:"rank"`
+			RR            int    `json:"rr"`
+			MMR           int    `json:"mmr"`
+			UserID        string `json:"userId"`
+			PreferredSize int    `json:"preferredSize"`
+			MaxPlayers    int    `json:"maxPlayers"`
 		}
 		_ = json.Unmarshal(msg.env.Data, &in)
 		mode := strings.ToUpper(strings.TrimSpace(in.Mode))
 		if mode != "RANKED" {
 			mode = "CASUAL"
 		}
-		if qerr := h.queueJoin(p, mode, in.Region, in.Grade); qerr != "" {
+		size := in.PreferredSize
+		if size == 0 {
+			size = in.MaxPlayers
+		}
+		if qerr := h.queueJoin(p, mode, in.Region, in.Grade, size); qerr != "" {
 			h.rejectCode(p, msg.env.Type, qerr, qerr)
 			return
 		}
 		select {
-		case p.send <- marshal(TypeQueueUpdate, map[string]any{"mode": mode, "searching": true}):
+		case p.send <- marshal(TypeQueueUpdate, map[string]any{"mode": mode, "searching": true, "preferredSize": size}):
 		default:
 		}
 	case TypeQueueLeave:
@@ -621,7 +703,8 @@ func (h *Hub) handlePhase1(msg inbound) {
 		h.matchReady(p, in.Ready)
 	case TypeGameInviteEv:
 		var in struct {
-			UserID string `json:"userId"`
+			UserID     string `json:"userId"`
+			MaxPlayers int    `json:"maxPlayers"`
 		}
 		_ = json.Unmarshal(msg.env.Data, &in)
 		h.Lobby.mu.Lock()
@@ -640,13 +723,21 @@ func (h *Hub) handlePhase1(msg inbound) {
 			return
 		}
 		if room == nil {
-			created, errc := h.Lobby.CreateSized(p, MAX_PLAYERS)
+			max := in.MaxPlayers
+			if max < 2 {
+				max = 2
+			}
+			if max > MAX_PLAYERS {
+				max = MAX_PLAYERS
+			}
+			created, errc := h.Lobby.CreateSized(p, max)
 			if errc != "" {
 				h.rejectCode(p, msg.env.Type, errc, friendlyUlar(errc))
 				return
 			}
 			room = created
 			code, rid = room.RoomCode, room.ID
+			h.emitRoom(p, room)
 		}
 		if h.Social != nil {
 			st := h.Social.Status(in.UserID, p.ID)
@@ -664,6 +755,8 @@ func (h *Hub) handlePhase1(msg inbound) {
 			})
 		}
 		h.emitRoom(p, room)
+	case TypeOnlineListReq:
+		h.pushOnlineListTo(p)
 	case TypeInviteRespond:
 		var in struct {
 			InviteID string `json:"inviteId"`

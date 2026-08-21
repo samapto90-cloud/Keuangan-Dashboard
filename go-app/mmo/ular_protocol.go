@@ -34,6 +34,8 @@ const (
 	TypeGameInviteEv  = "GAME_INVITE"
 	TypeInviteRespond = "INVITE_RESPOND"
 	TypeSocialPush    = "SOCIAL_NOTIFY"
+	TypeOnlineList    = "ONLINE_LIST"
+	TypeOnlineListReq = "ONLINE_LIST_REQ"
 )
 
 type LobbyHelloOut struct {

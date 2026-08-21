@@ -164,7 +164,7 @@ func TestAdminPlayerBanBlocksLoginAndMatch(t *testing.T) {
 		t.Fatal("banned player still logged in")
 	}
 	p := testPlayer(sess.PlayerID, "BanTarget")
-	if msg := DefaultHub.queueJoin(p, "CASUAL", "", ""); msg == "" {
+	if msg := DefaultHub.queueJoin(p, "CASUAL", "", "", 2); msg == "" {
 		t.Fatal("banned joined matchmaking")
 	}
 	if _, msg := DefaultHub.Lobby.Create(p); msg == "" {
@@ -287,7 +287,7 @@ func TestAdminFeatureFlagRanked(t *testing.T) {
 		t.Fatal("ranked still on")
 	}
 	p := testPlayer("flag-u", "Andi")
-	if msg := DefaultHub.queueJoin(p, "RANKED", "", ""); msg == "" {
+	if msg := DefaultHub.queueJoin(p, "RANKED", "", "", 2); msg == "" {
 		t.Fatal("ranked started while disabled")
 	}
 }
