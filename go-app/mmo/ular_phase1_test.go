@@ -3,10 +3,10 @@ package mmo
 import "testing"
 
 func TestPhase1BoardConstants(t *testing.T) {
-	if BOARD_SIZE != 100 || OFFBOARD_START != 0 || MIN_POSITION != 1 || MAX_POSITION != 100 || MAX_PLAYERS != 4 {
+	if BOARD_SIZE != 100 || OFFBOARD_START != 0 || MIN_POSITION != 1 || MAX_POSITION != 100 || MAX_PLAYERS != 8 {
 		t.Fatal("board constants")
 	}
-	if DefaultSnakes[97] != 78 || DefaultLadders[4] != 25 {
+	if DefaultSnakes[97] != 75 || DefaultSnakes[35] != 12 || len(DefaultLadders) != 0 {
 		t.Fatal("snake/ladder config")
 	}
 	if AdventureGameplayEnabled {
@@ -19,7 +19,7 @@ func TestPhase1RoomFoundation(t *testing.T) {
 	host := &Player{ID: "u1", Name: "Host", send: make(chan []byte, 4)}
 	guest := &Player{ID: "u2", Name: "Guest", send: make(chan []byte, 4)}
 	room, errc := lobby.Create(host)
-	if errc != "" || room == nil || room.MaxPlayers != 4 || room.Status != UlarWaiting {
+	if errc != "" || room == nil || room.MaxPlayers != 8 || room.Status != UlarWaiting {
 		t.Fatal("create")
 	}
 	if room.Players[0].Position != OFFBOARD_START {

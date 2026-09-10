@@ -93,9 +93,15 @@ func (l *UlarLobby) Disconnect(p *Player) {
 		return
 	}
 	l.mu.Lock()
+	// Socket lama setelah refresh: jangan hapus sesi baru.
+	if cur, ok := l.online[p.ID]; ok && cur != p {
+		l.mu.Unlock()
+		return
+	}
 	delete(l.online, p.ID)
 	rid := l.inRoom[p.ID]
 	room := l.rooms[rid]
+	grace := DisconnectGrace
 	if room != nil {
 		pl := l.player(room, p.ID)
 		if pl != nil {
@@ -103,24 +109,42 @@ func (l *UlarLobby) Disconnect(p *Player) {
 			pl.ConnState = "DISCONNECTED"
 			pl.DisconnectedAt = time.Now()
 			log.Printf("PLAYER_DISCONNECTED %s room=%s", p.ID, room.RoomCode)
-			if room.HostID == p.ID {
-				room.HostID = l.pickHostLocked(room)
+			// Jangan ganti host di sini — blip reconnect sering membuat MULAI gagal (NOT_HOST).
+			waiting := room.Status == UlarWaiting || room.Status == UlarReady || room.Status == UlarFinished
+			if waiting {
+				grace = LobbyDisconnectGrace
 			}
 		}
 	}
 	l.mu.Unlock()
-	go func(id string) {
-		time.Sleep(time.Duration(DisconnectGrace) * time.Second)
+	go func(id string, waitSec int) {
+		time.Sleep(time.Duration(waitSec) * time.Second)
 		l.expireDisconnect(id)
-	}(p.ID)
+	}(p.ID, grace)
 }
 
 func (l *UlarLobby) expireDisconnect(userID string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if cur := l.online[userID]; cur != nil {
+		return
+	}
 	rid := l.inRoom[userID]
 	room := l.rooms[rid]
 	if room == nil {
+		// Soft-leave mungkin sudah hapus inRoom tetapi kursi masih ada.
+		for _, r := range l.rooms {
+			if r == nil {
+				continue
+			}
+			if pl := l.player(r, userID); pl != nil && !pl.IsConnected {
+				l.removePlayerSeatLocked(r, userID)
+				if l.connectedCount(r) == 0 {
+					l.closeLocked(r)
+				}
+				return
+			}
+		}
 		return
 	}
 	pl := l.player(room, userID)
@@ -142,11 +166,67 @@ func (l *UlarLobby) expireDisconnect(userID string) {
 				}
 			}(userID, mid, cb)
 		}
+		l.leaveLocked(userID, rid)
+		if room.Status != UlarClosed && l.connectedCount(room) == 0 {
+			l.closeLocked(room)
+		}
 		return
 	}
 	l.leaveLocked(userID, rid)
-	if l.connectedCount(room) == 0 || len(room.Players) == 0 {
+	if room.Status != UlarClosed && (l.connectedCount(room) == 0 || len(room.Players) == 0) {
 		l.closeLocked(room)
+	}
+}
+
+// freeGhostSeatsLocked membuang pemain offline dari kapasitas room (lobby / soft-leave).
+func (l *UlarLobby) freeGhostSeatsLocked(room *UlarRoom) {
+	if room == nil {
+		return
+	}
+	waiting := room.Status == UlarWaiting || room.Status == UlarReady || room.Status == UlarFinished
+	kept := room.Players[:0]
+	for _, pl := range room.Players {
+		if pl == nil {
+			continue
+		}
+		if pl.IsConnected {
+			kept = append(kept, pl)
+			continue
+		}
+		if waiting {
+			delete(l.inRoom, pl.UserID)
+			continue
+		}
+		// Playing: buang yang sudah soft-leave (tidak ada inRoom) atau lewat grace.
+		if _, mapped := l.inRoom[pl.UserID]; !mapped {
+			continue
+		}
+		if !pl.DisconnectedAt.IsZero() && time.Since(pl.DisconnectedAt) >= time.Duration(DisconnectGrace)*time.Second {
+			delete(l.inRoom, pl.UserID)
+			continue
+		}
+		kept = append(kept, pl)
+	}
+	room.Players = kept
+	if room.HostID != "" && l.player(room, room.HostID) == nil {
+		room.HostID = l.pickHostLocked(room)
+	}
+}
+
+func (l *UlarLobby) removePlayerSeatLocked(room *UlarRoom, playerID string) {
+	if room == nil {
+		return
+	}
+	kept := room.Players[:0]
+	for _, pl := range room.Players {
+		if pl != nil && pl.UserID != playerID {
+			kept = append(kept, pl)
+		}
+	}
+	room.Players = kept
+	delete(l.inRoom, playerID)
+	if room.HostID == playerID {
+		room.HostID = l.pickHostLocked(room)
 	}
 }
 
@@ -185,10 +265,10 @@ func (l *UlarLobby) pickHostLocked(room *UlarRoom) string {
 }
 
 func (l *UlarLobby) Create(host *Player) (*UlarRoom, string) {
-	return l.CreateSized(host, MAX_PLAYERS)
+	return l.CreateSized(host, MAX_PLAYERS, "")
 }
 
-func (l *UlarLobby) CreateSized(host *Player, maxPlayers int) (*UlarRoom, string) {
+func (l *UlarLobby) CreateSized(host *Player, maxPlayers int, grade string) (*UlarRoom, string) {
 	if host == nil {
 		return nil, ErrInvalidRequest
 	}
@@ -201,14 +281,33 @@ func (l *UlarLobby) CreateSized(host *Player, maxPlayers int) (*UlarRoom, string
 	if maxPlayers > MAX_PLAYERS {
 		maxPlayers = MAX_PLAYERS
 	}
+	wantGrade := normalizeGrade(grade)
 	l.mu.Lock()
 	if rid, ok := l.inRoom[host.ID]; ok {
 		if r := l.rooms[rid]; r != nil {
-			if r.HostID == host.ID && r.Status == UlarWaiting && r.Visibility != "MATCHMADE" && len(r.Players) <= maxPlayers {
+			// Room selesai / tertutup — lepaskan supaya bisa buat baru.
+			if r.Status == UlarFinished || r.Status == UlarClosed {
+				l.leaveLocked(host.ID, rid)
+			} else if r.HostID == host.ID && r.Status == UlarWaiting && r.Visibility != "MATCHMADE" && len(r.Players) <= maxPlayers {
 				r.MaxPlayers = maxPlayers
+				if grade != "" || r.Grade == "" {
+					r.Grade = wantGrade
+				}
+				l.mu.Unlock()
+				return r, ""
+			} else if r.Status == UlarWaiting || r.Status == UlarReady {
+				if grade != "" && r.HostID == host.ID {
+					r.Grade = wantGrade
+				}
+				l.mu.Unlock()
+				return r, ""
+			} else {
+				// Playing/starting — jangan buat room baru; kembalikan yang aktif.
+				l.mu.Unlock()
+				return r, ""
 			}
-			l.mu.Unlock()
-			return r, ""
+		} else {
+			delete(l.inRoom, host.ID)
 		}
 	}
 	l.mu.Unlock()
@@ -219,8 +318,12 @@ func (l *UlarLobby) CreateSized(host *Player, maxPlayers int) (*UlarRoom, string
 	defer l.mu.Unlock()
 	if rid, ok := l.inRoom[host.ID]; ok {
 		if r := l.rooms[rid]; r != nil {
+			if grade != "" && r.HostID == host.ID && (r.Status == UlarWaiting || r.Status == UlarReady) {
+				r.Grade = wantGrade
+			}
 			return r, ""
 		}
+		delete(l.inRoom, host.ID)
 	}
 	id := "rm-" + shortID()
 	code := roomCode()
@@ -230,13 +333,14 @@ func (l *UlarLobby) CreateSized(host *Player, maxPlayers int) (*UlarRoom, string
 	room := &UlarRoom{
 		ID: id, RoomCode: code, HostID: host.ID, Status: UlarWaiting,
 		MaxPlayers: maxPlayers, CreatedAt: time.Now().UTC(), Visibility: "PRIVATE",
+		Grade:     wantGrade,
 		Players:   []*UlarPlayer{NewUlarPlayer(host.ID, host.Name, 0)},
 		SeenEvent: map[string]bool{},
 	}
 	l.rooms[id] = room
 	l.byCode[code] = id
 	l.inRoom[host.ID] = id
-	log.Printf("ROOM_CREATED %s host=%s", code, host.ID)
+	log.Printf("ROOM_CREATED %s host=%s grade=%s", code, host.ID, wantGrade)
 	return room, ""
 }
 
@@ -324,10 +428,15 @@ func (l *UlarLobby) Join(p *Player, code string) (*UlarRoom, string) {
 	if room == nil || room.Status == UlarClosed {
 		return nil, ErrNotInRoom
 	}
+	l.freeGhostSeatsLocked(room)
+	if room.Status == UlarClosed {
+		return nil, ErrNotInRoom
+	}
 	if room.Status == UlarPlaying || room.Status == UlarStarting || room.Status == UlarFinished {
 		if existing := l.player(room, p.ID); existing != nil {
 			existing.IsConnected = true
 			existing.ConnState = "CONNECTED"
+			existing.DisconnectedAt = time.Time{}
 			l.inRoom[p.ID] = room.ID
 			return room, ""
 		}
@@ -346,11 +455,19 @@ func (l *UlarLobby) Join(p *Player, code string) (*UlarRoom, string) {
 		return nil, ErrGameNotStarted
 	}
 	if existing := l.inRoom[p.ID]; existing != "" && existing != room.ID {
-		return nil, ErrInvalidRequest
+		old := l.rooms[existing]
+		if old != nil && (old.Status == UlarWaiting || old.Status == UlarReady || old.Status == UlarFinished) {
+			l.leaveLocked(p.ID, existing)
+		} else if old != nil {
+			return nil, ErrInvalidRequest
+		} else {
+			delete(l.inRoom, p.ID)
+		}
 	}
 	if pl := l.player(room, p.ID); pl != nil {
 		pl.IsConnected = true
 		pl.ConnState = "CONNECTED"
+		pl.DisconnectedAt = time.Time{}
 		pl.Username = p.Name
 		l.inRoom[p.ID] = room.ID
 		return room, ""
@@ -370,7 +487,7 @@ func (l *UlarLobby) Leave(playerID string) *UlarRoom {
 	defer l.mu.Unlock()
 	rid := l.inRoom[playerID]
 	room := l.leaveLocked(playerID, rid)
-	if room != nil && l.connectedCount(room) == 0 && room.Status != UlarPlaying {
+	if room != nil && room.Status != UlarClosed && l.connectedCount(room) == 0 {
 		l.closeLocked(room)
 		return nil
 	}
@@ -383,17 +500,25 @@ func (l *UlarLobby) leaveLocked(playerID, rid string) *UlarRoom {
 		delete(l.inRoom, playerID)
 		return nil
 	}
-	if room.Status == UlarPlaying {
-		if pl := l.player(room, playerID); pl != nil {
-			pl.IsConnected = false
-			pl.ConnState = "DISCONNECTED"
+	playing := room.Status == UlarPlaying || room.Status == UlarStarting
+	if playing {
+		if pl := l.player(room, playerID); pl != nil && !pl.Abandoned && room.Mode == "RANKED" {
+			pl.Abandoned = true
+			mid := ""
+			if room.Match != nil {
+				mid = room.Match.ID
+			}
+			cb := l.OnAbandon
+			go func(uid, matchID string, fn func(string, string)) {
+				if fn != nil {
+					fn(uid, matchID)
+				}
+			}(playerID, mid, cb)
 		}
-		delete(l.inRoom, playerID)
-		return room
 	}
 	kept := room.Players[:0]
 	for _, pl := range room.Players {
-		if pl.UserID != playerID {
+		if pl != nil && pl.UserID != playerID {
 			kept = append(kept, pl)
 		}
 	}
@@ -635,14 +760,11 @@ func (h *Hub) handlePhase1(msg inbound) {
 		if max == 0 {
 			max = MAX_PLAYERS
 		}
-		room, errc := h.Lobby.CreateSized(p, max)
+		room, errc := h.Lobby.CreateSized(p, max, cin.Grade)
 		if errc != "" {
 			h.rejectCode(p, msg.env.Type, errc, friendlyUlar(errc))
 			return
 		}
-		h.Lobby.mu.Lock()
-		room.Grade = normalizeGrade(cin.Grade)
-		h.Lobby.mu.Unlock()
 		h.emitRoom(p, room)
 	case TypeRoomJoin:
 		var in RoomCodeIn
@@ -736,6 +858,7 @@ func (h *Hub) handlePhase1(msg inbound) {
 		var in struct {
 			UserID     string `json:"userId"`
 			MaxPlayers int    `json:"maxPlayers"`
+			Grade      string `json:"grade"`
 		}
 		_ = json.Unmarshal(msg.env.Data, &in)
 		h.Lobby.mu.Lock()
@@ -765,7 +888,7 @@ func (h *Hub) handlePhase1(msg inbound) {
 			if max > MAX_PLAYERS {
 				max = MAX_PLAYERS
 			}
-			created, errc := h.Lobby.CreateSized(p, max)
+			created, errc := h.Lobby.CreateSized(p, max, in.Grade)
 			if errc != "" {
 				h.rejectCode(p, msg.env.Type, errc, friendlyUlar(errc))
 				return
@@ -773,6 +896,12 @@ func (h *Hub) handlePhase1(msg inbound) {
 			room = created
 			code, rid = room.RoomCode, room.ID
 			h.emitRoom(p, room)
+		} else if in.Grade != "" {
+			h.Lobby.mu.Lock()
+			if room.HostID == p.ID && (room.Status == UlarWaiting || room.Status == UlarReady) {
+				room.Grade = normalizeGrade(in.Grade)
+			}
+			h.Lobby.mu.Unlock()
 		}
 		if h.Social == nil {
 			h.rejectCode(p, msg.env.Type, "social", "Sistem undangan tidak siap.")
@@ -793,9 +922,10 @@ func (h *Hub) handlePhase1(msg inbound) {
 	case TypeJoinAsk:
 		var in struct {
 			UserID string `json:"userId"`
+			Grade  string `json:"grade"`
 		}
 		_ = json.Unmarshal(msg.env.Data, &in)
-		h.handleJoinAsk(p, in.UserID)
+		h.handleJoinAsk(p, in.UserID, in.Grade)
 	case TypeJoinAskRespond:
 		var in struct {
 			AskID  string `json:"askId"`
@@ -859,6 +989,16 @@ func (h *Hub) handlePhase1(msg inbound) {
 			return
 		}
 		h.emitRoom(p, room)
+		// Semua ready → langsung mulai (tanpa menunggu tombol MULAI yang sering gagal).
+		if room != nil && room.Status == UlarReady {
+			host := room.HostID
+			if host == "" {
+				host = p.ID
+			}
+			if errStart := h.startMatch(host); errStart != "" {
+				log.Printf("AUTO_START_FAIL room=%s err=%s", room.RoomCode, errStart)
+			}
+		}
 	case TypeRoomStart:
 		if errc := h.startMatch(p.ID); errc != "" {
 			h.rejectCode(p, msg.env.Type, errc, friendlyUlar(errc))
@@ -961,7 +1101,7 @@ func (h *Hub) handleChat(p *Player, env Envelope) {
 	h.pushRoom(room, TypeRoomChat, payload)
 }
 
-func (h *Hub) handleJoinAsk(p *Player, targetID string) {
+func (h *Hub) handleJoinAsk(p *Player, targetID, grade string) {
 	if p == nil || targetID == "" || targetID == p.ID {
 		h.rejectCode(p, TypeJoinAsk, "invalid", "Pemain tidak valid.")
 		return
@@ -978,7 +1118,7 @@ func (h *Hub) handleJoinAsk(p *Player, targetID string) {
 	if room == nil {
 		h.Lobby.mu.Unlock()
 		// Target di lobby — undang ke room baru milik peminta.
-		created, errc := h.Lobby.CreateSized(p, 4)
+		created, errc := h.Lobby.CreateSized(p, 4, grade)
 		if errc != "" {
 			h.rejectCode(p, TypeJoinAsk, errc, friendlyUlar(errc))
 			return
@@ -997,6 +1137,9 @@ func (h *Hub) handleJoinAsk(p *Player, targetID string) {
 			"expiresAt": inv.ExpiresAt, "maxPlayers": created.MaxPlayers,
 		})
 		return
+	}
+	if len(room.Players) >= room.MaxPlayers {
+		h.Lobby.freeGhostSeatsLocked(room)
 	}
 	if len(room.Players) >= room.MaxPlayers {
 		h.Lobby.mu.Unlock()
@@ -1120,15 +1263,15 @@ func friendlyUlar(code string) string {
 	case ErrRoomFull:
 		return "Ruangan penuh."
 	case ErrNotReady:
-		return "Semua pemain harus siap."
+		return "Semua pemain online harus READY."
 	case ErrAlreadyRolled:
 		return "Dadunya sedang berjalan."
 	case ErrNotInRoom:
 		return "Kamu belum di ruangan."
 	case ErrNeedPlayers:
-		return "Minimal 2 pemain."
+		return "Minimal 2 pemain online."
 	case ErrNotHost:
-		return "Hanya host yang dapat memulai."
+		return "Hanya host yang dapat memulai. Jika host putus, tunggu reconnect atau buat room baru."
 	case ErrRateLimited:
 		return "Terlalu banyak percobaan. Tunggu sebentar."
 	case ErrLocked:

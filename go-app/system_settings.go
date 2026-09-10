@@ -50,6 +50,7 @@ type SystemSettings struct {
 	SettingsPortalUsername string                           `json:"settings_portal_username"`
 	SettingsPortalPassword string                           `json:"settings_portal_password"`
 	SettingsPortalName     string                           `json:"settings_portal_name"`
+	TahunAnggaran          int                              `json:"tahun_anggaran"`
 	Portals                map[string]PortalAuthConfig      `json:"portals"`
 	OperatorPerms          map[string]OperatorPermissionSet `json:"operator_perms"`
 	PortalStatus           map[string]PortalStatusConfig    `json:"portal_status"`
@@ -135,6 +136,7 @@ func defaultSystemSettings() SystemSettings {
 		SettingsPortalUsername: "199010132019031001",
 		SettingsPortalPassword: "Hasanah050393",
 		SettingsPortalName:     "Administrator Sistem SIPKEU",
+		TahunAnggaran:          defaultTahunAnggaran(),
 		Portals:                portals,
 		OperatorPerms:          perms,
 		PortalStatus:           status,
@@ -181,6 +183,9 @@ func mergeSystemSettings(s *SystemSettings) {
 	}
 	if strings.TrimSpace(s.SettingsPortalName) == "" {
 		s.SettingsPortalName = def.SettingsPortalName
+	}
+	if s.TahunAnggaran < 2000 || s.TahunAnggaran > 2100 {
+		s.TahunAnggaran = def.TahunAnggaran
 	}
 	if s.Portals == nil {
 		s.Portals = map[string]PortalAuthConfig{}
@@ -452,6 +457,7 @@ func systemSettingsPublicResponse() map[string]interface{} {
 		"settings_portal_username": sys.SettingsPortalUsername,
 		"settings_portal_password": passwordMask,
 		"settings_portal_name":     sys.SettingsPortalName,
+		"tahun_anggaran":           getTahunAnggaran(),
 		"portals":                  portals,
 		"operator_perms":           sys.OperatorPerms,
 		"portal_status":            sys.PortalStatus,

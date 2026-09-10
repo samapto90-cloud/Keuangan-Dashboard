@@ -1,4 +1,5 @@
 import { GAME_TITLE, GAME_VERSION, RELEASE_NAME } from "../game/board/constants";
+import { PLAYER_CHARACTERS } from "../assets/registry";
 import { BOARD_SIZE, MAX_PLAYERS } from "../game/board/config";
 import { SNAKES } from "../game/snakes";
 import { LADDERS } from "../game/ladders";
@@ -53,10 +54,8 @@ export function mountApp(root: HTMLElement): void {
       return "SMA";
     }
   })();
-  let gradeChosen = true; // sudah ada default / pilihan beranda — jangan tanya ulang
   const setEduGrade = (g: "SD" | "SMA"): void => {
     eduGrade = g;
-    gradeChosen = true;
     try {
       localStorage.setItem("ular-edu-grade", g);
     } catch {
@@ -70,7 +69,7 @@ export function mountApp(root: HTMLElement): void {
 
   const ensurePresence = (token: string): GameClient => {
     if (!net) net = new GameClient();
-    if (net.status === "offline") net.connect(token);
+    if (net.status !== "online") net.connect(token);
     if (!unsubGlobal) {
       unsubGlobal = net.addListener((type, data) => {
         if (type === WS_EVENTS.GAME_INVITE && screen !== "online") {
@@ -152,9 +151,10 @@ export function mountApp(root: HTMLElement): void {
     if (screen === "board") {
       root.innerHTML = "";
       const human = profile?.username || session?.username || "Pemain";
+      const roster = PLAYER_CHARACTERS.map((c) => c.name);
       const names = withNpc
-        ? [human, "Ganjar", "Anies", "Sri Mulyani"].slice(0, playerCount)
-        : [human || "Prabowo", "Ganjar", "Anies", "Sri Mulyani"].slice(0, playerCount);
+        ? [human, ...roster.slice(1)].slice(0, playerCount)
+        : [human || roster[0]!, ...roster.slice(1)].slice(0, playerCount);
       const vsNpc = withNpc;
       withNpc = false;
       mountBoard(root, { names, withNpc: vsNpc, grade: eduGrade, onExit: () => setScreen("home") });
@@ -200,16 +200,14 @@ export function mountApp(root: HTMLElement): void {
         <button type="button" class="nt-btn nt-btn-ghost" data-go="board">MAIN PAPAN (lokal)</button>
         <button type="button" class="nt-btn nt-btn-primary" data-go="board-npc">🤖 MAIN VS NPC</button>
       </div>
-      <p class="nt-hint">Online: lihat siapa yang online, ajak main, atau cari lawan otomatis (2–4 pemain). Lokal: lawan NPC.</p>
+      <p class="nt-hint">Online: lihat siapa yang online, ajak main, atau cari lawan otomatis (2–${MAX_PLAYERS} pemain). Lokal: lawan NPC.</p>
       <div class="nt-actions nt-row">
         <button type="button" class="nt-btn ${eduGrade === "SD" ? "nt-btn-primary" : ""}" data-go="grade-sd">Soal SD</button>
         <button type="button" class="nt-btn ${eduGrade === "SMA" ? "nt-btn-primary" : ""}" data-go="grade-sma">Soal SMA</button>
       </div>
       <p class="nt-hint">Bank soal aktif: <strong>${eduGrade}</strong> (pilih sebelum main).</p>
-      <div class="nt-actions nt-row">
-        <button type="button" class="nt-btn ${playerCount === 2 ? "nt-btn-primary" : ""}" data-go="p2">2 pemain</button>
-        <button type="button" class="nt-btn ${playerCount === 3 ? "nt-btn-primary" : ""}" data-go="p3">3 pemain</button>
-        <button type="button" class="nt-btn ${playerCount === 4 ? "nt-btn-primary" : ""}" data-go="p4">4 pemain</button>
+      <div class="nt-actions nt-row" style="flex-wrap:wrap;gap:6px">
+        ${[2, 3, 4, 5, 6, 7, 8].map((n) => `<button type="button" class="nt-btn ${playerCount === n ? "nt-btn-primary" : ""}" data-go="p${n}">${n} pemain</button>`).join("")}
       </div>
     </section>`;
 
@@ -276,23 +274,19 @@ export function mountApp(root: HTMLElement): void {
         }
         else if (go === "grade-sd") {
           setEduGrade("SD");
+          toast("Bank soal: SD", "success");
           render();
         } else if (go === "grade-sma") {
           setEduGrade("SMA");
+          toast("Bank soal: SMA", "success");
           render();
         }
         else if (go === "how") openHowToPlayModal();
         else if (go === "feedback") openFeedbackModal({ page: "home" });
         else if (go === "settings") openSettings();
         else if (go === "profile") openProfile();
-        else if (go === "p2") {
-          playerCount = 2;
-          render();
-        } else if (go === "p3") {
-          playerCount = 3;
-          render();
-        } else if (go === "p4") {
-          playerCount = 4;
+        else if (/^p[2-8]$/.test(go || "")) {
+          playerCount = Number((go || "").slice(1)) || 2;
           render();
         }
         else if (go === "login") setScreen("login");
@@ -327,21 +321,17 @@ export function mountApp(root: HTMLElement): void {
     });
   };
 
-  /** Pakai pilihan beranda; modal hanya sekali jika belum pernah dipilih. */
+  /** Konfirmasi tingkat soal sebelum main agar SD/SMA tidak tertukar. */
   const startWithGrade = (next: () => void): void => {
-    if (gradeChosen) {
-      next();
-      return;
-    }
     showModal(
       "grade-pick",
       `<h2>Pilih tingkat soal</h2>
-      <p class="nt-lead">Bank soal dari kumpulan SD & SMA. Pilih sebelum permainan dimulai.</p>
+      <p class="nt-lead">Bank soal SD & SMA. Pilihan ini mengunci soal selama permainan.</p>
       <div class="nt-actions">
         <button type="button" class="nt-btn ${eduGrade === "SD" ? "nt-btn-primary" : ""}" data-grade="SD">📚 Soal SD</button>
         <button type="button" class="nt-btn ${eduGrade === "SMA" ? "nt-btn-primary" : ""}" data-grade="SMA">🎓 Soal SMA</button>
       </div>
-      <button type="button" class="nt-btn nt-btn-primary" data-grade-go>Lanjut</button>`,
+      <button type="button" class="nt-btn nt-btn-primary" data-grade-go>Lanjut main</button>`,
     );
     const layer = document.querySelector("[data-modal=grade-pick]");
     layer?.querySelectorAll<HTMLButtonElement>("[data-grade]").forEach((btn) => {
@@ -355,7 +345,7 @@ export function mountApp(root: HTMLElement): void {
     });
     layer?.querySelector("[data-grade-go]")?.addEventListener("click", () => {
       setEduGrade(eduGrade);
-      closeModal();
+      closeModal("grade-pick");
       next();
     });
   };
@@ -504,7 +494,7 @@ export function mountApp(root: HTMLElement): void {
     startQueue = queue;
     const client = ensurePresence(token);
     setScreen("online");
-    if (client.status === "offline") client.connect(token);
+    if (client.status !== "online") client.connect(token);
   };
 
   const doLogin = async (username: string, password: string): Promise<void> => {

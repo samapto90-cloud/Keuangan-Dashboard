@@ -16,7 +16,7 @@ func TestHandleUlarBoardAndResolve(t *testing.T) {
 		t.Fatalf("board %d %s", rec.Code, rec.Body.String())
 	}
 	var cfg BoardConfig
-	if json.Unmarshal(rec.Body.Bytes(), &cfg) != nil || cfg.Snakes[88] != 48 || cfg.Ladders[28] != 55 {
+	if json.Unmarshal(rec.Body.Bytes(), &cfg) != nil || cfg.Snakes[97] != 75 || len(cfg.Ladders) != 0 {
 		t.Fatalf("cfg %+v", cfg)
 	}
 	body, _ := json.Marshal(map[string]any{"position": 1, "player": "Budi"})

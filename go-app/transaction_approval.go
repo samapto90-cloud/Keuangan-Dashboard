@@ -87,23 +87,23 @@ func fillPejabatSnapshotFromModule(mod *SipkeuModule, t *Transaction) {
 	fillPejabatSnapshot(pa, bend, t)
 }
 
-// preserveTransactionPejabat: pejabat di transaksi adalah snapshot saat dibuat.
-// Edit transaksi tidak boleh menimpa pejabat yang sudah tersimpan.
-func preserveTransactionPejabat(existing, updated *Transaction) {
-	if updated == nil || existing == nil {
+// stampCurrentPejabatOnEdit: saat transaksi diedit & disimpan, PA/Bendahara
+// mengikuti pejabat aktif di pengaturan portal (bukan snapshot lama).
+func stampCurrentPejabatOnEdit(mod *SipkeuModule, t *Transaction) {
+	if mod == nil || t == nil {
 		return
 	}
-	if strings.TrimSpace(existing.PenggunaAnggaran) != "" {
-		updated.PenggunaAnggaran = existing.PenggunaAnggaran
+	mod.mu.Lock()
+	pa := mod.settings.PA
+	bend := mod.settings.Bendahara
+	mod.mu.Unlock()
+	if strings.TrimSpace(pa.Nama) != "" {
+		t.PenggunaAnggaran = pa.Nama
+		t.PenggunaAnggaranNip = pa.Nip
 	}
-	if strings.TrimSpace(existing.PenggunaAnggaranNip) != "" {
-		updated.PenggunaAnggaranNip = existing.PenggunaAnggaranNip
-	}
-	if strings.TrimSpace(existing.Bendahara) != "" {
-		updated.Bendahara = existing.Bendahara
-	}
-	if strings.TrimSpace(existing.BendaharaNip) != "" {
-		updated.BendaharaNip = existing.BendaharaNip
+	if strings.TrimSpace(bend.Nama) != "" {
+		t.Bendahara = bend.Nama
+		t.BendaharaNip = bend.Nip
 	}
 }
 
@@ -148,7 +148,6 @@ func mergeTransactionUpdate(sess *Session, existing, updated Transaction) (Trans
 	if strings.TrimSpace(updated.SubmittedAt) == "" {
 		updated.SubmittedAt = existing.SubmittedAt
 	}
-	preserveTransactionPejabat(&existing, &updated)
 
 	if sessionIsPortalAdmin(sess) {
 		// Admin simpan langsung disetujui — tidak perlu alur persetujuan.

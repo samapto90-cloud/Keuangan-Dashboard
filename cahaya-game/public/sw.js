@@ -1,5 +1,5 @@
 /* Ular Tangga Nusantara — network-first, bust stale theme CSS. */
-const CACHE = "ular-static-v1.1.6-rumah-tangga";
+const CACHE = "ular-static-v1.2.42-mp-flicker";
 const OFFLINE_URL = "/cahaya/?offline=1";
 
 self.addEventListener("install", (event) => {

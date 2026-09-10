@@ -89,7 +89,7 @@ func TestCasualMatchmakingFour(t *testing.T) {
 	ps := []*Player{testPlayer("u1", "A"), testPlayer("u2", "B"), testPlayer("u3", "C"), testPlayer("u4", "D")}
 	for _, p := range ps {
 		h.Lobby.Connect(p)
-		if msg := h.queueJoin(p, "CASUAL", "ID-JKT", "", 2); msg != "" {
+		if msg := h.queueJoin(p, "CASUAL", "ID-JKT", "", 4); msg != "" {
 			t.Fatal(msg)
 		}
 	}
@@ -165,7 +165,7 @@ func TestKickAndRoomFull(t *testing.T) {
 	h := &Hub{Lobby: NewUlarLobby()}
 	a, b, c, d, e := testPlayer("ua", "A"), testPlayer("ub", "B"), testPlayer("uc", "C"), testPlayer("ud", "D"), testPlayer("ue", "E")
 	h.Lobby.Connect(a)
-	room, _ := h.Lobby.CreateSized(a, 4)
+	room, _ := h.Lobby.CreateSized(a, 4, "")
 	for _, p := range []*Player{b, c, d} {
 		h.Lobby.Connect(p)
 		if _, errc := h.Lobby.Join(p, room.RoomCode); errc != "" {

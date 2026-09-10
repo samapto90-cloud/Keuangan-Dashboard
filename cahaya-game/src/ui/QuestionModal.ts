@@ -79,10 +79,15 @@ export function mountQuestionOverlay(
   const deg = Math.max(0, Math.min(360, (remain / (q.timeLimit || 15)) * 360));
   existing.classList.toggle("is-mobile-full", window.matchMedia("(max-width: 768px)").matches);
   existing.classList.toggle("is-result", Boolean(result));
-  if (result) {
-    const ok = result.result === "CORRECT";
-    const title = ok ? "✓ Jawaban Benar!" : result.timeout ? "Waktu Habis!" : "✕ Belum tepat.";
-    existing.innerHTML = `<div class="q-modal ${ok ? "q-ok" : "q-bad"}">
+  // Hindari rewrite DOM tiap frame — penyebab kedip layar multiplayer.
+  const paintKey = `${q.id}|${mine ? 1 : 0}|${result?.result || ""}|${result?.timeout ? 1 : 0}|${q.username || ""}`;
+  const rebuilt = existing.dataset.paintKey !== paintKey;
+  if (rebuilt) {
+    existing.dataset.paintKey = paintKey;
+    if (result) {
+      const ok = result.result === "CORRECT";
+      const title = ok ? "✓ Jawaban Benar!" : result.timeout ? "Waktu Habis!" : "✕ Belum tepat.";
+      existing.innerHTML = `<div class="q-modal ${ok ? "q-ok" : "q-bad"}">
       <p class="q-kicker">${title}</p>
       ${!ok && result.correctAnswer ? `<p class="q-answer">Jawaban benar: <strong>${esc(result.correctAnswer)}</strong></p>` : ""}
       <p class="q-explain">${esc(result.explanation || "")}</p>
@@ -91,18 +96,18 @@ export function mountQuestionOverlay(
       ${ok && result.powerGrant ? `<p class="q-xp">🎁 Hadiah: ${esc(result.powerGrant === "bomb" ? "💣 Bom" : result.powerGrant === "thunder" ? "⚡ Petir" : "✈️ Pesawat")}</p>` : ""}
       ${result.reward?.xp ? `<p class="q-xp">✨ +${result.reward.xp} XP</p>` : ""}
     </div>`;
-  } else if (!mine) {
-    existing.innerHTML = `<div class="q-modal q-wait">
+    } else if (!mine) {
+      existing.innerHTML = `<div class="q-modal q-wait">
       <p class="q-kicker">🎓 TANTANGAN</p>
       <p class="q-watch">🔴 ${esc(q.username || "Pemain")} sedang menjawab.</p>
       <p class="q-sub">Menunggu hasil…</p>
     </div>`;
-  } else {
-    existing.innerHTML = `<div class="q-modal">
+    } else {
+      existing.innerHTML = `<div class="q-modal">
       <header class="q-head">
         <p class="q-kicker">${q.final ? "🏆 FINAL CHALLENGE" : "🎓 TANTANGAN"}</p>
         <span class="q-badge">${esc(subjectLabel(q.subject))}</span>
-        <span class="q-diff">${esc(q.grade || "SMA")}</span>
+        <span class="q-diff">${esc(q.grade || "—")}</span>
         <span class="q-diff">${esc(q.difficulty)}</span>
         <span class="q-no">No. ${num}</span>
         <div class="q-timer ${crit ? "is-crit" : warn ? "is-warn" : ""}" style="--deg:${deg}deg" aria-label="sisa waktu"><span>⏱ ${remain}</span></div>
@@ -117,15 +122,16 @@ export function mountQuestionOverlay(
           .join("")}
       </div>
     </div>`;
-    existing.querySelectorAll<HTMLButtonElement>("[data-ans]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        existing.querySelectorAll<HTMLButtonElement>("[data-ans]").forEach((b) => {
-          b.disabled = true;
+      existing.querySelectorAll<HTMLButtonElement>("[data-ans]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          existing!.querySelectorAll<HTMLButtonElement>("[data-ans]").forEach((b) => {
+            b.disabled = true;
+          });
+          opts.onAnswer?.(btn.dataset.ans || "");
+          btn.classList.add("is-pick");
         });
-        opts.onAnswer?.(btn.dataset.ans || "");
-        btn.classList.add("is-pick");
       });
-    });
+    }
   }
   return {
     root: existing,

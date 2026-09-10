@@ -26,7 +26,7 @@ func rejectIfPortalHeaderMismatch(w http.ResponseWriter, r *http.Request) bool {
 func withPortalSessionMatch(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if strings.HasPrefix(path, "/data/auth/") || path == "/data/portals/status" {
+		if strings.HasPrefix(path, "/data/auth/") || path == "/data/portals/status" || path == "/data/tahun" || path == "/data/portal-hero" {
 			next.ServeHTTP(w, r)
 			return
 		}

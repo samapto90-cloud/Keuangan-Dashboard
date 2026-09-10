@@ -18,6 +18,13 @@ func (h *Hub) Enqueue(p *Player, env Envelope) {
 	select {
 	case h.in <- inbound{player: p, env: env}:
 	default:
+		go func() {
+			select {
+			case h.in <- inbound{player: p, env: env}:
+			case <-time.After(3 * time.Second):
+				log.Printf("enqueue drop type=%s player=%s", env.Type, p.ID)
+			}
+		}()
 	}
 }
 
@@ -130,6 +137,7 @@ func (h *Hub) Run() {
 				if socialN >= ServerTickRate {
 					socialN = 0
 					h.tickMatchmaking()
+					h.tickUlarQuestions()
 				}
 				continue
 			}
@@ -384,6 +392,13 @@ func (h *Hub) Inbound(p *Player, env Envelope) {
 	select {
 	case h.in <- inbound{player: p, env: env}:
 	default:
+		go func() {
+			select {
+			case h.in <- inbound{player: p, env: env}:
+			case <-time.After(3 * time.Second):
+				log.Printf("inbound drop type=%s player=%s", env.Type, p.ID)
+			}
+		}()
 	}
 }
 

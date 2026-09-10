@@ -23,11 +23,12 @@ const (
 )
 
 const (
-	DisconnectGrace  = 60
-	AnimCompleteWait = 12
-	AFKWarnSeconds   = 45
-	RoomCodeLen      = 6
-	ChatMaxLen       = 200
+	DisconnectGrace      = 60
+	LobbyDisconnectGrace = 25
+	AnimCompleteWait     = 12
+	AFKWarnSeconds       = 45
+	RoomCodeLen          = 6
+	ChatMaxLen           = 200
 )
 
 const AdventureGameplayEnabled = false

@@ -6,7 +6,7 @@ const (
 	OFFBOARD_START  = 0
 	MIN_POSITION    = 1
 	MAX_POSITION    = 100
-	MAX_PLAYERS     = 4
+	MAX_PLAYERS     = 8
 	MOVE_DURATION   = 200
 	SNAKE_DURATION  = 1000
 	LADDER_DURATION = 1000
@@ -37,28 +37,18 @@ func cloneIntMap(src map[int]int) map[int]int {
 	return out
 }
 
-// Default snakes: head → tail.
+// Default snakes: head → tail (visual snakes off; gameplay only).
 var DefaultSnakes = map[int]int{
-	97: 78,
-	95: 75,
-	92: 71,
-	88: 48,
-	87: 36,
-	62: 18,
-	54: 34,
-	17: 7,
+	97: 75,
+	93: 55,
+	87: 52,
+	66: 34,
+	57: 24,
+	43: 18,
+	35: 12,
 }
 
-// Default ladders: bottom → top.
-var DefaultLadders = map[int]int{
-	4:  25,
-	9:  31,
-	20: 42,
-	28: 55,
-	40: 59,
-	51: 73,
-	63: 81,
-	70: 93,
-}
+// Default ladders: dimatikan (kosong).
+var DefaultLadders = map[int]int{}
 
 var PlayerTokenColors = [4]string{"#e23d3d", "#3d7dff", "#1f8a64", "#e6c84f"}

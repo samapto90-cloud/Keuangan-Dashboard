@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -28,9 +29,44 @@ func TestQuestionBank390(t *testing.T) {
 	}
 }
 
-func TestPenaltyPositions(t *testing.T) {
-	if PenaltyPosition(45) != 35 || PenaltyPosition(41) != 31 || PenaltyPosition(50) != 40 || PenaltyPosition(7) != 1 || PenaltyPosition(1) != 1 {
-		t.Fatal("penalty")
+func TestStartQuestionRespectsSDGrade(t *testing.T) {
+	h, room, _, _ := readyTwo(t)
+	h.Lobby.mu.Lock()
+	room.Grade = GradeSD
+	room.Match.Grade = GradeSD
+	pl := h.Lobby.player(room, "ua")
+	pl.Position = 41
+	h.startQuestionLocked(room, "ua", false)
+	qid := room.Match.CurrentQuestionID
+	grade := ""
+	if room.Match.QuestionView.ID != "" {
+		grade = room.Match.QuestionView.Grade
+	}
+	h.Lobby.mu.Unlock()
+	if qid == "" {
+		t.Fatal("expected SD question")
+	}
+	if grade != GradeSD {
+		t.Fatalf("got grade %q want SD id=%s", grade, qid)
+	}
+	if !strings.HasPrefix(qid, "sd-") {
+		t.Fatalf("unexpected question id %s", qid)
+	}
+}
+
+func TestStartQuestionFinalKeepsSDWithoutHard(t *testing.T) {
+	h, room, _, _ := readyTwo(t)
+	h.Lobby.mu.Lock()
+	room.Grade = GradeSD
+	room.Match.Grade = GradeSD
+	pl := h.Lobby.player(room, "ua")
+	pl.Position = 100
+	h.startQuestionLocked(room, "ua", true)
+	qid := room.Match.CurrentQuestionID
+	grade := room.Match.QuestionView.Grade
+	h.Lobby.mu.Unlock()
+	if qid == "" || grade != GradeSD {
+		t.Fatalf("final must stay SD got id=%s grade=%s", qid, grade)
 	}
 }
 

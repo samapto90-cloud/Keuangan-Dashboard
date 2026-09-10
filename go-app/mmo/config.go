@@ -21,7 +21,7 @@ const (
 	Gravity          = 22.0
 	JumpForce        = 7.2
 	MaxInputRate     = 20
-	HeartbeatTimeout = 15 * time.Second
+	HeartbeatTimeout = 90 * time.Second
 	InputMinInterval = time.Second / 24
 )
 

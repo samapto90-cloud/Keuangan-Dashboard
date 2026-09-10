@@ -1,7 +1,6 @@
 import {
   DEFAULT_BOARD,
   PLAYER_COLORS,
-  BOARD_GRID,
   MOVE_DURATION,
   type BoardConfig,
 } from "../game/board/config";
@@ -17,7 +16,7 @@ import { BoardAnimationManager } from "../game/board/animation";
 import { playSfx } from "../audio/manager";
 import { mountQuestionOverlay, unmountQuestionOverlay, type QuestionPublic, type QuestionResultView } from "./QuestionModal";
 import { renderBoardRoutes } from "./boardDecor";
-import { zoneClass, zoneDecor } from "./boardZones";
+import { mountStoneCells } from "./stoneCells";
 import { pawnSpriteHtml, playerCharacter } from "../assets/registry";
 import { confetti, sparkle, spawnFloat, toast, showChampionCelebration } from "./chrome";
 import {
@@ -180,33 +179,17 @@ export function mountBoard(
     renderChrome();
   };
 
-  const cells: HTMLElement[] = [];
-  for (let visualRow = 0; visualRow < BOARD_GRID; visualRow++) {
-    const boardRow = BOARD_GRID - 1 - visualRow;
-    for (let col = 0; col < BOARD_GRID; col++) {
-      const pos = BoardEngine.getPositionFromCoordinate(boardRow, col)!;
-      const cell = document.createElement("button");
-      cell.type = "button";
-      const tile = pos % 4;
-      cell.className = `cell tile-${tile} color-${tile === 0 ? 1 : tile + 1} ${zoneClass(pos)}`;
-      cell.dataset.pos = String(pos);
-      cell.setAttribute("aria-label", `Kotak ${pos}`);
-      if (pos === 1) cell.classList.add("cell-enter");
-      if (pos === 100) cell.classList.add("cell-finish");
-      if (cfg.snakes[pos]) cell.classList.add("cell-snake");
-      if (cfg.ladders[pos]) cell.classList.add("cell-ladder");
-      cell.innerHTML = `<span class="cell-num">${pos}</span>${zoneDecor(pos)}${pos === 1 ? `<span class="cell-tag">MASUK</span>` : ""}${pos === 100 ? `<span class="cell-tag">FINISH</span>` : ""}`;
-      cell.addEventListener("mouseenter", () => {
-        hover = pos;
-        cell.classList.add("is-hover");
-      });
-      cell.addEventListener("mouseleave", () => {
-        hover = 0;
-        cell.classList.remove("is-hover");
-      });
-      grid.appendChild(cell);
-      cells.push(cell);
-    }
+  const cells = mountStoneCells(grid, cfg);
+  for (const cell of cells) {
+    const pos = Number(cell.dataset.pos);
+    cell.addEventListener("mouseenter", () => {
+      hover = pos;
+      cell.classList.add("is-hover");
+    });
+    cell.addEventListener("mouseleave", () => {
+      hover = 0;
+      cell.classList.remove("is-hover");
+    });
   }
   const routes = app.querySelector<SVGSVGElement>("#route-layer");
   if (routes) renderBoardRoutes(routes, cfg.snakes, cfg.ladders);
@@ -238,13 +221,19 @@ export function mountBoard(
     tok.style.left = `${pct.left}%`;
     tok.style.bottom = `${pct.bottom}%`;
     tok.style.setProperty("--pawn-scale", String(BoardEngine.tokenCrowdScale(count)));
-    tok.style.zIndex = String(20 + Math.round((0.3 - off.dy) * 40) + slot);
+    tok.style.zIndex = String(20 + slot);
   };
 
   const paintHighlights = (currentPos: number, dest?: number): void => {
+    const highlight = currentPos <= OFFBOARD_START ? 1 : currentPos;
+    const occupied = new Set<number>();
+    for (const p of visualPos) {
+      occupied.add(p <= OFFBOARD_START ? 1 : p);
+    }
     for (const cell of cells) {
       const pos = Number(cell.dataset.pos);
-      cell.classList.toggle("is-current", pos === currentPos);
+      cell.classList.toggle("is-occupied", occupied.has(pos));
+      cell.classList.toggle("is-current", pos === highlight);
       cell.classList.toggle("is-dest", dest === pos);
     }
   };
@@ -269,7 +258,7 @@ export function mountBoard(
     visualPos[tIdx] = to;
     const label =
       kind === "bomb"
-        ? `💣 ${actor.username} → ${target.username} START!`
+        ? `💣 ${actor.username} → ${target.username} kotak 1!`
         : kind === "thunder"
           ? `⚡ ${target.username} -3`
           : `✈️ ${target.username} +3`;

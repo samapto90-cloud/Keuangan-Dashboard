@@ -209,7 +209,7 @@ func (h *Hub) usePower(p *Player, item, targetID string) string {
 	switch item {
 	case PowerBomb:
 		to = OFFBOARD_START
-		msg = fmt.Sprintf("%s melempar 💣 Bom ke %s — kembali ke START!", actor.Username, target.Username)
+		msg = fmt.Sprintf("%s melempar 💣 Bom ke %s — kembali ke kotak 1!", actor.Username, target.Username)
 	case PowerThunder:
 		to = clampBoardPos(from - 3)
 		msg = fmt.Sprintf("%s menyambar ⚡ Petir ke %s — mundur 3 langkah!", actor.Username, target.Username)

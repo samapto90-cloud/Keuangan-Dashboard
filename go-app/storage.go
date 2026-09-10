@@ -31,6 +31,15 @@ func moduleDataPath(id string) string {
 	return filepath.Join(dataDir, id+".json")
 }
 
+func pejabatDataPath(id string) string {
+	return filepath.Join(dataDir, id+"-pejabat.json")
+}
+
+type pejabatSnapshot struct {
+	PA        Pejabat `json:"pa"`
+	Bendahara Pejabat `json:"bendahara"`
+}
+
 func kasDataPath() string {
 	return filepath.Join(dataDir, "kas-belanja.json")
 }
@@ -69,11 +78,14 @@ func loadModuleFromDisk(mod *SipkeuModule) bool {
 	path := moduleDataPath(mod.ID)
 	raw, err := os.ReadFile(path)
 	if err != nil {
+		// Tetap coba pejabat file jika modul belum punya json utama.
+		loadPejabatFromDisk(mod)
 		return false
 	}
 	var snap moduleSnapshot
 	if err := json.Unmarshal(raw, &snap); err != nil {
 		log.Printf("Peringatan: file data %s rusak: %v", path, err)
+		loadPejabatFromDisk(mod)
 		return false
 	}
 	mod.mu.Lock()
@@ -91,6 +103,7 @@ func loadModuleFromDisk(mod *SipkeuModule) bool {
 	if len(snap.Settings.Rak) > 0 {
 		mod.settings.Rak = snap.Settings.Rak
 	}
+	mod.settings.RakMeta = snap.Settings.RakMeta
 	if snap.Settings.PA.Nama != "" {
 		mod.settings.PA = snap.Settings.PA
 	}
@@ -99,31 +112,93 @@ func loadModuleFromDisk(mod *SipkeuModule) bool {
 	}
 	mod.mu.Unlock()
 	normalizeModuleIDs(mod)
+	// File pejabat khusus menang — tidak boleh tertimpa race persist transaksi.
+	loadPejabatFromDisk(mod)
 	log.Printf("Data modul %s dimuat dari %s (%d transaksi)", mod.ID, path, len(snap.Txs))
 	return true
 }
 
-func persistModule(mod *SipkeuModule) {
+func loadPejabatFromDisk(mod *SipkeuModule) bool {
+	if mod == nil {
+		return false
+	}
+	raw, err := os.ReadFile(pejabatDataPath(mod.ID))
+	if err != nil {
+		return false
+	}
+	var snap pejabatSnapshot
+	if err := json.Unmarshal(raw, &snap); err != nil {
+		log.Printf("Peringatan: file pejabat %s rusak: %v", pejabatDataPath(mod.ID), err)
+		return false
+	}
+	mod.mu.Lock()
+	if strings.TrimSpace(snap.PA.Nama) != "" {
+		mod.settings.PA = snap.PA
+	}
+	if strings.TrimSpace(snap.Bendahara.Nama) != "" {
+		mod.settings.Bendahara = snap.Bendahara
+	}
+	paName := mod.settings.PA.Nama
+	bendName := mod.settings.Bendahara.Nama
+	mod.mu.Unlock()
+	log.Printf("Pejabat modul %s dimuat: PA=%s Bendahara=%s", mod.ID, paName, bendName)
+	return true
+}
+
+func persistPejabat(mod *SipkeuModule, pa, bend Pejabat) error {
+	if mod == nil {
+		return fmt.Errorf("modul kosong")
+	}
+	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+		return err
+	}
+	snap := pejabatSnapshot{PA: pa, Bendahara: bend}
+	if err := writeJSONAtomic(pejabatDataPath(mod.ID), snap); err != nil {
+		return err
+	}
+	invalidateSettingsCache(mod.ID)
+	return nil
+}
+
+func persistModule(mod *SipkeuModule) error {
+	if mod == nil {
+		return fmt.Errorf("modul kosong")
+	}
+	// Serialisasi seluruh tulis modul agar snapshot pejabat tidak tertimpa race.
+	mod.persistMu.Lock()
+	defer mod.persistMu.Unlock()
+
 	mod.mu.Lock()
 	snap := moduleSnapshot{
-		NextID:   mod.nextID,
-		Txs:      append([]Transaction(nil), mod.txs...),
-		Settings: mod.settings,
+		NextID: mod.nextID,
+		Txs:    append([]Transaction(nil), mod.txs...),
+		Settings: AppSettings{
+			PA:               mod.settings.PA,
+			Bendahara:        mod.settings.Bendahara,
+			AnggaranKegiatan: cloneAnggaranMap(mod.settings.AnggaranKegiatan),
+			Rak:              cloneRakRows(mod.settings.Rak),
+			RakMeta:          mod.settings.RakMeta,
+		},
 	}
 	mod.mu.Unlock()
 
 	if snap.Settings.AnggaranKegiatan == nil {
 		snap.Settings.AnggaranKegiatan = map[string]float64{}
 	}
+	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+		log.Printf("Gagal simpan modul %s: %v", mod.ID, err)
+		return err
+	}
 	if err := writeJSONAtomic(moduleDataPath(mod.ID), snap); err != nil {
 		log.Printf("Gagal simpan modul %s: %v", mod.ID, err)
-		return
+		return err
 	}
 	invalidateDashboardCache(mod.ID)
 	invalidateTransactionsCache(mod.ID)
 	invalidateSettingsCache(mod.ID)
 	invalidateAdminRekapCache()
 	invalidateRealisasiCache(mod.ID)
+	return nil
 }
 
 func loadAllModulesFromDisk() {
@@ -131,7 +206,29 @@ func loadAllModulesFromDisk() {
 	defer sipkeuModulesMu.RUnlock()
 	for _, mod := range sipkeuModules {
 		loadModuleFromDisk(mod)
+		ensurePejabatFile(mod)
 	}
+}
+
+// ensurePejabatFile: migrasi pejabat dari module.json ke file khusus jika belum ada.
+func ensurePejabatFile(mod *SipkeuModule) {
+	if mod == nil {
+		return
+	}
+	if _, err := os.Stat(pejabatDataPath(mod.ID)); err == nil {
+		return
+	}
+	mod.mu.Lock()
+	pa, bend := mod.settings.PA, mod.settings.Bendahara
+	mod.mu.Unlock()
+	if strings.TrimSpace(pa.Nama) == "" && strings.TrimSpace(bend.Nama) == "" {
+		return
+	}
+	if err := persistPejabat(mod, pa, bend); err != nil {
+		log.Printf("Peringatan: gagal migrasi pejabat modul %s: %v", mod.ID, err)
+		return
+	}
+	log.Printf("Pejabat modul %s dimigrasi ke file khusus", mod.ID)
 }
 
 func moduleHasData(mod *SipkeuModule) bool {

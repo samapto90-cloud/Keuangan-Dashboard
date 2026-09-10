@@ -2,7 +2,7 @@ export const BOARD_GRID = 10;
 export const BOARD_SIZE = 100;
 export const MIN_POSITION = 1;
 export const MAX_POSITION = 100;
-export const MAX_PLAYERS = 4;
+export const MAX_PLAYERS = 8;
 export const MOVE_DURATION = 200;
 export const SNAKE_DURATION = 720;
 export const LADDER_DURATION = 720;
@@ -16,25 +16,18 @@ export type BoardConfig = {
 };
 
 export const SNAKES: Record<number, number> = {
-  97: 78,
-  95: 75,
-  92: 71,
-  88: 48,
-  87: 36,
-  62: 18,
-  54: 34,
-  17: 7,
+  // Ular (tanpa gambar) — jalur terpisah agar tidak numpuk dengan tangga
+  97: 75,
+  93: 55,
+  87: 52,
+  66: 34,
+  57: 24,
+  43: 18,
+  35: 12,
 };
 
 export const LADDERS: Record<number, number> = {
-  4: 25,
-  9: 31,
-  20: 42,
-  28: 55,
-  40: 59,
-  51: 73,
-  63: 81,
-  70: 93,
+  // Tangga dimatikan — hanya ular
 };
 
 export const DEFAULT_BOARD: BoardConfig = {
@@ -44,9 +37,26 @@ export const DEFAULT_BOARD: BoardConfig = {
   ladders: { ...LADDERS },
 };
 
-/* Order matches mockup seats: Blue, Green, Yellow, Red */
-export const PLAYER_COLORS = ["#3498db", "#2ecc71", "#f1c40f", "#e74c3c"] as const;
-export const PLAYER_COLOR_NAMES = ["BLUE", "GREEN", "YELLOW", "RED"] as const;
+export const PLAYER_COLORS = [
+  "#2563eb",
+  "#0ea5e9",
+  "#ef4444",
+  "#3b82f6",
+  "#dc2626",
+  "#059669",
+  "#8b5cf6",
+  "#f59e0b",
+] as const;
+export const PLAYER_COLOR_NAMES = [
+  "NAVY",
+  "RED",
+  "GREEN",
+  "BLUE",
+  "ORANGE",
+  "PURPLE",
+  "TEAL",
+  "GOLD",
+] as const;
 
 export function zoneFor(position: number): string {
   if (position <= 20) return "desa";

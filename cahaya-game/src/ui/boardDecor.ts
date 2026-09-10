@@ -12,21 +12,24 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-/** Kurva lembut satu gelombang — modern, tidak berlebih. */
-function softArc(a: Pt, b: Pt, twist: number): Pt[] {
+/** Kurva S alami (2 gelombang) — tubuh ular yang melilit. */
+function naturalSpine(a: Pt, b: Pt, twist: number): Pt[] {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len;
   const ny = dx / len;
   const sign = twist % 2 === 0 ? 1 : -1;
-  const amp = Math.min(CELL * 0.38, Math.max(CELL * 0.14, len * 0.1)) * sign;
-  const n = Math.max(10, Math.round(len / 2.6));
+  const amp = Math.min(CELL * 0.55, Math.max(CELL * 0.22, len * 0.16)) * sign;
+  const n = Math.max(18, Math.round(len / 1.8));
   const pts: Pt[] = [];
   for (let i = 0; i <= n; i++) {
     const t = i / n;
     const ease = t * t * (3 - 2 * t);
-    const wiggle = Math.sin(Math.PI * t) * amp;
+    // dua lengkung S + sedikit noise deterministik
+    const wiggle =
+      Math.sin(Math.PI * t * 2) * amp * (0.55 + 0.45 * Math.sin(Math.PI * t)) +
+      Math.sin(Math.PI * t * 3.2 + twist) * amp * 0.18;
     pts.push({
       x: a.x + dx * ease + nx * wiggle,
       y: a.y + dy * ease + ny * wiggle,
@@ -67,7 +70,9 @@ function ribbon(spine: Pt[], headW: number, tailW: number): string {
     const nx = -ty / tl;
     const ny = tx / tl;
     const t = i / (spine.length - 1);
-    const w = lerp(headW, tailW, t * t);
+    // kepala lebih tebal, mengecil ke ekor secara natural
+    const taper = Math.pow(t, 1.15);
+    const w = lerp(headW, tailW, taper);
     left.push({ x: p.x + nx * w, y: p.y + ny * w });
     right.push({ x: p.x - nx * w, y: p.y - ny * w });
   }
@@ -93,99 +98,71 @@ export const SNAKE_SPRITES = [
   "/cahaya/raka/snakes/ular-8.png",
 ] as const;
 
-/** Palet neon modern — tiap ular beda aksen, tetap satu bahasa visual. */
-const SNAKE_NEON = [
-  { core: "#ff6b6b", mid: "#e53935", glow: "#ff8a80", dark: "#7f1d1d" },
-  { core: "#ce93d8", mid: "#8e24aa", glow: "#e1bee7", dark: "#4a148c" },
-  { core: "#4fc3f7", mid: "#0288d1", glow: "#81d4fa", dark: "#01579b" },
-  { core: "#ffd54f", mid: "#f9a825", glow: "#ffe082", dark: "#e65100" },
-  { core: "#26a69a", mid: "#00897b", glow: "#80cbc4", dark: "#004d40" },
-  { core: "#ffb74d", mid: "#ef6c00", glow: "#ffcc80", dark: "#bf360c" },
-  { core: "#81c784", mid: "#43a047", glow: "#a5d6a7", dark: "#1b5e20" },
-  { core: "#b39ddb", mid: "#5e35b1", glow: "#d1c4e9", dark: "#311b92" },
+/** Palet ular alami (hutan / tanah / sawah) — bukan neon. */
+const SNAKE_NATURAL = [
+  { belly: "#c4a574", scale: "#2d5a27", mid: "#3d7a35", edge: "#1a3d16", spot: "#1e4d18" },
+  { belly: "#d2b48c", scale: "#6b4423", mid: "#8b5a2b", edge: "#3e2723", spot: "#4e342e" },
+  { belly: "#e8d5a3", scale: "#556b2f", mid: "#6b8e23", edge: "#334015", spot: "#3d4f1c" },
+  { belly: "#c9b896", scale: "#8b4513", mid: "#a0522d", edge: "#5d2e0c", spot: "#6d3b12" },
+  { belly: "#b8c9a0", scale: "#2e4a3e", mid: "#3d6b55", edge: "#1b3329", spot: "#244438" },
+  { belly: "#e0c090", scale: "#a67c00", mid: "#c9a227", edge: "#6b5200", spot: "#7a5f08" },
+  { belly: "#d7ccc8", scale: "#5d4037", mid: "#795548", edge: "#3e2723", spot: "#4e342e" },
+  { belly: "#cfd8c0", scale: "#33691e", mid: "#558b2f", edge: "#1b5e20", spot: "#2e7d32" },
 ];
 
-const LADDER_NEON = [
-  { rail: "#ffe082", railDark: "#f9a825", rung: "#fff8e1", glow: "#ffca28" },
-  { rail: "#80deea", railDark: "#00acc1", rung: "#e0f7fa", glow: "#26c6da" },
-  { rail: "#ffcc80", railDark: "#fb8c00", rung: "#fff3e0", glow: "#ffa726" },
-];
+const LADDER_SPRITE = "/cahaya/raka/ladder-bamboo.png";
+
+export const SHOW_ROUTE_OVERLAY = true;
+/** Gambar ular dimatikan — mekanik ular tetap jalan tanpa sprite tubuh/kepala */
+export const SHOW_SNAKE_OVERLAY = false;
+export const SHOW_LADDER_SPRITES = false;
 
 export function renderBoardRoutes(
   svg: SVGSVGElement,
   snakes: Record<number, number>,
   ladders: Record<number, number>,
 ): void {
+  if (!SHOW_ROUTE_OVERLAY) {
+    svg.innerHTML = "";
+    return;
+  }
+
   const parts: string[] = [
     `<defs>
-      <filter id="neonSoft" x="-40%" y="-40%" width="180%" height="180%">
-        <feGaussianBlur stdDeviation="0.45" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      <filter id="softDrop" x="-35%" y="-35%" width="170%" height="170%">
+        <feDropShadow dx="0.1" dy="0.22" stdDeviation="0.28" flood-color="#000" flood-opacity="0.4"/>
       </filter>
-      <filter id="softDrop" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0.08" dy="0.18" stdDeviation="0.22" flood-color="#000" flood-opacity="0.35"/>
+      <filter id="ladderDrop" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0.15" dy="0.28" stdDeviation="0.35" flood-color="#000" flood-opacity="0.48"/>
+      </filter>
+      <filter id="snakeShade" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0.12" dy="0.2" stdDeviation="0.32" flood-color="#000" flood-opacity="0.45"/>
       </filter>
     </defs>`,
   ];
 
-  let li = 0;
   for (const [fromS, toS] of Object.entries(ladders)) {
     const from = boardSvgPoint(Number(fromS));
     const to = boardSvgPoint(Number(toS));
     if (!from || !to) continue;
-    const style = LADDER_NEON[li % LADDER_NEON.length]!;
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
     const len = dist(from, to);
-    const ux = dx / len;
-    const uy = dy / len;
-    const half = Math.min(CELL * 0.26, Math.max(CELL * 0.16, len * 0.022));
-    const px = -uy * half;
-    const py = ux * half;
-    const railW = Math.min(0.62, half * 0.42);
-    const rungs = Math.max(4, Math.min(8, Math.round(len / 4.2)));
-    const gid = `ladG${li}`;
+    const mx = (from.x + to.x) / 2;
+    const my = (from.y + to.y) / 2;
+    const rot = angle(from, to) + 90;
+    // Tipis & pas di antara batu — kurangi tabrakan visual
+    const ladderH = Math.max(7.5, len * 0.94);
+    const ladderW = Math.min(3.4, Math.max(2.2, len * 0.075));
 
-    parts.push(`<linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${style.rail}"/>
-      <stop offset="100%" stop-color="${style.railDark}"/>
-    </linearGradient>`);
-
-    // glow backdrop
-    for (const side of [1, -1] as const) {
-      const ox = px * side;
-      const oy = py * side;
+    if (SHOW_LADDER_SPRITES) {
       parts.push(
-        `<line x1="${from.x + ox}" y1="${from.y + oy}" x2="${to.x + ox}" y2="${to.y + oy}" stroke="${style.glow}" stroke-width="${railW + 0.55}" stroke-linecap="round" opacity="0.28" filter="url(#neonSoft)"/>`,
-      );
-      parts.push(
-        `<line class="ladder-rail" x1="${from.x + ox}" y1="${from.y + oy}" x2="${to.x + ox}" y2="${to.y + oy}" stroke="url(#${gid})" stroke-width="${railW}" stroke-linecap="round" filter="url(#softDrop)"/>`,
-      );
-      parts.push(
-        `<line x1="${from.x + ox}" y1="${from.y + oy}" x2="${to.x + ox}" y2="${to.y + oy}" stroke="#fff" stroke-width="${railW * 0.28}" stroke-linecap="round" opacity="0.55"/>`,
+        `<image class="ladder-sprite" href="${LADDER_SPRITE}" xlink:href="${LADDER_SPRITE}" x="${(-ladderW / 2).toFixed(2)}" y="${(-ladderH / 2).toFixed(2)}" width="${ladderW.toFixed(2)}" height="${ladderH.toFixed(2)}" preserveAspectRatio="xMidYMid meet" transform="translate(${mx.toFixed(2)} ${my.toFixed(2)}) rotate(${rot.toFixed(2)})" filter="url(#ladderDrop)" opacity="0.92"/>`,
       );
     }
+  }
 
-    for (let i = 1; i <= rungs; i++) {
-      const t = i / (rungs + 1);
-      const x1 = from.x + px + dx * t;
-      const y1 = from.y + py + dy * t;
-      const x2 = from.x - px + dx * t;
-      const y2 = from.y - py + dy * t;
-      parts.push(
-        `<line class="ladder-rung" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${style.rung}" stroke-width="${railW * 0.7}" stroke-linecap="round" opacity="0.95"/>`,
-      );
-      parts.push(
-        `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${style.glow}" stroke-width="${railW * 0.28}" stroke-linecap="round" opacity="0.45"/>`,
-      );
-    }
-
-    const cap = Math.min(0.42, half * 0.28);
-    for (const side of [1, -1] as const) {
-      parts.push(`<circle cx="${from.x + px * side}" cy="${from.y + py * side}" r="${cap}" fill="${style.rail}" stroke="${style.railDark}" stroke-width="0.1"/>`);
-      parts.push(`<circle cx="${to.x + px * side}" cy="${to.y + py * side}" r="${cap * 1.05}" fill="${style.glow}" stroke="${style.rail}" stroke-width="0.1"/>`);
-    }
-    li += 1;
+  if (!SHOW_SNAKE_OVERLAY) {
+    svg.innerHTML = parts.join("");
+    return;
   }
 
   const entries = Object.entries(snakes)
@@ -197,61 +174,67 @@ export function renderBoardRoutes(
     const from = boardSvgPoint(fromPos);
     const to = boardSvgPoint(toPos);
     if (!from || !to) continue;
-    const pal = SNAKE_NEON[si % SNAKE_NEON.length]!;
+    const pal = SNAKE_NATURAL[si % SNAKE_NATURAL.length]!;
     const sprite = SNAKE_SPRITES[si % SNAKE_SPRITES.length]!;
-    const spine = softArc(from, to, si);
+    const spine = naturalSpine(from, to, si);
     const len = dist(from, to);
-    const headW = Math.min(CELL * 0.16, Math.max(CELL * 0.1, len * 0.014));
-    const tailW = headW * 0.3;
+    const headW = Math.min(CELL * 0.28, Math.max(CELL * 0.16, len * 0.028));
+    const tailW = headW * 0.22;
     const body = ribbon(spine, headW, tailW);
     const center = catmull(spine);
-    const gid = `snG${si}`;
-    const headAng = angle(spine[0]!, spine[Math.min(3, spine.length - 1)]!);
-    const headSize = Math.min(CELL * 0.42, 3.6);
+    const gid = `snNat${si}`;
+    const bellyId = `snBel${si}`;
+    const headAng = angle(spine[0]!, spine[Math.min(4, spine.length - 1)]!);
+    const headSize = Math.min(CELL * 0.55, 4.8);
 
     parts.push(`<linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${pal.glow}"/>
-      <stop offset="45%" stop-color="${pal.core}"/>
-      <stop offset="100%" stop-color="${pal.dark}"/>
+      <stop offset="0%" stop-color="${pal.mid}"/>
+      <stop offset="45%" stop-color="${pal.scale}"/>
+      <stop offset="100%" stop-color="${pal.edge}"/>
+    </linearGradient>`);
+    parts.push(`<linearGradient id="${bellyId}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${pal.belly}"/>
+      <stop offset="100%" stop-color="${pal.mid}" stop-opacity="0.35"/>
     </linearGradient>`);
 
-    // soft neon trail under body
+    // bayangan tubuh
     parts.push(
-      `<path d="${center}" fill="none" stroke="${pal.glow}" stroke-width="${headW * 2.4}" stroke-linecap="round" opacity="0.22" filter="url(#neonSoft)"/>`,
+      `<path d="${body}" fill="#000" opacity="0.22" transform="translate(0.25 0.35)" filter="url(#snakeShade)"/>`,
     );
+    // tubuh utama
     parts.push(
-      `<path class="snake-body" d="${body}" fill="url(#${gid})" stroke="${pal.mid}" stroke-width="0.14" filter="url(#softDrop)"/>`,
+      `<path class="snake-body" d="${body}" fill="url(#${gid})" stroke="${pal.edge}" stroke-width="0.22" filter="url(#snakeShade)"/>`,
     );
+    // garis perut
     parts.push(
-      `<path d="${center}" fill="none" stroke="#fff" stroke-width="${headW * 0.35}" stroke-linecap="round" opacity="0.35"/>`,
+      `<path d="${center}" fill="none" stroke="url(#${bellyId})" stroke-width="${headW * 0.85}" stroke-linecap="round" opacity="0.75"/>`,
     );
-
-    // subtle segment dashes along spine
-    const dashN = Math.max(3, Math.min(7, Math.round(spine.length / 3)));
-    for (let i = 1; i < dashN; i++) {
-      const t = i / dashN;
+    // sisik / spot alami
+    const spotN = Math.max(5, Math.min(12, Math.round(spine.length / 2.2)));
+    for (let i = 1; i < spotN; i++) {
+      const t = i / spotN;
       const idx = Math.min(spine.length - 2, Math.floor(t * (spine.length - 1)));
       const p = spine[idx]!;
       const q = spine[idx + 1]!;
       const ang = angle(p, q);
-      const s = lerp(headW * 0.55, headW * 0.2, t);
+      const s = lerp(headW * 0.7, headW * 0.25, t);
       parts.push(
-        `<ellipse cx="0" cy="0" rx="${s * 0.9}" ry="${s * 0.35}" fill="${pal.glow}" opacity="${0.35 - t * 0.15}" transform="translate(${p.x} ${p.y}) rotate(${ang})"/>`,
+        `<ellipse cx="0" cy="0" rx="${(s * 0.85).toFixed(2)}" ry="${(s * 0.38).toFixed(2)}" fill="${pal.spot}" opacity="${0.45 - t * 0.2}" transform="translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${ang.toFixed(1)})"/>`,
       );
     }
-
+    // ekor runcing
     const tip = spine[spine.length - 1]!;
     const pre = spine[spine.length - 2]!;
     const tipAng = angle(pre, tip);
     parts.push(
-      `<path d="M 0 0 L ${tailW * 2.6} ${tailW} L ${tailW * 2.6} ${-tailW} Z" fill="${pal.dark}" opacity="0.9" transform="translate(${tip.x} ${tip.y}) rotate(${tipAng})"/>`,
+      `<path d="M 0 0 L ${(tailW * 3.2).toFixed(2)} ${(tailW * 1.1).toFixed(2)} L ${(tailW * 3.2).toFixed(2)} ${(-tailW * 1.1).toFixed(2)} Z" fill="${pal.edge}" opacity="0.95" transform="translate(${tip.x.toFixed(2)} ${tip.y.toFixed(2)}) rotate(${tipAng.toFixed(1)})"/>`,
     );
-
+    // kepala sprite lebih besar & jelas
     const rot = headAng + 90;
     parts.push(
-      `<g class="snake-head" filter="url(#softDrop)" transform="translate(${from.x} ${from.y}) rotate(${rot})">
-        <circle r="${headSize * 0.32}" fill="${pal.glow}" opacity="0.25" filter="url(#neonSoft)"/>
-        <image href="${sprite}" xlink:href="${sprite}" x="${-headSize / 2}" y="${-headSize / 2}" width="${headSize}" height="${headSize}" preserveAspectRatio="xMidYMid meet"/>
+      `<g class="snake-head" filter="url(#snakeShade)" transform="translate(${from.x.toFixed(2)} ${from.y.toFixed(2)}) rotate(${rot.toFixed(1)})">
+        <circle r="${(headSize * 0.38).toFixed(2)}" fill="${pal.mid}" opacity="0.35"/>
+        <image href="${sprite}" xlink:href="${sprite}" x="${(-headSize / 2).toFixed(2)}" y="${(-headSize / 2).toFixed(2)}" width="${headSize.toFixed(2)}" height="${headSize.toFixed(2)}" preserveAspectRatio="xMidYMid meet"/>
       </g>`,
     );
     si += 1;

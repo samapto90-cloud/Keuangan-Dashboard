@@ -1,4 +1,4 @@
-import { BOARD_GRID, DEFAULT_BOARD, type BoardConfig } from "../game/board/config";
+import { DEFAULT_BOARD, type BoardConfig } from "../game/board/config";
 import { GAME_VERSION } from "../game/board/constants";
 import { BoardEngine, tokenBoardPercent } from "../game/board/engine";
 import { BoardAnimationManager } from "../game/board/animation";
@@ -7,7 +7,7 @@ import { WS_EVENTS } from "../game/multiplayer/events";
 import { playSfx } from "../audio/manager";
 import { mountQuestionOverlay, unmountQuestionOverlay, type QuestionPublic, type QuestionResultView } from "./QuestionModal";
 import { renderBoardRoutes } from "./boardDecor";
-import { zoneClass, zoneDecor } from "./boardZones";
+import { mountStoneCells } from "./stoneCells";
 import { avatarSpriteHtml, pawnSpriteHtml, truncateName } from "../assets/registry";
 import { connChip, icon } from "./icons";
 import { confetti, setConnectionBanner, showMatchResultModal, showChampionCelebration, sparkle, spawnFloat, toast } from "./chrome";
@@ -30,6 +30,21 @@ import { openFriendsModal } from "./SocialScreen";
 
 import { openPowerInventory, powerGrantBanner } from "./PowerModal";
 import { powerIconHtml, powerLabel, type PowerBag, type PowerKind } from "../game/powers";
+
+const ROOM_CODE_KEY = "ular_last_room_code";
+
+function rememberRoomCode(code: string): void {
+  const c = code.trim().toUpperCase();
+  if (c.length >= 4) sessionStorage.setItem(ROOM_CODE_KEY, c);
+}
+
+function forgottenRoomCode(): void {
+  sessionStorage.removeItem(ROOM_CODE_KEY);
+}
+
+function recalledRoomCode(): string {
+  return String(sessionStorage.getItem(ROOM_CODE_KEY) || "").trim().toUpperCase();
+}
 
 type Seat = {
   userId: string;
@@ -73,10 +88,17 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let searchTick = 0;
   let onlineTick = 0;
   let unsub: (() => void) | null = null;
-  const eduGrade = opts.grade === "SD" ? "SD" : "SMA";
+  const eduGrade = (): "SD" | "SMA" => {
+    const fromSnap = String(snap.grade || "").toUpperCase();
+    if (fromSnap === "SD") return "SD";
+    if (fromSnap === "SMA") return "SMA";
+    return opts.grade === "SD" ? "SD" : "SMA";
+  };
   const onExit = (): void => {
     window.clearInterval(onlineTick);
     window.clearInterval(searchTick);
+    window.clearInterval(qTick);
+    window.clearTimeout(paintSched);
     unsub?.();
     unsub = null;
     themeOff?.();
@@ -95,6 +117,8 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let activeQ: QuestionPublic | null = null;
   let qResult: QuestionResultView | null = null;
   let qTick = 0;
+  let paintSched = 0;
+  let qOverlayTick: (() => void) | null = null;
   let answered = false;
   let searching = false;
   let searchMode = "CASUAL";
@@ -108,16 +132,38 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let bootQueue = opts.startQueue || "";
   let onlinePlayers: OnlineCard[] = [];
 
-  const players = (): Seat[] => (Array.isArray(snap.players) && snap.players[0] && typeof snap.players[0] === "object" ? (snap.players as Seat[]) : []);
+  const players = (): Seat[] => {
+    if (!(Array.isArray(snap.players) && snap.players[0] && typeof snap.players[0] === "object")) return [];
+    return (snap.players as Seat[]).map((s) => ({
+      ...s,
+      userId: String(s.userId || (s as { id?: string }).id || ""),
+    }));
+  };
   const code = (): string => String(snap.roomCode || "");
   const status = (): string => String(snap.status || "WAITING");
   const hostId = (): string => String(snap.hostId || "");
-  const currentId = (): string => String(snap.currentPlayerId || "");
-  const myId = (): string => opts.client.myId;
+  const myId = (): string => String(opts.client.myId || snap.youAre || "");
+  const currentId = (): string => {
+    const fromSnap = String(snap.currentPlayerId || "");
+    if (fromSnap) return fromSnap;
+    const st = status();
+    if (st === "PLAYING" || st === "STARTING") {
+      const seats = players();
+      const live = seats.find((s) => s.isConnected !== false);
+      return live?.userId || seats[0]?.userId || hostId() || "";
+    }
+    return "";
+  };
   const profileName = (): string => players().find((s) => s.userId === myId())?.username || "Pemain";
   const isHost = (): boolean => hostId() === myId();
-  const cap = (): number => Number(snap.maxPlayers || maxPlayers || 4);
+  const cap = (): number => Number(snap.maxPlayers || maxPlayers || 8);
   const roomMode = (): string => String(snap.mode || "");
+  const isMyTurn = (): boolean => {
+    const me = myId();
+    const cur = currentId();
+    if (!me || !cur) return false;
+    return me === cur;
+  };
 
   const clock = (ms: number): string => {
     const s = Math.max(0, Math.floor(ms / 1000));
@@ -128,9 +174,10 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     if (view === "table") return paintTable();
     window.clearInterval(searchTick);
     const seats = players();
+    const live = seats.filter((s) => s.isConnected !== false);
     const slots = Array.from({ length: cap() }, (_, i) => seats[i]);
     const meReady = Boolean(seats.find((s) => s.userId === myId())?.isReady);
-    const canStart = seats.length >= 2 && seats.every((s) => s.isReady);
+    const canStart = live.length >= 2 && live.every((s) => s.isReady);
     const searchClock = searching ? clock(Date.now() - searchAt) : "00:00";
     const foundLeft = matchFound ? Math.max(0, Math.ceil((matchFound.ends - Date.now()) / 1000)) : 0;
     const chat = Array.isArray(snap.chat) ? (snap.chat as { username?: string; text?: string; emote?: string }[]) : [];
@@ -139,7 +186,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         <header class="nt-top">
           <p class="nt-kicker">ULAR TANGGA NUSANTARA</p>
           <h1>${code() ? "Menunggu lawan" : "Main Online"}</h1>
-          <p>${code() ? `${seats.length}/${cap()} · ` : ""}${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""} · Soal ${eduGrade} · v${GAME_VERSION}</p>
+          <p>${code() ? `${seats.length}/${cap()} · ` : ""}${connChip(conn)} · ${pingTone(pingMs)}${roomMode() ? " · " + esc(roomMode()) : ""} · Soal ${eduGrade()} · v${GAME_VERSION}</p>
         </header>
         ${searching && !matchFound ? `<section class="nt-card mm-card"><p class="nt-kicker">MENCARI LAWAN... ${esc(searchMode)} · ${maxPlayers} pemain</p><p class="mm-clock" id="search-clock">${searchClock}</p><button class="nt-btn" data-act="cancel-q">BATAL</button></section>` : ""}
         ${matchFound && !readyCheck ? `<section class="nt-card mm-card mm-found"><p>MATCH DITEMUKAN!</p><p class="mm-clock">${foundLeft}</p></section>` : ""}
@@ -147,9 +194,18 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         ${invite ? `<section class="nt-card invite-pop"><p>🎮 ${esc(invite.username).toUpperCase()} MENGUNDANGMU</p><p>Main Ular Tangga bersama?</p><button class="nt-btn nt-btn-primary" data-act="inv-yes">TERIMA</button> <button class="nt-btn" data-act="inv-no">TOLAK</button></section>` : ""}
         ${joinAsk ? `<section class="nt-card invite-pop"><p>🙋 ${esc(joinAsk.username).toUpperCase()} MINTA BERGABUNG</p><p>Sebagai pemain ${joinAsk.seats != null ? `${(joinAsk.seats || 0) + 1}` : "baru"}${joinAsk.maxPlayers ? `/${joinAsk.maxPlayers}` : ""}?</p><button class="nt-btn nt-btn-primary" data-act="ask-yes">IZINKAN</button> <button class="nt-btn" data-act="ask-no">TOLAK</button></section>` : ""}
         ${!code() && !searching ? `<section class="nt-card room-hint">
-          <p class="room-hint-title">Pemain online (${onlinePlayers.length})</p>
-          <p class="room-hint-text">Ajak bermain (lawan bisa <strong>terima/tolak</strong>). Jika sudah main, minta bergabung sebagai pemain ke-3/ke-4, atau buat permainan sendiri.</p>
-          <div class="nt-row" style="margin:8px 0">${[2, 3, 4].map((n) => `<button class="nt-btn ${maxPlayers === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>
+          <p class="room-hint-title">Main bareng (paling mudah)</p>
+          <p class="room-hint-text">1) Pilih jumlah pemain · 2) <strong>Buat room</strong> · 3) Bagikan kode · 4) Semua tekan <strong>READY</strong> — permainan <strong>otomatis mulai</strong>. Soal: <strong>${eduGrade()}</strong> (harus sama).</p>
+          <div class="nt-row" style="margin:8px 0;flex-wrap:wrap;gap:6px">${[2, 3, 4, 5, 6, 7, 8].map((n) => `<button class="nt-btn ${maxPlayers === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>
+          <div class="nt-row" style="margin:8px 0;flex-wrap:wrap;gap:8px;align-items:center">
+            <button class="nt-btn nt-btn-primary" data-act="create-room">BUAT ROOM</button>
+            <form data-act="join-room" class="nt-row" style="gap:6px;flex-wrap:wrap;align-items:center;margin:0">
+              <input name="code" maxlength="8" placeholder="Kode room" style="text-transform:uppercase;min-width:7rem;padding:8px 10px;border-radius:8px;border:1px solid #0003" autocomplete="off" />
+              <button class="nt-btn nt-btn-primary" type="submit">GABUNG</button>
+            </form>
+          </div>
+          <p class="room-hint-title" style="margin-top:12px">Pemain online (${onlinePlayers.length})</p>
+          <p class="room-hint-text">Atau ajak langsung / cari lawan otomatis.</p>
           <div class="pf-hist online-list">${onlinePlayers.length
             ? onlinePlayers.map((p) => {
                 const seatInfo = p.maxPlayers ? ` · ${p.seats || 0}/${p.maxPlayers}` : "";
@@ -164,11 +220,14 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
                 </div>
               </article>`;
               }).join("")
-            : `<p class="nt-hint">Belum ada pemain lain online. Buka game di perangkat/akun lain, atau tekan Cari lawan.</p>`}
+            : `<p class="nt-hint">Belum ada pemain lain online. Buat room + bagikan kode, atau tekan Cari lawan di dua perangkat.</p>`}
           </div>
         </section>` : ""}
         ${code() ? `<section class="nt-card seats">
-          <p class="seats-label">Pemain (${seats.length}/${cap()})</p>
+          <p class="seats-label">Kode room: <strong id="room-code-label" style="letter-spacing:0.12em;font-size:1.25rem">${esc(code())}</strong>
+            <button type="button" class="nt-btn" data-act="copy-code" style="margin-left:8px">Salin</button>
+          </p>
+          <p class="nt-hint">Pemain (${seats.length}/${cap()}) — semua harus READY sebelum host memulai.</p>
           ${slots
             .map((s, i) =>
               s
@@ -189,11 +248,13 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
           ${!code() && !searching ? `<button class="nt-btn" data-act="friends">TEMAN</button>` : ""}
           ${!code() && !searching ? `<button class="nt-btn" data-act="refresh-online">Segarkan online</button>` : ""}
           ${code() && !readyCheck && !matchFound ? `<button class="nt-btn nt-btn-primary" data-act="ready">${meReady ? "BATAL READY" : "READY"}</button>` : ""}
-          ${isHost() && code() && !matchFound ? `<button class="nt-btn nt-btn-primary" data-act="start" ${canStart ? "" : "disabled"}>MULAI PERMAINAN</button>` : ""}
-          ${isHost() && code() && !matchFound && status() === "WAITING" ? `<div class="nt-row">${[2, 3, 4].map((n) => `<button class="nt-btn ${cap() === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>` : ""}
+          ${isHost() && code() && !matchFound && status() !== "STARTING" && status() !== "PLAYING" ? `<button class="nt-btn nt-btn-primary" data-act="start" ${canStart ? "" : "disabled"} title="${canStart ? "Mulai sekarang" : "Butuh ≥2 pemain online & semua READY"}">MULAI PERMAINAN</button>` : ""}
+          ${status() === "READY" ? `<p class="nt-hint" style="margin:6px 0 0">Semua ready — memulai permainan…</p>` : ""}
+          ${status() === "STARTING" ? `<p class="nt-hint" style="margin:6px 0 0">Memulai papan…</p>` : ""}
+          ${isHost() && code() && !matchFound && status() === "WAITING" ? `<div class="nt-row" style="flex-wrap:wrap;gap:6px">${[2, 3, 4, 5, 6, 7, 8].map((n) => `<button class="nt-btn ${cap() === n ? "nt-btn-primary" : ""}" data-max="${n}">${n} pemain</button>`).join("")}</div>` : ""}
           ${code() ? `<button class="nt-btn" data-act="friends">TEMAN</button>` : ""}
           <button class="nt-btn" data-act="leave">${code() || searching ? "KELUAR" : "MENU"}</button>
-          ${conn === "offline" ? `<button class="nt-btn nt-btn-primary" data-act="reconnect">SAMBUNG ULANG</button>` : ""}
+          ${conn === "offline" || conn === "connecting" ? `<button class="nt-btn nt-btn-primary" data-act="reconnect">SAMBUNG ULANG</button>` : ""}
         </div>
         ${code() ? `<div class="chat-box lobby-chat">
           <div id="chat-log">${chat.map((c) => `<p><strong>${esc(c.username || "")}:</strong> ${esc(c.text || c.emote || "")}</p>`).join("")}</div>
@@ -222,7 +283,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     searchMode = mode;
     searching = true;
     searchAt = Date.now();
-    opts.client.send(WS_EVENTS.QUEUE_JOIN, { mode, region: "ID-JKT", grade: eduGrade, preferredSize: maxPlayers, maxPlayers });
+    opts.client.send(WS_EVENTS.QUEUE_JOIN, { mode, region: "ID-JKT", grade: eduGrade(), preferredSize: maxPlayers, maxPlayers });
     paint();
   };
 
@@ -231,13 +292,56 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       const me = players().find((s) => s.userId === myId());
       opts.client.send(WS_EVENTS.PLAYER_READY, { ready: !me?.isReady });
     });
-    root.querySelector("[data-act=start]")?.addEventListener("click", () => opts.client.send(WS_EVENTS.ROOM_START));
+    root.querySelector("[data-act=start]")?.addEventListener("click", () => {
+      const live = players().filter((s) => s.isConnected !== false);
+      if (!(live.length >= 2 && live.every((s) => s.isReady))) {
+        toast("Semua pemain online harus READY dulu (min. 2 orang).", "warning");
+        return;
+      }
+      opts.client.send(WS_EVENTS.ROOM_START);
+      toast("Memulai permainan…", "info");
+    });
+    root.querySelector("[data-act=create-room]")?.addEventListener("click", () => {
+      opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade() });
+      toast(`Room ${maxPlayers} pemain · soal ${eduGrade()} dibuat — bagikan kodenya.`, "success");
+    });
+    root.querySelector("[data-act=copy-code]")?.addEventListener("click", () => {
+      const c = code();
+      if (!c) return;
+      void navigator.clipboard?.writeText(c).then(
+        () => toast(`Kode ${c} disalin.`, "success"),
+        () => toast(`Kode room: ${c}`, "info"),
+      );
+    });
+    const joinForm = root.querySelector<HTMLFormElement>("[data-act=join-room]");
+    joinForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const raw = String(new FormData(joinForm).get("code") || "")
+        .trim()
+        .toUpperCase();
+      if (raw.length < 4) {
+        toast("Masukkan kode room yang valid.", "warning");
+        return;
+      }
+      opts.client.send(WS_EVENTS.ROOM_JOIN, { roomCode: raw });
+      toast(`Menggabung room ${raw}…`, "info");
+    });
     root.querySelector("[data-act=leave]")?.addEventListener("click", () => {
       if (searching) opts.client.send(WS_EVENTS.QUEUE_LEAVE);
-      if (code()) opts.client.send(WS_EVENTS.ROOM_LEAVE);
-      onExit();
+      if (code()) {
+        opts.client.send(WS_EVENTS.ROOM_LEAVE);
+        forgottenRoomCode();
+      }
+      // Biarkan ROOM_LEAVE sempat terkirim sebelum unmount.
+      window.setTimeout(() => onExit(), 120);
     });
-    root.querySelector("[data-act=reconnect]")?.addEventListener("click", () => opts.client.reconnect());
+    root.querySelector("[data-act=reconnect]")?.addEventListener("click", () => {
+      opts.client.reconnect();
+      const saved = recalledRoomCode();
+      if (saved && !code()) {
+        window.setTimeout(() => opts.client.send(WS_EVENTS.ROOM_JOIN, { roomCode: saved }), 400);
+      }
+    });
     root.querySelector("[data-act=queue-c]")?.addEventListener("click", () => joinQueue("CASUAL"));
     root.querySelector("[data-act=queue-r]")?.addEventListener("click", () => joinQueue("RANKED"));
     root.querySelector("[data-act=cancel-q]")?.addEventListener("click", () => {
@@ -273,19 +377,19 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     root.querySelectorAll<HTMLButtonElement>("[data-max]").forEach((b) =>
       b.addEventListener("click", () => {
         maxPlayers = Number(b.dataset.max) || 2;
-        if (code() && isHost()) opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade });
+        if (code() && isHost()) opts.client.send(WS_EVENTS.ROOM_CREATE, { maxPlayers, grade: eduGrade() });
         else paint();
       }),
     );
     root.querySelectorAll<HTMLButtonElement>("[data-challenge]").forEach((b) =>
       b.addEventListener("click", () => {
-        opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.challenge, maxPlayers });
+        opts.client.send(WS_EVENTS.GAME_INVITE, { userId: b.dataset.challenge, maxPlayers, grade: eduGrade() });
         toast("Undangan dikirim — menunggu lawan menerima atau menolak.", "success");
       }),
     );
     root.querySelectorAll<HTMLButtonElement>("[data-askjoin]").forEach((b) =>
       b.addEventListener("click", () => {
-        opts.client.send(WS_EVENTS.JOIN_ASK, { userId: b.dataset.askjoin });
+        opts.client.send(WS_EVENTS.JOIN_ASK, { userId: b.dataset.askjoin, grade: eduGrade() });
         toast("Permintaan bergabung dikirim ke host.", "info");
       }),
     );
@@ -343,29 +447,21 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     turnHud = root.querySelector("#turn-hud")!;
     diceEl = root.querySelector("#dice")!;
     rollBtn = root.querySelector("#roll-btn")!;
-    for (let visualRow = 0; visualRow < BOARD_GRID; visualRow++) {
-      const boardRow = BOARD_GRID - 1 - visualRow;
-      for (let col = 0; col < BOARD_GRID; col++) {
-        const pos = BoardEngine.getPositionFromCoordinate(boardRow, col)!;
-        const cell = document.createElement("button");
-        cell.type = "button";
-        const tile = pos % 4;
-        cell.className = `cell tile-${tile} color-${tile === 0 ? 1 : tile + 1} ${zoneClass(pos)}`;
-        cell.dataset.pos = String(pos);
-        if (pos === 1) cell.classList.add("cell-enter");
-        if (pos === 100) cell.classList.add("cell-finish");
-        if (cfg.snakes[pos]) cell.classList.add("cell-snake");
-        if (cfg.ladders[pos]) cell.classList.add("cell-ladder");
-        cell.innerHTML = `<span class="cell-num">${pos}</span>${zoneDecor(pos)}${pos === 1 ? `<span class="cell-tag">MASUK</span>` : ""}${pos === 100 ? `<span class="cell-tag">FINISH</span>` : ""}`;
-        grid.appendChild(cell);
-      }
-    }
+    mountStoneCells(grid, cfg);
     const routes = root.querySelector<SVGSVGElement>("#route-layer");
     if (routes) renderBoardRoutes(routes, cfg.snakes, cfg.ladders);
     bindPremiumDock(root, {
       onRoll: () => {
-        if (animating || currentId() !== myId()) return;
-        applyPremiumRollState(rollBtn, "Lempar dadu", false);
+        if (animating || activeQ) return;
+        if (!isMyTurn()) {
+          toast("Belum giliranmu.", "info");
+          return;
+        }
+        if (status() !== "PLAYING" && status() !== "STARTING") {
+          toast("Permainan belum siap.", "warning");
+          return;
+        }
+        applyPremiumRollState(rollBtn, "Lempar…", false);
         opts.client.send(WS_EVENTS.GAME_ROLL_REQUEST);
       },
       onExit: onExit,
@@ -407,8 +503,40 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     });
   };
 
+  let lastChatSig = "";
+  let lastPowerSig = "";
+  let lastTableSig = "";
+
+  const paintConnLine = (): void => {
+    const connLine = root.querySelector("#conn-line");
+    if (!connLine) return;
+    (connLine as HTMLElement).hidden = false;
+    connLine.textContent = `${connChip(conn)} · ${pingTone(pingMs)}`;
+  };
+
+  const scheduleTablePaint = (immediate = false): void => {
+    if (view !== "table") {
+      paint();
+      return;
+    }
+    if (immediate) {
+      window.clearTimeout(paintSched);
+      paintSched = 0;
+      paintTable();
+      return;
+    }
+    if (paintSched) return;
+    paintSched = window.setTimeout(() => {
+      paintSched = 0;
+      paintTable();
+    }, 50);
+  };
+
   const paintPowerMarks = (): void => {
     const cells = (snap.powerCells || {}) as Record<string, string>;
+    const sig = JSON.stringify(cells);
+    if (sig === lastPowerSig) return;
+    lastPowerSig = sig;
     root.querySelectorAll<HTMLElement>(".cell").forEach((cell) => {
       const pos = String(cell.dataset.pos || "");
       const k = cells[pos] as PowerKind | undefined;
@@ -431,6 +559,9 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     const log = root.querySelector("#board-chat-log");
     if (!log) return;
     const chat = Array.isArray(snap.chat) ? (snap.chat as { username?: string; text?: string; emote?: string }[]) : [];
+    const sig = chat.map((c) => `${c.username}:${c.text || c.emote || ""}`).join("|");
+    if (sig === lastChatSig) return;
+    lastChatSig = sig;
     log.innerHTML = chat.length
       ? chat
           .slice(-40)
@@ -446,13 +577,14 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     if (!tok) return;
     const here = [...visual.entries()].filter(([, p]) => p === position).map(([id]) => id);
     const slot = Math.max(0, here.indexOf(userId));
-    const off = BoardEngine.tokenOffsets(here.length, slot);
+    const count = Math.max(here.length, 1);
+    const off = BoardEngine.tokenOffsets(count, slot);
     const pct = tokenBoardPercent(position, off);
     if (!pct) return;
     tok.style.left = `${pct.left}%`;
     tok.style.bottom = `${pct.bottom}%`;
-    tok.style.setProperty("--pawn-scale", String(BoardEngine.tokenCrowdScale(here.length)));
-    tok.style.zIndex = String(20 + Math.round((0.3 - off.dy) * 40) + slot);
+    tok.style.setProperty("--pawn-scale", String(BoardEngine.tokenCrowdScale(count)));
+    tok.style.zIndex = String(20 + slot);
   };
 
   const syncTokens = (): void => {
@@ -472,12 +604,51 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     }
   };
 
+  const clearQuestionUI = (why?: string): void => {
+    if (activeQ && why) {
+      /* debug-friendly; keep silent in prod */
+    }
+    activeQ = null;
+    qResult = null;
+    answered = false;
+  };
+
+  const questionOwnerId = (): string =>
+    String(activeQ?.playerId || snap.questionPlayerId || "");
+
   const paintTable = (): void => {
     ensureTable();
-    const cur = players().find((p) => p.userId === currentId());
-    const mine = currentId() === myId() && status() === "PLAYING" && !animating && !activeQ;
-    const label = activeQ ? "SOAL AKTIF" : mine ? "ROLL DADU" : "MENUNGGU...";
-    applyPremiumRollState(rollBtn, label, mine && !activeQ);
+    // Jangan biarkan overlay soal menggantung dan mengunci giliran pemain lain.
+    const phaseNow = String(snap.phase || "");
+    const qEnds = Number(activeQ?.endsAt || snap.questionEndsAt || 0);
+    const qStillTimed = Boolean(activeQ) && qEnds > 0 && Date.now() < qEnds;
+    const qExpired = Boolean(activeQ) && qEnds > 0 && Date.now() > qEnds + 3500;
+    const phaseFree =
+      phaseNow === "PLAYER_TURN" ||
+      phaseNow === "ROLLING" ||
+      phaseNow === "MOVING" ||
+      phaseNow === "NEXT_TURN" ||
+      phaseNow === "FINISHED";
+    if (activeQ && (qExpired || phaseNow === "FINISHED" || (phaseFree && !qStillTimed && !snap.currentQuestionId))) {
+      clearQuestionUI();
+      animating = false;
+    }
+    const curId = currentId();
+    const cur = players().find((p) => p.userId === curId);
+    const st = status();
+    const phase = String(snap.phase || "");
+    const turnOk = phase === "" || phase === "PLAYER_TURN" || phase === "PLAYING" || phase === "STARTING";
+    const canRoll = isMyTurn() && (st === "PLAYING" || st === "STARTING") && turnOk && !animating && !activeQ;
+    const label = activeQ
+      ? "SOAL AKTIF"
+      : canRoll
+        ? "ROLL DADU"
+        : st === "STARTING"
+          ? "MEMULAI…"
+          : curId
+            ? `Giliran ${truncateName(cur?.username || "lawan", 12)}`
+            : "MENUNGGU...";
+    applyPremiumRollState(rollBtn, label, canRoll);
     const seats: PremiumSeat[] = players().map((p) => ({
       id: p.userId,
       username: p.username,
@@ -486,7 +657,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       bag: seatBag(p),
       isConnected: p.isConnected,
     }));
-    paintPremiumStrip(playerStrip, seats, currentId());
+    paintPremiumStrip(playerStrip, seats, curId);
     const qTimer =
       activeQ?.endsAt && activeQ.playerId === myId()
         ? Math.max(0, Math.ceil((activeQ.endsAt - Date.now()) / 1000))
@@ -507,33 +678,79 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       err.textContent = error;
     }
     const dbg = root.querySelector("#dbg");
-    if (dbg) dbg.textContent = JSON.stringify({ seq: snap.seq, matchId: snap.matchId, phase: snap.phase, current: currentId(), q: activeQ?.id }, null, 2);
+    if (dbg) dbg.textContent = JSON.stringify({ seq: snap.seq, matchId: snap.matchId, phase: snap.phase, status: st, current: curId, q: activeQ?.id }, null, 2);
     syncTokens();
     paintPowerMarks();
     paintBoardChat();
     const frame = root.querySelector("#board-frame");
     frame?.classList.toggle("is-final", Boolean(activeQ?.final) || players().some((p) => p.position >= 100));
-    root.querySelectorAll<HTMLElement>(".cell").forEach((c) => {
-      const pos = Number(c.dataset.pos);
-      c.classList.toggle("is-current", pos === (cur?.position || 0));
-    });
+    const occupied = new Set<number>();
+    for (const p of players()) {
+      const pos = p.position > 0 ? p.position : 1;
+      occupied.add(pos);
+    }
+    const curPos = cur?.position && cur.position > 0 ? cur.position : curId ? 1 : 0;
+    const occSig = `${[...occupied].sort((a, b) => a - b).join(",")}|${curPos}`;
+    if (lastTableSig !== occSig) {
+      lastTableSig = occSig;
+      root.querySelectorAll<HTMLElement>(".cell").forEach((c) => {
+        const pos = Number(c.dataset.pos);
+        c.classList.toggle("is-occupied", occupied.has(pos));
+        c.classList.toggle("is-current", Boolean(curPos) && pos === curPos);
+      });
+    }
     const qHost = root.querySelector("#q-host") as HTMLElement | null;
     if (qHost && activeQ) {
+      const owner = questionOwnerId();
+      const me = myId();
+      const canAnswer = Boolean(owner) && owner === me && !answered && !qResult;
       const overlay = mountQuestionOverlay(qHost, {
-        question: activeQ,
-        selfId: myId(),
-        answering: activeQ.playerId === myId() && !answered && !qResult,
+        question: {
+          ...activeQ,
+          playerId: owner || activeQ.playerId,
+          username: activeQ.username || players().find((p) => p.userId === owner)?.username || "Pemain",
+        },
+        selfId: me,
+        answering: canAnswer,
         result: qResult,
         onAnswer: (letter) => {
           if (answered) return;
+          if (!canAnswer) {
+            toast("Bukan giliranmu menjawab.", "warning");
+            return;
+          }
+          const ok = opts.client.send(WS_EVENTS.QUESTION_ANSWER, { answer: letter });
+          if (!ok) {
+            toast("Koneksi terputus — coba jawab lagi.", "warning");
+            return;
+          }
           answered = true;
-          opts.client.send(WS_EVENTS.QUESTION_ANSWER, { answer: letter });
+          paintTable();
         },
       });
-      window.clearInterval(qTick);
-      qTick = window.setInterval(() => overlay.tick(), 250);
+      const qId = String(activeQ.id || "");
+      qOverlayTick = () => overlay.tick();
+      if (!qTick || qHost.dataset.qTickId !== qId) {
+        window.clearInterval(qTick);
+        qHost.dataset.qTickId = qId;
+        qTick = window.setInterval(() => {
+          qOverlayTick?.();
+          const ends = Number(activeQ?.endsAt || 0);
+          if (ends && Date.now() > ends + 4000 && activeQ) {
+            clearQuestionUI();
+            animating = false;
+            window.clearInterval(qTick);
+            qTick = 0;
+            qOverlayTick = null;
+            paintTable();
+          }
+        }, 250);
+      }
     } else if (qHost) {
       window.clearInterval(qTick);
+      qTick = 0;
+      qOverlayTick = null;
+      delete qHost.dataset.qTickId;
       unmountQuestionOverlay(qHost);
     }
     paintResult();
@@ -542,11 +759,12 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
   let champCelebrated = false;
 
   const paintResult = (): void => {
-    const host = root.querySelector("#result-host");
+    const host = root.querySelector("#result-host") as HTMLElement | null;
     if (!host) return;
     if (status() !== "FINISHED") {
-      host.innerHTML = "";
+      if (host.innerHTML) host.innerHTML = "";
       champCelebrated = false;
+      delete host.dataset.paintSig;
       return;
     }
     // Jika modal juara sudah tampil, panel hasil hanya ringkas (tanpa ulang “SELAMAT”).
@@ -556,6 +774,9 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     const rewards = (snap.rewards || []) as RewardEvent[];
     const mine = rewards.find((r) => r.userId === myId());
     const compact = champCelebrated;
+    const sig = `${compact ? 1 : 0}|${winner?.userId || ""}|${ranked.map((p) => `${p.userId}:${p.position}`).join(",")}|${mine?.xp || 0}:${mine?.coins || 0}`;
+    if (host.dataset.paintSig === sig) return;
+    host.dataset.paintSig = sig;
     host.innerHTML = `<div class="result-layer"><div class="result-card nt-card ${compact ? "" : "champion-card"}">
       ${compact
         ? `<p class="nt-kicker">${icon("trophy")} HASIL AKHIR</p>
@@ -584,6 +805,7 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     </div></div>`;
     host.querySelector("[data-r=again]")?.addEventListener("click", () => {
       opts.client.send(WS_EVENTS.ROOM_LEAVE);
+      forgottenRoomCode();
       tableBuilt = false;
       view = "room";
       snap = {};
@@ -605,9 +827,21 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     else if (s === "connecting") setConnectionBanner("connecting");
     else setConnectionBanner("online");
     if (view === "room") paint();
-    else paintTable();
+    else paintConnLine();
   };
   unsub = opts.client.addListener((type, data) => {
+    if (typeof data.youAre === "string" && data.youAre) {
+      opts.client.myId = String(data.youAre);
+    }
+    if (typeof data.playerId === "string" && data.playerId && !opts.client.myId) {
+      opts.client.myId = String(data.playerId);
+    }
+    const gameSync =
+      type === WS_EVENTS.ROOM_START ||
+      type === WS_EVENTS.GAME_STATE ||
+      type === WS_EVENTS.TURN_CHANGED ||
+      type === WS_EVENTS.ROOM_UPDATED ||
+      type === WS_EVENTS.PLAYER_RECONNECT;
     const skipMerge =
       type === WS_EVENTS.PONG ||
       type === WS_EVENTS.QUEUE_UPDATE ||
@@ -616,12 +850,30 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       type === WS_EVENTS.JOIN_ASK_EV ||
       type === WS_EVENTS.INVITE_RESULT ||
       type === WS_EVENTS.SOCIAL_NOTIFY ||
-      type === WS_EVENTS.ONLINE_LIST;
+      type === WS_EVENTS.ONLINE_LIST ||
+      type === WS_EVENTS.DICE_RESULT;
     const seatsLike = Array.isArray(data.players) && data.players[0] && typeof data.players[0] === "object";
-    if (!skipMerge && (data.roomCode || seatsLike || data.status || data.hostId || data.chat)) {
+    if (gameSync || (!skipMerge && (data.roomCode || seatsLike || data.status || data.hostId || data.chat || data.currentPlayerId || data.phase))) {
       const next = { ...snap, ...data };
       if (Array.isArray(data.players) && !seatsLike) delete next.players;
+      // Setelah soal selesai server omit field question — hapus sisa agar overlay tidak nyangkut.
+      if (
+        type === WS_EVENTS.GAME_STATE ||
+        type === WS_EVENTS.TURN_CHANGED ||
+        type === WS_EVENTS.QUESTION_COMPLETE ||
+        type === WS_EVENTS.PLAYER_RECONNECT ||
+        type === WS_EVENTS.ROOM_START
+      ) {
+        const liveQ =
+          data.question && typeof data.question === "object" && String((data.question as { id?: string }).id || "");
+        const liveId = String(data.currentQuestionId || "");
+        if (!liveQ && !liveId) {
+          delete next.question;
+          delete next.currentQuestionId;
+        }
+      }
       snap = next;
+      if (typeof data.roomCode === "string" && data.roomCode) rememberRoomCode(String(data.roomCode));
     }
     if (type === WS_EVENTS.ONLINE_LIST) {
       const list = Array.isArray(data.players) ? (data.players as OnlineCard[]) : [];
@@ -632,6 +884,10 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     if (type === WS_EVENTS.PONG) {
       const t = Number(data.t || 0);
       if (t) pingMs = Math.max(1, Date.now() - t);
+      if (view === "table") paintConnLine();
+      else if (view === "room") {
+        /* ping tampil di header room saat paint berikutnya */
+      }
       return;
     }
     if (type === WS_EVENTS.QUEUE_UPDATE) {
@@ -673,26 +929,48 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       }, 45000);
       if (view === "room") paint();
     }
+    if (type === WS_EVENTS.SOCIAL_NOTIFY) {
+      toast(String(data.title || data.message || data.type || "Notifikasi"), "info");
+      return;
+    }
     if (type === WS_EVENTS.INVITE_RESULT) {
       const ok = Boolean(data.accepted);
       const who = String(data.username || "Pemain");
       toast(ok ? `${who} menerima undangan/permintaan.` : `${who} menolak. Buat permainan sendiri jika perlu.`, ok ? "success" : "warning");
+      return;
     }
-    if (type === WS_EVENTS.SOCIAL_NOTIFY) toast(String(data.title || data.message || data.type || "Notifikasi"), "info");
     if (type === WS_EVENTS.ULAR_ERROR) {
       error = String(data.message || "Terjadi kesalahan. Silakan coba lagi.");
       toast(error, "error");
-      if (String(data.code || "") === "KICKED") {
+      const codeErr = String(data.code || "");
+      if (codeErr === "KICKED") {
         snap = {};
         searching = false;
         matchFound = null;
         readyCheck = false;
       }
+      // Jawab gagal / terlambat — izinkan coba lagi jika soal masih aktif.
+      if (
+        activeQ &&
+        (codeErr === "LATE_ANSWER" ||
+          codeErr === "NO_QUESTION" ||
+          codeErr === "INVALID_REQUEST" ||
+          codeErr === "RATE_LIMITED" ||
+          codeErr === "GAME_LOCKED")
+      ) {
+        answered = false;
+      }
       if (view === "room") paint();
       else paintTable();
       return;
     }
-    if (type === WS_EVENTS.ROOM_START || status() === "STARTING" || status() === "PLAYING" || status() === "FINISHED") {
+    if (type === WS_EVENTS.ROOM_START) {
+      toast("Permainan dimulai!", "success");
+      view = "table";
+      searching = false;
+      matchFound = null;
+      readyCheck = false;
+    } else if (status() === "STARTING" || status() === "PLAYING" || status() === "FINISHED") {
       view = "table";
       searching = false;
       matchFound = null;
@@ -706,11 +984,23 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
     }
     if (type === WS_EVENTS.QUESTION_START) {
       playSfx("question_open");
-      const q = (data.question || data) as QuestionPublic;
-      activeQ = q.id ? q : ((data as { question?: QuestionPublic }).question as QuestionPublic);
-      if (!activeQ?.id && snap.question) activeQ = snap.question as QuestionPublic;
+      const nested = data.question && typeof data.question === "object" ? (data.question as QuestionPublic) : null;
+      const q = nested?.id ? nested : (data as unknown as QuestionPublic);
+      if (!q?.id) {
+        return;
+      }
+      // Lengkapi playerId dari snapshot bila hilang di payload.
+      activeQ = {
+        ...q,
+        playerId: q.playerId || String(data.questionPlayerId || snap.questionPlayerId || ""),
+        username: q.username || String(data.username || ""),
+      };
+      if (!activeQ.username && activeQ.playerId) {
+        activeQ.username = players().find((p) => p.userId === activeQ!.playerId)?.username || "Pemain";
+      }
       qResult = null;
       answered = false;
+      animating = false;
     }
     if (type === WS_EVENTS.QUESTION_RESULT || type === WS_EVENTS.QUESTION_TIMEOUT || type === WS_EVENTS.QUESTION_PENALTY) {
       qResult = data as QuestionResultView;
@@ -736,9 +1026,12 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       if (tok && path.length > 1 && !qResult.correct) {
         animating = true;
         void (async () => {
-          await anim.animatePenalty(tok, path, (pos) => place(uid, pos));
-          animating = false;
-          paintTable();
+          try {
+            await anim.animatePenalty(tok, path, (pos) => place(uid, pos));
+          } finally {
+            animating = false;
+            paintTable();
+          }
         })();
       }
     }
@@ -782,20 +1075,37 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       if (tok) {
         animating = true;
         void (async () => {
-          await anim.animateTokenMove(tok, fromPos === toPos ? [] : [toPos], (pos) => place(tid, pos));
-          place(tid, toPos);
-          animating = false;
-          paintTable();
+          try {
+            await anim.animateTokenMove(tok, fromPos === toPos ? [] : [toPos], (pos) => place(tid, pos));
+            place(tid, toPos);
+          } finally {
+            animating = false;
+            paintTable();
+          }
         })();
       }
     }
     if (type === WS_EVENTS.QUESTION_COMPLETE || type === WS_EVENTS.TURN_CHANGED) {
-      activeQ = null;
-      qResult = null;
-      answered = false;
+      clearQuestionUI();
+      animating = false;
     }
-    if ((type === WS_EVENTS.GAME_STATE || type === WS_EVENTS.PLAYER_RECONNECT) && snap.question && !qResult) {
-      activeQ = snap.question as QuestionPublic;
+    // Hanya aktifkan overlay dari payload yang benar-benar membawa soal aktif.
+    if (type === WS_EVENTS.GAME_STATE || type === WS_EVENTS.PLAYER_RECONNECT) {
+      const phase = String(data.phase || snap.phase || "");
+      const liveQ =
+        data.question && typeof data.question === "object" && String((data.question as QuestionPublic).id || "")
+          ? (data.question as QuestionPublic)
+          : null;
+      if (liveQ && (phase === "QUESTION" || phase === "ANSWERING" || phase === "PENALTY")) {
+        if (!qResult) activeQ = liveQ;
+      } else {
+        if (!liveQ) activeQ = null;
+        if (phase === "PLAYER_TURN" || phase === "FINISHED" || phase === "NEXT_TURN" || phase === "ROLLING") {
+          qResult = null;
+          answered = false;
+          animating = false;
+        }
+      }
     }
     if (type === WS_EVENTS.PLAYER_MOVING) {
       const uid = String(data.userId || "");
@@ -805,17 +1115,20 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
       if (tok && path.length) {
         animating = true;
         void (async () => {
-          await anim.animateTokenMove(tok, path, (pos) => place(uid, pos));
-          if (move.snakeTo) await anim.animateSnake(root.querySelector("#board-frame") as HTMLElement, tok, move.walkFinal || path[path.length - 1], move.snakeTo, (pos) => place(uid, pos));
-          else if (move.ladderTo) {
-            await anim.animateLadder(tok, move.ladderTo, (pos) => place(uid, pos));
-            const frame = root.querySelector("#board-frame") as HTMLElement | null;
-            if (frame) sparkle(frame);
+          try {
+            await anim.animateTokenMove(tok, path, (pos) => place(uid, pos));
+            if (move.snakeTo) await anim.animateSnake(root.querySelector("#board-frame") as HTMLElement, tok, move.walkFinal || path[path.length - 1], move.snakeTo, (pos) => place(uid, pos));
+            else if (move.ladderTo) {
+              await anim.animateLadder(tok, move.ladderTo, (pos) => place(uid, pos));
+              const frame = root.querySelector("#board-frame") as HTMLElement | null;
+              if (frame) sparkle(frame);
+            }
+            place(uid, move.final || move.walkFinal || path[path.length - 1]);
+            if (uid === myId()) opts.client.send(WS_EVENTS.MOVEMENT_ANIMATION_COMPLETE);
+          } finally {
+            animating = false;
+            paintTable();
           }
-          place(uid, move.final || move.walkFinal || path[path.length - 1]);
-          animating = false;
-          if (uid === myId()) opts.client.send(WS_EVENTS.MOVEMENT_ANIMATION_COMPLETE);
-          paintTable();
         })();
       }
     }
@@ -870,8 +1183,42 @@ export function mountOnline(root: HTMLElement, opts: { client: GameClient; onExi
         bootQueue = "";
         joinQueue(q);
       }
+      if (type === WS_EVENTS.AUTH_OK) {
+        const saved = recalledRoomCode();
+        if (saved && !code()) {
+          opts.client.send(WS_EVENTS.ROOM_JOIN, { roomCode: saved });
+        }
+      }
     }
-    if (view === "table") paintTable();
+    // Event yang tidak mengubah tampilan papan — skip paint.
+    if (
+      type === WS_EVENTS.GAME_INVITE ||
+      type === WS_EVENTS.QUEUE_UPDATE ||
+      type === WS_EVENTS.MATCH_FOUND ||
+      (type === WS_EVENTS.JOIN_ASK_EV && view === "table") ||
+      (type === WS_EVENTS.AUTH_OK && view === "table")
+    ) {
+      if (view === "room" && (type === WS_EVENTS.QUEUE_UPDATE || type === WS_EVENTS.MATCH_FOUND || type === WS_EVENTS.GAME_INVITE)) {
+        paint();
+      }
+      return;
+    }
+    const urgent =
+      type === WS_EVENTS.ROOM_START ||
+      type === WS_EVENTS.DICE_RESULT ||
+      type === WS_EVENTS.PLAYER_MOVING ||
+      type === WS_EVENTS.QUESTION_START ||
+      type === WS_EVENTS.QUESTION_RESULT ||
+      type === WS_EVENTS.QUESTION_TIMEOUT ||
+      type === WS_EVENTS.QUESTION_PENALTY ||
+      type === WS_EVENTS.QUESTION_COMPLETE ||
+      type === WS_EVENTS.SNAKE_TRIGGERED ||
+      type === WS_EVENTS.LADDER_TRIGGERED ||
+      type === WS_EVENTS.POWER_USED ||
+      type === WS_EVENTS.POWER_PICKUP ||
+      type === WS_EVENTS.GAME_FINISHED ||
+      type === WS_EVENTS.ULAR_ERROR;
+    if (view === "table") scheduleTablePaint(urgent);
     else paint();
   });
 

@@ -39,8 +39,10 @@ export function premiumBoardShell(extra?: string): string {
   return `
     <div class="premium-board-root mountain-mode">
       <div class="premium-bg" aria-hidden="true"></div>
-      <h1 class="premium-title">ULAR TANGGA NUSANTARA</h1>
-      <p class="premium-subtitle">Perjalanan ke rumah tangga — dari desa ke istana di awan</p>
+      <div class="premium-brand">
+        <h1 class="premium-title">ULAR TANGGA NUSANTARA</h1>
+        <p class="premium-subtitle">Perjalanan ke rumah tangga — dari desa ke istana di awan</p>
+      </div>
 
       <header class="premium-header">
         <div class="premium-player-strip" id="player-strip" role="list"></div>
@@ -54,8 +56,8 @@ export function premiumBoardShell(extra?: string): string {
         <div class="premium-board-stage">
           <div class="iso-wrap">
             <div class="board-frame premium-frame" id="board-frame">
-              <div class="board-scenic-art" aria-hidden="true"></div>
               <div class="board-playfield" id="board-playfield">
+                <div class="board-scenic-art" aria-hidden="true"></div>
                 <div class="start-pad" aria-label="Zona start di luar papan">
                   <span class="start-pad-label">START</span>
                   <span class="start-pad-hint">Masuk →</span>
@@ -101,6 +103,11 @@ export function premiumBoardShell(extra?: string): string {
 
 export function paintPremiumStrip(el: HTMLElement | null, seats: PremiumSeat[], turnId: string): void {
   if (!el) return;
+  const sig = `${turnId}|${seats
+    .map((s) => `${s.id}:${s.position}:${s.isConnected !== false ? 1 : 0}:${s.bag?.bomb || 0},${s.bag?.thunder || 0},${s.bag?.superman || 0}:${s.username}`)
+    .join(";")}`;
+  if (el.dataset.paintSig === sig) return;
+  el.dataset.paintSig = sig;
   el.innerHTML = seats
     .map((s, i) => {
       const pts = pointsFromPosition(s.position);
@@ -133,13 +140,45 @@ export function paintPremiumTurnHud(
   const t = opts?.timerSec;
   const timer = t !== undefined ? ` · ⏱ ${t}` : "";
   const pts = opts?.position !== undefined ? pointsFromPosition(opts.position) : undefined;
+  const posLine =
+    pts !== undefined
+      ? `${(opts!.position ?? 0) <= 0 ? `start · kotak 1` : `${pts} poin · kotak ${opts!.position}`}${timer}`
+      : timer || "Siap bermain";
+  const baseSig = `${name}|${opts?.position ?? ""}|${opts?.isMine ? 1 : 0}`;
+  const sig = `${baseSig}|${t ?? ""}`;
+  if (el.dataset.paintSig === sig) return;
+  // Hanya timer berubah — update teks, jangan rewrite DOM (hindari kedip).
+  if (el.dataset.paintBase === baseSig) {
+    el.dataset.paintSig = sig;
+    const posEl = el.querySelector(".turn-hud-pos");
+    if (posEl) posEl.textContent = posLine;
+    return;
+  }
+  el.dataset.paintBase = baseSig;
+  el.dataset.paintSig = sig;
   el.innerHTML = `
     <p class="turn-hud-kicker">GILIRAN</p>
     <p class="turn-hud-name ${opts?.isMine ? "is-mine" : ""}">${esc(name)}</p>
-    ${pts !== undefined
-      ? `<p class="turn-hud-pos">${pts <= 0 ? "0 poin · luar papan" : `${pts} poin · kotak ${opts!.position}`}${timer}</p>`
-      : `<p class="turn-hud-pos">${timer || "Siap bermain"}</p>`}`;
+    <p class="turn-hud-pos">${esc(posLine)}</p>`;
   el.style.borderLeftColor = opts?.isMine ? "#00ffff" : "#ff00ff";
+}
+
+export function applyPremiumRollState(btn: HTMLElement | null, label: string, enabled: boolean): void {
+  if (!btn) return;
+  const labText = label.toUpperCase().includes("ROLL") || label.toUpperCase().includes("KOCOK")
+    ? "KOCOK DADU"
+    : label.toUpperCase();
+  const show = enabled ? "KOCOK DADU" : labText;
+  const sig = `${show}|${enabled ? 1 : 0}`;
+  if (btn.dataset.paintSig === sig) return;
+  btn.dataset.paintSig = sig;
+  btn.classList.toggle("is-ready", enabled);
+  btn.classList.toggle("is-disabled", !enabled);
+  btn.setAttribute("aria-disabled", enabled ? "false" : "true");
+  btn.tabIndex = enabled ? 0 : -1;
+  const lab = btn.querySelector(".dock-roll-label");
+  if (lab) lab.textContent = show;
+  btn.setAttribute("aria-label", label);
 }
 
 export function bindPremiumDock(root: ParentNode, handlers: PremiumDockHandlers): void {
@@ -179,22 +218,6 @@ export function bindPremiumDock(root: ParentNode, handlers: PremiumDockHandlers)
       fireRoll();
     }
   });
-}
-
-export function applyPremiumRollState(btn: HTMLElement | null, label: string, enabled: boolean): void {
-  if (!btn) return;
-  btn.classList.toggle("is-ready", enabled);
-  btn.classList.toggle("is-disabled", !enabled);
-  btn.setAttribute("aria-disabled", enabled ? "false" : "true");
-  btn.tabIndex = enabled ? 0 : -1;
-  const lab = btn.querySelector(".dock-roll-label");
-  if (lab) lab.textContent = label.toUpperCase().includes("ROLL") || label.toUpperCase().includes("KOCOK")
-    ? "KOCOK DADU"
-    : label.toUpperCase();
-  if (enabled) {
-    if (lab) lab.textContent = "KOCOK DADU";
-  }
-  btn.setAttribute("aria-label", label);
 }
 
 export function usePremiumBoardLayout(): boolean {

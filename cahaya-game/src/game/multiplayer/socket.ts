@@ -25,6 +25,12 @@ export class GameClient {
   private mode: "ws" | "http" = "ws";
   private pollAbort: AbortController | null = null;
   private httpActive = false;
+  private intentionalClose = false;
+  private reconnectTimer = 0;
+  private reconnectAttempt = 0;
+  private connGen = 0;
+  private statusDebounce = 0;
+  private lastOnlineAt = 0;
 
   addListener(fn: (type: string, data: Record<string, unknown>) => void): () => void {
     this.listeners.add(fn);
@@ -33,62 +39,102 @@ export class GameClient {
 
   connect(token: string): void {
     this.token = token;
-    this.status = "connecting";
-    this.onStatus?.(this.status);
-    this.mode = "ws";
+    this.intentionalClose = false;
+    window.clearTimeout(this.reconnectTimer);
     this.stopHttp();
+    this.mode = "ws";
+    this.setStatus("connecting", false);
+    const gen = ++this.connGen;
     const ws = new WebSocket(wsURL());
     this.ws = ws;
     let opened = false;
     const failTimer = window.setTimeout(() => {
-      if (!opened) {
+      if (!opened && gen === this.connGen) {
         try {
           ws.close();
         } catch {
           /* ignore */
         }
-        this.startHttpBridge();
+        this.fallbackOrRetry("open-timeout");
       }
-    }, 3500);
+    }, 4500);
     ws.addEventListener("open", () => {
+      if (gen !== this.connGen) return;
       opened = true;
       window.clearTimeout(failTimer);
       this.mode = "ws";
-      ws.send(JSON.stringify({ type: WS_EVENTS.AUTH, data: { token } }));
+      try {
+        ws.send(JSON.stringify({ type: WS_EVENTS.AUTH, data: { token } }));
+      } catch {
+        this.fallbackOrRetry("auth-send");
+      }
     });
-    ws.addEventListener("message", (ev) => this.handleRaw(String(ev.data)));
+    ws.addEventListener("message", (ev) => {
+      if (gen !== this.connGen) return;
+      this.handleRaw(String(ev.data));
+    });
     ws.addEventListener("close", () => {
       window.clearTimeout(failTimer);
-      if (this.mode === "ws" && !opened) {
-        this.startHttpBridge();
+      if (gen !== this.connGen) return;
+      if (this.intentionalClose) {
+        this.setStatus("offline", true);
+        window.clearInterval(this.pingTimer);
         return;
       }
-      if (this.mode === "ws") {
-        this.status = "offline";
-        this.onStatus?.(this.status);
-        window.clearInterval(this.pingTimer);
+      if (!opened) {
+        this.fallbackOrRetry("close-before-open");
+        return;
       }
+      window.clearInterval(this.pingTimer);
+      this.ws = null;
+      this.scheduleReconnect();
     });
     ws.addEventListener("error", () => {
-      if (!opened) {
-        window.clearTimeout(failTimer);
-        try {
-          ws.close();
-        } catch {
-          /* ignore */
-        }
-        this.startHttpBridge();
+      if (gen !== this.connGen || opened) return;
+      window.clearTimeout(failTimer);
+      try {
+        ws.close();
+      } catch {
+        /* ignore */
       }
     });
+  }
+
+  /** Tutup bersih (keluar menu) — tanpa auto-reconnect. */
+  disconnect(): void {
+    this.intentionalClose = true;
+    window.clearTimeout(this.reconnectTimer);
+    window.clearInterval(this.pingTimer);
+    this.stopHttp();
+    try {
+      this.ws?.close();
+    } catch {
+      /* ignore */
+    }
+    this.ws = null;
+    this.setStatus("offline", true);
   }
 
   reconnect(): void {
-    this.ws?.close();
+    this.reconnectAttempt = 0;
+    window.clearTimeout(this.reconnectTimer);
+    const old = this.ws;
+    this.intentionalClose = false;
     this.stopHttp();
     this.connect(this.token);
+    if (old && old !== this.ws) {
+      window.setTimeout(() => {
+        try {
+          old.close();
+        } catch {
+          /* ignore */
+        }
+      }, 600);
+    }
   }
 
-  send(type: string, data: Record<string, unknown> = {}): void {
+  /** @returns true jika pesan terkirim (WS open atau HTTP bridge). */
+  send(type: string, data: Record<string, unknown> = {}): boolean {
     if (this.mode === "http") {
       void fetch("/cahaya/api/realtime/send", {
         method: "POST",
@@ -98,10 +144,64 @@ export class GameClient {
         },
         body: JSON.stringify({ type, data }),
       }).catch(() => undefined);
+      return true;
+    }
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
+    try {
+      this.ws.send(JSON.stringify({ type, data }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private setStatus(s: ConnStatus, immediate: boolean): void {
+    window.clearTimeout(this.statusDebounce);
+    const apply = (): void => {
+      if (this.status === s) return;
+      this.status = s;
+      this.onStatus?.(s);
+    };
+    // Jangan kedip banner/paint saat blip singkat — penyebab layar berkedip di multiplayer.
+    if (!immediate && s === "offline" && Date.now() - this.lastOnlineAt < 4000) {
+      this.statusDebounce = window.setTimeout(apply, 1800);
       return;
     }
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-    this.ws.send(JSON.stringify({ type, data }));
+    if (!immediate && s === "connecting" && this.status === "online" && Date.now() - this.lastOnlineAt < 10000) {
+      this.statusDebounce = window.setTimeout(apply, 900);
+      return;
+    }
+    if (s === "online") this.lastOnlineAt = Date.now();
+    apply();
+  }
+
+  private scheduleReconnect(): void {
+    if (this.intentionalClose || !this.token) {
+      this.setStatus("offline", true);
+      return;
+    }
+    this.setStatus("connecting", false);
+    const attempt = this.reconnectAttempt++;
+    // Setelah beberapa gagal WS, pakai HTTP bridge (proxy kadang putus Upgrade).
+    if (attempt >= 3) {
+      this.startHttpBridge();
+      return;
+    }
+    const delay = Math.min(8000, 600 + attempt * 900);
+    window.clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = window.setTimeout(() => {
+      if (this.intentionalClose) return;
+      this.connect(this.token);
+    }, delay);
+  }
+
+  private fallbackOrRetry(_reason: string): void {
+    if (this.intentionalClose) return;
+    if (this.reconnectAttempt >= 2) {
+      this.startHttpBridge();
+      return;
+    }
+    this.scheduleReconnect();
   }
 
   private startHttpBridge(): void {
@@ -109,10 +209,7 @@ export class GameClient {
     this.httpActive = true;
     this.mode = "http";
     this.ws = null;
-    this.status = "online";
-    this.onStatus?.(this.status);
-    this.emit(WS_EVENTS.AUTH_OK, { playerId: this.myId || "", via: "http" });
-    this.send(WS_EVENTS.JOIN_LOBBY);
+    this.setStatus("connecting", false);
     this.pollLoop();
   }
 
@@ -133,17 +230,34 @@ export class GameClient {
           cache: "no-store",
         });
         if (res.status === 401) {
-          this.status = "offline";
-          this.onStatus?.(this.status);
+          this.setStatus("offline", true);
           this.httpActive = false;
           return;
         }
         const text = await res.text();
         if (text) this.handleRaw(text);
       } catch {
-        await new Promise((r) => setTimeout(r, 800));
+        if (!this.httpActive) return;
+        await new Promise((r) => setTimeout(r, 600));
+        // Coba balik ke WS sesekali dari HTTP.
+        if (this.reconnectAttempt > 0 && this.reconnectAttempt % 5 === 0) {
+          this.httpActive = false;
+          this.reconnectAttempt = 0;
+          this.connect(this.token);
+          return;
+        }
       }
     }
+  }
+
+  private startPing(): void {
+    window.clearInterval(this.pingTimer);
+    const tick = (): void => {
+      if (document.visibilityState === "hidden") return;
+      this.send(WS_EVENTS.PING, { t: Date.now() });
+    };
+    tick();
+    this.pingTimer = window.setInterval(tick, 8000);
   }
 
   private emit(type: string, data: Record<string, unknown>): void {
@@ -165,15 +279,19 @@ export class GameClient {
       return;
     }
     const data = (msg.data || {}) as Record<string, unknown>;
+    if (typeof data.youAre === "string" && data.youAre) {
+      this.myId = String(data.youAre);
+    }
     if (msg.type === WS_EVENTS.AUTH_OK) {
-      this.myId = String(data.playerId || this.myId || "");
-      this.status = "online";
-      this.onStatus?.(this.status);
-      if (this.mode === "ws") {
-        this.send(WS_EVENTS.JOIN_LOBBY);
-        window.clearInterval(this.pingTimer);
-        this.pingTimer = window.setInterval(() => this.send(WS_EVENTS.PING, { t: Date.now() }), 12000);
-      }
+      this.myId = String(data.playerId || data.youAre || this.myId || "");
+      this.reconnectAttempt = 0;
+      this.setStatus("online", true);
+      this.send(WS_EVENTS.JOIN_LOBBY);
+      this.startPing();
+      this.emit(msg.type, data);
+      return;
+    }
+    if (msg.type === WS_EVENTS.PONG) {
       this.emit(msg.type, data);
       return;
     }
@@ -184,8 +302,9 @@ export class GameClient {
       this.seen.add(eventId);
       if (this.seen.size > 400) this.seen.clear();
     }
-    if (seq && seq < this.lastSeq) return;
-    if (seq) this.lastSeq = seq;
+    // Urutan jaringan bisa acak; izinkan seq sama / sedikit mundur agar TURN/STATE tidak hilang.
+    if (seq && this.lastSeq && seq + 5 < this.lastSeq) return;
+    if (seq && seq > this.lastSeq) this.lastSeq = seq;
     this.emit(msg.type, data);
   }
 }

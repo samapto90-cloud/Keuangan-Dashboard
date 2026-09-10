@@ -1,6 +1,7 @@
 package mmo
 
 import (
+	"log"
 	"strings"
 	"time"
 )
@@ -43,37 +44,41 @@ func (h *Hub) startQuestionLocked(room *UlarRoom, userID string, final bool) {
 	if final {
 		diff = DiffHard
 	}
-	grade := m.Grade
+	grade := normalizeGrade(m.Grade)
 	if grade == "" {
-		grade = GradeSMA
+		grade = normalizeGrade(room.Grade)
 	}
+	m.Grade = grade
 	subject := ""
 	if grade != GradeSD {
 		subject = m.nextSubject()
 	}
+	// Coba filter ketat dulu, lalu longgarkan difficulty — jangan pernah ganti tingkat (SD/SMA).
 	q, used := bank.reserve(m.UsedQuestionIDs, subject, diff, grade, true)
 	if q.ID == "" && subject != "" {
 		q, used = bank.reserve(m.UsedQuestionIDs, "", diff, grade, true)
 	}
 	if q.ID == "" && diff != "" {
+		q, used = bank.reserve(m.UsedQuestionIDs, subject, "", grade, true)
+	}
+	if q.ID == "" && subject != "" {
 		q, used = bank.reserve(m.UsedQuestionIDs, "", "", grade, true)
 	}
 	if q.ID == "" {
 		q, used = bank.reserve(m.UsedQuestionIDs, "", "", grade, true)
 	}
 	if q.ID == "" {
-		q, used = bank.reserve(m.UsedQuestionIDs, "", "", "", true)
-	}
-	if q.ID == "" {
+		log.Printf("QUESTION_EMPTY room=%s grade=%s final=%v", room.RoomCode, grade, final)
 		next := h.Lobby.nextAlive(room, userID)
 		m.CurrentPlayerID = next
 		m.TurnNumber++
 		m.Phase = UlarPlayerTurn
 		m.WaitingAnim = false
 		m.LastAction = "TURN"
-		snap := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
-		h.emitLocked(room, TypeGameState, snap)
-		h.emitLocked(room, TypeGameTurn, snap)
+		snapState := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
+		snapTurn := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
+		h.emitLocked(room, TypeGameState, snapState)
+		h.emitLocked(room, TypeGameTurn, snapTurn)
 		return
 	}
 	bank.bumpUsage(q.ID)
@@ -105,7 +110,8 @@ func (h *Hub) startQuestionLocked(room *UlarRoom, userID string, final bool) {
 	code := room.RoomCode
 	matchID := m.ID
 	qid := q.ID
-	snap := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
+	seqQ, evidQ, atQ := h.Lobby.nextSeq(room)
+	snapState := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
 	go func() {
 		time.Sleep(lim)
 		h.questionTimeout(code, matchID, qid)
@@ -114,8 +120,25 @@ func (h *Hub) startQuestionLocked(room *UlarRoom, userID string, final bool) {
 		UlarEnvelope
 		Question QuestionPublic `json:"question"`
 		State    string         `json:"questionState"`
-	}{UlarEnvelope: UlarEnvelope{Seq: snap.Seq, EventID: snap.EventID, At: snap.At}, Question: pub, State: QStateActive})
-	h.emitLocked(room, TypeGameState, snap)
+	}{UlarEnvelope: UlarEnvelope{Seq: seqQ, EventID: evidQ, At: atQ}, Question: pub, State: QStateActive})
+	h.emitLocked(room, TypeGameState, snapState)
+}
+
+func (h *Hub) tickUlarQuestions() {
+	if h == nil || h.Lobby == nil {
+		return
+	}
+	h.Lobby.mu.Lock()
+	rooms := make([]*UlarRoom, 0, len(h.Lobby.rooms))
+	for _, r := range h.Lobby.rooms {
+		if r != nil && r.Match != nil && r.Status == UlarPlaying {
+			rooms = append(rooms, r)
+		}
+	}
+	for _, room := range rooms {
+		h.overdueQuestionLocked(room)
+	}
+	h.Lobby.mu.Unlock()
 }
 
 func (h *Hub) questionTimeout(roomCode, matchID, questionID string) {
@@ -174,7 +197,11 @@ func (h *Hub) submitQuestion(p *Player, answer string) string {
 	if m.QuestionPlayerID != p.ID {
 		return ErrNotQuestionPlayer
 	}
-	if time.Since(m.QuestionStartedAt) >= questionTimeLimit {
+	lim := questionTimeLimit
+	if m.QuestionLimit > 0 {
+		lim = m.QuestionLimit
+	}
+	if time.Since(m.QuestionStartedAt) >= lim {
 		h.settleQuestionLocked(room, "", true)
 		return ErrLateAnswer
 	}
@@ -197,8 +224,25 @@ func (h *Hub) settleQuestionLocked(room *UlarRoom, answer string, timeout bool) 
 	pl := h.Lobby.player(room, m.QuestionPlayerID)
 	q, ok := DefaultEduBank().Get(m.CurrentQuestionID)
 	if pl == nil || !ok {
+		log.Printf("QUESTION_SETTLE_ABORT room=%s q=%s plNil=%v ok=%v", room.RoomCode, m.CurrentQuestionID, pl == nil, ok)
 		m.QuestionState = QStateComplete
 		m.CurrentQuestionID = ""
+		m.QuestionView = QuestionPublic{}
+		m.AnswerSubmitted = false
+		m.WaitingAnim = false
+		next := h.Lobby.nextAlive(room, m.QuestionPlayerID)
+		if next == "" && pl != nil {
+			next = pl.UserID
+		}
+		m.CurrentPlayerID = next
+		m.TurnNumber++
+		m.Phase = UlarPlayerTurn
+		m.QuestionPlayerID = ""
+		m.LastAction = "TURN"
+		snapState := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
+		snapTurn := h.Lobby.wrap(room, h.Lobby.snapshotLocked(room, ""))
+		h.emitLocked(room, TypeGameState, snapState)
+		h.emitLocked(room, TypeGameTurn, snapTurn)
 		return
 	}
 	m.AnswerSubmitted = true
@@ -284,7 +328,10 @@ func (h *Hub) settleQuestionLocked(room *UlarRoom, answer string, timeout bool) 
 	}
 	h.emitLocked(room, typ, payload)
 	if result != ResultCorrect {
-		h.emitLocked(room, TypeQuestionPenalty, payload)
+		seq2, evid2, at2 := h.Lobby.nextSeq(room)
+		pen := payload
+		pen.UlarEnvelope = UlarEnvelope{Seq: seq2, EventID: evid2, At: at2}
+		h.emitLocked(room, TypeQuestionPenalty, pen)
 	}
 	code := room.RoomCode
 	matchID := m.ID
@@ -325,11 +372,13 @@ func (h *Hub) completeQuestion(roomCode, matchID string, won bool, userID string
 		m.FinishedAt = &now
 		h.persistMatchLocked(room)
 		events := h.settleMatchRewardsLocked(room)
-		snap := l.wrap(room, l.snapshotLocked(room, ""))
-		snap.Rewards = events
+		snapDone := l.wrap(room, l.snapshotLocked(room, ""))
+		snapDone.Rewards = events
+		snapFinish := l.wrap(room, l.snapshotLocked(room, ""))
+		snapFinish.Rewards = events
 		l.mu.Unlock()
-		h.pushRoom(room, TypeQuestionComplete, snap)
-		h.pushRoom(room, TypeGameFinish, snap)
+		h.pushRoom(room, TypeQuestionComplete, snapDone)
+		h.pushRoom(room, TypeGameFinish, snapFinish)
 		return
 	}
 	next := l.nextAlive(room, userID)
@@ -339,12 +388,15 @@ func (h *Hub) completeQuestion(roomCode, matchID string, won bool, userID string
 	m.QuestionPlayerID = ""
 	m.AnswerSubmitted = false
 	m.QuestionFinal = false
+	m.WaitingAnim = false
 	m.LastAction = "TURN"
-	snap := l.wrap(room, l.snapshotLocked(room, ""))
+	snapComplete := l.wrap(room, l.snapshotLocked(room, ""))
+	snapState := l.wrap(room, l.snapshotLocked(room, ""))
+	snapTurn := l.wrap(room, l.snapshotLocked(room, ""))
 	l.mu.Unlock()
-	h.pushRoom(room, TypeQuestionComplete, snap)
-	h.pushRoom(room, TypeGameState, snap)
-	h.pushRoom(room, TypeGameTurn, snap)
+	h.pushRoom(room, TypeQuestionComplete, snapComplete)
+	h.pushRoom(room, TypeGameState, snapState)
+	h.pushRoom(room, TypeGameTurn, snapTurn)
 }
 
 type QuestionResultOut struct {

@@ -492,8 +492,14 @@ func purgeExpiredSessionsLoop() {
 
 func withMaxBody(max int64, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Body != nil && max > 0 {
-			r.Body = http.MaxBytesReader(w, r.Body, max)
+		limit := max
+		// Upload video portal hero — 48 MiB file + slack multipart headers/boundary.
+		if strings.HasPrefix(r.URL.Path, "/data/admin/portal-hero") &&
+			(r.Method == http.MethodPost || r.Method == http.MethodPut) {
+			limit = (int64(portalHeroMaxUploadMB) << 20) + (2 << 20)
+		}
+		if r.Body != nil && limit > 0 {
+			r.Body = http.MaxBytesReader(w, r.Body, limit)
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -502,6 +508,7 @@ func withMaxBody(max int64, next http.Handler) http.Handler {
 func securityCSP() string {
 	return strings.Join([]string{
 		"default-src 'self'",
+		"media-src 'self' blob:",
 		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
 		"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
 		"font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com data:",

@@ -5,9 +5,13 @@ import {
   MIN_POSITION,
   type BoardConfig,
 } from "./config";
+import { stoneCenterPercent } from "./stonePath";
 
-/** Posisi di luar papan sebelum masuk kotak 1. */
+/** Posisi start: di luar nomor (0). Visual di batu 1; dadu N mendarat di N (lewat 1…N). */
 export const OFFBOARD_START = 0;
+
+/** Pakai layout batu di ilustrasi rumah tangga (bukan grid 10×10 kaku). */
+export const USE_STONE_PATH = true;
 
 export type CellCoord = { row: number; col: number };
 
@@ -25,7 +29,7 @@ export type MoveResult = {
   log: string;
 };
 
-/** Area start kiri (fraksi lebar playfield). */
+/** Area start kiri (fraksi lebar playfield) — fallback grid. */
 export const GRID_INSET_LEFT = 0.1;
 export const GRID_WIDTH_FRAC = 0.9;
 
@@ -45,16 +49,35 @@ export function getPositionFromCoordinate(row: number, col: number): number | nu
   return row * BOARD_GRID + offset + 1;
 }
 
-/** Persen left/bottom di token-layer (termasuk zona start kiri). */
+/** Barisan start di batu 1 (kotak pertama) — offset kerumunan di sekitar angka 1. */
+export function startLineupPercent(count: number, index: number): { left: number; bottom: number } {
+  const base = stoneCenterPercent(MIN_POSITION) ?? { left: 14.0, bottom: 24.0 };
+  const off = tokenOffsets(Math.max(1, Math.min(8, count)), index);
+  return {
+    left: base.left + off.dx * 1.2,
+    bottom: base.bottom + off.dy * 1.2,
+  };
+}
+
+/** Persen left/bottom di token-layer (start = batu 1). */
 export function tokenBoardPercent(
   position: number,
   off: { dx: number; dy: number } = { dx: 0, dy: 0 },
 ): { left: number; bottom: number } | null {
   if (position <= OFFBOARD_START) {
-    // Zona start di kiri luar kotak 1
+    const base = stoneCenterPercent(MIN_POSITION);
+    if (!base) return startLineupPercent(1, 0);
     return {
-      left: (0.045 + off.dx * 0.035) * 100,
-      bottom: (0.06 + off.dy * 0.04) * 100,
+      left: base.left + off.dx * 2.2,
+      bottom: base.bottom + off.dy * 1.4,
+    };
+  }
+  if (USE_STONE_PATH) {
+    const c = stoneCenterPercent(position);
+    if (!c) return null;
+    return {
+      left: c.left + off.dx * 2.2,
+      bottom: c.bottom + off.dy * 1.4,
     };
   }
   const coord = getCellCoordinate(position);
@@ -67,7 +90,14 @@ export function tokenBoardPercent(
 /** Koordinat SVG viewBox 0–100 (selaras token-layer). */
 export function boardSvgPoint(position: number): { x: number; y: number } | null {
   if (position <= OFFBOARD_START) {
-    return { x: 4.5, y: 94 };
+    const p = tokenBoardPercent(OFFBOARD_START);
+    if (!p) return null;
+    return { x: p.left, y: 100 - p.bottom };
+  }
+  if (USE_STONE_PATH) {
+    const c = stoneCenterPercent(position);
+    if (!c) return null;
+    return { x: c.left, y: 100 - c.bottom };
   }
   const coord = getCellCoordinate(position);
   if (!coord || coord.col < 0) return null;
@@ -176,34 +206,84 @@ export function nextTurnIndex(current: number, playerCount: number): number {
   return (current + 1) % playerCount;
 }
 
-/** Offset antrean pemain di kotak yang sama — berdiri berdampingan, sedikit depth. */
+/** Offset antrean pemain di kotak yang sama — tetap di dalam batu. */
 export function tokenOffsets(count: number, index: number): { dx: number; dy: number } {
-  if (count <= 1) return { dx: 0, dy: 0.1 };
+  if (count <= 1) return { dx: 0, dy: 0 };
   if (count === 2) {
-    return index === 0 ? { dx: -0.28, dy: 0.1 } : { dx: 0.28, dy: 0.08 };
+    return index === 0 ? { dx: -0.22, dy: 0.02 } : { dx: 0.22, dy: -0.02 };
   }
   if (count === 3) {
     const pts = [
-      { dx: -0.32, dy: 0.12 },
-      { dx: 0.02, dy: 0.02 },
-      { dx: 0.32, dy: 0.1 },
+      { dx: -0.24, dy: 0.04 },
+      { dx: 0.0, dy: -0.03 },
+      { dx: 0.24, dy: 0.04 },
     ];
     return pts[index % 3]!;
   }
+  if (count === 4) {
+    const pts = [
+      { dx: -0.2, dy: 0.06 },
+      { dx: 0.2, dy: 0.06 },
+      { dx: -0.2, dy: -0.06 },
+      { dx: 0.2, dy: -0.06 },
+    ];
+    return pts[index % 4]!;
+  }
+  if (count === 5) {
+    const pts = [
+      { dx: -0.28, dy: 0.08 },
+      { dx: 0.28, dy: 0.08 },
+      { dx: 0.0, dy: 0.0 },
+      { dx: -0.2, dy: -0.08 },
+      { dx: 0.2, dy: -0.08 },
+    ];
+    return pts[index % 5]!;
+  }
+  if (count === 6) {
+    const pts = [
+      { dx: -0.28, dy: 0.08 },
+      { dx: 0.0, dy: 0.08 },
+      { dx: 0.28, dy: 0.08 },
+      { dx: -0.28, dy: -0.08 },
+      { dx: 0.0, dy: -0.08 },
+      { dx: 0.28, dy: -0.08 },
+    ];
+    return pts[index % 6]!;
+  }
+  if (count === 7) {
+    const pts = [
+      { dx: -0.3, dy: 0.1 },
+      { dx: -0.1, dy: 0.1 },
+      { dx: 0.1, dy: 0.1 },
+      { dx: 0.3, dy: 0.1 },
+      { dx: -0.22, dy: -0.08 },
+      { dx: 0.0, dy: -0.08 },
+      { dx: 0.22, dy: -0.08 },
+    ];
+    return pts[index % 7]!;
+  }
   const pts = [
-    { dx: -0.3, dy: 0.14 },
-    { dx: 0.3, dy: 0.12 },
-    { dx: -0.16, dy: -0.06 },
-    { dx: 0.16, dy: -0.08 },
+    { dx: -0.3, dy: 0.1 },
+    { dx: -0.1, dy: 0.1 },
+    { dx: 0.1, dy: 0.1 },
+    { dx: 0.3, dy: 0.1 },
+    { dx: -0.3, dy: -0.1 },
+    { dx: -0.1, dy: -0.1 },
+    { dx: 0.1, dy: -0.1 },
+    { dx: 0.3, dy: -0.1 },
   ];
-  return pts[index % 4]!;
+  return pts[index % 8]!;
 }
 
 export function tokenCrowdScale(count: number): number {
   if (count <= 1) return 1;
-  if (count === 2) return 0.9;
-  if (count === 3) return 0.82;
-  return 0.74;
+  if (count === 2) return 0.92;
+  if (count === 3) return 0.84;
+  if (count === 4) return 0.76;
+  if (count === 5) return 0.7;
+  if (count === 6) return 0.64;
+  if (count === 7) return 0.58;
+  return 0.54;
 }
 
 export function rollDiceLocal(): number {
@@ -223,6 +303,7 @@ export const BoardEngine = {
   nextTurnIndex,
   tokenOffsets,
   tokenCrowdScale,
+  startLineupPercent,
   defaultConfig: DEFAULT_BOARD,
   OFFBOARD_START,
 };

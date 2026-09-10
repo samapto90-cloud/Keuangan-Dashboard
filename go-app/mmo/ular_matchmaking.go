@@ -160,8 +160,8 @@ func (h *Hub) queueJoin(p *Player, mode, region, grade string, preferredSize int
 	if size < 2 {
 		size = 2
 	}
-	if size > 4 {
-		size = 4
+	if size > MAX_PLAYERS {
+		size = MAX_PLAYERS
 	}
 	if h.Social != nil {
 		h.Social.Touch(p.ID, false)
@@ -218,12 +218,26 @@ func (m *Matchmaker) form(h *Hub, mode string, now time.Time) {
 		if need < 2 {
 			need = 2
 		}
-		if need > 4 {
-			need = 4
+		if need > MAX_PLAYERS {
+			need = MAX_PLAYERS
 		}
-		// Setelah 15 detik tunggu, longgarkan ke 2 pemain agar online tidak macet.
-		if wait >= 15 && need > 2 {
+		// Hitung kandidat se-grade yang belum terpakai
+		unusedSame := 0
+		for _, o := range list {
+			if used[o.UserID] {
+				continue
+			}
+			if normalizeGrade(o.Grade) != normalizeGrade(seed.Grade) {
+				continue
+			}
+			unusedSame++
+		}
+		// Longgarkan ke 2 hanya jika belum cukup orang untuk ukuran yang diminta.
+		if wait >= 5 && unusedSame < need {
 			need = 2
+		}
+		if unusedSame < need {
+			continue
 		}
 		g := []UlarQueueEntry{seed}
 		for j := i + 1; j < len(list) && len(g) < need; j++ {
@@ -245,14 +259,13 @@ func (m *Matchmaker) form(h *Hub, mode string, now time.Time) {
 			if normalizeGrade(o.Grade) != normalizeGrade(seed.Grade) {
 				continue
 			}
-			// Hormati preferred size lawan: jangan masukkan ke grup lebih besar dari yang mereka mau,
-			// kecuali mereka juga sudah menunggu lama.
 			oNeed := o.PreferredSize
 			if oNeed < 2 {
 				oNeed = 2
 			}
 			oWait := int(now.Sub(o.EnqueuedAt).Seconds())
-			if oWait >= 15 && oNeed > 2 {
+			oUnused := unusedSame // cukup: hormati preferensi lawan
+			if oWait >= 5 && oUnused < oNeed {
 				oNeed = 2
 			}
 			if len(g)+1 > oNeed && oNeed < need {

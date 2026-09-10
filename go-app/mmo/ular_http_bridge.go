@@ -33,7 +33,7 @@ func (b *bridgeStore) ensure(sess *GameSession) *Player {
 		Name:      sess.Username,
 		Level:     1,
 		State:     "IDLE",
-		send:      make(chan []byte, 256),
+		send:      make(chan []byte, 512),
 	}
 	b.players[sess.PlayerID] = p
 	if DefaultHub != nil {

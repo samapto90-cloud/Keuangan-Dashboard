@@ -12,6 +12,7 @@ type SipkeuModule struct {
 	ID              string
 	BPKCode         string
 	mu              sync.Mutex
+	persistMu       sync.Mutex // serialisasi tulis disk — cegah race transaksi menimpa pejabat
 	txs             []Transaction
 	nextID          int
 	settings        AppSettings
@@ -116,16 +117,8 @@ func repairModuleIsolation(mod *SipkeuModule) bool {
 		changed = true
 	}
 
-	// Hanya reset pejabat jika nama tersimpan PERSIS sama dengan default portal lain
-	// (bukan fuzzy). Rename admin harus tetap aman.
-	if isPejabatFromOtherModule(mod.ID, mod.settings.PA.Nama, true) {
-		mod.settings.PA = mod.defaultSettings.PA
-		changed = true
-	}
-	if isPejabatFromOtherModule(mod.ID, mod.settings.Bendahara.Nama, false) {
-		mod.settings.Bendahara = mod.defaultSettings.Bendahara
-		changed = true
-	}
+	// Pejabat tersimpan admin tidak di-reset di sini — tiap modul punya file data sendiri.
+	// Reset otomatis pernah menimpa rename admin setelah restart server.
 	return changed
 }
 
@@ -138,29 +131,6 @@ func pejabatNamesMatch(a, b string) bool {
 	return na == nb
 }
 
-func isPejabatFromOtherModule(modID, nama string, isPA bool) bool {
-	if strings.TrimSpace(nama) == "" {
-		return false
-	}
-	sipkeuModulesMu.RLock()
-	defer sipkeuModulesMu.RUnlock()
-	for id, other := range sipkeuModules {
-		if id == modID {
-			continue
-		}
-		def := other.defaultSettings.PA
-		if !isPA {
-			def = other.defaultSettings.Bendahara
-		}
-		// Hanya anggap "milik portal lain" jika nama persis sama dengan default portal lain
-		// (bukan fuzzy token — agar rename admin tidak tertimpa).
-		if pejabatNamesMatch(nama, def.Nama) {
-			return true
-		}
-	}
-	return false
-}
-
 func repairAllModulesIsolation() {
 	sipkeuModulesMu.RLock()
 	mods := make([]*SipkeuModule, 0, len(sipkeuModules))
@@ -171,7 +141,7 @@ func repairAllModulesIsolation() {
 	for _, mod := range mods {
 		if repairModuleIsolation(mod) {
 			persistModule(mod)
-			log.Printf("Isolasi modul %s diperbaiki (transaksi/pejabat)", mod.ID)
+			log.Printf("Isolasi modul %s diperbaiki (transaksi)", mod.ID)
 		}
 	}
 }

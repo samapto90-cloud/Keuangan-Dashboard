@@ -1,13 +1,31 @@
-/* Board UI — bersih, flat, terbaca (selaras dengan boardPremium.ts shell) */
+/* Board UI — chrome terpisah dari papan (tidak saling tabrak) */
 
 body.board-theme-fantasy {
-  background: #0b1a14 !important;
-  overflow-x: hidden;
+  background: #071410 !important;
+  overflow: hidden;
+  height: 100dvh;
 }
 
 body.board-theme-fantasy::before,
 body.board-theme-fantasy::after {
   display: none !important;
+}
+
+body.board-theme-fantasy .board-root {
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.board-theme-fantasy .board-app {
+  max-width: none !important;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .premium-board-root {
@@ -16,50 +34,55 @@ body.board-theme-fantasy::after {
   --pb-gold: #e8c56a;
   --pb-text: #f4fff8;
   --pb-muted: #b7d4c4;
+  --pb-side: 148px;
+  /* Tanpa crop agresif — kotak 1–100 + pion harus utuh di dalam frame */
+  --pb-crop-x: 1;
+  --pb-crop-y: 1;
+  --pb-origin-x: 50%;
+  --pb-origin-y: 50%;
   position: relative;
   z-index: 1;
-  width: min(1320px, 100%);
-  margin: 0 auto;
-  padding: 10px 12px 18px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 6px 8px 6px;
+  box-sizing: border-box;
   color: var(--pb-text);
   font-family: "Segoe UI", system-ui, sans-serif;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #071410;
 }
 
 .premium-bg {
-  display: block !important;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 16px;
-  background:
-    linear-gradient(180deg, rgba(8, 24, 40, 0.55) 0%, rgba(8, 24, 40, 0.75) 100%),
-    url("/cahaya/raka/board-rumah-tangga.png") center / cover no-repeat;
-  opacity: 0.55;
-  filter: saturate(1.05);
+  display: none !important;
+}
+
+.premium-brand {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.1;
+  padding: 2px 8px;
 }
 
 .premium-title {
-  position: relative;
-  z-index: 1;
-  margin: 0 0 2px;
+  margin: 0;
   text-align: center;
-  font-size: clamp(1.15rem, 3.4vw, 1.7rem);
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #fff;
-  text-shadow: 0 2px 0 #0006;
+  text-shadow: 0 2px 0 #0008;
+  line-height: 1.1;
 }
 
 .premium-subtitle {
-  position: relative;
-  z-index: 1;
-  margin: 0 0 10px;
-  text-align: center;
-  font-size: clamp(0.72rem, 2vw, 0.9rem);
-  font-weight: 600;
-  color: #d7f0ff;
-  text-shadow: 0 1px 3px #0009;
+  display: none;
 }
 
 .premium-legend {
@@ -84,28 +107,45 @@ body.board-theme-fantasy::after {
 }
 
 .premium-header {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin: 0;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.premium-header > * {
+  pointer-events: auto;
 }
 
 .premium-player-strip {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
   flex: 1;
   min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px;
+  border-radius: 10px;
+  background: #0e241c;
+  border: 1px solid #2f6b5244;
 }
 
 .premium-pcard {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 132px;
-  padding: 8px 10px;
-  border-radius: 12px;
+  gap: 6px;
+  min-width: 108px;
+  max-width: 148px;
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 10px;
   background: var(--pb-panel);
   border: 2px solid color-mix(in srgb, var(--pc, #3ecf8e) 70%, #fff 10%);
 }
@@ -121,15 +161,15 @@ body.board-theme-fantasy::after {
 }
 
 .pcard-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--pc, #3ecf8e) 35%, #0e241c);
   color: #072016;
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 0.9rem;
   border: 2px solid #fff6;
   flex-shrink: 0;
   overflow: hidden;
@@ -162,17 +202,21 @@ body.board-theme-fantasy::after {
 
 .pcard-body strong {
   display: block;
-  font-size: 0.82rem;
-  line-height: 1.15;
+  font-size: 0.72rem;
+  line-height: 1.1;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pcard-stars,
 .pcard-meta,
 .pcard-bag {
-  margin: 1px 0 0;
-  font-size: 0.7rem;
+  margin: 0;
+  font-size: 0.62rem;
   color: var(--pb-muted);
+  white-space: nowrap;
 }
 
 .pcard-bag {
@@ -191,13 +235,13 @@ body.board-theme-fantasy::after {
 }
 
 .premium-icon-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   border: 1px solid var(--pb-edge);
   background: var(--pb-panel);
   color: #fff;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   cursor: pointer;
 }
 
@@ -205,31 +249,41 @@ body.board-theme-fantasy::after {
   border-color: var(--pb-gold);
 }
 
-/* Layout utama: papan lebih lebar + panel */
+/* Layout: papan kiri + panel dadu kanan — tidak overlap */
 .premium-main.game-container {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 168px;
-  gap: 14px;
-  align-items: start;
-}
-
-.premium-header {
-  position: relative;
-  z-index: 1;
+  grid-template-columns: minmax(0, 1fr) var(--pb-side);
+  gap: 8px;
+  align-items: stretch;
+  min-height: 0;
+  flex: 1 1 auto;
+  height: auto;
+  width: 100%;
 }
 
 .premium-board-stage {
   min-width: 0;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  display: block;
+  background: #0a1a14;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #2f6b5244;
 }
 
 .premium-turn-hud.status {
-  margin: 0 0 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
   background: #0e241c;
-  border-left: 4px solid var(--pb-gold);
+  border-left: 3px solid var(--pb-gold);
   width: 100%;
 }
 
@@ -242,8 +296,8 @@ body.board-theme-fantasy::after {
 }
 
 .turn-hud-name {
-  margin: 2px 0 0;
-  font-size: 1.05rem;
+  margin: 1px 0 0;
+  font-size: 0.92rem;
   font-weight: 800;
   color: #fff;
 }
@@ -258,106 +312,194 @@ body.board-theme-fantasy::after {
   color: var(--pb-muted);
 }
 
-/* Papan modern — zona start kiri + grid besar */
+/* Papan mengisi sel kiri penuh (tanpa tertutup panel) */
 .premium-board-root .iso-wrap {
   perspective: none !important;
-  overflow: visible;
-  padding: 4px 0 8px;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: absolute;
+  inset: 0;
 }
 
 .premium-board-root .board-frame,
 .premium-board-root .board-frame.premium-frame {
-  position: relative;
+  position: absolute;
+  inset: 0;
   transform: none !important;
-  border-radius: 22px;
-  border: 2px solid rgba(255, 236, 179, 0.35);
-  background: #0a1e2a;
-  box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  padding: 10px;
+  border-radius: 0;
+  border: 0;
+  background: #071410;
+  box-shadow: none;
+  padding: 0;
+  /* visible supaya pion di tepi tidak kepotong oleh frame */
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: unset;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-/* Dasar visual papan: ilustrasi perjalanan rumah tangga (desa → gunung → istana) */
 .premium-board-root .board-scenic-art {
   display: block !important;
   position: absolute;
-  inset: 8px;
+  inset: 0;
   z-index: 0;
-  border-radius: 16px;
+  border-radius: 0;
   background:
-    url("/cahaya/raka/board-rumah-tangga.png") center / cover no-repeat;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.18);
+    url("/cahaya/raka/board-gunung.png") center / 100% 100% no-repeat;
+  box-shadow: none;
   pointer-events: none;
 }
 
 .premium-board-root .board-playfield {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
   width: 100%;
-  max-width: min(1040px, 98vw);
-  aspect-ratio: 16 / 9;
-  margin: 0 auto;
-  max-height: min(78vh, 920px);
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: unset;
+  margin: 0;
+  overflow: visible;
+  border-radius: 0;
+  /* Tanpa scale — scale membuat sprite pion blur / double */
+  transform: none;
 }
 
 @media (max-width: 860px) {
-  .premium-board-root .board-playfield {
-    max-width: 100%;
-    max-height: min(68vh, 780px);
+  body.board-theme-fantasy {
+    overflow: auto;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  body.board-theme-fantasy .board-root,
+  body.board-theme-fantasy .board-app {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .premium-board-root {
+    --pb-crop-x: 1;
+    --pb-crop-y: 1;
+    --pb-origin-x: 50%;
+    --pb-origin-y: 50%;
+    height: auto;
+    min-height: 100dvh;
+    padding: 4px 0 8px;
+    gap: 6px;
+  }
+
+  .premium-brand {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: none;
+    background: transparent;
+    padding: 0 8px;
+  }
+
+  .premium-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 0 8px;
+    pointer-events: auto;
+  }
+
+  .premium-player-strip {
+    background: #06140ebb;
+  }
+
+  .premium-main.game-container {
+    flex: 0 0 auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    grid-template-columns: 1fr;
+  }
+
+  .premium-board-stage {
+    height: auto;
+    min-height: min(96vw, 72vh);
+    padding: 0;
+    position: relative;
+    margin: 0 8px;
+  }
+
+  .premium-board-root .iso-wrap {
+    position: relative;
+    inset: auto;
+    height: min(96vw, 72vh);
+    min-height: min(96vw, 72vh);
+  }
+
+  .premium-board-root .board-frame,
+  .premium-board-root .board-frame.premium-frame {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+  }
+
+  .premium-side.control-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: auto;
+    max-height: none;
+    margin: 0 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .premium-board-root .pawn {
-    width: 8%;
-    height: 13.5%;
+    width: 4.2%;
+    height: 5.6%;
   }
 
   .premium-title {
-    font-size: clamp(1rem, 4.5vw, 1.45rem);
+    font-size: clamp(0.95rem, 4vw, 1.25rem);
   }
 }
 
 @media (max-width: 480px) {
-  .premium-board-root .board-playfield {
-    max-height: min(58vh, 560px);
+  .premium-board-root {
+    --pb-crop-x: 1;
+    --pb-crop-y: 1;
+  }
+
+  .premium-board-root .iso-wrap {
+    height: min(96vw, 68vh);
+    min-height: min(96vw, 68vh);
   }
 
   .premium-board-root .pawn {
-    width: 8.6%;
-    height: 14.5%;
+    width: 4.5%;
+    height: 5.8%;
   }
 
   .premium-header {
     gap: 6px;
   }
-
-  .premium-player-strip {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
 .premium-board-root .start-pad {
-  position: absolute;
-  left: 0.8%;
-  bottom: 1.5%;
-  z-index: 2;
-  width: 8.4%;
-  height: 13.5%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 236, 179, 0.45);
-  background:
-    linear-gradient(160deg, rgba(255, 213, 79, 0.95), rgba(255, 143, 0, 0.88));
-  box-shadow:
-    0 8px 18px rgba(255, 143, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  pointer-events: none;
+  display: none !important;
 }
 
 .premium-board-root .start-pad-label {
@@ -402,21 +544,122 @@ body.board-theme-fantasy::after {
 
 .premium-board-root .board-grid {
   position: absolute;
-  left: 3.5%;
-  top: 3.5%;
+  left: 0;
+  top: 0;
   z-index: 1;
-  display: grid !important;
-  grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
-  grid-template-rows: repeat(10, minmax(0, 1fr)) !important;
-  width: 93%;
-  height: 93%;
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  width: 100%;
+  height: 100%;
   max-width: none;
   margin: 0;
-  gap: 2px;
+  gap: 0;
   background: transparent;
   border-radius: 0;
   padding: 0;
   aspect-ratio: unset;
+  pointer-events: none;
+}
+
+.premium-board-root .board-grid.stone-path-grid {
+  pointer-events: none;
+}
+
+.premium-board-root .stone-cell {
+  position: absolute !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border-radius: 14%;
+  border: none;
+  min-height: 0;
+  overflow: visible;
+  pointer-events: auto;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: transparent;
+  transition: box-shadow 0.12s ease, background 0.12s ease;
+  backdrop-filter: none;
+}
+
+.premium-board-root .stone-cell .cell-num {
+  /* Angka sudah ada di seni papan */
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(7px, 42%, 12px);
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.premium-board-root .stone-cell.is-hover,
+.premium-board-root .stone-cell.is-occupied,
+.premium-board-root .stone-cell.is-current,
+.premium-board-root .stone-cell.is-dest,
+.premium-board-root .stone-cell:hover {
+  z-index: 3;
+  transform: none;
+  filter: none;
+}
+
+/* Kotak ada pion — menyala agar angka/jalur terbaca */
+.premium-board-root .stone-cell.is-occupied {
+  background: rgba(255, 236, 150, 0.28) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 220, 100, 0.95),
+    0 0 12px rgba(255, 200, 70, 0.55) !important;
+}
+
+/* Giliran aktif — lebih terang (tanpa pulse infinite agar tidak kedip) */
+.premium-board-root .stone-cell.is-current {
+  background: rgba(120, 220, 255, 0.34) !important;
+  box-shadow:
+    inset 0 0 0 2.5px rgba(100, 220, 255, 1),
+    0 0 16px rgba(70, 200, 255, 0.7) !important;
+  animation: none;
+  z-index: 4;
+}
+
+.premium-board-root .stone-cell.is-dest {
+  background: rgba(255, 210, 90, 0.3) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 200, 80, 0.95) !important;
+}
+
+.premium-board-root .stone-cell.is-hover,
+.premium-board-root .stone-cell:hover {
+  background: rgba(255, 248, 200, 0.18) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 230, 140, 0.75) !important;
+}
+
+.premium-board-root .stone-cell.is-occupied .cell-num,
+.premium-board-root .stone-cell.is-current .cell-num,
+.premium-board-root .stone-cell.is-dest .cell-num {
+  opacity: 1;
+  color: #fffef5;
+  text-shadow:
+    0 0 3px #000,
+    0 1px 2px #000,
+    0 0 8px rgba(0, 0, 0, 0.85);
+  z-index: 5;
+  font-size: clamp(8px, 48%, 13px);
+}
+
+@keyframes stoneCellPulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 2.5px rgba(100, 220, 255, 1),
+      0 0 12px rgba(70, 200, 255, 0.55);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 3px rgba(180, 240, 255, 1),
+      0 0 20px rgba(90, 220, 255, 0.85);
+  }
 }
 
 .premium-board-root .cell {
@@ -434,13 +677,12 @@ body.board-theme-fantasy::after {
   backdrop-filter: none;
 }
 
-.premium-board-root .cell:hover,
-.premium-board-root .cell.is-hover {
-  transform: translateY(-1px) scale(1.02);
-  border-color: rgba(255, 236, 179, 0.9);
-  background: rgba(255, 255, 255, 0.28) !important;
-  filter: brightness(1.04);
-  z-index: 2;
+/* Checker — transparan total untuk hotspot batu */
+.premium-board-root .stone-cell.tile-0,
+.premium-board-root .stone-cell.tile-1,
+.premium-board-root .stone-cell.tile-2,
+.premium-board-root .stone-cell.tile-3 {
+  background: transparent !important;
 }
 
 .premium-board-root .cell::before {
@@ -522,17 +764,14 @@ body.board-theme-fantasy::after {
 }
 
 .premium-board-root .cell-snake {
-  border-color: rgba(248, 113, 113, 0.65) !important;
-  box-shadow:
-    inset 0 0 18px rgba(239, 68, 68, 0.18),
-    0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  /* Ular tanpa gambar — penanda sel tetap halus */
+  border-color: rgba(180, 80, 60, 0.35) !important;
+  box-shadow: inset 0 0 0 1px rgba(180, 80, 60, 0.25) !important;
 }
 
 .premium-board-root .cell-ladder {
-  border-color: rgba(251, 191, 36, 0.7) !important;
-  box-shadow:
-    inset 0 0 18px rgba(251, 191, 36, 0.16),
-    0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(251, 191, 36, 0.55) !important;
+  box-shadow: inset 0 0 0 1px rgba(210, 180, 90, 0.35) !important;
 }
 
 .premium-board-root .cell.is-current {
@@ -633,26 +872,34 @@ body.board-theme-fantasy::after {
   z-index: 4;
 }
 
-/* Token tubuh utuh — berdiri berdampingan, jalan antar kotak */
+/* Token — pusat tubuh di tengah permukaan batu (bukan garis atas) */
 .premium-board-root .pawn {
   position: absolute;
-  width: 7.2%;
-  height: 12%;
-  transform: translate(-50%, 48%) scale(var(--pawn-scale, 1));
+  width: 3.8%;
+  height: 5.2%;
+  /* Anchor left/bottom = pusat pion di tengah kotak */
+  transform: translate(-50%, -50%) scale(var(--pawn-scale, 1));
   border-radius: 0;
   border: 0;
   background: transparent !important;
   box-shadow: none;
-  filter: drop-shadow(0 2px 2px #0008);
-  z-index: 5;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
+  opacity: 1;
+  z-index: 6;
   overflow: visible;
-  will-change: left, bottom;
-  transition: none;
+  will-change: auto;
+  transition: left 0.18s cubic-bezier(0.22, 0.8, 0.28, 1), bottom 0.18s cubic-bezier(0.22, 0.8, 0.28, 1);
+  isolation: isolate;
+}
+
+.premium-board-root .pawn-ring {
+  display: none !important;
 }
 
 .premium-board-root .pawn.is-animating {
   will-change: left, bottom, transform;
   z-index: 40;
+  transition: none;
 }
 
 .premium-board-root .pawn.is-sprite {
@@ -671,13 +918,19 @@ body.board-theme-fantasy::after {
   height: 100%;
   margin: 0;
   object-fit: contain;
-  object-position: center bottom;
+  /* Karakter mengisi kotak; kaki sedikit ke bawah agar tidak “mengambang” */
+  object-position: center center;
   display: block;
   pointer-events: none;
   user-select: none;
-  position: static;
-  transform-origin: center bottom;
+  position: relative;
+  z-index: 1;
+  transform-origin: center center;
   background: transparent;
+  filter: none !important;
+  opacity: 1 !important;
+  image-rendering: auto;
+  -webkit-user-drag: none;
 }
 
 .premium-board-root .pawn-body,
@@ -689,15 +942,23 @@ body.board-theme-fantasy::after {
 
 .premium-board-root .pawn.is-self {
   outline: none;
-  filter: drop-shadow(0 0 3px #ffe082) drop-shadow(0 2px 2px #0008);
+  filter: drop-shadow(0 0 2px rgba(255, 224, 130, 0.85));
+}
+
+.premium-board-root .route-layer .ladder-sprite {
+  opacity: 1;
+}
+
+.premium-board-root .route-layer .snake-body {
+  transform-origin: center;
 }
 
 .premium-board-root .pawn.face-left {
-  transform: translate(-50%, 48%) scale(calc(var(--pawn-scale, 1) * -1), var(--pawn-scale, 1));
+  transform: translate(-50%, -50%) scale(calc(var(--pawn-scale, 1) * -1), var(--pawn-scale, 1));
 }
 
 .premium-board-root .pawn.face-right {
-  transform: translate(-50%, 48%) scale(var(--pawn-scale, 1));
+  transform: translate(-50%, -50%) scale(var(--pawn-scale, 1));
 }
 
 .premium-board-root .pawn.is-walking .pawn-sprite {
@@ -758,48 +1019,46 @@ body.board-theme-fantasy::after {
   }
 }
 
+/* Panel kanan — kolom tetap, tidak overlay ke papan */
 .premium-side.control-panel {
-  background: #163528;
-  border: 1px solid #2f6b52;
-  box-shadow: none;
-}
-
-.premium-board-root.mountain-mode .premium-title {
-  color: #fff;
-  text-shadow: 0 2px 0 #0005;
-}
-
-.premium-bg {
-  opacity: 0.45 !important;
-  filter: saturate(1.05);
-}
-
-/* Panel kanan */
-.premium-side.control-panel {
+  position: relative;
+  top: auto;
+  right: auto;
+  transform: none;
+  z-index: 2;
+  width: 100%;
+  max-width: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
-  padding: 12px 10px;
-  border-radius: 14px;
+  justify-content: flex-start;
+  padding: 10px 8px;
+  border-radius: 12px;
   background: var(--pb-panel);
   border: 1px solid var(--pb-edge);
+  box-shadow: none;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  align-self: stretch;
 }
 
 .premium-board-root .dice.premium-dice {
-  width: 72px;
-  height: 72px;
-  border-radius: 14px;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
   background: linear-gradient(160deg, #fff, #e8e8e8);
   border: 2px solid #333;
   color: #111;
-  font-size: 1.8rem;
+  font-size: 1.55rem;
   font-weight: 900;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 0 #0004;
+  box-shadow: 0 3px 0 #0004;
   transform: none !important;
   animation: none;
+  flex-shrink: 0;
 }
 
 .premium-board-root .dice.premium-dice.is-rolling {
@@ -814,16 +1073,16 @@ body.board-theme-fantasy::after {
 
 .premium-board-root .dock-roll {
   width: 100%;
-  min-height: 48px;
+  min-height: 42px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: linear-gradient(180deg, #ffd54f, #f9a825);
   color: #3e2723;
   font-weight: 900;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   letter-spacing: 0.04em;
   cursor: pointer;
-  box-shadow: 0 4px 0 #c17900;
+  box-shadow: 0 3px 0 #c17900;
 }
 
 .premium-board-root .dock-roll:hover:not(.is-disabled) {
@@ -838,13 +1097,13 @@ body.board-theme-fantasy::after {
 
 .premium-board-root .dock-btn {
   width: 100%;
-  min-height: 40px;
-  border-radius: 10px;
+  min-height: 34px;
+  border-radius: 8px;
   border: 1px solid var(--pb-edge);
   background: #1a3d2e;
   color: #fff;
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1053,13 +1312,9 @@ body.board-theme-fantasy::after {
   padding: 2px;
 }
 
-.power-ico-img {
-  width: clamp(26px, 5.2vw, 42px);
-  height: clamp(26px, 5.2vw, 42px);
-  object-fit: contain;
-  display: block;
-  pointer-events: none;
-  background: transparent;
+.premium-board-root .stone-cell .cell-power .power-ico-img {
+  width: clamp(14px, 70%, 28px);
+  height: clamp(14px, 70%, 28px);
 }
 
 .power-ico-img.sm {
@@ -1093,9 +1348,28 @@ body.board-theme-fantasy::after {
 .premium-conn,
 .premium-dice-result,
 .premium-error {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  z-index: 2;
   text-align: center;
-  margin: 8px 0 0;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: transparent;
   color: var(--pb-muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  max-width: none;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.premium-conn[hidden],
+.premium-error[hidden],
+.premium-dice-result:empty {
+  display: none !important;
 }
 
 .premium-error {
@@ -1173,10 +1447,16 @@ body.board-theme-fantasy .q-timer {
     grid-template-columns: 1fr;
   }
 
-  .premium-side.control-panel {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+  .premium-conn,
+  .premium-dice-result,
+  .premium-error {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    max-width: none;
+    background: transparent;
+    margin: 0 8px;
   }
 
   .premium-turn-hud.status {
@@ -1201,17 +1481,18 @@ body.board-theme-fantasy .q-timer {
 
 @media (max-width: 480px) {
   .premium-board-root {
-    padding: 8px 8px 14px;
+    padding: 4px 6px 8px;
   }
 
   .premium-pcard {
-    min-width: 112px;
-    padding: 6px 8px;
+    min-width: 96px;
+    max-width: 120px;
+    padding: 4px 6px;
   }
 
   .pcard-avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
   }
 
   .premium-board-root .cell-num {

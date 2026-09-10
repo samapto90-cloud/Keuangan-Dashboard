@@ -61,7 +61,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 		Name:      gameSess.Username,
 		Level:     1,
 		State:     "IDLE",
-		send:      make(chan []byte, 256),
+		send:      make(chan []byte, 512),
 	}
 	if AdventureGameplayEnabled {
 		player.Class = "WARRIOR"
@@ -114,7 +114,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 }
 
 func writePump(conn *websocket.Conn, p *Player) {
-	ticker := time.NewTicker(20 * time.Second)
+	ticker := time.NewTicker(25 * time.Second)
 	defer ticker.Stop()
 	for {
 		select {
@@ -132,6 +132,7 @@ func writePump(conn *websocket.Conn, p *Player) {
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
+			_ = conn.SetReadDeadline(time.Now().Add(HeartbeatTimeout))
 		}
 	}
 }

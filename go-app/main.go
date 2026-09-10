@@ -62,6 +62,9 @@ var saoIconsFS embed.FS
 //go:embed assets/portal-hero/*
 var portalHeroFS embed.FS
 
+//go:embed assets/midnight/*
+var midnightFS embed.FS
+
 // buildSHA is injected at compile time: -ldflags "-X main.buildSHA=abc1234"
 var buildSHA = "dev"
 
@@ -333,6 +336,7 @@ func handleTransactionByID(w http.ResponseWriter, r *http.Request) {
 			jsonResponse(w, http.StatusForbidden, map[string]string{"error": err.Error()})
 			return
 		}
+		stampCurrentPejabatOnEdit(mod, &merged)
 		mod.mu.Lock()
 		found := false
 		for i, t := range mod.txs {
@@ -775,7 +779,19 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		savedPA := mod.settings.PA
 		savedBend := mod.settings.Bendahara
 		mod.mu.Unlock()
-		persistModule(mod)
+		// File pejabat khusus dulu (sumber kebenaran), lalu snapshot modul.
+		if err := persistPejabat(mod, savedPA, savedBend); err != nil {
+			jsonResponse(w, http.StatusInternalServerError, map[string]string{
+				"error": "Gagal menyimpan pejabat ke disk: " + err.Error(),
+			})
+			return
+		}
+		if err := persistModule(mod); err != nil {
+			jsonResponse(w, http.StatusInternalServerError, map[string]string{
+				"error": "Pejabat tersimpan, tetapi gagal menyimpan data modul: " + err.Error(),
+			})
+			return
+		}
 		invalidateSettingsCache(mod.ID)
 		jsonResponse(w, http.StatusOK, map[string]any{
 			"message":   "Pengaturan berhasil disimpan",
@@ -963,14 +979,17 @@ func main() {
 	if saoSub, err := fs.Sub(saoIconsFS, "assets/sao-icons"); err == nil {
 		mux.Handle("/assets/sao-icons/", withStaticCache(http.StripPrefix("/assets/sao-icons/", http.FileServer(http.FS(saoSub)))))
 	}
-	if phSub, err := fs.Sub(portalHeroFS, "assets/portal-hero"); err == nil {
-		mux.Handle("/assets/portal-hero/", withStaticCache(http.StripPrefix("/assets/portal-hero/", http.FileServer(http.FS(phSub)))))
+	initPortalHeroServe(portalHeroFS)
+	mux.HandleFunc("/assets/portal-hero/", servePortalHeroAssets)
+	if midSub, err := fs.Sub(midnightFS, "assets/midnight"); err == nil {
+		mux.Handle("/assets/midnight/", withStaticCache(http.StripPrefix("/assets/midnight/", http.FileServer(http.FS(midSub)))))
 	}
 
 	loginHandler := http.HandlerFunc(cors(handleLogin))
 	mux.Handle("/data/auth/login", withMaxBody(maxLoginBodyBytes, loginHandler))
 
 	mux.HandleFunc("/data/portals/status", cors(handlePortalStatusPublic))
+	mux.HandleFunc("/data/portal-hero", cors(handlePortalHeroPublic))
 	mux.HandleFunc("/data/system-settings", cors(requireAuth(handleSystemSettings)))
 	mux.HandleFunc("/data/operators", cors(requireAuth(requirePortalAdmin(handleOperators))))
 	mux.HandleFunc("/data/operators/perms", cors(requireAuth(requirePortalAdmin(handleOperatorPerms))))
@@ -979,6 +998,12 @@ func main() {
 	mux.HandleFunc("/data/admin/sessions", cors(requireAuth(requireSettingsAdmin(handleAdminSessions))))
 	mux.HandleFunc("/data/admin/audit", cors(requireAuth(requireSettingsAdmin(handleAdminAudit))))
 	mux.HandleFunc("/data/admin/rekapitulasi", cors(requireAuth(requireSettingsAdmin(handleAdminRekapitulasi))))
+	mux.HandleFunc("/data/admin/data-ops", cors(requireAuth(requireSettingsAdmin(handleAdminDataOpsSummary))))
+	mux.HandleFunc("/data/admin/data-ops/export", cors(requireAuth(requireSettingsAdmin(handleAdminDataExport))))
+	mux.HandleFunc("/data/admin/data-ops/clear", cors(requireAuth(requireSettingsAdmin(handleAdminDataClear))))
+	mux.HandleFunc("/data/admin/tahun", cors(requireAuth(requireSettingsAdmin(handleAdminTahun))))
+	mux.HandleFunc("/data/admin/portal-hero", cors(requireAuth(requireSettingsAdmin(handleAdminPortalHero))))
+	mux.HandleFunc("/data/tahun", cors(handlePublicTahun))
 	mux.HandleFunc("/data/auth/logout", cors(requireAuth(handleLogout)))
 	mux.HandleFunc("/data/auth/me", cors(requireAuth(handleMe)))
 

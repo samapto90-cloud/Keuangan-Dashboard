@@ -101,6 +101,7 @@ func buildCommandCenterOverview() map[string]interface{} {
 	return map[string]interface{}{
 		"generated_at":    time.Now().Format(time.RFC3339),
 		"active_sessions": totalSess,
+		"tahun_anggaran":  getTahunAnggaran(),
 		"portals":         portals,
 		"security": map[string]interface{}{
 			"rate_limit_per_min":    apiRateLimitMax,
@@ -186,10 +187,18 @@ func handlePortalStatusPublic(w http.ResponseWriter, r *http.Request) {
 				"label":   portalLabel(id),
 			}
 		}
-		return map[string]interface{}{"portals": portals}
+		return map[string]interface{}{
+			"portals":        portals,
+			"tahun_anggaran": getTahunAnggaran(),
+			"portal_hero":    portalHeroPublicStatusPayload(),
+		}
 	})
 	// Salin agar respons cache aman untuk encoder JSON paralel.
-	payload := map[string]interface{}{"portals": out["portals"]}
+	payload := map[string]interface{}{
+		"portals":        out["portals"],
+		"tahun_anggaran": out["tahun_anggaran"],
+		"portal_hero":    out["portal_hero"],
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Cache-Control", "public, max-age=15, stale-while-revalidate=30")
 	w.WriteHeader(http.StatusOK)

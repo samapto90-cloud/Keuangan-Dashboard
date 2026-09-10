@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var ularCountdown = 3 * time.Second
+var ularCountdown = 2 * time.Second
 
 func (l *UlarLobby) snapshotLocked(room *UlarRoom, you string) GameSnapshot {
 	pls := make([]UlarPlayer, 0, len(room.Players))
@@ -104,22 +104,7 @@ func (h *Hub) emitLocked(room *UlarRoom, typ string, payload any) {
 	if h == nil || h.Lobby == nil || room == nil {
 		return
 	}
-	socks := make([]*Player, 0, len(room.Players))
-	for _, pl := range room.Players {
-		if pl == nil || !pl.IsConnected {
-			continue
-		}
-		if s := h.Lobby.online[pl.UserID]; s != nil {
-			socks = append(socks, s)
-		}
-	}
-	raw := marshal(typ, payload)
-	for _, s := range socks {
-		select {
-		case s.send <- raw:
-		default:
-		}
-	}
+	h.pushRoomLocked(room, typ, payload)
 }
 
 func (h *Hub) pushRoom(room *UlarRoom, typ string, payload any) {
@@ -127,22 +112,76 @@ func (h *Hub) pushRoom(room *UlarRoom, typ string, payload any) {
 		return
 	}
 	h.Lobby.mu.Lock()
-	socks := make([]*Player, 0, len(room.Players))
+	h.pushRoomLocked(room, typ, payload)
+	h.Lobby.mu.Unlock()
+}
+
+// pushRoomLocked mengirim ke semua pemain yang punya sesi online (meski flag IsConnected sempat false).
+func (h *Hub) pushRoomLocked(room *UlarRoom, typ string, payload any) {
+	type dest struct {
+		sock *Player
+		uid  string
+	}
+	dests := make([]dest, 0, len(room.Players))
 	for _, pl := range room.Players {
-		if pl == nil || !pl.IsConnected {
+		if pl == nil {
 			continue
 		}
-		if s := h.Lobby.online[pl.UserID]; s != nil {
-			socks = append(socks, s)
+		s := h.Lobby.online[pl.UserID]
+		if s == nil {
+			continue
+		}
+		pl.IsConnected = true
+		pl.ConnState = "CONNECTED"
+		dests = append(dests, dest{sock: s, uid: pl.UserID})
+	}
+	if len(dests) == 0 {
+		return
+	}
+	critical := typ == TypeQuestionStart || typ == TypeQuestionComplete || typ == TypeQuestionResult ||
+		typ == TypeQuestionTimeout || typ == TypeQuestionPenalty || typ == TypeGameState ||
+		typ == TypeGameTurn || typ == TypeRoomStart || typ == TypeGameFinish || typ == TypeDiceResult ||
+		typ == TypePlayerMoving
+	retryWait := 2 * time.Second
+	if critical {
+		retryWait = 5 * time.Second
+	}
+	deliver := func(sock *Player, raw []byte) {
+		select {
+		case sock.send <- raw:
+		default:
+			if critical {
+				// Buang 1 pesan lama agar event kritis (soal/giliran) tetap masuk.
+				select {
+				case <-sock.send:
+				default:
+				}
+				select {
+				case sock.send <- raw:
+					return
+				default:
+				}
+			}
+			go func(s *Player, msg []byte, wait time.Duration) {
+				select {
+				case s.send <- msg:
+				case <-time.After(wait):
+					log.Printf("push drop type=%s player=%s", typ, s.ID)
+				}
+			}(sock, raw, retryWait)
 		}
 	}
-	h.Lobby.mu.Unlock()
-	raw := marshal(typ, payload)
-	for _, s := range socks {
-		select {
-		case s.send <- raw:
-		default:
+	if snap, ok := payload.(GameSnapshot); ok {
+		for _, d := range dests {
+			out := snap
+			out.YouAre = d.uid
+			deliver(d.sock, marshal(typ, out))
 		}
+		return
+	}
+	raw := marshal(typ, payload)
+	for _, d := range dests {
+		deliver(d.sock, raw)
 	}
 }
 
@@ -193,15 +232,17 @@ func (l *UlarLobby) connectedCount(room *UlarRoom) int {
 }
 
 func (l *UlarLobby) allReady(room *UlarRoom) bool {
-	if len(room.Players) < 2 {
-		return false
-	}
+	n := 0
 	for _, p := range room.Players {
-		if p == nil || !p.IsReady {
+		if p == nil || !p.IsConnected {
+			continue
+		}
+		n++
+		if !p.IsReady {
 			return false
 		}
 	}
-	return true
+	return n >= 2
 }
 
 func (l *UlarLobby) nextAlive(room *UlarRoom, currentID string) string {
@@ -233,11 +274,25 @@ func (h *Hub) startMatch(hostID string) string {
 		l.mu.Unlock()
 		return ErrNotInRoom
 	}
+	l.freeGhostSeatsLocked(room)
+	if room.Status == UlarClosed || len(room.Players) == 0 {
+		l.mu.Unlock()
+		return ErrNotInRoom
+	}
+	hostPl := l.player(room, hostID)
+	if hostPl == nil || !hostPl.IsConnected {
+		room.HostID = l.pickHostLocked(room)
+		hostID = room.HostID
+	}
+	if hostID == "" || room.HostID == "" {
+		l.mu.Unlock()
+		return ErrNeedPlayers
+	}
 	if room.HostID != hostID {
 		l.mu.Unlock()
 		return ErrNotHost
 	}
-	if len(room.Players) < 2 {
+	if l.connectedCount(room) < 2 {
 		l.mu.Unlock()
 		return ErrNeedPlayers
 	}
@@ -250,12 +305,27 @@ func (h *Hub) startMatch(hostID string) string {
 		return ErrInvalidRequest
 	}
 	now := time.Now()
-	room.Status = UlarStarting
+	// Langsung PLAYING + giliran pertama — tanpa jeda countdown yang membuat UI "MENUNGGU".
+	firstID := ""
 	for _, p := range room.Players {
+		if p == nil {
+			continue
+		}
 		p.Position = OFFBOARD_START
 		p.Items = map[string]int{}
 		p.PlayState = "PLAYING"
 		p.IsReady = true
+		online := l.online[p.UserID] != nil
+		if online {
+			p.IsConnected = true
+			p.ConnState = "CONNECTED"
+		}
+		if firstID == "" && (online || p.IsConnected) {
+			firstID = p.UserID
+		}
+	}
+	if firstID == "" && len(room.Players) > 0 && room.Players[0] != nil {
+		firstID = room.Players[0].UserID
 	}
 	cfg := LiveConfig()
 	achByID := map[string]UlarAchievement{}
@@ -265,63 +335,48 @@ func (h *Hub) startMatch(hostID string) string {
 		}
 	}
 	m := &UlarLiveMatch{
-		ID:            "mt-" + shortID(),
-		RoomID:        room.ID,
-		Status:        UlarStarting,
-		Phase:         UlarStarting,
-		TurnNumber:    0,
-		CreatedAt:     now,
-		CountdownEnd:  now.Add(ularCountdown).UnixMilli(),
-		LastAction:    "GAME_STARTING",
-		LastActionAt:  now,
-		SubjectCursor: int(now.UnixNano() % 4),
-		SnakeHits:     map[string]int{},
-		LadderHits:    map[string]int{},
-		QuestionLimit: LiveQuestionTime(),
-		PenaltyN:      LivePenaltyN(),
-		XPCorrectAmt:        liveReward(cfg.XPCorrect, XP_CORRECT_ANSWER),
-		XPWrongAmt:          liveReward(cfg.XPWrong, XP_WRONG_ANSWER),
-		XPTimeoutAmt:        liveReward(cfg.XPTimeout, XP_TIMEOUT),
+		ID:                 "mt-" + shortID(),
+		RoomID:             room.ID,
+		Status:             UlarPlaying,
+		Phase:              UlarPlayerTurn,
+		TurnNumber:         1,
+		CurrentPlayerID:    firstID,
+		CreatedAt:          now,
+		StartedAt:          now,
+		CountdownEnd:       0,
+		LastAction:         "TURN",
+		LastActionAt:       now,
+		SubjectCursor:      int(now.UnixNano() % 4),
+		SnakeHits:          map[string]int{},
+		LadderHits:         map[string]int{},
+		QuestionLimit:      LiveQuestionTime(),
+		PenaltyN:           LivePenaltyN(),
+		XPCorrectAmt:       liveReward(cfg.XPCorrect, XP_CORRECT_ANSWER),
+		XPWrongAmt:         liveReward(cfg.XPWrong, XP_WRONG_ANSWER),
+		XPTimeoutAmt:       liveReward(cfg.XPTimeout, XP_TIMEOUT),
 		XPMatchCompleteAmt: liveReward(cfg.XPMatchComplete, XP_MATCH_COMPLETE),
-		XPWinAmt:            liveReward(cfg.XPWin, XP_WIN),
-		CoinMatchAmt:        liveReward(cfg.CoinMatch, COIN_MATCH),
-		CoinWinAmt:          liveReward(cfg.CoinWin, COIN_WIN),
+		XPWinAmt:           liveReward(cfg.XPWin, XP_WIN),
+		CoinMatchAmt:       liveReward(cfg.CoinMatch, COIN_MATCH),
+		CoinWinAmt:         liveReward(cfg.CoinWin, COIN_WIN),
 		RankWinRrAmt:       LiveRankWin(),
 		RankLossRrAmt:      LiveRankLoss(),
 		AchievementsByID:   achByID,
 		PowerCells:         SpawnPowerCells(DefaultSnakes, DefaultLadders),
 		Grade:              normalizeGrade(room.Grade),
 	}
+	room.Status = UlarPlaying
 	room.Match = m
-	l.matches[m.ID] = &UlarMatch{ID: m.ID, RoomID: room.ID, Status: UlarStarting, CreatedAt: now}
-	log.Printf("GAME_STARTED room=%s match=%s", room.RoomCode, m.ID)
-	snap := l.wrap(room, l.snapshotLocked(room, ""))
-	code := room.RoomCode
-	matchID := m.ID
+	l.matches[m.ID] = &UlarMatch{ID: m.ID, RoomID: room.ID, Status: UlarPlaying, CreatedAt: now}
+	log.Printf("GAME_STARTED room=%s match=%s turn=%s grade=%s", room.RoomCode, m.ID, firstID, m.Grade)
+	// EventID unik per pesan — client mendrop duplikat eventId (satu ROOM_START saja tidak cukup untuk semua handler).
+	snapStart := l.wrap(room, l.snapshotLocked(room, ""))
+	snapState := l.wrap(room, l.snapshotLocked(room, ""))
+	snapTurn := l.wrap(room, l.snapshotLocked(room, ""))
 	l.mu.Unlock()
-	h.pushRoom(room, TypeRoomStart, snap)
-	go func() {
-		time.Sleep(ularCountdown)
-		l.mu.Lock()
-		rm := l.rooms[l.byCode[code]]
-		if rm == nil || rm.Match == nil || rm.Match.ID != matchID {
-			l.mu.Unlock()
-			return
-		}
-		rm.Status = UlarPlaying
-		rm.Match.Status = UlarPlaying
-		rm.Match.Phase = UlarPlayerTurn
-		rm.Match.StartedAt = time.Now()
-		rm.Match.TurnNumber = 1
-		rm.Match.CurrentPlayerID = rm.Players[0].UserID
-		rm.Match.LastAction = "TURN"
-		snap := l.wrap(rm, l.snapshotLocked(rm, ""))
-		cur := rm.Match.CurrentPlayerID
-		l.mu.Unlock()
-		h.pushRoom(rm, TypeGameState, snap)
-		h.pushRoom(rm, TypeGameTurn, snap)
-		log.Printf("TURN_CHANGED room=%s player=%s", code, cur)
-	}()
+	h.pushRoom(room, TypeRoomStart, snapStart)
+	h.pushRoom(room, TypeGameState, snapState)
+	h.pushRoom(room, TypeGameTurn, snapTurn)
+	log.Printf("TURN_CHANGED room=%s player=%s", room.RoomCode, firstID)
 	return ""
 }
 
@@ -351,7 +406,15 @@ func (h *Hub) rollMatch(p *Player) string {
 		return ErrNotYourTurn
 	}
 	pl := l.player(room, p.ID)
-	if pl == nil || !pl.IsConnected {
+	if pl == nil {
+		l.mu.Unlock()
+		return ErrNotInRoom
+	}
+	// Sesi online = dianggap connected (flag bisa stale setelah reconnect).
+	if s := l.online[p.ID]; s != nil {
+		pl.IsConnected = true
+		pl.ConnState = "CONNECTED"
+	} else if !pl.IsConnected {
 		l.mu.Unlock()
 		return ErrNotInRoom
 	}
@@ -381,14 +444,16 @@ func (h *Hub) rollMatch(p *Player) string {
 	m.PendingMove = move
 	m.LastActionAt = time.Now()
 	seq, evid, at := l.nextSeq(room)
-	env := UlarEnvelope{Seq: seq, EventID: evid, At: at}
+	envDice := UlarEnvelope{Seq: seq, EventID: evid, At: at}
+	seq2, evid2, at2 := l.nextSeq(room)
+	envMove := UlarEnvelope{Seq: seq2, EventID: evid2, At: at2}
 	diceMsg := struct {
 		UlarEnvelope
 		UserID   string `json:"userId"`
 		Username string `json:"username"`
 		Dice     int    `json:"dice"`
-	}{UlarEnvelope: env, UserID: p.ID, Username: p.Name, Dice: dice}
-	moveMsg := MoveBroadcast{UlarEnvelope: env, UserID: p.ID, Username: p.Name, Move: move}
+	}{UlarEnvelope: envDice, UserID: p.ID, Username: p.Name, Dice: dice}
+	moveMsg := MoveBroadcast{UlarEnvelope: envMove, UserID: p.ID, Username: p.Name, Move: move}
 	code := room.RoomCode
 	matchID := m.ID
 	l.mu.Unlock()

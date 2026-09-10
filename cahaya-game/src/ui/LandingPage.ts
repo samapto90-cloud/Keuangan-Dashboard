@@ -44,7 +44,7 @@ export function mountLanding(root: HTMLElement, opts: LandingOpts): void {
       <section class="landing-section nt-card">
         <h2>Fitur Utama</h2>
         <ul class="feature-grid">
-          <li><span class="feat-icon">🎲</span><strong>Multiplayer Online</strong><p>Main bersama hingga 4 pemain.</p></li>
+          <li><span class="feat-icon">🎲</span><strong>Multiplayer Online</strong><p>Main bersama hingga 8 pemain.</p></li>
           <li><span class="feat-icon">📚</span><strong>Belajar Sambil Bermain</strong><p>PAI, Matematika, Bahasa Inggris, Bahasa Jawa.</p></li>
           <li><span class="feat-icon">🏆</span><strong>Ranked Mode</strong><p>Naikkan rank dan bersaing.</p></li>
           <li><span class="feat-icon">🎁</span><strong>Reward</strong><p>Dapatkan XP, coins, achievement.</p></li>
