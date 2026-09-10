@@ -35,7 +35,8 @@ loadDotEnv(path.join(root, "deploy", ".env"));
 const API_BASE = process.env.HOSTINGER_API_BASE || "https://developers.hostinger.com";
 const USERNAME = process.env.HOSTINGER_USERNAME || "u657726332";
 const DOMAIN = process.env.HOSTINGER_DOMAIN || "sakubijak.com";
-const REL_PATH = "_sipkeu_deploy/keuangan.new";
+// Short path keeps post-escape cron command under Hostinger's 255 limit
+const REL_PATH = "_d/k";
 
 function token() {
   const t = process.env.HOSTINGER_API_TOKEN || process.env.HOSTINGER_TOKEN;
@@ -152,11 +153,11 @@ async function tusUpload(uploadMeta, localFile, relativePath) {
 }
 
 function installCronCommand() {
-  // Keep under Hostinger 255-char cron command limit
-  return [
-    'f=$HOME/domains/sakubijak.com/public_html/_sipkeu_deploy/keuangan.new',
-    '[ -f "$f" ]&&(pkill -x keuangan||true;sleep 1;mv -f "$f" $HOME/sipkeu/keuangan;chmod +x $HOME/sipkeu/keuangan;rm -rf ${f%/*};bash $HOME/hostinger-web/start-remote.sh)',
-  ].join(";");
+  // Absolute paths, no quotes/$/braces — Hostinger escapes special chars into the 255 limit
+  const src = `/home/${USERNAME}/domains/${DOMAIN}/public_html/${REL_PATH}`;
+  const dst = `/home/${USERNAME}/sipkeu/keuangan`;
+  const start = `/home/${USERNAME}/hostinger-web/start-remote.sh`;
+  return `mv ${src} ${dst};chmod +x ${dst};bash ${start}`;
 }
 
 async function sleep(ms) {
