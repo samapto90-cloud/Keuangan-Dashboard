@@ -35,8 +35,7 @@ loadDotEnv(path.join(root, "deploy", ".env"));
 const API_BASE = process.env.HOSTINGER_API_BASE || "https://developers.hostinger.com";
 const USERNAME = process.env.HOSTINGER_USERNAME || "u657726332";
 const DOMAIN = process.env.HOSTINGER_DOMAIN || "sakubijak.com";
-// Short path keeps post-escape cron command under Hostinger's 255 limit
-const REL_PATH = "_d/k";
+const REL_PATH = "sipkeu.new";
 
 function token() {
   const t = process.env.HOSTINGER_API_TOKEN || process.env.HOSTINGER_TOKEN;
@@ -98,7 +97,12 @@ function ensureBinary() {
 async function tusUpload(uploadMeta, localFile, relativePath) {
   const size = fs.statSync(localFile).size;
   const base = uploadMeta.url.replace(/\/$/, "");
-  const target = `${base}/${relativePath}?override=true`;
+  // Encode each path segment (spaces/specials) but keep slashes
+  const encodedPath = relativePath
+    .split("/")
+    .map((p) => encodeURIComponent(p))
+    .join("/");
+  let target = `${base}/${encodedPath}?override=true`;
   const headers = {
     "X-Auth": uploadMeta.auth_key,
     "X-Auth-Rest": uploadMeta.rest_auth_key,
@@ -111,15 +115,22 @@ async function tusUpload(uploadMeta, localFile, relativePath) {
     headers: {
       ...headers,
       "Upload-Length": String(size),
-      "Upload-Offset": "0",
     },
   });
   if (create.status !== 201 && create.status !== 200) {
     const t = await create.text();
     throw new Error(`TUS create ${create.status}: ${t.slice(0, 300)}`);
   }
+  // Prefer Location from create — some TUS servers mint a new upload URL
+  const loc = create.headers.get("Location") || create.headers.get("location");
+  if (loc) {
+    target = loc.startsWith("http") ? loc : new URL(loc, base + "/").toString();
+    if (!target.includes("override=")) {
+      target += (target.includes("?") ? "&" : "?") + "override=true";
+    }
+    console.log("==> TUS location", target.slice(0, 120));
+  }
 
-  // Chunked PATCH (8 MiB) — more reliable on flaky links than one giant body
   const chunkSize = 8 * 1024 * 1024;
   const fd = fs.openSync(localFile, "r");
   let offset = 0;
@@ -143,7 +154,7 @@ async function tusUpload(uploadMeta, localFile, relativePath) {
         const t = await patch.text();
         throw new Error(`TUS patch @${offset} → ${patch.status}: ${t.slice(0, 300)}`);
       }
-      const next = patch.headers.get("upload-offset");
+      const next = patch.headers.get("Upload-Offset") || patch.headers.get("upload-offset");
       offset = next ? Number(next) : offset + len;
     }
   } finally {
