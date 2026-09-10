@@ -12944,8 +12944,12 @@
     }
 
 
-    /* Audit fix: late .hidden wins over opacity-only variants */
-    body .hidden { display: none !important; pointer-events: none !important; visibility: hidden !important; }
+    /* Audit fix: .hidden utility — screens use ID-scoped rules; generic utility for app chrome */
+    .hidden:not(#portal-screen):not(#login-screen) {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
 
 /* HOTFIX: portal dock must stay collapsed unless modules are open.
        Previous hide rules required portal-video-mode; if FX boot missed that class,
@@ -17647,6 +17651,25 @@ window.ensureCahayaFrameLoaded = ensureCahayaFrameLoaded;
 window.toggleCahayaConsole = toggleCahayaConsole;
 initCahayaConsoleDrag();
 
+
+function ensurePortalModulesVisible() {
+  try {
+    if (!document.getElementById('portal-screen') || document.getElementById('portal-screen').classList.contains('hidden')) return;
+    if (portalModulesOpen) return;
+    portalModulesOpen = true;
+    document.body.classList.add('portal-modules-open');
+    document.body.classList.remove('portal-modules-closing');
+    const btn = document.getElementById('portal-summon-btn');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'true');
+      btn.removeAttribute('data-busy');
+      btn.classList.remove('portal-summon-btn--activating');
+      const icon = btn.querySelector('.portal-summon-btn-icon i');
+      if (icon) icon.className = 'bi bi-chevron-down';
+    }
+  } catch (_) {}
+}
+
 function togglePortalModules() {
   if (!isPortalHomeVisible()) return;
   const btn = document.getElementById('portal-summon-btn');
@@ -17813,6 +17836,13 @@ function showPortal() {
   schedulePortalHeroVideo();
   schedulePortalFx();
   updateSkipLinkTarget();
+
+  // Pastikan kartu modul terlihat setelah home siap (hindari 'tidak bisa masuk')
+  try {
+    if (typeof ensurePortalModulesVisible === 'function') {
+      requestAnimationFrame(() => ensurePortalModulesVisible());
+    }
+  } catch (_) {}
 }
 
 function bindPortalFxVisibility() {
@@ -21867,6 +21897,64 @@ function printDashAnomalyReport() {
   try { w.focus(); } catch (_) {}
   setTimeout(() => { try { w.print(); } catch (_) {} }, 250);
 }
+
+
+/* ── App boot: session restore + portal home init ── */
+window.addEventListener('DOMContentLoaded', () => {
+  try { if (typeof initPwdToggleButtons === 'function') initPwdToggleButtons(); } catch (_) {}
+  try { if (typeof initManualNumericInputUX === 'function') initManualNumericInputUX(); } catch (_) {}
+  try { if (typeof initSettingsNav === 'function') initSettingsNav(); } catch (_) {}
+  try { if (typeof initPortalUiModeSystem === 'function') initPortalUiModeSystem(); } catch (_) {}
+  try { if (typeof initMobileSidebarUx === 'function') initMobileSidebarUx(); } catch (_) {}
+  try { if (typeof resetAllShells === 'function') resetAllShells(); } catch (_) {}
+  try { if (typeof setFxLayerActive === 'function') setFxLayerActive(true); } catch (_) {}
+
+  const bootWatchdog = setTimeout(() => {
+    try {
+      const portal = document.getElementById('portal-screen');
+      const login = document.getElementById('login-screen');
+      const app = document.getElementById('app-shell');
+      const stuck =
+        (!portal || portal.classList.contains('hidden')) &&
+        (!login || login.classList.contains('hidden')) &&
+        (!app || app.classList.contains('hidden') || app.style.display === 'none');
+      if (stuck && typeof showPortal === 'function') {
+        console.warn('[sipkeu] boot watchdog → showPortal()');
+        showPortal();
+      }
+    } catch (_) {}
+  }, 12000);
+
+  if (typeof loadPortalStatus === 'function') {
+    loadPortalStatus().catch(() => {});
+  }
+  if (typeof schedulePortalFx === 'function') schedulePortalFx();
+
+  const restore =
+    typeof tryRestoreSession === 'function'
+      ? tryRestoreSession()
+      : Promise.reject(new Error('no tryRestoreSession'));
+
+  restore
+    .catch(() => {
+      if (typeof showPortal === 'function') showPortal();
+    })
+    .finally(() => {
+      clearTimeout(bootWatchdog);
+      if (typeof schedulePortalFx === 'function') schedulePortalFx();
+      try {
+        const portal = document.getElementById('portal-screen');
+        if (portal && !portal.classList.contains('hidden')) {
+          document.body.classList.add('fx-portal-home', 'portal-video-mode');
+          if (typeof setPortalHomeFx === 'function') setPortalHomeFx(true);
+          if (typeof ensurePortalModulesVisible === 'function') ensurePortalModulesVisible();
+        }
+      } catch (_) {}
+    });
+});
+window.addEventListener('load', () => {
+  if (typeof schedulePortalFx === 'function') schedulePortalFx();
+});
 
 (function ensurePortalHomeLayoutBoot() {
   function apply() {
