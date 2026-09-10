@@ -471,7 +471,12 @@ func applyPasswordIfProvided(current, incoming string) string {
 func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		if sess := getSession(r); sess == nil || sess.Role != "settings-admin" {
+		sess := getSession(r)
+		if sess == nil {
+			jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+			return
+		}
+		if sess.Role != "settings-admin" || sess.AppModule != "pengaturan" {
 			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Portal Pengaturan Sistem"})
 			return
 		}
@@ -479,7 +484,11 @@ func handleSystemSettings(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPut:
 		putSess := getSession(r)
-		if putSess == nil || putSess.Role != "settings-admin" {
+		if putSess == nil {
+			jsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "Sesi tidak valid, silakan login"})
+			return
+		}
+		if putSess.Role != "settings-admin" || putSess.AppModule != "pengaturan" {
 			jsonResponse(w, http.StatusForbidden, map[string]string{"error": "Akses hanya untuk Portal Pengaturan Sistem"})
 			return
 		}

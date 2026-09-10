@@ -93,6 +93,46 @@ func TestRequireSettingsAdminForbidsNonSettingsAdmin(t *testing.T) {
 	}
 }
 
+func TestHandleSystemSettingsRequiresPengaturanModule(t *testing.T) {
+	handler := requireAuth(handleSystemSettings)
+	cases := []struct {
+		name  string
+		token string
+		sess  *Session
+		want  int
+	}{
+		{name: "no session", want: http.StatusUnauthorized},
+		{
+			name:  "settings-admin wrong module",
+			token: "tok-sys-wrong",
+			sess:  &Session{Username: "sa", Role: "settings-admin", AppModule: "sekretariat", Name: "SA"},
+			want:  http.StatusForbidden,
+		},
+		{
+			name:  "settings-admin ok",
+			token: "tok-sys-ok",
+			sess:  &Session{Username: "sa", Role: "settings-admin", AppModule: "pengaturan", Name: "SA"},
+			want:  http.StatusOK,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.sess != nil {
+				putTestSession(t, tc.token, *tc.sess)
+			}
+			req := httptest.NewRequest(http.MethodGet, "/data/system-settings", nil)
+			if tc.token != "" {
+				req.Header.Set("Authorization", "Bearer "+tc.token)
+			}
+			rr := httptest.NewRecorder()
+			handler(rr, req)
+			if rr.Code != tc.want {
+				t.Fatalf("status=%d want=%d body=%s", rr.Code, tc.want, rr.Body.String())
+			}
+		})
+	}
+}
+
 func TestAdminDataOpsClearRejectsUnknownPortal(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{
 		"confirm":            "HAPUS",

@@ -3278,7 +3278,7 @@
     [data-theme="light"] .rls-badge.over_budget,
     body[data-ui-mode="light"] .rls-badge.over_budget { background: #fee2e2; color: #991b1b; }
     [data-theme="light"] .rls-pdf-preview-modal,
-    body[data-ui-mode="light"] .rls-pdf-preview-modal { background: #fff; border-color: #e2e8f0; }
+    body[data-ui-mode="light"] .rls-pdf-preview-modal { background: var(--surface); border-color: #e2e8f0; }
     [data-theme="light"] .rls-pdf-preview-head h5,
     body[data-ui-mode="light"] .rls-pdf-preview-head h5 { color: #0f172a; }
     [data-theme="light"] .rls-pdf-preview-head p,
@@ -3636,7 +3636,7 @@
       padding: 12px 18px; border-top: 1px solid rgba(56,189,248,.12);
       background: rgba(15,23,42,.92);
     }
-    [data-theme="light"] .rls-pdf-preview-modal { background: #fff; border-color: #e2e8f0; }
+    [data-theme="light"] .rls-pdf-preview-modal { background: var(--surface); border-color: #e2e8f0; }
     [data-theme="light"] .rls-pdf-preview-head h5 { color: #0f172a; }
     [data-theme="light"] .rls-pdf-preview-zoom { background: #f8fafc; border-color: #e2e8f0; }
     [data-theme="light"] .rls-pdf-preview-zoom button { background: #e2e8f0; color: #334155; }
@@ -6686,8 +6686,8 @@
       --sys-danger: #f07178;
       --sys-ok: #3dd68c;
       --sys-radius: 16px;
-      --sys-font: 'DM Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
-      --sys-display: 'Sora', 'Outfit', system-ui, sans-serif;
+      --sys-font: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+      --sys-display: var(--font-display, 'Space Grotesk', system-ui, sans-serif);
       display: block !important; pointer-events: auto !important; min-height: 100vh;
       position: relative; z-index: 7; isolation: isolate;
       color: var(--sys-text);
@@ -12914,7 +12914,19 @@
 
 
     
-    /* Audit fix: anime art as badge — civic text hierarchy */
+    
+    /* Audit fix: tame summon FX when modules open */
+    body.portal-modules-open .portal-summon-glow,
+    body.portal-modules-open .portal-summon-shimmer,
+    body.portal-modules-open .portal-summon-ring {
+      opacity: 0.35 !important;
+      filter: saturate(0.7) !important;
+    }
+    body.portal-modules-open .portal-summon-btn {
+      box-shadow: none !important;
+    }
+
+/* Audit fix: anime art as badge — civic text hierarchy */
     body.portal-modules-open .portal-app-card.portal-card-clean {
       background: var(--surface, rgba(255,255,255,.92)) !important;
       border-color: color-mix(in srgb, var(--text-primary, #0f172a) 12%, transparent) !important;
@@ -12930,6 +12942,10 @@
     body[data-ui-mode="dark"].portal-modules-open .portal-app-card .portal-card-label {
       color: var(--text-primary, #f8fafc) !important;
     }
+
+
+    /* Audit fix: late .hidden wins over opacity-only variants */
+    body .hidden { display: none !important; pointer-events: none !important; visibility: hidden !important; }
 
 /* HOTFIX: portal dock must stay collapsed unless modules are open.
        Previous hide rules required portal-video-mode; if FX boot missed that class,
@@ -12972,11 +12988,13 @@
     }
 
 
-    /* Audit fix: generic .hidden utility */
-    .hidden {
+    /* Audit fix: canonical .hidden utility (single source of truth) */
+    .hidden,
+    [hidden].hidden {
       display: none !important;
       pointer-events: none !important;
       visibility: hidden !important;
+      content-visibility: hidden !important;
     }
 
 </style>
@@ -13153,11 +13171,11 @@
         <p hidden>Anggaran gaji, realisasi PNS/PPPK, TPP, TPG, Tamsil * <span data-sipkeu-ta>TA 2026</span>.</p>
       </div>
 
-      <div role="button" tabindex="0" onkeydown="portalCardKey(event)" class="portal-app-card portal-card-clean portal-theme-settings portal-active" data-portal-id="pengaturan" onclick="openPortalApp('pengaturan')" aria-label="SAO Command Center">
+      <div role="button" tabindex="0" onkeydown="portalCardKey(event)" class="portal-app-card portal-card-clean portal-theme-settings portal-active" data-portal-id="pengaturan" onclick="openPortalApp('pengaturan')" aria-label="Pusat Perintah Sistem">
         <div class="portal-app-icon sao-portal-icon"><img src="/assets/sao-icons/crystal.svg?v=1" alt="" loading="lazy" /></div>
         <div class="portal-card-meta">
           <span class="portal-card-label">Administrasi</span>
-          <h3>SAO Command Center</h3>
+          <h3>Pusat Perintah Sistem</h3>
         </div>
         <div class="portal-card-status">
           <span class="portal-badge portal-badge-live">Super Admin</span>
@@ -14325,7 +14343,7 @@ function initManualNumericInputUX() {
               </div>
             </div>
             <button type="button" class="midnight-qa-cmd" onclick="openCommandPalette()">
-              <span><i class="bi bi-command me-1"></i>Command Palette</span>
+              <span><i class="bi bi-command me-1"></i>Palet Perintah</span>
               <kbd>Ctrl K</kbd>
             </button>
             <button type="button" class="midnight-qa-cmd mt-2" onclick="openDashDesignCodeModal()">
@@ -14443,11 +14461,11 @@ function initManualNumericInputUX() {
 
           <!-- Baris 1: Tanggal + Jenis Transaksi + Penerima + BPK -->
           <div class="col-md-3">
-            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-tanggal">Tanggal <span class="text-danger">*</span></label>
             <input type="date" class="form-control" id="f-tanggal" required onchange="updateNoBPK()" />
           </div>
           <div class="col-md-2">
-            <label class="form-label">Jenis Transaksi <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-jenis-trx">Jenis Transaksi <span class="text-danger">*</span></label>
             <select class="form-select" id="f-jenis-trx" required onchange="onJenisTransaksiChange()">
               <option value="UP" selected>UP</option>
               <option value="LS">LS</option>
@@ -14458,13 +14476,13 @@ function initManualNumericInputUX() {
             <input type="text" class="form-control" id="f-penerima" placeholder="Nama penerima / vendor (opsional)" />
           </div>
           <div class="col-md-3">
-            <label class="form-label">No. BPK <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" for="f-nobpk">No. BPK <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-nobpk" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
           </div>
 
           <!-- Baris 2: No BAST + Tanggal BAST + No Kontrak + Tanggal Kontrak -->
           <div class="col-md-4">
-            <label class="form-label">No. BAST <small class="text-muted">(Berita Acara Serah Terima)</small></label>
+            <label class="form-label" for="f-nobast">No. BAST <small class="text-muted">(Berita Acara Serah Terima)</small></label>
             <input type="text" class="form-control" id="f-nobast" placeholder="0001/BAST/DISDIK/I/2026" />
           </div>
           <div class="col-md-2">
@@ -14472,7 +14490,7 @@ function initManualNumericInputUX() {
             <input type="date" class="form-control" id="f-tglbast" />
           </div>
           <div class="col-md-4">
-            <label class="form-label">No. Kontrak / SPK <small class="text-muted">(kosongkan jika tidak ada)</small></label>
+            <label class="form-label" for="f-nokontrak">No. Kontrak / SPK <small class="text-muted">(kosongkan jika tidak ada)</small></label>
             <input type="text" class="form-control" id="f-nokontrak" placeholder="027/SPK/DISDIK/I/2026" />
           </div>
           <div class="col-md-2">
@@ -14482,7 +14500,7 @@ function initManualNumericInputUX() {
 
           <!-- Baris 3: Kegiatan (cascading level 1) -->
           <div class="col-12">
-            <label class="form-label">Kegiatan <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-kegiatan">Kegiatan <span class="text-danger">*</span></label>
             <select class="form-select" id="f-kegiatan" onchange="onKegiatanChange()" required>
               <option value="">— Pilih Kegiatan —</option>
             </select>
@@ -14493,7 +14511,7 @@ function initManualNumericInputUX() {
 
           <!-- Baris 4: Sub Kegiatan (cascading level 2) -->
           <div class="col-12">
-            <label class="form-label">Sub Kegiatan <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-subkegiatan">Sub Kegiatan <span class="text-danger">*</span></label>
             <select class="form-select" id="f-subkegiatan" onchange="onSubKegiatanChange()" required disabled>
               <option value="">— Pilih Sub Kegiatan —</option>
             </select>
@@ -14501,13 +14519,13 @@ function initManualNumericInputUX() {
 
           <!-- Baris 5: Pekerjaan (cascading level 3) + Kode Rekening -->
           <div class="col-md-8">
-            <label class="form-label">Pekerjaan <span class="text-danger">*</span> <span class="auto-badge">dari database RAK</span></label>
+            <label class="form-label" for="f-pekerjaan">Pekerjaan <span class="text-danger">*</span> <span class="auto-badge">dari database RAK</span></label>
             <select class="form-select" id="f-pekerjaan" onchange="onPekerjaanChange()" required disabled>
               <option value="">— Pilih Pekerjaan —</option>
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Kode Rekening <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" for="f-koderek">Kode Rekening <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-koderek" readonly placeholder="Terisi otomatis" />
           </div>
 
@@ -14533,18 +14551,18 @@ function initManualNumericInputUX() {
 
           <!-- Baris 6: Uraian (free text) -->
           <div class="col-12">
-            <label class="form-label">Uraian / Keterangan Pembayaran <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-uraian">Uraian / Keterangan Pembayaran <span class="text-danger">*</span></label>
             <textarea class="form-control" id="f-uraian" rows="2" placeholder="Deskripsi detail pembayaran, misalnya: Retribusi Sampah Periode April 2026, Pengadaan ATK bulan Februari 2026, dll." required></textarea>
           </div>
 
           <!-- Baris 7: Nilai Bruto + ringkasan potongan -->
           <div class="col-md-4">
-            <label class="form-label">Nilai Bruto / DPP (Rp) <span class="text-danger">*</span></label>
+            <label class="form-label" for="f-nilai">Nilai Bruto / DPP (Rp) <span class="text-danger">*</span></label>
             <input type="number" class="form-control pagu-locked manual-numeric" id="f-nilai" placeholder="0" min="0" value="0" readonly required oninput="onNilaiBrutoInput()" />
             <div id="f-nilai-hint" class="form-text text-warning" style="font-size:11px">Pilih kegiatan, sub kegiatan, dan pekerjaan terlebih dahulu.</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label" id="lbl-f-pa">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" id="lbl-f-pa" for="f-pa">Pengguna Anggaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-pa" readonly />
           </div>
           <div class="col-md-4">
@@ -14573,21 +14591,21 @@ function initManualNumericInputUX() {
 
           <!-- Baris 7b: NTPN / billing (jika ada pajak) -->
           <div class="col-md-4" id="row-ntpn" style="display:none">
-            <label class="form-label">NTPN <small class="text-muted">(16 digit)</small></label>
+            <label class="form-label" for="f-ntpn">NTPN <small class="text-muted">(16 digit)</small></label>
             <input type="text" class="form-control" id="f-ntpn" placeholder="0000000000000000" maxlength="16" />
           </div>
           <div class="col-md-4" id="row-ntb" style="display:none">
-            <label class="form-label">NTB <small class="text-muted">(Nomor Transaksi Bendahara)</small></label>
+            <label class="form-label" for="f-ntb">NTB <small class="text-muted">(Nomor Transaksi Bendahara)</small></label>
             <input type="text" class="form-control" id="f-ntb" placeholder="BND2026..." />
           </div>
 
           <!-- Baris 8: PPTK + Bendahara -->
           <div class="col-md-6">
-            <label class="form-label">PPTK <span class="auto-badge">terisi dari pekerjaan</span></label>
+            <label class="form-label" for="f-pptk">PPTK <span class="auto-badge">terisi dari pekerjaan</span></label>
             <input type="text" class="form-control" id="f-pptk" readonly placeholder="Terisi otomatis saat pilih pekerjaan" />
           </div>
           <div class="col-md-6">
-            <label class="form-label" id="lbl-f-bend">Bendahara Pengeluaran <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" id="lbl-f-bend" for="f-bendahara">Bendahara Pengeluaran <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-bendahara" readonly />
           </div>
 
@@ -14633,11 +14651,11 @@ function initManualNumericInputUX() {
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">NPWP <small class="text-muted">(bagian pajak)</small></label>
+            <label class="form-label" for="f-npwp">NPWP <small class="text-muted">(bagian pajak)</small></label>
             <input type="text" class="form-control" id="f-npwp" placeholder="NPWP wajib pajak (boleh kosong / -)" />
           </div>
           <div class="col-12">
-            <label class="form-label">No. NP2D <span class="auto-badge">otomatis</span></label>
+            <label class="form-label" for="f-nonp2d">No. NP2D <span class="auto-badge">otomatis</span></label>
             <input type="text" class="form-control" id="f-nonp2d" readonly placeholder="Terisi otomatis saat mulai mengisi form" />
           </div>
         </div>
@@ -14837,7 +14855,7 @@ function initManualNumericInputUX() {
       </div>
       <div class="row g-2">
         <div class="col-md-6 col-lg-4">
-          <label class="form-label">Sub Kegiatan</label>
+          <label class="form-label" for="rls-filter-sub">Sub Kegiatan</label>
           <div class="rls-combo" data-target="rls-filter-sub">
             <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Cari sub kegiatan…" autocomplete="off" />
             <select id="rls-filter-sub" hidden><option value="">Semua</option></select>
@@ -14845,7 +14863,7 @@ function initManualNumericInputUX() {
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
-          <label class="form-label">Kode Rekening</label>
+          <label class="form-label" for="rls-filter-kode">Kode Rekening</label>
           <div class="rls-combo" data-target="rls-filter-kode">
             <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Pilih sub dulu, lalu cari kode…" autocomplete="off" />
             <select id="rls-filter-kode" hidden><option value="">Semua</option></select>
@@ -14853,7 +14871,7 @@ function initManualNumericInputUX() {
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
-          <label class="form-label">PPTK</label>
+          <label class="form-label" for="rls-filter-pptk">PPTK</label>
           <div class="rls-combo" data-target="rls-filter-pptk">
             <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Cari PPTK…" autocomplete="off" />
             <select id="rls-filter-pptk" hidden><option value="">Semua</option></select>
@@ -14861,7 +14879,7 @@ function initManualNumericInputUX() {
           </div>
         </div>
         <div class="col-md-4 col-lg-3">
-          <label class="form-label">Periode (Bulan)</label>
+          <label class="form-label" for="rls-filter-bulan">Periode (Bulan)</label>
           <div class="rls-combo" data-target="rls-filter-bulan">
             <input type="text" class="form-control form-control-sm rls-combo-input" placeholder="Semua bulan…" autocomplete="off" />
             <select id="rls-filter-bulan" hidden><option value="">Semua</option></select>
@@ -15255,7 +15273,7 @@ function initManualNumericInputUX() {
         <small>Format: <code>01. KERTAS KERJA RAK APBD PERGESERAN ... DISDIK.xlsx</code> — sheet <strong>RAK BELANJA</strong></small>
         <div class="row g-3 mt-1" style="max-width:520px;margin:0 auto">
           <div class="col-12">
-            <label class="form-label fw-bold mb-1" style="font-size:12px">Versi Anggaran RAK</label>
+            <label class="form-label fw-bold mb-1" style="font-size:12px" for="kas-rak-version">Versi Anggaran RAK</label>
             <select class="form-select form-select-sm" id="kas-rak-version">
               <option value="apbd">APBD (Murni)</option>
               <option value="pergeseran-1">Pergeseran APBD I</option>
@@ -15850,7 +15868,7 @@ function initManualNumericInputUX() {
       </div>
       <nav class="settings-nav">
         <div class="sao-nav-label">Navigasi</div>
-        <a href="#" class="active" id="settings-nav-command" data-settings-page="command"><i class="bi bi-grid-1x2-fill"></i> Command Center</a>
+        <a href="#" class="active" id="settings-nav-command" data-settings-page="command"><i class="bi bi-grid-1x2-fill"></i> Pusat Perintah</a>
         <a href="#" id="settings-nav-portals" data-settings-page="portals"><i class="bi bi-boxes"></i> Kendali Portal</a>
         <a href="#" id="settings-nav-data" data-settings-page="data"><i class="bi bi-database-gear"></i> Manajemen Data</a>
         <a href="#" id="settings-nav-video" data-settings-page="video"><i class="bi bi-film"></i> Video Portal</a>
@@ -15879,11 +15897,11 @@ function initManualNumericInputUX() {
       <div class="settings-sidebar-backdrop" onclick="closeSettingsMobileSidebar()" aria-hidden="true"></div>
       <div class="settings-mobile-topbar">
         <button type="button" class="mobile-nav-btn" onclick="toggleSettingsMobileSidebar()" aria-label="Buka menu"><i class="bi bi-list"></i></button>
-        <h5 id="settings-mobile-title">Command Center</h5>
+        <h5 id="settings-mobile-title">Pusat Perintah</h5>
       </div>
       <div id="settings-page-command" class="settings-page active">
         <div class="sao-page-head">
-          <h4><i class="bi bi-speedometer2"></i>Command Center</h4>
+          <h4><i class="bi bi-speedometer2"></i>Pusat Perintah</h4>
           <p>Panel kendali Super Admin — pantau semua portal SIPKEU secara real-time</p>
         </div>
         <div class="sao-stat-grid" id="sao-stat-grid">
@@ -16018,7 +16036,7 @@ function initManualNumericInputUX() {
       <div id="settings-page-profil" class="settings-page">
         <div class="sao-page-head">
           <h4><i class="bi bi-person-vcard me-2"></i>Kredensial &amp; Profil Super Admin</h4>
-          <p>Kelola akun Command Center (Super Admin). Akun admin tiap portal diatur di menu Hak Akses Admin.</p>
+          <p>Kelola akun Pusat Perintah (Super Admin). Akun admin tiap portal diatur di menu Hak Akses Admin.</p>
         </div>
         <div class="settings-card">
           <h5><i class="bi bi-person-badge"></i> Akun Super Admin</h5>
@@ -16070,7 +16088,7 @@ function initManualNumericInputUX() {
               </div>
             </div>
             <div>
-              <label class="form-label text-light mb-1" style="font-size:11px">Tampilan</label>
+              <label class="form-label text-light mb-1" style="font-size:11px" for="sao-rekap-mode">Tampilan</label>
               <select class="form-select form-select-sm" id="sao-rekap-mode" style="min-width:180px" onchange="scheduleAdminRekapLoad()">
                 <option value="portal">Per Portal</option>
                 <option value="kegiatan" selected>Per Kegiatan</option>
@@ -16080,7 +16098,7 @@ function initManualNumericInputUX() {
               </select>
             </div>
             <div>
-              <label class="form-label text-light mb-1" style="font-size:11px">Jenis</label>
+              <label class="form-label text-light mb-1" style="font-size:11px" for="sao-rekap-jenis">Jenis</label>
               <select class="form-select form-select-sm" id="sao-rekap-jenis" style="min-width:120px" onchange="scheduleAdminRekapLoad()">
                 <option value="" selected>Semua</option>
                 <option value="UP">UP</option>
@@ -16088,11 +16106,11 @@ function initManualNumericInputUX() {
               </select>
             </div>
             <div>
-              <label class="form-label text-light mb-1" style="font-size:11px">Dari Tanggal</label>
+              <label class="form-label text-light mb-1" style="font-size:11px" for="sao-rekap-from">Dari Tanggal</label>
               <input type="date" class="form-control form-control-sm" id="sao-rekap-from" style="min-width:160px" onchange="scheduleAdminRekapLoad()" />
             </div>
             <div>
-              <label class="form-label text-light mb-1" style="font-size:11px">Sampai Tanggal</label>
+              <label class="form-label text-light mb-1" style="font-size:11px" for="sao-rekap-to">Sampai Tanggal</label>
               <input type="date" class="form-control form-control-sm" id="sao-rekap-to" style="min-width:160px" onchange="scheduleAdminRekapLoad()" />
             </div>
             <div class="sao-btn-group" style="margin-top:0">
@@ -16320,7 +16338,7 @@ function initManualNumericInputUX() {
 <div id="rg-capture-host" aria-hidden="true"></div>
 <div id="rg-measure-host" aria-hidden="true"></div>
 
-<!-- Command Palette (Ctrl+K) -->
+<!-- Palet Perintah (Ctrl+K) -->
 <div class="cmd-palette-backdrop" id="cmd-palette-backdrop" onclick="if(event.target===this)closeCommandPalette()">
   <div class="cmd-palette" role="dialog" aria-modal="true" aria-label="Command palette">
     <div class="cmd-palette-head">
@@ -16528,11 +16546,11 @@ function initManualNumericInputUX() {
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label fw-bold">Filter Bulan <small class="text-muted fw-normal">(kosongkan untuk semua bulan)</small></label>
+          <label class="form-label fw-bold" for="export-bulan">Filter Bulan <small class="text-muted fw-normal">(kosongkan untuk semua bulan)</small></label>
           <input type="month" id="export-bulan" class="form-control" value="" />
         </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Filter Kegiatan <small class="text-muted fw-normal">(opsional)</small></label>
+          <label class="form-label fw-bold" for="export-kegiatan">Filter Kegiatan <small class="text-muted fw-normal">(opsional)</small></label>
           <select id="export-kegiatan" class="form-select">
             <option value="">— Semua Kegiatan —</option>
           </select>
@@ -16557,7 +16575,7 @@ function initManualNumericInputUX() {
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label fw-bold">Pilih File Excel (.xlsx, .xls) atau CSV (.csv)</label>
+          <label class="form-label fw-bold" for="import-file">Pilih File Excel (.xlsx, .xls) atau CSV (.csv)</label>
           <input type="file" id="import-file" class="form-control" accept=".xlsx,.xls,.csv" onchange="previewImpor(event)" />
           <div class="form-text">Format <strong>Realisasi</strong>: Nama Kegiatan, Kode/Nama Sub Kegiatan, Kode/Nama Rekening, Jenis Transaksi, Tanggal Dokumen, Keterangan Dokumen, Nilai Realisasi, Penerima (opsional). <strong>No BPK</strong> dan <strong>No NP2D</strong> diisi otomatis jika kosong. <a href="#" onclick="downloadTemplate();return false">Download template Realisasi</a></div>
         </div>
@@ -16598,7 +16616,7 @@ function initManualNumericInputUX() {
           <span class="text-muted ms-2" style="font-size:11px" id="import-anggaran-current-detail"></span>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Versi Anggaran</label>
+          <label class="form-label fw-bold" for="import-anggaran-version">Versi Anggaran</label>
           <select class="form-select" id="import-anggaran-version">
             <option value="apbd">APBD (Murni)</option>
             <option value="pergeseran-1">Pergeseran APBD I</option>
@@ -16617,7 +16635,7 @@ function initManualNumericInputUX() {
           <button type="button" class="btn btn-outline-success btn-sm flex-shrink-0" onclick="downloadTemplateAnggaran()"><i class="bi bi-download me-1"></i>Unduh Template Kosong</button>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Pilih File Anggaran (.xlsx)</label>
+          <label class="form-label fw-bold" for="import-anggaran-file">Pilih File Anggaran (.xlsx)</label>
           <input type="file" id="import-anggaran-file" class="form-control" accept=".xlsx,.xls" onchange="previewImporAnggaran(event)" />
         </div>
         <div id="import-anggaran-preview" style="display:none">
@@ -17040,7 +17058,7 @@ const PORTAL_APPS = {
     available: true,
   },
   pengaturan: {
-    label: 'SAO Command Center',
+    label: 'Pusat Perintah Sistem',
     desc: 'Super Admin * Kendali penuh portal SIPKEU, keamanan &amp; hak akses',
     available: true,
   },
@@ -18428,7 +18446,7 @@ async function bootSettingsApp(fromRestore = true) {
 
 const SETTINGS_REKAP_PORTAL_IDS = ['sekretariat', 'paud', 'sd', 'smp'];
 const SETTINGS_PAGE_TITLES = {
-  command: 'Command Center',
+  command: 'Pusat Perintah',
   portals: 'Kendali Portal',
   data: 'Manajemen Data',
   video: 'Video Portal',
@@ -18467,7 +18485,7 @@ function showSettingsPage(page, navEl) {
   document.querySelectorAll('#settings-sidebar .settings-nav a[data-settings-page]').forEach(a => a.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
   const mobTitle = document.getElementById('settings-mobile-title');
-  if (mobTitle) mobTitle.textContent = SETTINGS_PAGE_TITLES[page] || 'Command Center';
+  if (mobTitle) mobTitle.textContent = SETTINGS_PAGE_TITLES[page] || 'Pusat Perintah';
   const mainEl = document.querySelector('#settings-app-shell .settings-main');
   if (mainEl) mainEl.scrollTop = 0;
   if (page === 'command') loadCommandCenter();
@@ -21867,7 +21885,7 @@ function printDashAnomalyReport() {
 
 </script>
 
-  <div class="modal fade" id="sipkeu-confirm-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="sipkeu-confirm-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sipkeu-confirm-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
