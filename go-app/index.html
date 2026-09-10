@@ -17308,6 +17308,7 @@ function resetPortalLocalState() {
   if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
   resetAllPortalDrafts();
 }
+const selectedTrxIds = new Set();
 let trxPage = 1;
 let trxPageSize = 10;
 let editingId = null;
@@ -26681,20 +26682,32 @@ async function loadSettings(force = false) {
 
 
 async function loadTransaksi(force = false) {
+  const tbody = document.getElementById('trx-tbody');
   try {
-    await loadSettings(force);
-  } catch (e) {
-    console.warn('loadTransaksi settings:', e);
+    try {
+      await loadSettings(force);
+    } catch (e) {
+      console.warn('loadTransaksi settings:', e);
+    }
+    refreshKegiatanDropdown();
+    allTransactions = await fetchAllTransactions(force);
+    trxPage = 1;
+    if (typeof selectedTrxIds !== 'undefined' && selectedTrxIds) selectedTrxIds.clear();
+    renderPendingPanel();
+    updatePendingNavBadge();
+    renderTable();
+    updatePaguRekeningUI();
+    touchPage('transaksi');
+  } catch (err) {
+    console.error('loadTransaksi:', err);
+    allTransactions = allTransactions || [];
+    if (tbody) {
+      const msg = (err && err.message) ? String(err.message) : 'Gagal memuat transaksi';
+      tbody.innerHTML = `<tr><td colspan="25"><div class="empty-state"><i class="bi bi-exclamation-triangle"></i><p>${msg}</p><button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="loadTransaksi(true)">Coba lagi</button></div></td></tr>`;
+    }
+    try { renderTrxPagination(0, 1, 0, 0); } catch (_) {}
+    throw err;
   }
-  refreshKegiatanDropdown();
-  allTransactions = await fetchAllTransactions(force);
-  trxPage = 1;
-  if (typeof selectedTrxIds !== 'undefined') selectedTrxIds.clear();
-  renderPendingPanel();
-  updatePendingNavBadge();
-  renderTable();
-  updatePaguRekeningUI();
-  touchPage('transaksi');
 }
 
 
