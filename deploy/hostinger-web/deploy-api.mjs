@@ -121,15 +121,8 @@ async function tusUpload(uploadMeta, localFile, relativePath) {
     const t = await create.text();
     throw new Error(`TUS create ${create.status}: ${t.slice(0, 300)}`);
   }
-  // Prefer Location from create — some TUS servers mint a new upload URL
-  const loc = create.headers.get("Location") || create.headers.get("location");
-  if (loc) {
-    target = loc.startsWith("http") ? loc : new URL(loc, base + "/").toString();
-    if (!target.includes("override=")) {
-      target += (target.includes("?") ? "&" : "?") + "override=true";
-    }
-    console.log("==> TUS location", target.slice(0, 120));
-  }
+  // Keep PATCHing the same create URL. Hostinger Location hosts can 403 with the same auth keys.
+  console.log("==> TUS upload endpoint ready");
 
   const chunkSize = 8 * 1024 * 1024;
   const fd = fs.openSync(localFile, "r");
