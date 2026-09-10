@@ -17802,6 +17802,58 @@ function playPortalLightningBurst() {
   portalLightningRaf = requestAnimationFrame(tick);
 }
 
+
+/* Portal FX helpers — canvas battle FX removed; keep safe stop/start stubs for login/home */
+let portalFxRaf = 0;
+let portalBurstRaf = 0;
+let battleLayoutRaf = 0;
+let portalFxActive = false;
+
+function stopPortalFx() {
+  if (portalFxRaf) cancelAnimationFrame(portalFxRaf);
+  portalFxRaf = 0;
+  portalFxActive = false;
+  try {
+    document.getElementById('sipkeu-fx-layer')?.classList.remove('is-canvas-live');
+    const canvas = document.getElementById('fx-canvas');
+    if (canvas) {
+      canvas.style.display = 'none';
+      if (canvas._fxResizeHandler) {
+        window.removeEventListener('resize', canvas._fxResizeHandler);
+        canvas._fxResizeHandler = null;
+      }
+    }
+    const vignette = document.querySelector('#sipkeu-fx-layer .portal-fx-vignette');
+    if (vignette) vignette.style.display = 'none';
+  } catch (_) {}
+}
+
+function stopBattleLayoutSync() {
+  if (battleLayoutRaf) cancelAnimationFrame(battleLayoutRaf);
+  battleLayoutRaf = 0;
+}
+
+function stopPortalBurstFx() {
+  if (portalBurstRaf) cancelAnimationFrame(portalBurstRaf);
+  portalBurstRaf = 0;
+  stopBattleLayoutSync();
+  try {
+    document.querySelectorAll('.fx-burst-canvas').forEach((c) => {
+      c.style.display = 'none';
+      const ctx = c.getContext && c.getContext('2d');
+      if (ctx && c.width) ctx.clearRect(0, 0, c.width, c.height);
+    });
+  } catch (_) {}
+}
+
+function startPortalBurstFx() {
+  /* no-op: hero video replaces canvas burst FX */
+}
+
+function startBattleLayoutSync() {
+  /* no-op: battle layout sync retired with canvas FX */
+}
+
 function stopAllPortalFx() {
   resetPortalModulesReveal();
   setPortalHomeFx(false);
