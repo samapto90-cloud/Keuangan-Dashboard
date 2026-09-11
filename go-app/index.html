@@ -13918,7 +13918,7 @@ function initManualNumericInputUX() {
     <a href="#" data-perm="view_dashboard" class="nav-admin-only" id="nav-aksi" onclick="showPage('aksi',this)"><i class="bi bi-lightning-charge"></i> <span class="nav-text">Aksi Cepat</span></a>
     <a href="#" data-perm="view_dashboard" class="nav-admin-only" id="nav-anomali" onclick="showPage('anomali',this)"><i class="bi bi-shield-exclamation"></i> <span class="nav-text">Deteksi Anomali</span> <span class="nav-pending-badge" id="nav-anomaly-badge" style="display:none">0</span></a>
     <a href="#" id="nav-transaksi" onclick="showPage('transaksi',this)"><i class="bi bi-receipt-cutoff"></i> <span class="nav-text">Transaksi</span> <span class="nav-pending-badge" id="nav-pending-badge">0</span></a>
-    <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-wallet2"></i> <span class="nav-text">Rekening</span></a>
+    <a href="#" data-perm="view_register" id="nav-register" onclick="showPage('register',this)"><i class="bi bi-wallet2"></i> <span class="nav-text">Register Pengeluaran</span></a>
 
     <div class="nav-group nav-group-admin open" id="nav-group-master">
       <button type="button" class="nav-group-toggle" onclick="toggleNavGroup('nav-group-master')"><span>Master Data</span><i class="bi bi-chevron-down"></i></button>
@@ -20347,7 +20347,7 @@ function getCommandPaletteCommands() {
     push('anomali', 'Deteksi Anomali', 'Audit transaksi mencurigakan', () => showPage('anomali', document.getElementById('nav-anomali')), 'bi-shield-exclamation');
   }
   if (canAccessTransaksi()) push('transaksi', 'Transaksi', 'Tambah / kelola transaksi', () => showPage('transaksi', document.getElementById('nav-transaksi')), 'bi-receipt-cutoff');
-  if (canDo('view_register')) push('register', 'Rekening / Register', 'Buku register', () => showPage('register', document.getElementById('nav-register')), 'bi-wallet2');
+  if (canDo('view_register')) push('register', 'Register Pengeluaran', 'Buku register', () => showPage('register', document.getElementById('nav-register')), 'bi-wallet2');
   if (canDo('view_pejabat')) push('pejabat', 'Pejabat Keuangan', 'PA & Bendahara', () => showPage('pengaturan', document.getElementById('nav-pejabat')), 'bi-person-gear');
   if (isAdmin()) push('operators', 'Kelola Operator', 'Master data pengguna', () => showPage('operators', document.getElementById('nav-operators')), 'bi-people');
   push('portal', 'Portal Aplikasi', 'Kembali ke portal', () => backToPortal(), 'bi-grid-3x3-gap');
@@ -20477,7 +20477,7 @@ function showPage(name, el) {
     anomali: 'Deteksi Anomali',
     aksi: 'Aksi Cepat',
     transaksi: 'Transaksi',
-    register: 'Rekening',
+    register: 'Register Pengeluaran',
     realisasi: 'Realisasi',
     pengaturan: 'Pejabat Keuangan',
     operators: 'Kelola Operator',
@@ -20490,15 +20490,7 @@ function showPage(name, el) {
     else resizeDashMovedCharts();
   } else if (name === 'prediksi' || name === 'analisis' || name === 'aksi' || name === 'anomali') {
     if (name === 'analisis') {
-      const needTx = !(allTransactions && allTransactions.length);
-      Promise.all([
-        pageIsFresh('dashboard') ? Promise.resolve() : loadDashboard().then(() => touchPage('dashboard')).catch(() => {}),
-        needTx ? fetchAllTransactions(false).then(tx => { allTransactions = tx || []; }).catch(() => {}) : Promise.resolve(),
-      ]).finally(() => {
-        dashAcctCache = buildBelanjaAccountStats(dashRecentTxCache);
-        renderDashAccountSection(dashAcctCache);
-        resizeDashMovedCharts();
-      });
+      refreshAnalisisPage(false);
     } else if (name === 'anomali') {
       refreshAnomaliPage();
     } else if (name === 'prediksi') {
@@ -20512,11 +20504,19 @@ function showPage(name, el) {
     }
   } else if (name === 'register') {
     if (!pageIsFresh('register') || !allTransactions.length) {
-      loadRegister(false).then(() => touchPage('register')).catch(() => {});
+      loadRegister(false).then(() => touchPage('register')).catch((err) => {
+      console.error('loadRegister:', err);
+      const tbody = document.getElementById('reg-preview-tbody');
+      if (tbody) {
+        const msg = (err && err.message) ? String(err.message) : 'Gagal memuat register';
+        const cols = (typeof RG_REGISTER_COLS !== 'undefined') ? RG_REGISTER_COLS : 12;
+        tbody.innerHTML = '<tr><td colspan="' + cols + '" style="text-align:center;padding:12px">' + escapeHtmlRegister(msg) + '</td></tr>';
+      }
+    });
     }
   } else if (name === 'realisasi') {
     if (!pageIsFresh('realisasi') || !realisasiReportCache) {
-      loadRealisasi(false).then(() => touchPage('realisasi')).catch(() => {});
+      loadRealisasi(false).then(() => touchPage('realisasi')).catch((err) => { console.error('loadRealisasi:', err); });
     }
   } else if (name === 'pengaturan') {
     loadSettings(true).then(() => { fillSettingsForm(); touchPage('pengaturan'); }).catch(() => fillSettingsForm());
@@ -20776,6 +20776,9 @@ function updateDashGreeting() {
 
 let dashMonthFilter = 'YTD';
 let dashKpiCache = { pagu: 0, realisasi: 0, sisa: 0, pct: 0, monthlyCum: [] };
+let dashBudgetCache = null;
+let dashAcctCache = null;
+let dashAcctFilterLimit = 5;
 
 function shortRp(n) {
   const v = Number(n) || 0;
@@ -20839,6 +20842,62 @@ function onDashMonthFilter(id) {
 function scrollToDashForecast() {
   showPage('prediksi', document.getElementById('nav-prediksi'));
 }
+
+function applyDashMonthFilterToKpis() {
+  const pagu = Number(dashKpiCache.pagu) || 0;
+  const rows = dashKpiCache.monthlyCum || [];
+  let real = Number(dashKpiCache.realisasi) || 0;
+  if (dashMonthFilter !== 'YTD') {
+    const mo = parseInt(dashMonthFilter, 10);
+    const row = rows.find(r => r.mo === mo);
+    real = row ? (Number(row.realisasi) || 0) : 0;
+  }
+  const sisa = Math.max(0, pagu - real);
+  const pct = pagu > 0 ? (real / pagu) * 100 : 0;
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setTxt('stat-pagu', formatRupiah(pagu));
+  setTxt('stat-realisasi', formatRupiah(real));
+  setTxt('stat-sisa-pagu', formatRupiah(sisa));
+  setTxt('stat-persen-realisasi', pagu ? (pct.toFixed(1) + '%') : '—');
+  setTxt('kpi-pagu-pct', '100% dari total anggaran');
+  setTxt('kpi-realisasi-pct', pagu ? (pct.toFixed(1).replace('.', ',') + '% dari pagu') : '— dari pagu');
+  setTxt('kpi-sisa-pct', pagu ? (((sisa / pagu) * 100).toFixed(1).replace('.', ',') + '% dari pagu') : '— dari pagu');
+  const barRea = document.getElementById('bar-realisasi');
+  if (barRea) barRea.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  const barSisa = document.getElementById('bar-sisa');
+  if (barSisa) barSisa.style.width = pagu ? Math.min(100, Math.max(0, (sisa / pagu) * 100)) + '%' : '0%';
+  const barPagu = document.getElementById('stat-pagu-bar');
+  if (barPagu) barPagu.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  const gauge = document.getElementById('kpi-serapan-gauge');
+  if (gauge) gauge.style.setProperty('--pct', String(Math.min(100, Math.max(0, pct))));
+  setTxt('kpi-serapan-gauge-val', pagu ? (pct.toFixed(1).replace('.', ',') + '%') : '—');
+
+  const curMo = new Date().getMonth() + 1;
+  const rakCum = (typeof buildDashRakCumTargets === 'function') ? buildDashRakCumTargets(pagu) : { hasAngkas: false, byMo: {} };
+  const targetMo = dashMonthFilter === 'YTD' ? curMo : (parseInt(dashMonthFilter, 10) || curMo);
+  const targetNom = rakCum.hasAngkas
+    ? (rakCum.byMo[targetMo] || (pagu * (targetMo / 12)))
+    : (pagu * (targetMo / 12));
+  const targetPct = pagu > 0 ? (targetNom / pagu) * 100 : 0;
+  const gap = pct - targetPct;
+  setTxt('kpi-serapan-vs', `vs target ${targetPct.toFixed(1).replace('.', ',')}% (${gap >= 0 ? '+' : ''}${gap.toFixed(1).replace('.', ',')} pp)`);
+  setTxt('kpi-sisa-vs-target', pagu ? `sisa vs target ${shortRp(Math.max(0, targetNom - real))}` : 'vs target —');
+
+  // MoM from monthly increments
+  const withData = rows.filter(r => r.hasData || r.monthInc > 0);
+  if (withData.length >= 2) {
+    const last = withData[withData.length - 1];
+    const prev = withData[withData.length - 2];
+    const mom = prev.monthInc ? ((last.monthInc - prev.monthInc) / Math.abs(prev.monthInc)) * 100 : 0;
+    const momEl = document.getElementById('kpi-realisasi-mom');
+    if (momEl) {
+      momEl.textContent = `MoM ${mom >= 0 ? '+' : ''}${mom.toFixed(1).replace('.', ',')}%`;
+      momEl.classList.toggle('up', mom >= 0);
+      momEl.classList.toggle('down', mom < 0);
+    }
+  }
+}
+
 
 function resizeDashMovedCharts() {
   try { chartMonthly?.resize(); } catch (_) {}
@@ -21308,12 +21367,14 @@ function renderFcMonthTable(model) {
 }
 
 function refreshPrediksiPage(force) {
-  const needDash = force || !pageIsFresh('dashboard');
+  const needDash = force || !pageIsFresh('dashboard') || !dashBudgetCache;
   Promise.resolve(needDash ? loadDashboard().then(() => touchPage('dashboard')) : Promise.resolve())
-    .catch(() => {})
+    .catch((err) => { console.error('refreshPrediksiPage:', err); })
     .finally(() => {
       if (dashBudgetCache) {
         renderDashForecast(dashBudgetCache.monthly, dashKpiCache.pagu, dashKpiCache.realisasi);
+      } else {
+        renderDashForecast([], dashKpiCache.pagu || 0, dashKpiCache.realisasi || 0);
       }
       try { chartForecast?.resize(); } catch (_) {}
     });
@@ -21920,8 +21981,8 @@ function refreshAnomaliPage() {
   const needDash = !pageIsFresh('dashboard');
   const needTx = !(allTransactions && allTransactions.length);
   Promise.all([
-    needDash ? loadDashboard().then(() => touchPage('dashboard')).catch(() => {}) : Promise.resolve(),
-    needTx ? fetchAllTransactions(false).then(tx => { allTransactions = tx || []; }).catch(() => {}) : Promise.resolve(),
+    needDash ? loadDashboard().then(() => touchPage('dashboard')).catch((e) => console.error('anomali dash:', e)) : Promise.resolve(),
+    needTx ? fetchAllTransactions(false).then(tx => { allTransactions = tx || []; }).catch((e) => console.error('anomali tx:', e)) : Promise.resolve(),
   ]).finally(() => {
     syncDashAnomalyUI(detectDashAnomalies(anomTxSource()));
   });
@@ -23173,6 +23234,32 @@ function buildRegisterSignatureHtml() {
         <div style="font-size:8px">${escapeHtmlRegister(DB.bendahara?.nip || '—')}</div>
       </div>
     </div>`;
+}
+
+
+function escapeHtmlRegister(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+const RG_REGISTER_COLS = 12;
+
+function buildRegisterRowHtml(t) {
+  const pot = trxPotonganTotal(t);
+  const netto = trxNetto(t);
+  return `<tr>
+    <td>${escapeHtmlRegister(t.no_bpk || '—')}</td>
+    <td class="rg-c">${escapeHtmlRegister(formatTanggalShort(t.tanggal))}</td>
+    <td>${escapeHtmlRegister(t.kegiatan || '—')}</td>
+    <td>${escapeHtmlRegister(t.sub_kegiatan || '—')}</td>
+    <td class="rg-c">${escapeHtmlRegister(t.kode_rekening || '—')}</td>
+    <td>${escapeHtmlRegister(t.pekerjaan || '—')}</td>
+    <td>${escapeHtmlRegister(t.uraian || '—')}</td>
+    <td>${escapeHtmlRegister(t.penerima || '—')}</td>
+    <td>${escapeHtmlRegister(trxJenisPotonganLabel(t))}</td>
+    <td class="rg-num">${formatRupiah(t.nilai || 0)}</td>
+    <td class="rg-num">${formatRupiah(pot)}</td>
+    <td class="rg-num">${formatRupiah(netto)}</td>
+  </tr>`;
 }
 
 
@@ -28299,12 +28386,7 @@ function renderDashboardData(data) {
     options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{ticks:{callback:v=>'Rp '+(v/1000000).toFixed(1)+'jt',font:{size:10},color:'#94a3b8'},grid:{color:'rgba(56,189,248,.08)'}},x:{ticks:{font:{size:10},color:'#94a3b8'},grid:{display:false}}} }
   });
 
-  if (chartDoughnut) chartDoughnut.destroy();
-  chartDoughnut = new Chart(document.getElementById('chartDoughnut'), {
-    type: 'doughnut',
-    data: { labels:['Nilai Bersih','Pajak'], datasets:[{ data:[Math.max(0,data.nilai_bersih||0), data.total_pajak||0], backgroundColor:['#3b82f6','#ff6b00'], borderWidth:2, borderColor:'rgba(15,22,41,.8)', hoverOffset:8 }] },
-    options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{position:'bottom',labels:{font:{size:12},padding:14,color:'#94a3b8'}}, tooltip:{callbacks:{label:ctx=>' '+formatRupiah(ctx.parsed)}} } }
-  });
+  // chartDoughnut lives on Analisis page — filled by renderDashAccountSection
 
   const monthly = (data.monthly_stats||[]).sort((a,b)=>a.bulan.localeCompare(b.bulan));
   const nm = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
@@ -28320,6 +28402,31 @@ function renderDashboardData(data) {
   });
 
   renderOpPptkRaceChart(data.nilai_per_pptk || []);
+
+  const paguN = Number(data.total_pagu) || 0;
+  const realN = Number(data.realisasi) || 0;
+  const sisaN = Number(data.sisa_pagu) || Math.max(0, paguN - realN);
+  const pctN = Number(data.persen_realisasi) || (paguN > 0 ? (realN / paguN) * 100 : 0);
+  dashKpiCache = {
+    pagu: paguN,
+    realisasi: realN,
+    sisa: sisaN,
+    pct: pctN,
+    monthlyCum: buildDashMonthCum(monthly, paguN),
+  };
+  dashBudgetCache = { monthly: monthly.slice(), pagu: paguN, realisasi: realN };
+  dashRecentTxCache = Array.isArray(data.recent_transaksi) ? data.recent_transaksi.slice() : [];
+  renderDashMonthChips();
+  applyDashMonthFilterToKpis();
+  try { updateRakMetaUI(); } catch (_) {}
+  try {
+    renderDashForecast(dashBudgetCache.monthly, dashKpiCache.pagu, dashKpiCache.realisasi);
+  } catch (e) { console.warn('renderDashForecast:', e); }
+  try {
+    if (typeof syncDashAnomalyUI === 'function' && typeof detectDashAnomalies === 'function') {
+      syncDashAnomalyUI(detectDashAnomalies(anomTxSource()));
+    }
+  } catch (e) { console.warn('dash anomaly sync:', e); }
 }
 
 
@@ -31450,14 +31557,329 @@ function verifyKasTahunanMonthlySumClient() {
 }
 
 
-/* stubs for incomplete newer call sites */
-function buildBelanjaAccountStats() {
-  return {};
+/* ── Lab: Analisis Akun + Aksi Cepat ── */
+function belanjaAcctStatus(pct, sisa) {
+  if (sisa < 0 || pct > 100.5) return 'lebih';
+  if (pct >= 75) return 'kuat';
+  if (pct >= 40) return 'jalan';
+  return 'lambat';
 }
 
-function renderDashAccountSection() {
-  /* optional dash section — noop until implemented */
+function belanjaAcctStatusLabel(st) {
+  return ({ kuat: 'Serapan kuat', jalan: 'Berjalan', lambat: 'Lambat', lebih: 'Melebihi pagu' })[st] || st;
 }
+
+function belanjaAcctCategory(kode) {
+  const k = String(kode || '');
+  if (k.startsWith('5.1.01')) return 'Belanja Pegawai';
+  if (k.startsWith('5.1.02')) return 'Belanja Barang & Jasa';
+  if (k.startsWith('5.2')) return 'Belanja Modal';
+  if (k.startsWith('5.1')) return 'Belanja Operasi';
+  if (k.startsWith('5')) return 'Belanja Lainnya';
+  return 'Lainnya';
+}
+
+function buildBelanjaAccountStats(txList) {
+  const byKode = new Map();
+  const rak = (appSettings && Array.isArray(appSettings.rak)) ? appSettings.rak : [];
+  rak.forEach(r => {
+    const kode = String(r.kode_rekening || '').trim();
+    if (!kode) return;
+    const cur = byKode.get(kode) || { kode, uraian: '', pagu: 0, realisasi: 0, count: 0 };
+    cur.pagu += Number(r.anggaran) || 0;
+    if (!cur.uraian && r.pekerjaan) cur.uraian = String(r.pekerjaan);
+    byKode.set(kode, cur);
+  });
+
+  const src = (txList && txList.length)
+    ? txList
+    : ((allTransactions && allTransactions.length) ? allTransactions : (dashRecentTxCache || []));
+  src.forEach(t => {
+    if (!trxIsApproved(t)) return;
+    const kode = String(t.kode_rekening || '').trim() || 'TANPA-KODE';
+    const cur = byKode.get(kode) || { kode, uraian: '', pagu: 0, realisasi: 0, count: 0 };
+    cur.realisasi += Number(t.nilai) || 0;
+    cur.count += 1;
+    if (!cur.uraian) cur.uraian = String(t.uraian || t.pekerjaan || t.kegiatan || '');
+    byKode.set(kode, cur);
+  });
+
+  const accounts = [...byKode.values()].map(a => {
+    const sisa = a.pagu - a.realisasi;
+    const pct = a.pagu > 0 ? (a.realisasi / a.pagu) * 100 : (a.realisasi > 0 ? 100 : 0);
+    const status = belanjaAcctStatus(pct, sisa);
+    return {
+      ...a,
+      sisa,
+      pct,
+      status,
+      category: belanjaAcctCategory(a.kode),
+      uraian: a.uraian || a.kode,
+    };
+  }).sort((a, b) => b.realisasi - a.realisasi);
+
+  const totalPagu = accounts.reduce((s, a) => s + a.pagu, 0);
+  const totalReal = accounts.reduce((s, a) => s + a.realisasi, 0);
+  const cats = {};
+  accounts.forEach(a => {
+    const c = cats[a.category] || { name: a.category, pagu: 0, realisasi: 0, count: 0 };
+    c.pagu += a.pagu;
+    c.realisasi += a.realisasi;
+    c.count += 1;
+    cats[a.category] = c;
+  });
+  const categories = Object.values(cats).map(c => ({
+    ...c,
+    pct: c.pagu > 0 ? (c.realisasi / c.pagu) * 100 : 0,
+    sisa: c.pagu - c.realisasi,
+  })).sort((a, b) => b.realisasi - a.realisasi);
+
+  return {
+    accounts,
+    categories,
+    totalPagu,
+    totalReal,
+    totalSisa: totalPagu - totalReal,
+    totalPct: totalPagu > 0 ? (totalReal / totalPagu) * 100 : 0,
+  };
+}
+
+function onDashAcctFilterChange() {
+  const v = parseInt(document.getElementById('dash-acct-filter')?.value || '5', 10);
+  dashAcctFilterLimit = Number.isFinite(v) ? v : 5;
+  if (dashAcctCache) renderDashAccountSection(dashAcctCache);
+}
+
+function renderDashAccountSection(stats) {
+  dashAcctCache = stats || dashAcctCache || buildBelanjaAccountStats();
+  const s = dashAcctCache;
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setTxt('ax-kpi-pagu', shortRp(s.totalPagu));
+  setTxt('ax-kpi-real', shortRp(s.totalReal));
+  setTxt('ax-kpi-sisa', shortRp(Math.max(0, s.totalSisa)));
+  setTxt('ax-kpi-pct', s.totalPagu ? (s.totalPct.toFixed(1).replace('.', ',') + '%') : '—');
+  setTxt('ax-kpi-pagu-sub', `${s.accounts.length} kode rekening`);
+  setTxt('ax-kpi-real-sub', 'Transaksi disetujui');
+  setTxt('ax-kpi-sisa-sub', s.totalSisa < 0 ? 'Over pagu' : 'Belum terserap');
+  setTxt('ax-kpi-pct-sub', s.totalPct >= 75 ? 'Di atas target 75%' : 'Target minimal 75%');
+  setTxt('ax-acct-count', `${s.accounts.length} akun`);
+  setTxt('donut-pct-val', s.totalPagu ? (s.totalPct.toFixed(1).replace('.', ',') + '%') : '—');
+  setTxt('donut-real-val', shortRp(s.totalReal));
+  setTxt('donut-pagu-val', s.totalPagu ? ('dari ' + shortRp(s.totalPagu)) : '');
+
+  const catHost = document.getElementById('ax-cat-grid');
+  if (catHost) {
+    const tones = ['ax-cat-tone-cyan','ax-cat-tone-blue','ax-cat-tone-lime','ax-cat-tone-amber'];
+    catHost.innerHTML = s.categories.length ? s.categories.map((c, i) => `
+      <div class="ax-cat ${tones[i % tones.length]}">
+        <div class="ax-cat-top"><span class="ax-cat-name">${escHtml(c.name)}</span><span class="ax-cat-pct">${c.pct.toFixed(1).replace('.', ',')}%</span></div>
+        <div class="ax-cat-bar"><i style="width:${Math.min(100, Math.max(0, c.pct)).toFixed(0)}%"></i></div>
+        <div class="ax-cat-meta"><span>Pagu <strong>${shortRp(c.pagu)}</strong></span><span>Real <strong>${shortRp(c.realisasi)}</strong></span></div>
+      </div>`).join('') : '<div class="text-muted small p-2">Belum ada data akun. Impor RAK dan/atau setujui transaksi.</div>';
+  }
+
+  const limit = dashAcctFilterLimit > 0 ? dashAcctFilterLimit : s.accounts.length;
+  const top = s.accounts.slice(0, limit);
+  const palette = ['#00E5FF', '#3B82F6', '#A855F7', '#22C55E', '#F59E0B', '#EF4444', '#06B6D4', '#8B5CF6'];
+  const bars = document.getElementById('dash-acct-bars');
+  if (bars) {
+    const maxReal = Math.max(1, ...top.map(a => a.realisasi));
+    bars.innerHTML = top.length ? top.map((a, i) => `
+      <div class="midnight-acct-row">
+        <span class="lab" title="${escHtml(a.uraian)}">${escHtml(a.kode)}</span>
+        <span class="val">${shortRp(a.realisasi)}</span>
+        <div class="midnight-acct-track"><i style="width:${(a.realisasi / maxReal * 100).toFixed(0)}%"></i></div>
+      </div>`).join('') : '<div class="text-muted small">Tidak ada realisasi akun</div>';
+  }
+
+  const canvas = document.getElementById('chartDoughnut');
+  if (canvas && typeof Chart !== 'undefined') {
+    if (chartDoughnut) { try { chartDoughnut.destroy(); } catch (_) {} chartDoughnut = null; }
+    const donutData = top.length ? top : [{ uraian: 'Kosong', realisasi: 1 }];
+    chartDoughnut = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: donutData.map(a => a.kode || a.uraian),
+        datasets: [{
+          data: donutData.map(a => a.realisasi || 0),
+          backgroundColor: donutData.map((_, i) => palette[i % palette.length]),
+          borderWidth: 2,
+          borderColor: 'rgba(15,22,41,.85)',
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' ' + formatRupiah(ctx.parsed) } },
+        },
+      },
+    });
+  }
+
+  const insights = document.getElementById('ax-insight-list');
+  if (insights) {
+    const items = [];
+    if (!s.accounts.length) {
+      items.push({ title: 'Belum ada data', body: 'Impor RAK (menu RAK) dan pastikan ada transaksi disetujui.', tone: 'tone-warn', icon: 'bi-exclamation-triangle' });
+    } else {
+      const topA = s.accounts[0];
+      items.push({ title: 'Kontributor terbesar', body: `${topA.kode} — ${shortRp(topA.realisasi)} (${topA.pct.toFixed(1).replace('.', ',')}% pagu akun).` });
+      const slow = s.accounts.filter(a => a.status === 'lambat' && a.pagu > 0).slice(0, 3);
+      if (slow.length) items.push({ title: 'Perlu dorongan', body: slow.map(a => a.kode).join(', ') + ' masih di bawah 40% serapan.' });
+      const over = s.accounts.filter(a => a.status === 'lebih');
+      if (over.length) items.push({ title: 'Over pagu', body: `${over.length} akun melebihi pagu — cek realisasi vs RAK.` });
+      items.push({ title: 'Serapan portal', body: s.totalPagu ? `${s.totalPct.toFixed(1).replace('.', ',')}% dari pagu ${shortRp(s.totalPagu)}.` : 'Pagu RAK belum tersedia.' });
+    }
+    insights.innerHTML = items.map(it => `
+      <div class="ax-insight ${it.tone || ''}">
+        <div class="ax-insight-ico"><i class="bi ${it.icon || 'bi-lightbulb'}"></i></div>
+        <div><strong>${escHtml(it.title)}</strong><span>${escHtml(it.body)}</span></div>
+      </div>`).join('');
+  }
+
+  const lead = document.getElementById('ax-lead-grid');
+  if (lead) {
+    const best = s.accounts.filter(a => a.pagu > 0).slice().sort((a, b) => b.pct - a.pct).slice(0, 3);
+    const worst = s.accounts.filter(a => a.pagu > 0).slice().sort((a, b) => a.pct - b.pct).slice(0, 3);
+    const block = (title, rows, low) => `
+      <div class="ax-lead-col">
+        <h6>${title}</h6>
+        ${rows.length ? rows.map(a => `
+          <div class="ax-lead-item${low ? ' is-low' : ''}">
+            <span class="lab" title="${escHtml(a.uraian)}">${escHtml(a.kode)}</span>
+            <span class="val">${a.pct.toFixed(1).replace('.', ',')}%</span>
+          </div>`).join('') : '<div class="small text-muted">—</div>'}
+      </div>`;
+    lead.innerHTML = block('Tertinggi', best, false) + block('Tertinggal', worst, true);
+  }
+
+  renderAnalisisTable();
+}
+
+function renderAnalisisTable() {
+  const tbody = document.getElementById('ax-table-body');
+  if (!tbody) return;
+  const stats = dashAcctCache || buildBelanjaAccountStats();
+  dashAcctCache = stats;
+  const q = (document.getElementById('ax-table-q')?.value || '').trim().toLowerCase();
+  const st = document.getElementById('ax-table-status')?.value || 'all';
+  const sort = document.getElementById('ax-table-sort')?.value || 'real-desc';
+  let rows = stats.accounts.slice();
+  if (st !== 'all') rows = rows.filter(a => a.status === st);
+  if (q) {
+    rows = rows.filter(a => `${a.kode} ${a.uraian} ${a.category}`.toLowerCase().includes(q));
+  }
+  rows.sort((a, b) => {
+    if (sort === 'real-asc') return a.realisasi - b.realisasi;
+    if (sort === 'pct-desc') return b.pct - a.pct;
+    if (sort === 'pct-asc') return a.pct - b.pct;
+    if (sort === 'sisa-desc') return b.sisa - a.sisa;
+    if (sort === 'kode') return String(a.kode).localeCompare(String(b.kode));
+    return b.realisasi - a.realisasi;
+  });
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada akun untuk filter ini.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((a, i) => {
+    const pctW = Math.min(100, Math.max(0, a.pct));
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><span class="ax-code">${escHtml(a.kode)}</span></td>
+      <td style="max-width:240px" title="${escHtml(a.uraian)}">${escHtml(a.uraian)}</td>
+      <td class="text-end">${formatRupiah(a.pagu)}</td>
+      <td class="text-end">${formatRupiah(a.realisasi)}</td>
+      <td class="text-end">${formatRupiah(a.sisa)}</td>
+      <td>
+        <div class="ax-mini-bar"><i style="width:${pctW.toFixed(0)}%"></i></div>
+        <small>${a.pct.toFixed(1).replace('.', ',')}%</small>
+      </td>
+      <td><span class="ax-status ${a.status}">${escHtml(belanjaAcctStatusLabel(a.status))}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function refreshAnalisisPage(force) {
+  const needDash = force || !pageIsFresh('dashboard');
+  const needTx = !(allTransactions && allTransactions.length);
+  const needSettings = force || !(appSettings?.rak && appSettings.rak.length);
+  Promise.all([
+    needDash ? loadDashboard().then(() => touchPage('dashboard')).catch((e) => console.error('analisis dash:', e)) : Promise.resolve(),
+    needTx ? fetchAllTransactions(!!force).then(tx => { allTransactions = tx || []; }).catch((e) => console.error('analisis tx:', e)) : Promise.resolve(),
+    needSettings ? loadSettings(!!force).catch((e) => console.warn('analisis settings:', e)) : Promise.resolve(),
+  ]).finally(() => {
+    try {
+      dashAcctCache = buildBelanjaAccountStats(allTransactions);
+      renderDashAccountSection(dashAcctCache);
+      resizeDashMovedCharts();
+    } catch (err) {
+      console.error('refreshAnalisisPage:', err);
+      const tbody = document.getElementById('ax-table-body');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Gagal memuat analisis: ${escHtml(err.message || err)}</td></tr>`;
+    }
+  });
+}
+
+function openDashActionModal(type) {
+  const modal = document.getElementById('dash-action-modal');
+  const body = document.getElementById('dash-action-body');
+  const title = document.getElementById('dash-action-title');
+  const icon = document.getElementById('dash-action-icon');
+  const foot = document.getElementById('dash-action-foot');
+  if (!modal || !body) return;
+
+  if (type === 'rak') {
+    closeDashActionModal();
+    showModalImporAnggaran();
+    return;
+  }
+
+  const configs = {
+    upload: {
+      title: 'Upload Dokumen SPJ / SP2D',
+      icon: 'bi-cloud-upload',
+      html: `
+        <p class="small text-muted mb-3">Unggah bukti pendukung atau impor data. Untuk anggaran RAK gunakan pintasan di bawah.</p>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-primary" onclick="closeDashActionModal();showModalImpor();"><i class="bi bi-file-earmark-arrow-up me-1"></i>Impor Transaksi (Excel)</button>
+          <button type="button" class="btn btn-outline-info" onclick="closeDashActionModal();showModalImporAnggaran();"><i class="bi bi-calendar2-range me-1"></i>Impor / Kelola RAK</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="closeDashActionModal();showPage('transaksi',document.getElementById('nav-transaksi'));"><i class="bi bi-plus-lg me-1"></i>Input Transaksi Manual</button>
+        </div>`,
+      foot: 'Format: XLSX / data portal aktif',
+    },
+    print: {
+      title: 'Cetak / Ekspor Laporan',
+      icon: 'bi-printer',
+      html: `
+        <p class="small text-muted mb-3">Pilih dokumen resmi dari data tersimpan pada portal ini.</p>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-info" onclick="closeDashActionModal();showPage('realisasi',document.getElementById('nav-realisasi'));"><i class="bi bi-graph-up-arrow me-1"></i>Buka Realisasi (LRA)</button>
+          <button type="button" class="btn btn-outline-success" onclick="closeDashActionModal();showPage('register',document.getElementById('nav-register'));"><i class="bi bi-journal-text me-1"></i>Register Pengeluaran</button>
+          <button type="button" class="btn btn-outline-danger" id="dash-action-lra-pdf" onclick="closeDashActionModal();downloadDashLraPdf(document.getElementById('btn-dash-lra-pdf'));"><i class="bi bi-file-earmark-pdf me-1"></i>Unduh PDF LRA</button>
+        </div>`,
+      foot: 'PDF memakai data realisasi portal aktif',
+    },
+  };
+  const cfg = configs[type] || configs.upload;
+  if (title) title.textContent = cfg.title;
+  if (icon) icon.className = 'bi ' + cfg.icon + ' text-info';
+  body.innerHTML = cfg.html;
+  if (foot) foot.textContent = cfg.foot || '';
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+}
+
+function closeDashActionModal() {
+  const modal = document.getElementById('dash-action-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.style.display = '';
+}
+
 
 /* ── App boot: session restore + portal home init ── */
 window.addEventListener('DOMContentLoaded', () => {
