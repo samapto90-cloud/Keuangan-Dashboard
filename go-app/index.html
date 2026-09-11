@@ -1451,20 +1451,7 @@
       color: #fff !important;
       box-shadow: none !important;
     }
-    body[data-ui-mode] #login-screen {
-      background: var(--background) !important;
-    }
-    body[data-ui-mode] #login-screen::before {
-      background-image: none !important;
-      animation: none !important;
-    }
-    body[data-ui-mode] #login-screen .login-card {
-      background: var(--surface) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: var(--radius-lg) !important;
-      box-shadow: var(--shadow-md) !important;
-      backdrop-filter: none !important;
-    }
+    /* login atmosphere kept in dedicated #login-screen block below */
     body[data-ui-mode="light"] #sidebar,
     body[data-ui-mode="light"] #kas-sidebar,
     body[data-ui-mode="light"] #gaji-sidebar,
@@ -1594,36 +1581,7 @@
       border-color: var(--border) !important;
       color: var(--text-primary) !important;
     }
-    body[data-ui-mode] #login-screen .login-card {
-      position: relative;
-      z-index: 1;
-      background: var(--surface) !important;
-      border: 1px solid var(--border) !important;
-      box-shadow: var(--shadow-md) !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      color: var(--text-primary);
-      border-radius: var(--radius-lg) !important;
-    }
-    body[data-ui-mode] #login-screen {
-      background: var(--background) !important;
-    }
-    body[data-ui-mode] #login-screen::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      background-image: none !important;
-      animation: none !important;
-      opacity: 0 !important;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      body[data-ui-mode] #login-screen::before {
-        animation: none;
-      }
-    }
-    body[data-ui-mode] #login-screen .form-label { color: var(--text-secondary); }
+    /* login card/hero handled by #login-screen atmospheric styles */
     body.fx-portal-home.portal-video-mode .portal-grid {
       perspective: none;
     }
@@ -13014,23 +12972,24 @@
   overflow: auto;
   isolation: isolate;
   background:
-    radial-gradient(ellipse 90% 70% at 12% 18%, rgba(255, 122, 24, 0.16), transparent 55%),
-    radial-gradient(ellipse 80% 60% at 88% 12%, rgba(22, 119, 255, 0.14), transparent 50%),
-    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(14, 165, 233, 0.10), transparent 55%),
-    linear-gradient(165deg, #f4f8ff 0%, #eef3fb 42%, #f7f4ef 100%) !important;
+    linear-gradient(180deg, rgba(244,248,255,0.42) 0%, rgba(238,243,251,0.28) 45%, rgba(247,244,239,0.55) 100%),
+    radial-gradient(ellipse 90% 70% at 12% 18%, rgba(255, 122, 24, 0.14), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 88% 12%, rgba(22, 119, 255, 0.12), transparent 50%),
+    #dbe7f5 !important;
 }
 #login-screen.hidden { display: none !important; }
 #login-screen::before {
   content: '' !important;
   position: fixed;
-  inset: 0;
+  inset: -2%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.42 !important;
-  background: url('/assets/midnight/hero-light.jpg') center 35% / cover no-repeat !important;
-  filter: saturate(0.85) contrast(0.95);
-  mix-blend-mode: soft-light;
+  opacity: 0.88 !important;
+  background: url('/assets/midnight/hero-light.jpg') center 32% / cover no-repeat !important;
+  filter: saturate(1.08) contrast(1.08) brightness(1.04);
+  mix-blend-mode: normal;
   animation: none !important;
+  transform: scale(1.02);
 }
 #login-screen::after {
   content: '';
@@ -13038,11 +12997,11 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: radial-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 75%);
-  opacity: 0.55;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 42%, #000 10%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 42%, #000 10%, transparent 72%);
+  opacity: 0.28;
 }
 #login-screen .login-card {
   position: relative;
@@ -13050,12 +13009,12 @@
   width: min(420px, 100%);
   margin: auto;
   padding: clamp(28px, 4vw, 40px) clamp(22px, 3.5vw, 34px) clamp(22px, 3vw, 28px);
-  border-radius: 22px !important;
-  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 100%) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 18px 48px rgba(15, 23, 42, 0.10) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  border-radius: 26px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.78) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.75) inset, 0 24px 60px rgba(15, 23, 42, 0.14) !important;
+  backdrop-filter: blur(10px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.15) !important;
   animation: loginCardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes loginCardEnter {
@@ -13234,21 +13193,24 @@
 
 body[data-ui-mode]:not([data-ui-mode="light"]) #login-screen {
   background:
-    radial-gradient(ellipse 90% 70% at 10% 15%, rgba(255, 122, 24, 0.18), transparent 55%),
-    radial-gradient(ellipse 80% 60% at 90% 10%, rgba(22, 119, 255, 0.20), transparent 52%),
-    linear-gradient(165deg, #07101f 0%, #0b1528 45%, #101828 100%) !important;
+    linear-gradient(180deg, rgba(7,16,31,0.55) 0%, rgba(11,21,40,0.35) 40%, rgba(16,24,40,0.62) 100%),
+    radial-gradient(ellipse 90% 70% at 10% 15%, rgba(255, 122, 24, 0.16), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 90% 10%, rgba(22, 119, 255, 0.18), transparent 52%),
+    #07101f !important;
 }
 body[data-ui-mode]:not([data-ui-mode="light"]) #login-screen::before {
-  opacity: 0.55 !important;
-  background: url('/assets/midnight/hero-dark.jpg') center 35% / cover no-repeat !important;
-  mix-blend-mode: luminosity;
-  filter: saturate(1.05) contrast(1.05);
+  opacity: 0.72 !important;
+  background: url('/assets/midnight/hero-dark.jpg') center 32% / cover no-repeat !important;
+  mix-blend-mode: normal;
+  filter: saturate(1.12) contrast(1.1) brightness(0.92);
 }
 body[data-ui-mode]:not([data-ui-mode="light"]) #login-screen .login-card {
-  background: linear-gradient(180deg, rgba(22, 32, 48, 0.94) 0%, rgba(15, 23, 42, 0.92) 100%) !important;
-  border-color: rgba(148, 163, 184, 0.16) !important;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 22px 50px rgba(0,0,0,0.45) !important;
+  background: linear-gradient(180deg, rgba(22, 32, 48, 0.78) 0%, rgba(15, 23, 42, 0.72) 100%) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 28px 64px rgba(0,0,0,0.42) !important;
   color: #e2e8f0 !important;
+  backdrop-filter: blur(12px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
 }
 body[data-ui-mode]:not([data-ui-mode="light"]) #login-screen .login-brand h4 { color: #f8fafc !important; }
 body[data-ui-mode]:not([data-ui-mode="light"]) #login-screen .login-brand #login-app-desc { color: #94a3b8 !important; }
@@ -17052,6 +17014,53 @@ const RAK_VERSION_LABELS = {
   'apbdp-pergeseran-2': 'APBDP Pergeseran II',
   'apbdp-pergeseran-3': 'APBDP Pergeseran III',
 };
+const GAJI_CATEGORIES = [
+  { id: 'gaji_pns', label: 'Gaji PNS' },
+  { id: 'gaji_pppk', label: 'Gaji PPPK' },
+  { id: 'tpp_pns', label: 'TPP PNS' },
+  { id: 'tpp_pppk', label: 'TPP PPPK' },
+  { id: 'tpg_pns', label: 'TPG PNS' },
+  { id: 'tpg_pppk', label: 'TPG PPPK' },
+  { id: 'tamsil_pns', label: 'Tamsil PNS' },
+  { id: 'tamsil_pppk', label: 'Tamsil PPPK' },
+];
+const GAJI_BULAN_LIST = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+const GAJI_BULAN_LABELS = {
+  januari:'Januari', februari:'Februari', maret:'Maret', april:'April', mei:'Mei', juni:'Juni',
+  juli:'Juli', agustus:'Agustus', september:'September', oktober:'Oktober', november:'November', desember:'Desember',
+};
+const GAJI_BULAN_SHORT = {
+  januari:'Jan', februari:'Feb', maret:'Mar', april:'Apr', mei:'Mei', juni:'Jun',
+  juli:'Jul', agustus:'Agu', september:'Sep', oktober:'Okt', november:'Nov', desember:'Des',
+};
+const GAJI_LABEL_TO_ID = {};
+GAJI_CATEGORIES.forEach(c => {
+  GAJI_LABEL_TO_ID[c.label.toLowerCase()] = c.id;
+  GAJI_LABEL_TO_ID[c.id] = c.id;
+  GAJI_LABEL_TO_ID[c.label.toLowerCase().replace(/\s+/g, '_')] = c.id;
+});
+
+let gajiStateCache = null;
+let gajiActiveGrup = 'gaji';
+let gajiRealisasiJenisFilter = 'all';
+let gajiChartMonthly = null;
+let gajiChartDoughnut = null;
+let gajiChartCategory = null;
+let gajiChartRekeningMonthly = null;
+let gajiChartRekeningPekerjaan = null;
+let gajiRekeningChartFocusBulan = '';
+let gajiUnlockBulan = '';
+let gajiAnggaranImportRows = [];
+let gajiRakImportData = null;
+let gajiTemplateFileBuffer = null;
+let gajiTemplateFileName = '';
+const GAJI_TW_QUARTERS = [
+  { key: 'tw1', label: 'TW I', months: ['januari', 'februari', 'maret'] },
+  { key: 'tw2', label: 'TW II', months: ['april', 'mei', 'juni'] },
+  { key: 'tw3', label: 'TW III', months: ['juli', 'agustus', 'september'] },
+  { key: 'tw4', label: 'TW IV', months: ['oktober', 'november', 'desember'] },
+];
+
 const GAJI_RAK_VERSION_LABELS = {
   'apbd': 'Anggaran Murni',
   'pergeseran-1': 'Pergeseran 1',
