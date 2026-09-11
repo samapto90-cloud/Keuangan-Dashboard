@@ -592,10 +592,10 @@
       transform: none;
       pointer-events: auto;
     }
-    body.fx-portal-home #app-shell,
-    body.fx-portal-home #kas-app-shell,
-    body.fx-portal-home #gaji-app-shell,
-    body.fx-portal-home #settings-app-shell,
+    body.fx-portal-home #app-shell:not(.visible),
+    body.fx-portal-home #kas-app-shell:not(.visible),
+    body.fx-portal-home #gaji-app-shell:not(.visible),
+    body.fx-portal-home #settings-app-shell:not(.visible),
     body.fx-portal-home #login-screen.hidden {
       content-visibility: hidden;
       contain: layout style paint;
@@ -18634,15 +18634,15 @@ function showApp() {
 }
 
 function showKasApp() {
-  stopAllPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('gaji-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.add('visible');
+  stopAllPortalFx();
+  document.body.classList.remove('fx-portal-home', 'portal-video-mode', 'gaji-app-active');
   clearPortalThemes(document.body);
-  document.body.classList.remove('gaji-app-active');
   document.body.classList.add('theme-gundam');
   applyPortalUiMode('kas-belanja');
   if (currentUser) {
@@ -18655,13 +18655,14 @@ function showKasApp() {
 }
 
 function showGajiApp() {
-  stopAllPortalFx();
   document.getElementById('portal-screen')?.classList.add('hidden');
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('app-shell')?.classList.remove('visible');
   document.getElementById('kas-app-shell')?.classList.remove('visible');
   document.getElementById('settings-app-shell')?.classList.remove('visible');
   document.getElementById('gaji-app-shell')?.classList.add('visible');
+  stopAllPortalFx();
+  document.body.classList.remove('fx-portal-home', 'portal-video-mode');
   clearPortalThemes(document.body);
   document.body.classList.add('theme-gaji', 'gaji-app-active');
   applyPortalUiMode('gaji-asn');
